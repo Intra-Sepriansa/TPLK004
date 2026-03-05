@@ -50,7 +50,6 @@ interface Props {
         rate: number;
     };
     recentActivity: any[];
-    fraudHistory: any[];
 }
 
 const containerVariants = {
@@ -62,14 +61,13 @@ const itemVariants = {
     visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
 };
 
-export default function MahasiswaDetail({ mahasiswa, stats, recentActivity, fraudHistory }: Props) {
+export default function MahasiswaDetail({ mahasiswa, stats, recentActivity }: Props) {
     const [activeTab, setActiveTab] = useState('overview');
 
     const tabs = [
         { id: 'overview', label: 'Overview', icon: Activity },
         { id: 'history', label: 'Riwayat Absensi', icon: History },
         { id: 'schedule', label: 'Jadwal Kuliah', icon: Calendar },
-        { id: 'fraud', label: 'Fraud Alerts', icon: ShieldAlert, count: fraudHistory.length },
     ];
 
     return (
@@ -174,11 +172,6 @@ export default function MahasiswaDetail({ mahasiswa, stats, recentActivity, frau
                             >
                                 <tab.icon className="h-4 w-4" />
                                 {tab.label}
-                                {tab.count !== undefined && tab.count > 0 && (
-                                    <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center">
-                                        {tab.count}
-                                    </span>
-                                )}
                             </button>
                         ))}
                     </div>
@@ -237,38 +230,6 @@ export default function MahasiswaDetail({ mahasiswa, stats, recentActivity, frau
                             </motion.div>
                         )}
 
-                        {/* FRAUD HISTORY */}
-                        {activeTab === 'fraud' && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                                {fraudHistory.length === 0 ? (
-                                    <div className="text-center py-12 rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                                        <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
-                                            <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-                                        </div>
-                                        <h3 className="font-bold text-lg text-neutral-900 dark:text-white">Bersih!</h3>
-                                        <p className="text-neutral-500">Mahasiswa ini tidak memiliki catatan kecurangan.</p>
-                                    </div>
-                                ) : (
-                                    fraudHistory.map(alert => (
-                                        <div key={alert.id} className="p-4 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-center justify-between">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-3 rounded-xl bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400">
-                                                    <ShieldAlert className="h-6 w-6" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-neutral-900 dark:text-white">{alert.alert_type}</h4>
-                                                    <p className="text-sm text-neutral-500">{alert.description}</p>
-                                                    <p className="text-xs text-neutral-400 mt-1">{new Date(alert.created_at).toLocaleString('id-ID')}</p>
-                                                </div>
-                                            </div>
-                                            <Link href={`/admin/fraud-detection/${alert.id}`} className="px-4 py-2 rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium transition-colors">
-                                                Detail
-                                            </Link>
-                                        </div>
-                                    ))
-                                )}
-                            </motion.div>
-                        )}
                     </div>
 
                 </motion.div>

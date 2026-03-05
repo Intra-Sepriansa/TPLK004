@@ -2,7 +2,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import statsHadirIcon from '@/assets/admin/live-monitor/hadir-icon.png';
 import statsTerlambatIcon from '@/assets/admin/dashboard/terlambat-icon.png';
-import statsAbsenIcon from '@/assets/admin/bulk-import/gagal.png';
+import statsAbsenIcon from '@/assets/admin/dashboard/terlambat-icon.png';
 import statsStatusIcon from '@/assets/mahasiswa/jadwal-kuliah/uas.png';
 import StudentLayout from '@/layouts/student-layout';
 import { Button } from '@/components/ui/button';

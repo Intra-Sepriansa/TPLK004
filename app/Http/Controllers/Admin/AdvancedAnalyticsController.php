@@ -7,7 +7,7 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
-use App\Models\FraudAlert;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;

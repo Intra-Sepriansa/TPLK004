@@ -129,23 +129,6 @@ class NotificationService
         ]);
     }
 
-    public function sendFraudAlert(int $mahasiswaId, string $alertType, string $description): AppNotification
-    {
-        // Notify admin
-        return AppNotification::create([
-            'notifiable_type' => 'admin',
-            'notifiable_id' => null,
-            'title' => '⚠️ Fraud Alert',
-            'message' => $description,
-            'type' => 'alert',
-            'priority' => 'urgent',
-            'action_url' => '/admin/fraud-detection',
-            'data' => [
-                'mahasiswa_id' => $mahasiswaId,
-                'alert_type' => $alertType,
-            ],
-        ]);
-    }
 
     public function sendWarningToStudent(int $mahasiswaId, int $absentCount): AppNotification
     {

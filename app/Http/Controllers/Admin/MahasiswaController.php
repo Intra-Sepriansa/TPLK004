@@ -11,8 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
-use App\Models\FraudAlert;
-
 class MahasiswaController extends Controller
 {
     public function index(Request $request)
@@ -295,11 +293,6 @@ class MahasiswaController extends Controller
                 ];
             });
 
-        // Fraud History
-        $fraudHistory = FraudAlert::where('mahasiswa_id', $mahasiswa->id)
-            ->latest()
-            ->get();
-
         $mahasiswaData = [
             'id' => $mahasiswa->id,
             'nama' => $mahasiswa->nama,
@@ -317,7 +310,6 @@ class MahasiswaController extends Controller
             'mahasiswa' => $mahasiswaData,
             'stats' => array_merge($stats, ['rate' => $attendanceRate]),
             'recentActivity' => $recentActivity,
-            'fraudHistory' => $fraudHistory,
         ]);
     }
     

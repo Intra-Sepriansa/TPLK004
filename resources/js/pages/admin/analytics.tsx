@@ -19,7 +19,7 @@ import analyticsIcon from '@/assets/admin/analytics/analytics.png';
 import totalMahasiswaIcon from '@/assets/admin/analytics/total-mahasiswa.png';
 import kehadiranIcon from '@/assets/admin/analytics/kehadiran.png';
 import terlambatIcon from '@/assets/admin/analytics/terlambat.png';
-import fraudIcon from '@/assets/admin/analytics/fraud.png';
+
 
 // --- Interface Definitions ---
 
@@ -28,7 +28,6 @@ interface Stats {
     attendance_rate: number;
     rate_change: number;
     late_count: number;
-    fraud_attempts: number;
 }
 
 interface TrendData {
@@ -310,7 +309,6 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         { title: 'Total Kehadiran', value: stats.total_attendance.toLocaleString(), change: `${stats.rate_change > 0 ? '+' : ''}${stats.rate_change}%`, isUp: stats.rate_change >= 0, imgSrc: totalMahasiswaIcon, color: 'indigo' },
                         { title: 'Tingkat Kehadiran', value: `${stats.attendance_rate}%`, change: 'vs prev period', isUp: stats.rate_change >= 0, imgSrc: kehadiranIcon, color: 'emerald' },
                         { title: 'Terlambat', value: stats.late_count.toString(), change: 'Check Logs', isUp: false, imgSrc: terlambatIcon, color: 'amber' },
-                        { title: 'Fraud Attempts', value: stats.fraud_attempts.toString(), change: 'Stable', isUp: true, imgSrc: fraudIcon, color: 'rose' },
                     ].map((stat, i) => {
                         const colorConfigs: Record<string, any> = {
                             indigo: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
@@ -1008,7 +1006,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                             </div>
                                             <div className="p-5 rounded-2xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 shadow-sm text-center">
                                                 <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Anomalies</p>
-                                                <p className="text-2xl font-black text-amber-500 dark:text-amber-400">{stats?.fraud_attempts || 0}</p>
+                                                <p className="text-2xl font-black text-amber-500 dark:text-amber-400">{stats?.late_count || 0}</p>
                                             </div>
                                             <div className="p-5 rounded-2xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 shadow-sm text-center">
                                                 <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Confidence</p>

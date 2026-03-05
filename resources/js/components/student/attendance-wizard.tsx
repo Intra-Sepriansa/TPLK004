@@ -57,7 +57,7 @@ export function AttendanceWizard({
     const [scanError, setScanError] = useState<string | null>(null);
     const [locationSamples, setLocationSamples] = useState<any[]>([]);
     const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
-    
+
     const videoRef = useRef<HTMLVideoElement>(null);
     const scanIntervalRef = useRef<number | null>(null);
     const scanStreamRef = useRef<MediaStream | null>(null);
@@ -94,11 +94,11 @@ export function AttendanceWizard({
         capture: captureSelfie,
     } = useCamera({ facingMode: 'user' });
 
-    const distance = latitude && longitude 
-        ? calculateDistance(geofence.lat, geofence.lng) 
+    const distance = latitude && longitude
+        ? calculateDistance(geofence.lat, geofence.lng)
         : null;
-    const isInRange = latitude && longitude 
-        ? isWithinRadius(geofence.lat, geofence.lng, geofence.radius_m) 
+    const isInRange = latitude && longitude
+        ? isWithinRadius(geofence.lat, geofence.lng, geofence.radius_m)
         : false;
 
     const stepIndex = STEPS.findIndex(s => s.key === currentStep);
@@ -118,19 +118,19 @@ export function AttendanceWizard({
         try {
             setScanning(true);
             setScanError(null);
-            
+
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'environment' },
             });
             scanStreamRef.current = stream;
-            
+
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
             }
 
             const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
-            
+
             scanIntervalRef.current = window.setInterval(async () => {
                 if (!videoRef.current) return;
                 const barcodes = await detector.detect(videoRef.current);
@@ -163,7 +163,7 @@ export function AttendanceWizard({
     // Location sampling
     const collectLocationSamples = useCallback(async () => {
         const samples: any[] = [];
-        
+
         for (let i = 0; i < locationSampleCount; i++) {
             try {
                 const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -173,16 +173,16 @@ export function AttendanceWizard({
                         maximumAge: 0,
                     });
                 });
-                
+
                 samples.push({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
                     accuracy_m: Math.round(position.coords.accuracy),
                     captured_at: new Date(position.timestamp).toISOString(),
                 });
-                
+
                 setLocationSamples([...samples]);
-                
+
                 if (i < locationSampleCount - 1) {
                     await new Promise(r => setTimeout(r, 800));
                 }
@@ -193,19 +193,20 @@ export function AttendanceWizard({
 
         if (samples.length >= locationSampleCount) {
             const best = samples.reduce((a, b) => a.accuracy_m < b.accuracy_m ? a : b);
-            form.setData('location_samples', samples);
+            form.setData('location_samples', samples as any[]);
             form.setData('latitude', best.latitude.toString());
             form.setData('longitude', best.longitude.toString());
             form.setData('location_accuracy_m', best.accuracy_m);
         }
-    }, [locationSampleCount, form]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [locationSampleCount]);
 
     // Selfie capture
     const handleCaptureSelfie = useCallback(() => {
         const imageData = captureSelfie();
         if (imageData) {
             setSelfiePreview(imageData);
-            
+
             // Convert to File
             fetch(imageData)
                 .then(res => res.blob())
@@ -214,7 +215,8 @@ export function AttendanceWizard({
                     form.setData('selfie', file);
                 });
         }
-    }, [captureSelfie, form]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [captureSelfie]);
 
     // Submit
     const handleSubmit = () => {
@@ -273,7 +275,7 @@ export function AttendanceWizard({
                         const Icon = step.icon;
                         const isActive = step.key === currentStep;
                         const isCompleted = idx < stepIndex;
-                        
+
                         return (
                             <div key={step.key} className="flex items-center">
                                 <div className={cn(
@@ -308,7 +310,7 @@ export function AttendanceWizard({
                         onAccept={setConsentAccepted}
                     />
                 )}
-                
+
                 {currentStep === 'token' && (
                     <TokenStep
                         token={form.data.token}
@@ -320,7 +322,7 @@ export function AttendanceWizard({
                         videoRef={videoRef}
                     />
                 )}
-                
+
                 {currentStep === 'location' && (
                     <LocationStep
                         geofence={geofence}
@@ -337,7 +339,7 @@ export function AttendanceWizard({
                         onRefresh={refreshLocation}
                     />
                 )}
-                
+
                 {currentStep === 'selfie' && (
                     <SelfieStep
                         required={selfieRequired}
@@ -356,7 +358,7 @@ export function AttendanceWizard({
                         }}
                     />
                 )}
-                
+
                 {currentStep === 'confirm' && (
                     <ConfirmStep
                         token={form.data.token}
@@ -379,7 +381,7 @@ export function AttendanceWizard({
                     <ChevronLeft className="h-4 w-4 mr-1" />
                     Kembali
                 </Button>
-                
+
                 {currentStep !== 'confirm' ? (
                     <Button
                         onClick={nextStep}
@@ -481,7 +483,7 @@ function TokenStep({
     scanError: string | null;
     onStartScan: () => void;
     onStopScan: () => void;
-    videoRef: React.RefObject<HTMLVideoElement>;
+    videoRef: React.RefObject<HTMLVideoElement | null>;
 }) {
     return (
         <div className="space-y-6">
@@ -624,7 +626,7 @@ function LocationStep({
             {/* Location Status */}
             <div className={cn(
                 'p-4 rounded-xl border',
-                isInRange 
+                isInRange
                     ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
                     : 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30'
             )}>
@@ -725,8 +727,8 @@ function SelfieStep({
     active: boolean;
     loading: boolean;
     error: string | null;
-    videoRef: React.RefObject<HTMLVideoElement>;
-    canvasRef: React.RefObject<HTMLCanvasElement>;
+    videoRef: React.RefObject<HTMLVideoElement | null>;
+    canvasRef: React.RefObject<HTMLCanvasElement | null>;
     onStart: () => void;
     onCapture: () => void;
     onRetake: () => void;

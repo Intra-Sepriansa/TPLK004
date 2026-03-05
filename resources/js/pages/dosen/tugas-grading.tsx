@@ -20,7 +20,7 @@ import {
 import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 import BasisDataIcon from '@/assets/matkul/basis-data.png';
 import StatTotalSubmissions from '@/assets/admin/informasi-tugas/total-tugas.png';
-import StatGraded from '@/assets/admin/bulk-import/berhasil.png';
+import StatGraded from '@/assets/admin/dashboard/hadir-icon.png';
 import StatPending from '@/assets/admin/notification-center/scheduled.png';
 import StatAvgGrade from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 

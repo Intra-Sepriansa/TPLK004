@@ -34,10 +34,10 @@ import {
     Users,
     Vote,
     Wallet,
-    ScrollText,
+
     Shield,
     Bell,
-    Upload,
+
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -138,11 +138,7 @@ const reportNavItems: NavItem[] = [
         href: '/admin/rekap-kehadiran',
         icon: FileBarChart,
     },
-    {
-        title: 'Fraud Detection',
-        href: '/admin/fraud-detection',
-        icon: Shield,
-    },
+
 
     {
         title: 'Analitik',
@@ -154,21 +150,13 @@ const reportNavItems: NavItem[] = [
         href: '/admin/notification-center',
         icon: Bell,
     },
-    {
-        title: 'Bulk Import',
-        href: '/admin/bulk-import',
-        icon: Upload,
-    },
+
     {
         title: 'Audit Keamanan',
         href: '/admin/audit',
         icon: ShieldCheck,
     },
-    {
-        title: 'Log Aktivitas',
-        href: '/admin/activity-log',
-        icon: ScrollText,
-    },
+
 ];
 
 const footerNavItems: NavItem[] = [

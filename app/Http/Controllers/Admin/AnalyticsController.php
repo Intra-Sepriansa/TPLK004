@@ -102,21 +102,11 @@ class AnalyticsController extends Controller
         // In real app, join aggregation is better.
         $lateCount = 0; // Placeholder for now to avoid complex join query overhead on overview
 
-        // Fraud Detection (Multiple students on same device)
-        // Check if any (device_model, device_type) pair is used by > 1 student
-        $fraudAttempts = AttendanceLog::whereBetween('scanned_at', [$startDate, $endDate])
-            ->select('device_model', 'device_type', DB::raw('COUNT(DISTINCT mahasiswa_id) as users_count'))
-            ->groupBy('device_model', 'device_type')
-            ->having('users_count', '>', 1)
-            ->get()
-            ->sum('users_count'); // Count total suspicious check-ins involved 
-
         return [
             'total_attendance' => $totalAttendance,
             'attendance_rate' => $attendanceRate,
             'rate_change' => round($rateChange, 2),
             'late_count' => $lateCount,
-            'fraud_attempts' => $fraudAttempts,
         ];
     }
 

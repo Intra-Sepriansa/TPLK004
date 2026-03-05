@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'uml_docs' => [
+        'enabled' => env('UML_DOCS_API_ENABLED', false),
+        'strict' => env('UML_DOCS_API_STRICT', false),
+        'base_url' => env('UML_DOCS_API_BASE_URL', ''),
+        'api_key' => env('UML_DOCS_API_KEY', ''),
+        'timeout' => env('UML_DOCS_API_TIMEOUT', 20),
+        'endpoints' => [
+            'index' => env('UML_DOCS_API_ENDPOINT_INDEX', '/api/v1/dosen/uml'),
+            'history' => env('UML_DOCS_API_ENDPOINT_HISTORY', '/api/v1/dosen/uml/history'),
+            'export' => env('UML_DOCS_API_ENDPOINT_EXPORT', '/api/v1/dosen/uml/export'),
+        ],
+    ],
+
 ];

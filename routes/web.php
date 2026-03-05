@@ -200,19 +200,10 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::get('admin/analytics/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'export'])->name('admin.analytics.export');
     Route::get('admin/analytics/student/{id}', [\App\Http\Controllers\Admin\AnalyticsController::class, 'getStudentDetail'])->name('admin.analytics.student.detail');
     
-    // Admin Activity Log
-    Route::get('admin/activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-log');
-    
     // Admin Advanced Analytics
     Route::get('admin/advanced-analytics', [\App\Http\Controllers\Admin\AdvancedAnalyticsController::class, 'index'])->name('admin.advanced-analytics');
     
-    // Admin Fraud Detection
-    Route::get('admin/fraud-detection', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'index'])->name('admin.fraud-detection');
-    Route::get('admin/fraud-detection/{alert}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'show'])->name('admin.fraud-detection.show');
-    Route::patch('admin/fraud-detection/{alert}/review', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'review'])->name('admin.fraud-detection.review');
-    Route::post('admin/fraud-detection/scan', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'runScan'])->name('admin.fraud-detection.scan');
-    Route::post('admin/fraud-detection/bulk-action', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'bulkAction'])->name('admin.fraud-detection.bulk-action');
-    
+
     // Admin Notification Center
     Route::get('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'index'])->name('admin.notification-center');
     Route::post('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'store'])->name('admin.notification-center.store');
@@ -225,13 +216,8 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::post('admin/notifications/read-all', [\App\Http\Controllers\Admin\AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.read-all');
     Route::delete('admin/notifications/{id}', [\App\Http\Controllers\Admin\AdminNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
     
-    // Admin Bulk Import
-    Route::get('admin/bulk-import', [\App\Http\Controllers\Admin\BulkImportController::class, 'index'])->name('admin.bulk-import');
-    Route::post('admin/bulk-import/preview', [\App\Http\Controllers\Admin\BulkImportController::class, 'preview'])->name('admin.bulk-import.preview');
-    Route::post('admin/bulk-import', [\App\Http\Controllers\Admin\BulkImportController::class, 'import'])->name('admin.bulk-import.import');
-    Route::get('admin/bulk-import/template/{type}', [\App\Http\Controllers\Admin\BulkImportController::class, 'downloadTemplate'])->name('admin.bulk-import.template');
-    Route::get('admin/bulk-import/log/{log}', [\App\Http\Controllers\Admin\BulkImportController::class, 'showLog'])->name('admin.bulk-import.log');
-    
+
+
     // Admin Panduan & Help Center
     Route::get('admin/panduan', function () {
         return \Inertia\Inertia::render('admin/panduan');

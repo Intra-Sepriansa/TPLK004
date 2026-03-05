@@ -13,26 +13,36 @@ return new class extends Migration
             return;
         }
 
-        $this->ensureMataKuliahKeyType();
+        // Only run raw MySQL modifications if the connection is MySQL/MariaDB
+        if (DB::connection()->getDriverName() === 'mysql') {
+            $this->ensureMataKuliahKeyType();
 
-        $constraint = DB::selectOne(
-            "SELECT CONSTRAINT_NAME, REFERENCED_TABLE_NAME
-             FROM information_schema.KEY_COLUMN_USAGE
-             WHERE TABLE_SCHEMA = DATABASE()
-               AND TABLE_NAME = 'attendance_sessions'
-               AND COLUMN_NAME = 'course_id'
-               AND REFERENCED_TABLE_NAME IS NOT NULL
-             LIMIT 1"
-        );
-
-        if ($constraint && $constraint->REFERENCED_TABLE_NAME === 'mata_kuliah') {
-            return;
-        }
-
-        if ($constraint && isset($constraint->CONSTRAINT_NAME)) {
-            DB::statement(
-                'ALTER TABLE `attendance_sessions` DROP FOREIGN KEY `' . $constraint->CONSTRAINT_NAME . '`'
+            $constraint = DB::selectOne(
+                "SELECT CONSTRAINT_NAME, REFERENCED_TABLE_NAME
+                 FROM information_schema.KEY_COLUMN_USAGE
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = 'attendance_sessions'
+                   AND COLUMN_NAME = 'course_id'
+                   AND REFERENCED_TABLE_NAME IS NOT NULL
+                 LIMIT 1"
             );
+
+            if ($constraint && $constraint->REFERENCED_TABLE_NAME === 'mata_kuliah') {
+                return;
+            }
+
+            if ($constraint && isset($constraint->CONSTRAINT_NAME)) {
+                DB::statement(
+                    'ALTER TABLE `attendance_sessions` DROP FOREIGN KEY `' . $constraint->CONSTRAINT_NAME . '`'
+                );
+            }
+        } else {
+             // For testing with SQLite, simply drop and recreate the foreign key if supported
+             Schema::table('attendance_sessions', function (Blueprint $table) {
+                 if (DB::getDriverName() !== 'sqlite') {
+                     $table->dropForeign(['course_id']);
+                 }
+             });
         }
 
         Schema::table('attendance_sessions', function (Blueprint $table) {
@@ -49,24 +59,34 @@ return new class extends Migration
             return;
         }
 
-        $constraint = DB::selectOne(
-            "SELECT CONSTRAINT_NAME, REFERENCED_TABLE_NAME
-             FROM information_schema.KEY_COLUMN_USAGE
-             WHERE TABLE_SCHEMA = DATABASE()
-               AND TABLE_NAME = 'attendance_sessions'
-               AND COLUMN_NAME = 'course_id'
-               AND REFERENCED_TABLE_NAME IS NOT NULL
-             LIMIT 1"
-        );
-
-        if ($constraint && $constraint->REFERENCED_TABLE_NAME === 'courses') {
-            return;
-        }
-
-        if ($constraint && isset($constraint->CONSTRAINT_NAME)) {
-            DB::statement(
-                'ALTER TABLE `attendance_sessions` DROP FOREIGN KEY `' . $constraint->CONSTRAINT_NAME . '`'
+        // Only run raw MySQL modifications if the connection is MySQL/MariaDB
+        if (DB::connection()->getDriverName() === 'mysql') {
+            $constraint = DB::selectOne(
+                "SELECT CONSTRAINT_NAME, REFERENCED_TABLE_NAME
+                 FROM information_schema.KEY_COLUMN_USAGE
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = 'attendance_sessions'
+                   AND COLUMN_NAME = 'course_id'
+                   AND REFERENCED_TABLE_NAME IS NOT NULL
+                 LIMIT 1"
             );
+
+            if ($constraint && $constraint->REFERENCED_TABLE_NAME === 'courses') {
+                return;
+            }
+
+            if ($constraint && isset($constraint->CONSTRAINT_NAME)) {
+                DB::statement(
+                    'ALTER TABLE `attendance_sessions` DROP FOREIGN KEY `' . $constraint->CONSTRAINT_NAME . '`'
+                );
+            }
+        } else {
+             // For testing with SQLite, simply drop and recreate the foreign key if supported
+             Schema::table('attendance_sessions', function (Blueprint $table) {
+                 if (DB::getDriverName() !== 'sqlite') {
+                     $table->dropForeign(['course_id']);
+                 }
+             });
         }
 
         Schema::table('attendance_sessions', function (Blueprint $table) {
@@ -80,6 +100,11 @@ return new class extends Migration
     private function ensureMataKuliahKeyType(): void
     {
         if (!Schema::hasTable('mata_kuliah')) {
+            return;
+        }
+
+        // Only run raw MySQL modifications if the connection is MySQL/MariaDB
+        if (DB::connection()->getDriverName() !== 'mysql') {
             return;
         }
 

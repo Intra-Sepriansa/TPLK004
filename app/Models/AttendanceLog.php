@@ -78,8 +78,5 @@ class AttendanceLog extends Model
         return $this->hasOne(SelfieVerification::class);
     }
 
-    public function fraudAlerts(): HasMany
-    {
-        return $this->hasMany(FraudAlert::class, 'attendance_log_id');
-    }
+
 }

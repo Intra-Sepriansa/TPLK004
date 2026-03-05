@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\DosenAuthController;
 use App\Http\Controllers\Dosen\CourseController;
 use App\Http\Controllers\Dosen\DashboardController;
+use App\Http\Controllers\Dosen\DokumentasiUMLController;
 use App\Http\Controllers\Dosen\ProfileController;
 use App\Http\Controllers\Dosen\RekapanController;
 use App\Http\Controllers\Dosen\SesiAbsenController;
@@ -204,6 +205,11 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
             ],
         ]);
     })->name('docs.detail');
+
+    // Dokumentasi UML (Add-on, tidak menggantikan docs existing)
+    Route::get('/dokumentasi-uml', [DokumentasiUMLController::class, 'index'])->name('dokumentasi-uml');
+    Route::get('/dokumentasi-uml/history', [DokumentasiUMLController::class, 'history'])->name('dokumentasi-uml.history');
+    Route::post('/dokumentasi-uml/export', [DokumentasiUMLController::class, 'export'])->name('dokumentasi-uml.export');
     
     // Help Center
     Route::get('/help', fn () => inertia('dosen/help'))->name('help');

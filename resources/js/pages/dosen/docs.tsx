@@ -1,3 +1,9 @@
+import AnalyticsLateIcon from '@/assets/admin/analytics/terlambat.png';
+import DashboardHadirIcon from '@/assets/admin/dashboard/hadir-icon.png';
+import InformationTaskIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import LeaderboardIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+import LeaderboardAverageIcon from '@/assets/admin/leaderboard/rata-rata.png';
+import DocumentationIcon from '@/assets/admin/panduan/panduan.png';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,26 +15,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import AnalyticsLateIcon from '@/assets/admin/analytics/terlambat.png';
-import DashboardHadirIcon from '@/assets/admin/dashboard/hadir-icon.png';
-import InformationTaskIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
-import LeaderboardIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
-import LeaderboardAverageIcon from '@/assets/admin/leaderboard/rata-rata.png';
 import DosenLayout from '@/layouts/dosen-layout';
-import DocumentationIcon from '@/assets/admin/panduan/panduan.png';
 import {
     getAllOfflineGuidesFromCache,
     getOfflineGuideFromCache,
     migrateLegacyOfflineDocsCache,
-    type OfflineGuideCacheRecord,
     removeOfflineGuideFromCache,
     saveOfflineGuideToCache,
+    type OfflineGuideCacheRecord,
 } from '@/lib/offline-docs-cache';
 import { cn } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import {
-    ArrowLeft,
     BookOpen,
     Bookmark,
     BookmarkCheck,
@@ -37,6 +36,7 @@ import {
     Download,
     Filter,
     Flame,
+    GitBranch,
     LifeBuoy,
     Search,
     Trash2,
@@ -46,7 +46,12 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-type CategoryKey = 'beginner' | 'intermediate' | 'advanced' | 'reference' | string;
+type CategoryKey =
+    | 'beginner'
+    | 'intermediate'
+    | 'advanced'
+    | 'reference'
+    | string;
 
 interface GuideSummary {
     id: string;
@@ -150,13 +155,34 @@ const formatText = (text: string) => {
     const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
     return parts.map((part, index) => {
         if (part.startsWith('**') && part.endsWith('**')) {
-            return <strong key={index} className="font-bold text-neutral-900 dark:text-white">{part.slice(2, -2)}</strong>;
+            return (
+                <strong
+                    key={index}
+                    className="font-bold text-neutral-900 dark:text-white"
+                >
+                    {part.slice(2, -2)}
+                </strong>
+            );
         }
         if (part.startsWith('*') && part.endsWith('*')) {
-            return <em key={index} className="italic text-neutral-800 dark:text-neutral-200">{part.slice(1, -1)}</em>;
+            return (
+                <em
+                    key={index}
+                    className="text-neutral-800 italic dark:text-neutral-200"
+                >
+                    {part.slice(1, -1)}
+                </em>
+            );
         }
         if (part.startsWith('`') && part.endsWith('`')) {
-            return <code key={index} className="rounded-md bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400">{part.slice(1, -1)}</code>;
+            return (
+                <code
+                    key={index}
+                    className="rounded-md bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400"
+                >
+                    {part.slice(1, -1)}
+                </code>
+            );
         }
         return part;
     });
@@ -166,20 +192,34 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
     const [query, setQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-    const [sortBy, setSortBy] = useState<'popular' | 'recent' | 'difficulty' | 'title'>('popular');
+    const [sortBy, setSortBy] = useState<
+        'popular' | 'recent' | 'difficulty' | 'title'
+    >('popular');
     const [bookmarks, setBookmarks] = useState<string[]>([]);
-    const [offlineDownloads, setOfflineDownloads] = useState<OfflineDownload[]>([]);
-    const [offlineCacheRecords, setOfflineCacheRecords] = useState<OfflineGuideCacheRecord[]>([]);
-    const [offlineViewerGuide, setOfflineViewerGuide] = useState<OfflineViewerGuide | null>(null);
-    const [offlineViewerLoadingGuideId, setOfflineViewerLoadingGuideId] = useState<string | null>(null);
+    const [offlineDownloads, setOfflineDownloads] = useState<OfflineDownload[]>(
+        [],
+    );
+    const [offlineCacheRecords, setOfflineCacheRecords] = useState<
+        OfflineGuideCacheRecord[]
+    >([]);
+    const [offlineViewerGuide, setOfflineViewerGuide] =
+        useState<OfflineViewerGuide | null>(null);
+    const [offlineViewerLoadingGuideId, setOfflineViewerLoadingGuideId] =
+        useState<string | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(
         typeof window === 'undefined' ? true : window.navigator.onLine,
     );
-    const [bookmarkLoadingGuideId, setBookmarkLoadingGuideId] = useState<string | null>(null);
-    const [offlineLoadingGuideId, setOfflineLoadingGuideId] = useState<string | null>(null);
+    const [bookmarkLoadingGuideId, setBookmarkLoadingGuideId] = useState<
+        string | null
+    >(null);
+    const [offlineLoadingGuideId, setOfflineLoadingGuideId] = useState<
+        string | null
+    >(null);
 
     const getCsrfToken = () =>
-        document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+        document
+            .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+            ?.getAttribute('content') ?? '';
 
     useEffect(() => {
         const syncConnectionState = () => {
@@ -191,7 +231,11 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
 
         void (async () => {
             await migrateLegacyOfflineDocsCache();
-            await Promise.all([loadBookmarks(), loadOfflineDownloads(), loadOfflineCacheIndex()]);
+            await Promise.all([
+                loadBookmarks(),
+                loadOfflineDownloads(),
+                loadOfflineCacheIndex(),
+            ]);
         })();
 
         return () => {
@@ -209,7 +253,9 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
 
             if (!response.ok || !payload?.success) return;
 
-            const guideIds = (payload.data ?? []).map((item: { guide_id: string }) => item.guide_id);
+            const guideIds = (payload.data ?? []).map(
+                (item: { guide_id: string }) => item.guide_id,
+            );
             setBookmarks(guideIds);
         } catch {
             // Ignore transient fetch errors, keep UI usable.
@@ -240,7 +286,9 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
         }
     };
 
-    const toOfflineViewerGuide = (payload: unknown): OfflineViewerGuide | null => {
+    const toOfflineViewerGuide = (
+        payload: unknown,
+    ): OfflineViewerGuide | null => {
         if (typeof payload !== 'object' || payload === null) return null;
 
         const data = payload as {
@@ -251,38 +299,52 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
             sections?: unknown;
         };
 
-        if (typeof data.id !== 'string' || typeof data.title !== 'string') return null;
+        if (typeof data.id !== 'string' || typeof data.title !== 'string')
+            return null;
 
         const sections = Array.isArray(data.sections)
             ? data.sections
-                .map((section, index) => {
-                    if (typeof section !== 'object' || section === null) return null;
+                  .map((section, index) => {
+                      if (typeof section !== 'object' || section === null)
+                          return null;
 
-                    const parsedSection = section as {
-                        id?: unknown;
-                        title?: unknown;
-                        content?: unknown;
-                    };
+                      const parsedSection = section as {
+                          id?: unknown;
+                          title?: unknown;
+                          content?: unknown;
+                      };
 
-                    const title = typeof parsedSection.title === 'string' ? parsedSection.title : `Section ${index + 1}`;
-                    const content = typeof parsedSection.content === 'string' ? parsedSection.content : '';
+                      const title =
+                          typeof parsedSection.title === 'string'
+                              ? parsedSection.title
+                              : `Section ${index + 1}`;
+                      const content =
+                          typeof parsedSection.content === 'string'
+                              ? parsedSection.content
+                              : '';
 
-                    return {
-                        id:
-                            typeof parsedSection.id === 'string'
-                                ? parsedSection.id
-                                : `offline-section-${index + 1}`,
-                        title,
-                        content,
-                    };
-                })
-                .filter((section): section is OfflineViewerGuideSection => section !== null)
+                      return {
+                          id:
+                              typeof parsedSection.id === 'string'
+                                  ? parsedSection.id
+                                  : `offline-section-${index + 1}`,
+                          title,
+                          content,
+                      };
+                  })
+                  .filter(
+                      (section): section is OfflineViewerGuideSection =>
+                          section !== null,
+                  )
             : [];
 
         return {
             id: data.id,
             title: data.title,
-            description: typeof data.description === 'string' ? data.description : undefined,
+            description:
+                typeof data.description === 'string'
+                    ? data.description
+                    : undefined,
             estimatedReadTime:
                 typeof data.estimatedReadTime === 'number'
                     ? data.estimatedReadTime
@@ -309,7 +371,11 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
         const lowerQuery = query.toLowerCase();
         return guides
             .filter((guide) => {
-                const searchable = [guide.title, guide.description, ...(guide.tags ?? [])]
+                const searchable = [
+                    guide.title,
+                    guide.description,
+                    ...(guide.tags ?? []),
+                ]
                     .join(' ')
                     .toLowerCase();
                 return searchable.includes(lowerQuery);
@@ -322,17 +388,25 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
         let results = [...guides];
 
         if (selectedCategory !== 'all') {
-            results = results.filter((guide) => guide.category === selectedCategory);
+            results = results.filter(
+                (guide) => guide.category === selectedCategory,
+            );
         }
 
         if (selectedDifficulty !== 'all') {
-            results = results.filter((guide) => String(guide.difficulty ?? 1) === selectedDifficulty);
+            results = results.filter(
+                (guide) => String(guide.difficulty ?? 1) === selectedDifficulty,
+            );
         }
 
         if (query.trim()) {
             const lowerQuery = query.toLowerCase();
             results = results.filter((guide) => {
-                const searchable = [guide.title, guide.description, ...(guide.tags ?? [])]
+                const searchable = [
+                    guide.title,
+                    guide.description,
+                    ...(guide.tags ?? []),
+                ]
                     .join(' ')
                     .toLowerCase();
                 return searchable.includes(lowerQuery);
@@ -340,7 +414,9 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
         }
 
         if (sortBy === 'recent') {
-            results.sort((a, b) => (b.lastReadAt ?? '').localeCompare(a.lastReadAt ?? ''));
+            results.sort((a, b) =>
+                (b.lastReadAt ?? '').localeCompare(a.lastReadAt ?? ''),
+            );
         } else if (sortBy === 'difficulty') {
             results.sort((a, b) => (b.difficulty ?? 1) - (a.difficulty ?? 1));
         } else if (sortBy === 'title') {
@@ -369,11 +445,19 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
     }, [guides]);
 
     const learningPathProgress = learningPath.length
-        ? Math.round((learningPath.filter((step) => step.isCompleted).length / learningPath.length) * 100)
+        ? Math.round(
+              (learningPath.filter((step) => step.isCompleted).length /
+                  learningPath.length) *
+                  100,
+          )
         : 0;
 
     const offlineGuideIds = useMemo(
-        () => new Set([...offlineDownloads.map((item) => item.guide_id), ...offlineCacheRecords.map((item) => item.guideId)]),
+        () =>
+            new Set([
+                ...offlineDownloads.map((item) => item.guide_id),
+                ...offlineCacheRecords.map((item) => item.guideId),
+            ]),
         [offlineDownloads, offlineCacheRecords],
     );
 
@@ -444,7 +528,10 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
 
             if (!guideResponse.ok || !guidePayload?.success) return;
 
-            const sizeKb = Math.max(1, Math.ceil(JSON.stringify(guidePayload.data).length / 1024));
+            const sizeKb = Math.max(
+                1,
+                Math.ceil(JSON.stringify(guidePayload.data).length / 1024),
+            );
             await saveOfflineGuideToCache({
                 guideId: guide.id,
                 payload: guidePayload.data,
@@ -467,7 +554,10 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                 }),
             });
 
-            await Promise.all([loadOfflineDownloads(), loadOfflineCacheIndex()]);
+            await Promise.all([
+                loadOfflineDownloads(),
+                loadOfflineCacheIndex(),
+            ]);
         } finally {
             setOfflineLoadingGuideId(null);
         }
@@ -487,7 +577,10 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                 },
             });
 
-            await Promise.all([loadOfflineDownloads(), loadOfflineCacheIndex()]);
+            await Promise.all([
+                loadOfflineDownloads(),
+                loadOfflineCacheIndex(),
+            ]);
         } finally {
             setOfflineLoadingGuideId(null);
         }
@@ -501,30 +594,50 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    transition={{
+                        duration: 0.6,
+                        type: 'spring',
+                        stiffness: 100,
+                    }}
                     className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
                 >
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-            
-
                         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                                 <motion.div
                                     className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
-                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 0.5,
+                                        rotate: -10,
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        scale: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        delay: 0.2,
+                                    }}
                                     whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
                                     <img
@@ -557,7 +670,9 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.5 }}
                                     >
-                                        Panduan lengkap dan tutorial untuk memaksimalkan penggunaan sistem mahasiswa.
+                                        Panduan lengkap dan tutorial untuk
+                                        memaksimalkan penggunaan sistem
+                                        mahasiswa.
                                     </motion.p>
                                 </div>
                             </div>
@@ -568,11 +683,15 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                 transition={{ delay: 0.5 }}
                                 className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-4 py-3 shadow-lg backdrop-blur-xl sm:w-auto sm:px-6"
                             >
-                                
                                 <div>
-                                    <p className="text-xs text-indigo-100">Progress Belajar</p>
+                                    <p className="text-xs text-indigo-100">
+                                        Progress Belajar
+                                    </p>
                                     <p className="text-2xl font-bold text-white">
-                                        <AnimatedCounter value={stats.overallProgress} suffix="%" />
+                                        <AnimatedCounter
+                                            value={stats.overallProgress}
+                                            suffix="%"
+                                        />
                                     </p>
                                 </div>
                             </motion.div>
@@ -612,11 +731,26 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                             key={item.label}
                             initial={{ opacity: 0, y: 20, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ delay: 0.1 + index * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
-                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                            transition={{
+                                delay: 0.1 + index * 0.05,
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 20,
+                            }}
+                            whileHover={{
+                                scale: 1.04,
+                                y: -4,
+                                transition: {
+                                    type: 'spring',
+                                    stiffness: 400,
+                                    damping: 15,
+                                },
+                            }}
                             className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-5 dark:border-white/5 dark:bg-neutral-900/40"
                         >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-[0.07]`} />
+                            <div
+                                className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-[0.07]`}
+                            />
                             <div className="relative flex items-center gap-3">
                                 <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
                                     <img
@@ -626,15 +760,66 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                     />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">{item.label}</p>
-                                    <p className="text-xl font-bold text-neutral-900 dark:text-white sm:text-2xl">
-                                        <AnimatedCounter value={item.value} suffix={item.suffix ?? ''} />
+                                    <p className="text-xs text-neutral-500 sm:text-sm dark:text-neutral-400">
+                                        {item.label}
+                                    </p>
+                                    <p className="text-xl font-bold text-neutral-900 sm:text-2xl dark:text-white">
+                                        <AnimatedCounter
+                                            value={item.value}
+                                            suffix={item.suffix ?? ''}
+                                        />
                                     </p>
                                 </div>
                             </div>
                         </motion.div>
                     ))}
                 </div>
+
+                <motion.button
+                    type="button"
+                    onClick={() => router.visit('/dosen/dokumentasi-uml')}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                        delay: 0.18,
+                        type: 'spring',
+                        stiffness: 260,
+                        damping: 24,
+                    }}
+                    whileHover={{ y: -3, scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    className="group relative w-full overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-5 text-left shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/50"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/8 via-purple-500/8 to-pink-500/8" />
+                    <div className="absolute -top-14 -right-14 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl transition-all group-hover:bg-purple-500/25" />
+
+                    <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-4">
+                            <div className="rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-3 text-white shadow-lg shadow-indigo-500/30">
+                                <GitBranch className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold tracking-wide text-indigo-600 dark:text-indigo-300">
+                                    ADD-ON BARU
+                                </p>
+                                <h3 className="mt-0.5 text-xl font-bold text-neutral-900 dark:text-white">
+                                    Dokumentasi UML Dosen
+                                </h3>
+                                <p className="mt-1 max-w-2xl text-sm text-neutral-600 dark:text-neutral-300">
+                                    Activity Eksisting, Use Case, Activity Baru,
+                                    Sequence, dan Class Diagram per menu dosen
+                                    dengan viewer interaktif dan penjelasan
+                                    arsitektur detail.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition group-hover:border-indigo-300 group-hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 dark:group-hover:bg-indigo-900/40">
+                            Buka Dokumentasi UML
+                            <ChevronRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                        </div>
+                    </div>
+                </motion.button>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -647,13 +832,18 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                             <Filter className="h-5 w-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Cari Dokumentasi</h2>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Pencarian cepat berdasarkan judul, tag, dan kategori</p>
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                Cari Dokumentasi
+                            </h2>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                Pencarian cepat berdasarkan judul, tag, dan
+                                kategori
+                            </p>
                         </div>
                     </div>
 
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                         <Input
                             value={query}
                             onChange={(event) => setQuery(event.target.value)}
@@ -677,42 +867,67 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                     )}
 
                     <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={setSelectedCategory}
+                        >
                             <SelectTrigger className="h-10 rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
                                 <SelectValue placeholder="Kategori" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Semua Kategori</SelectItem>
+                                <SelectItem value="all">
+                                    Semua Kategori
+                                </SelectItem>
                                 {categories.map((category) => (
                                     <SelectItem key={category} value={category}>
-                                        {categoryConfig[category]?.label ?? category}
+                                        {categoryConfig[category]?.label ??
+                                            category}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
 
-                        <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                        <Select
+                            value={selectedDifficulty}
+                            onValueChange={setSelectedDifficulty}
+                        >
                             <SelectTrigger className="h-10 rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
                                 <SelectValue placeholder="Tingkat" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Semua Tingkat</SelectItem>
+                                <SelectItem value="all">
+                                    Semua Tingkat
+                                </SelectItem>
                                 {[1, 2, 3, 4, 5].map((level) => (
-                                    <SelectItem key={level} value={String(level)}>
+                                    <SelectItem
+                                        key={level}
+                                        value={String(level)}
+                                    >
                                         {getDifficultyLabel(level)}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
 
-                        <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+                        <Select
+                            value={sortBy}
+                            onValueChange={(value) =>
+                                setSortBy(value as typeof sortBy)
+                            }
+                        >
                             <SelectTrigger className="h-10 rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
                                 <SelectValue placeholder="Urutkan" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="popular">Progress Tertinggi</SelectItem>
-                                <SelectItem value="recent">Terakhir Diakses</SelectItem>
-                                <SelectItem value="difficulty">Tingkat Kesulitan</SelectItem>
+                                <SelectItem value="popular">
+                                    Progress Tertinggi
+                                </SelectItem>
+                                <SelectItem value="recent">
+                                    Terakhir Diakses
+                                </SelectItem>
+                                <SelectItem value="difficulty">
+                                    Tingkat Kesulitan
+                                </SelectItem>
                                 <SelectItem value="title">Judul A-Z</SelectItem>
                             </SelectContent>
                         </Select>
@@ -728,8 +943,12 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                     >
                         <div className="mb-4 flex items-center justify-between gap-3">
                             <div>
-                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Daftar Dokumentasi</h2>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{filteredGuides.length} materi tersedia</p>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Daftar Dokumentasi
+                                </h2>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                    {filteredGuides.length} materi tersedia
+                                </p>
                             </div>
                             <div className="rounded-lg border border-white/20 bg-white/60 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-300">
                                 Bookmark: {bookmarks.length}
@@ -738,35 +957,73 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
 
                         {filteredGuides.length === 0 ? (
                             <div className="rounded-2xl border border-dashed border-white/20 bg-white/40 p-8 text-center dark:border-white/10 dark:bg-neutral-900/40">
-                                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Tidak ada dokumentasi yang cocok.</p>
-                                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Coba ubah kata kunci atau filter.</p>
+                                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                                    Tidak ada dokumentasi yang cocok.
+                                </p>
+                                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                    Coba ubah kata kunci atau filter.
+                                </p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {filteredGuides.map((guide, index) => {
-                                    const category = categoryConfig[guide.category] ?? {
+                                    const category = categoryConfig[
+                                        guide.category
+                                    ] ?? {
                                         label: guide.category,
-                                        cardGradient: 'from-indigo-400 to-purple-600',
+                                        cardGradient:
+                                            'from-indigo-400 to-purple-600',
                                         badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
                                         iconAsset: DocumentationIcon,
                                     };
-                                    const isBookmarked = bookmarks.includes(guide.id);
+                                    const isBookmarked = bookmarks.includes(
+                                        guide.id,
+                                    );
 
                                     return (
                                         <motion.div
                                             key={guide.id}
-                                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            transition={{ delay: 0.05 * index, type: 'spring', stiffness: 300, damping: 20 }}
-                                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                            initial={{
+                                                opacity: 0,
+                                                y: 20,
+                                                scale: 0.95,
+                                            }}
+                                            animate={{
+                                                opacity: 1,
+                                                y: 0,
+                                                scale: 1,
+                                            }}
+                                            transition={{
+                                                delay: 0.05 * index,
+                                                type: 'spring',
+                                                stiffness: 300,
+                                                damping: 20,
+                                            }}
+                                            whileHover={{
+                                                scale: 1.04,
+                                                y: -4,
+                                                transition: {
+                                                    type: 'spring',
+                                                    stiffness: 400,
+                                                    damping: 15,
+                                                },
+                                            }}
                                             onClick={() => {
                                                 if (!isOnline) {
-                                                    if (offlineGuideIds.has(guide.id)) {
-                                                        void openGuideFromOfflineCache(guide.id);
+                                                    if (
+                                                        offlineGuideIds.has(
+                                                            guide.id,
+                                                        )
+                                                    ) {
+                                                        void openGuideFromOfflineCache(
+                                                            guide.id,
+                                                        );
                                                     }
                                                     return;
                                                 }
-                                                router.visit(`/dosen/docs/${guide.id}`);
+                                                router.visit(
+                                                    `/dosen/docs/${guide.id}`,
+                                                );
                                             }}
                                             className="group cursor-pointer rounded-3xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
                                         >
@@ -782,25 +1039,47 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                                 <div className="flex items-center gap-1.5">
                                                     <button
                                                         type="button"
-                                                        disabled={bookmarkLoadingGuideId === guide.id}
+                                                        disabled={
+                                                            bookmarkLoadingGuideId ===
+                                                            guide.id
+                                                        }
                                                         className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white/70 hover:text-amber-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-neutral-800"
                                                         onClick={(event) => {
                                                             event.stopPropagation();
-                                                            void toggleBookmark(guide.id);
+                                                            void toggleBookmark(
+                                                                guide.id,
+                                                            );
                                                         }}
-                                                        aria-label={isBookmarked ? 'Hapus bookmark' : 'Tambah bookmark'}
+                                                        aria-label={
+                                                            isBookmarked
+                                                                ? 'Hapus bookmark'
+                                                                : 'Tambah bookmark'
+                                                        }
                                                     >
-                                                        {isBookmarked ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                                                        {isBookmarked ? (
+                                                            <BookmarkCheck className="h-4 w-4" />
+                                                        ) : (
+                                                            <Bookmark className="h-4 w-4" />
+                                                        )}
                                                     </button>
 
-                                                    {offlineGuideIds.has(guide.id) ? (
+                                                    {offlineGuideIds.has(
+                                                        guide.id,
+                                                    ) ? (
                                                         <button
                                                             type="button"
-                                                            disabled={offlineLoadingGuideId === guide.id}
+                                                            disabled={
+                                                                offlineLoadingGuideId ===
+                                                                guide.id
+                                                            }
                                                             className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white/70 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                                                            onClick={(event) => {
+                                                            onClick={(
+                                                                event,
+                                                            ) => {
                                                                 event.stopPropagation();
-                                                                void removeGuideOffline(guide.id);
+                                                                void removeGuideOffline(
+                                                                    guide.id,
+                                                                );
                                                             }}
                                                             aria-label="Hapus offline"
                                                         >
@@ -809,11 +1088,18 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                                     ) : (
                                                         <button
                                                             type="button"
-                                                            disabled={offlineLoadingGuideId === guide.id}
+                                                            disabled={
+                                                                offlineLoadingGuideId ===
+                                                                guide.id
+                                                            }
                                                             className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white/70 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                                                            onClick={(event) => {
+                                                            onClick={(
+                                                                event,
+                                                            ) => {
                                                                 event.stopPropagation();
-                                                                void downloadGuideOffline(guide);
+                                                                void downloadGuideOffline(
+                                                                    guide,
+                                                                );
                                                             }}
                                                             aria-label="Download offline"
                                                         >
@@ -824,21 +1110,32 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                             </div>
 
                                             <div className="mb-2 flex flex-wrap items-center gap-2">
-                                                <span className={cn('rounded-lg px-2.5 py-1 text-[10px] font-semibold sm:text-xs', category.badge)}>
+                                                <span
+                                                    className={cn(
+                                                        'rounded-lg px-2.5 py-1 text-[10px] font-semibold sm:text-xs',
+                                                        category.badge,
+                                                    )}
+                                                >
                                                     {category.label}
                                                 </span>
-                                                <span className="rounded-lg bg-neutral-100 px-2.5 py-1 text-[10px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 sm:text-xs">
+                                                <span className="rounded-lg bg-neutral-100 px-2.5 py-1 text-[10px] font-semibold text-neutral-600 sm:text-xs dark:bg-neutral-800 dark:text-neutral-300">
                                                     Lv.{guide.difficulty ?? 1}
                                                 </span>
                                             </div>
 
-                                            <h3 className="line-clamp-2 text-base font-bold text-neutral-900 dark:text-white">{guide.title}</h3>
-                                            <p className="mt-1 line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400">{guide.description}</p>
+                                            <h3 className="line-clamp-2 text-base font-bold text-neutral-900 dark:text-white">
+                                                {guide.title}
+                                            </h3>
+                                            <p className="mt-1 line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400">
+                                                {guide.description}
+                                            </p>
 
                                             <div className="mt-4 space-y-2">
                                                 <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
                                                     <span>Progress</span>
-                                                    <span>{guide.progress}%</span>
+                                                    <span>
+                                                        {guide.progress}%
+                                                    </span>
                                                 </div>
                                                 <Progress
                                                     value={guide.progress}
@@ -849,39 +1146,52 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
 
                                             <div className="mt-4 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
                                                 <span className="inline-flex items-center gap-1">
-                                                    <Clock3 className="h-3.5 w-3.5" /> {guide.estimatedTime} menit
+                                                    <Clock3 className="h-3.5 w-3.5" />{' '}
+                                                    {guide.estimatedTime} menit
                                                 </span>
                                                 <span className="inline-flex items-center gap-1">
-                                                    <BookOpen className="h-3.5 w-3.5" /> {guide.sectionCount ?? 0} section
+                                                    <BookOpen className="h-3.5 w-3.5" />{' '}
+                                                    {guide.sectionCount ?? 0}{' '}
+                                                    section
                                                 </span>
                                             </div>
 
                                             <div className="mt-3 inline-flex items-center text-sm font-semibold text-indigo-600 transition group-hover:translate-x-1 dark:text-indigo-400">
                                                 {isOnline ? (
                                                     <>
-                                                        Buka detail <ChevronRight className="ml-1 h-4 w-4" />
+                                                        Buka detail{' '}
+                                                        <ChevronRight className="ml-1 h-4 w-4" />
                                                     </>
                                                 ) : (
                                                     <>
-                                                        Mode offline aktif <WifiOff className="ml-1 h-4 w-4" />
+                                                        Mode offline aktif{' '}
+                                                        <WifiOff className="ml-1 h-4 w-4" />
                                                     </>
                                                 )}
                                             </div>
 
-                                            {!isOnline && offlineGuideIds.has(guide.id) && (
-                                                <button
-                                                    type="button"
-                                                    disabled={offlineViewerLoadingGuideId === guide.id}
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        void openGuideFromOfflineCache(guide.id);
-                                                    }}
-                                                    className="mt-2 inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-300"
-                                                >
-                                                    <Download className="h-3.5 w-3.5" />
-                                                    Buka dari cache offline
-                                                </button>
-                                            )}
+                                            {!isOnline &&
+                                                offlineGuideIds.has(
+                                                    guide.id,
+                                                ) && (
+                                                    <button
+                                                        type="button"
+                                                        disabled={
+                                                            offlineViewerLoadingGuideId ===
+                                                            guide.id
+                                                        }
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            void openGuideFromOfflineCache(
+                                                                guide.id,
+                                                            );
+                                                        }}
+                                                        className="mt-2 inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-300"
+                                                    >
+                                                        <Download className="h-3.5 w-3.5" />
+                                                        Buka dari cache offline
+                                                    </button>
+                                                )}
                                         </motion.div>
                                     );
                                 })}
@@ -901,23 +1211,36 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                     <Flame className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Streak Belajar</h3>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Konsistensi mingguan</p>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                        Streak Belajar
+                                    </h3>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Konsistensi mingguan
+                                    </p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="rounded-2xl border border-white/20 bg-white/60 p-3 text-center dark:border-white/10 dark:bg-neutral-900/60">
                                     <p className="text-2xl font-bold text-neutral-900 dark:text-white">
-                                        <AnimatedCounter value={stats.completedGuides} />
+                                        <AnimatedCounter
+                                            value={stats.completedGuides}
+                                        />
                                     </p>
-                                    <p className="text-xs text-neutral-500">Guide selesai</p>
+                                    <p className="text-xs text-neutral-500">
+                                        Guide selesai
+                                    </p>
                                 </div>
                                 <div className="rounded-2xl border border-white/20 bg-white/60 p-3 text-center dark:border-white/10 dark:bg-neutral-900/60">
                                     <p className="text-2xl font-bold text-neutral-900 dark:text-white">
-                                        <AnimatedCounter value={stats.overallProgress} suffix="%" />
+                                        <AnimatedCounter
+                                            value={stats.overallProgress}
+                                            suffix="%"
+                                        />
                                     </p>
-                                    <p className="text-xs text-neutral-500">Progress total</p>
+                                    <p className="text-xs text-neutral-500">
+                                        Progress total
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -928,8 +1251,12 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                     <Trophy className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Learning Path</h3>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Rute belajar bertahap</p>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                        Learning Path
+                                    </h3>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Rute belajar bertahap
+                                    </p>
                                 </div>
                             </div>
 
@@ -949,7 +1276,12 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                 {learningPath.map((step) => (
                                     <button
                                         key={step.id}
-                                        onClick={() => step.unlocked && router.visit(`/dosen/docs/${step.id}`)}
+                                        onClick={() =>
+                                            step.unlocked &&
+                                            router.visit(
+                                                `/dosen/docs/${step.id}`,
+                                            )
+                                        }
                                         disabled={!step.unlocked}
                                         className={cn(
                                             'w-full rounded-xl border p-3 text-left transition',
@@ -958,9 +1290,15 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                                 : 'cursor-not-allowed border-white/10 bg-white/40 opacity-60 dark:border-white/5 dark:bg-neutral-900/40',
                                         )}
                                     >
-                                        <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">{step.title}</p>
+                                        <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">
+                                            {step.title}
+                                        </p>
                                         <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                            {step.isCompleted ? 'Selesai' : step.unlocked ? 'Siap dipelajari' : 'Terkunci'}
+                                            {step.isCompleted
+                                                ? 'Selesai'
+                                                : step.unlocked
+                                                  ? 'Siap dipelajari'
+                                                  : 'Terkunci'}
                                         </p>
                                     </button>
                                 ))}
@@ -973,16 +1311,20 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                     <Download className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Mode Offline</h3>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                        Mode Offline
+                                    </h3>
                                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                        {offlineEntries.length} dokumen tersimpan
+                                        {offlineEntries.length} dokumen
+                                        tersimpan
                                     </p>
                                 </div>
                             </div>
 
                             {offlineEntries.length === 0 ? (
                                 <div className="rounded-xl border border-dashed border-white/20 bg-white/60 p-3 text-xs text-neutral-500 dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-400">
-                                    Belum ada dokumentasi offline. Gunakan ikon download di kartu dokumentasi.
+                                    Belum ada dokumentasi offline. Gunakan ikon
+                                    download di kartu dokumentasi.
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -990,15 +1332,24 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                         <button
                                             key={item.guide_id}
                                             type="button"
-                                            onClick={() => void openGuideFromOfflineCache(item.guide_id)}
-                                            disabled={offlineViewerLoadingGuideId === item.guide_id}
+                                            onClick={() =>
+                                                void openGuideFromOfflineCache(
+                                                    item.guide_id,
+                                                )
+                                            }
+                                            disabled={
+                                                offlineViewerLoadingGuideId ===
+                                                item.guide_id
+                                            }
                                             className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
                                         >
                                             <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">
                                                 {item.title ?? item.guide_id}
                                             </p>
                                             <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-                                                {item.size_kb ? `${item.size_kb} KB` : 'Ukuran tidak tersedia'}
+                                                {item.size_kb
+                                                    ? `${item.size_kb} KB`
+                                                    : 'Ukuran tidak tersedia'}
                                             </p>
                                         </button>
                                     ))}
@@ -1011,7 +1362,8 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                             variant="outline"
                             className="w-full rounded-2xl border-white/20 bg-white/40 py-5 text-neutral-700 hover:bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 dark:text-neutral-200 dark:hover:bg-neutral-900"
                         >
-                            <LifeBuoy className="h-4 w-4" /> Butuh bantuan tambahan?
+                            <LifeBuoy className="h-4 w-4" /> Butuh bantuan
+                            tambahan?
                         </Button>
                     </motion.div>
                 </div>
@@ -1029,14 +1381,19 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                         initial={{ y: 80, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 80, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 300,
+                            damping: 26,
+                        }}
                         onClick={(event) => event.stopPropagation()}
                         className="relative h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-white/20 bg-white/95 p-5 shadow-2xl backdrop-blur-xl sm:h-auto sm:max-h-[85vh] sm:max-w-3xl sm:rounded-3xl sm:p-6 dark:border-white/10 dark:bg-neutral-900/95"
                     >
                         <div className="mb-4 flex items-start justify-between gap-4">
                             <div>
                                 <p className="inline-flex items-center gap-2 rounded-lg bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
-                                    <WifiOff className="h-3.5 w-3.5" /> Dibuka dari cache offline
+                                    <WifiOff className="h-3.5 w-3.5" /> Dibuka
+                                    dari cache offline
                                 </p>
                                 <h3 className="mt-2 text-xl font-bold text-neutral-900 dark:text-white">
                                     {offlineViewerGuide.title}
@@ -1060,27 +1417,41 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                         <div className="space-y-3">
                             {offlineViewerGuide.sections.length === 0 ? (
                                 <div className="rounded-xl border border-dashed border-white/20 bg-white/60 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-800/60 dark:text-neutral-300">
-                                    Konten section tidak tersedia di cache offline.
+                                    Konten section tidak tersedia di cache
+                                    offline.
                                 </div>
                             ) : (
-                                offlineViewerGuide.sections.map((section, index) => (
-                                    <div
-                                        key={section.id}
-                                        className="rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/10 dark:bg-neutral-800/70"
-                                    >
-                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                            {index + 1}. {section.title}
-                                        </p>
-                                        <div className="mt-2 space-y-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
-                                            {section.content
-                                                .split('\n')
-                                                .filter(Boolean)
-                                                .map((paragraph, paragraphIndex) => (
-                                                    <p key={`${section.id}-offline-${paragraphIndex}`}>{formatText(paragraph)}</p>
-                                                ))}
+                                offlineViewerGuide.sections.map(
+                                    (section, index) => (
+                                        <div
+                                            key={section.id}
+                                            className="rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/10 dark:bg-neutral-800/70"
+                                        >
+                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {index + 1}. {section.title}
+                                            </p>
+                                            <div className="mt-2 space-y-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+                                                {section.content
+                                                    .split('\n')
+                                                    .filter(Boolean)
+                                                    .map(
+                                                        (
+                                                            paragraph,
+                                                            paragraphIndex,
+                                                        ) => (
+                                                            <p
+                                                                key={`${section.id}-offline-${paragraphIndex}`}
+                                                            >
+                                                                {formatText(
+                                                                    paragraph,
+                                                                )}
+                                                            </p>
+                                                        ),
+                                                    )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    ),
+                                )
                             )}
                         </div>
 
