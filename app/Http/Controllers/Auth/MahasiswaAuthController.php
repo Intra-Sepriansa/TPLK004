@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mahasiswa;
+use App\Support\CredentialDefaults;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,13 +32,18 @@ class MahasiswaAuthController extends Controller
         if ($mahasiswa) {
             $inputPassword = $credentials['password'];
             $storedPassword = $mahasiswa->password;
-            $defaultPassword = 'tplk004#' . substr($mahasiswa->nim, -2);
+            $defaultPassword = null;
+            try {
+                $defaultPassword = CredentialDefaults::mahasiswaDefaultPassword($mahasiswa->nim);
+            } catch (\Throwable) {
+                // Jika konfigurasi default password belum di-set, lewati fallback default password.
+            }
             $isHash = is_string($storedPassword) && str_starts_with($storedPassword, '$2');
             $matchesHash = $storedPassword && $isHash
                 ? Hash::check($inputPassword, $storedPassword)
                 : false;
             $matchesPlain = $storedPassword && ! $isHash && $inputPassword === $storedPassword;
-            $matchesDefault = $inputPassword === $defaultPassword;
+            $matchesDefault = is_string($defaultPassword) && $defaultPassword !== '' && $inputPassword === $defaultPassword;
 
             if ($matchesHash || $matchesPlain || $matchesDefault) {
                 if ($matchesDefault && (! $storedPassword || ! Hash::check($defaultPassword, $storedPassword))) {

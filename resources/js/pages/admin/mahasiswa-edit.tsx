@@ -36,7 +36,7 @@ interface Student {
     address: string;
     date_of_birth: string;
     place_of_birth: string;
-    gender: 'L' | 'P';
+    jenis_kelamin: 'L' | 'P';
     faculty: string;
     major: string;
     class: string;
@@ -82,7 +82,7 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
         address: student.address || '',
         date_of_birth: student.date_of_birth || '',
         place_of_birth: student.place_of_birth || '',
-        gender: student.gender || 'L',
+        jenis_kelamin: student.jenis_kelamin || 'L',
         faculty: student.faculty || '',
         major: student.major || '',
         class: student.class || '',
@@ -381,10 +381,10 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                             <label className="flex items-center gap-2 cursor-pointer">
                                                                 <input
                                                                     type="radio"
-                                                                    name="gender"
+                                                                    name="jenis_kelamin"
                                                                     value="L"
-                                                                    checked={data.gender === 'L'}
-                                                                    onChange={(e) => setData('gender', e.target.value as 'L' | 'P')}
+                                                                    checked={data.jenis_kelamin === 'L'}
+                                                                    onChange={(e) => setData('jenis_kelamin', e.target.value as 'L' | 'P')}
                                                                     className="h-4 w-4 text-indigo-600"
                                                                 />
                                                                 <span className="text-sm">Laki-laki</span>
@@ -392,10 +392,10 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                             <label className="flex items-center gap-2 cursor-pointer">
                                                                 <input
                                                                     type="radio"
-                                                                    name="gender"
+                                                                    name="jenis_kelamin"
                                                                     value="P"
-                                                                    checked={data.gender === 'P'}
-                                                                    onChange={(e) => setData('gender', e.target.value as 'L' | 'P')}
+                                                                    checked={data.jenis_kelamin === 'P'}
+                                                                    onChange={(e) => setData('jenis_kelamin', e.target.value as 'L' | 'P')}
                                                                     className="h-4 w-4 text-indigo-600"
                                                                 />
                                                                 <span className="text-sm">Perempuan</span>

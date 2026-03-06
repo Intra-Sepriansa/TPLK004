@@ -1,3 +1,4 @@
+import rekapanIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
 import DashboardOverview from '@/components/admin/dashboard-overview';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,11 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import {
     AlertTriangle,
     ArrowDownRight,
@@ -18,7 +24,6 @@ import {
     BookOpen,
     CalendarCheck,
     Camera,
-    CheckCircle2,
     ChevronRight,
     Clock,
     FileBarChart,
@@ -30,42 +35,18 @@ import {
     Plus,
     QrCode,
     Radar,
+    RefreshCcw,
     ScanBarcode,
     ScanFace,
-    RefreshCcw,
-    Settings,
     ShieldCheck,
-    Smartphone,
     Sparkles,
     Timer,
     Trash2,
     TrendingUp,
-    Users,
     UserCheck,
-    XCircle,
+    Users,
 } from 'lucide-react';
-import rekapanIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
-import {
-    Area,
-    AreaChart,
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Cell,
-    Pie,
-    PieChart as RechartsPie,
-    RadialBar,
-    RadialBarChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import L from 'leaflet';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import QRCode from 'qrcode';
 import {
     type FormEvent,
     type ReactNode,
@@ -75,7 +56,17 @@ import {
     useRef,
     useState,
 } from 'react';
-import QRCode from 'qrcode';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    RadialBar,
+    RadialBarChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 type Mahasiswa = {
     id: number;
@@ -352,7 +343,7 @@ function SectionHeader({
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
                 {kicker && (
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                    <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                         {kicker}
                     </p>
                 )}
@@ -448,7 +439,7 @@ function StudentsSection({
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                 Form
                             </p>
                             <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -487,13 +478,15 @@ function StudentsSection({
                             />
                             <InputError message={form.errors.nim} />
                             <p className="text-xs text-slate-500">
-                                Password default: tplk004# + 2 digit terakhir
-                                NIM.
+                                Password default mengikuti kebijakan credential
+                                server (.env).
                             </p>
                         </div>
                         <Button type="submit" disabled={form.processing}>
                             <Plus className="h-4 w-4" />
-                            {form.processing ? 'Menyimpan...' : 'Simpan mahasiswa'}
+                            {form.processing
+                                ? 'Menyimpan...'
+                                : 'Simpan mahasiswa'}
                         </Button>
                     </form>
                 </div>
@@ -501,7 +494,7 @@ function StudentsSection({
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                 Database
                             </p>
                             <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -515,7 +508,7 @@ function StudentsSection({
 
                     <div className="mt-4 overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                            <thead className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                                 <tr className="border-b border-slate-200/70 dark:border-slate-800/70">
                                     <th className="pb-3">Nama</th>
                                     <th className="pb-3">NIM</th>
@@ -547,7 +540,10 @@ function StudentsSection({
                                             </td>
                                             <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">
                                                 {item.created_at
-                                                    ? item.created_at.slice(0, 10)
+                                                    ? item.created_at.slice(
+                                                          0,
+                                                          10,
+                                                      )
                                                     : '-'}
                                             </td>
                                             <td className="py-3 text-right">
@@ -560,8 +556,7 @@ function StudentsSection({
                                                         router.delete(
                                                             `/mahasiswa/${item.id}`,
                                                             {
-                                                                preserveScroll:
-                                                                    true,
+                                                                preserveScroll: true,
                                                             },
                                                         )
                                                     }
@@ -590,19 +585,21 @@ function StudentsSection({
                                         onClick={() =>
                                             link.url
                                                 ? router.get(
-                                                    link.url,
-                                                    {},
-                                                    { preserveScroll: true },
-                                                )
+                                                      link.url,
+                                                      {},
+                                                      { preserveScroll: true },
+                                                  )
                                                 : undefined
                                         }
-                                        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${link.active
-                                            ? 'bg-black text-white dark:bg-white dark:text-slate-900'
-                                            : 'border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-black'
-                                            } ${link.url
+                                        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                                            link.active
+                                                ? 'bg-black text-white dark:bg-white dark:text-slate-900'
+                                                : 'border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-black'
+                                        } ${
+                                            link.url
                                                 ? ''
                                                 : 'cursor-not-allowed opacity-50'
-                                            }`}
+                                        }`}
                                     >
                                         {formatLabel(link.label)}
                                     </button>
@@ -643,7 +640,13 @@ function SessionsSection({
         event.preventDefault();
         sessionForm.post('/attendance-sessions', {
             preserveScroll: true,
-            onSuccess: () => sessionForm.reset('meeting_number', 'title', 'start_at', 'end_at'),
+            onSuccess: () =>
+                sessionForm.reset(
+                    'meeting_number',
+                    'title',
+                    'start_at',
+                    'end_at',
+                ),
         });
     };
 
@@ -734,7 +737,9 @@ function SessionsSection({
                                     </option>
                                 ))}
                             </select>
-                            <InputError message={sessionForm.errors.course_id} />
+                            <InputError
+                                message={sessionForm.errors.course_id}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="meeting">Pertemuan ke</Label>
@@ -756,7 +761,9 @@ function SessionsSection({
                                     ? `Maksimum ${maxMeeting} pertemuan (SKS ${selectedCourse.sks}).`
                                     : 'Pilih mata kuliah untuk melihat batas pertemuan.'}
                             </p>
-                            <InputError message={sessionForm.errors.meeting_number} />
+                            <InputError
+                                message={sessionForm.errors.meeting_number}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="session-title">Judul</Label>
@@ -812,7 +819,7 @@ function SessionsSection({
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                             Daftar sesi
                         </p>
                         <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -834,13 +841,15 @@ function SessionsSection({
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <div>
                                         <p className="font-semibold text-slate-900 dark:text-white">
-                                            {session.course?.nama ?? 'Mata kuliah'}
+                                            {session.course?.nama ??
+                                                'Mata kuliah'}
                                         </p>
                                         <p className="text-xs text-slate-500">
                                             Pertemuan {session.meeting_number}
                                         </p>
                                         <p className="text-xs text-slate-500">
-                                            {session.start_at} - {session.end_at}
+                                            {session.start_at} -{' '}
+                                            {session.end_at}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -903,7 +912,10 @@ function QrSection({
     const [loading, setLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const rotatingRef = useRef(false);
-    const ttlLabel = useMemo(() => formatTtl(tokenTtlSeconds), [tokenTtlSeconds]);
+    const ttlLabel = useMemo(
+        () => formatTtl(tokenTtlSeconds),
+        [tokenTtlSeconds],
+    );
 
     useEffect(() => {
         if (!token) {
@@ -947,9 +959,12 @@ function QrSection({
     useEffect(() => {
         if (!expiresAtMs || !token) return;
 
-        const timeout = window.setTimeout(() => {
-            void generateToken({ silent: true });
-        }, Math.max(0, expiresAtMs - Date.now() + 200));
+        const timeout = window.setTimeout(
+            () => {
+                void generateToken({ silent: true });
+            },
+            Math.max(0, expiresAtMs - Date.now() + 200),
+        );
 
         return () => window.clearTimeout(timeout);
     }, [expiresAtMs, token]);
@@ -1051,8 +1066,8 @@ function QrSection({
                         </div>
 
                         <div className="mt-6 rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-xs text-slate-500 dark:border-slate-800 dark:bg-black">
-                            Token akan otomatis berubah setiap {ttlLabel} dan hanya
-                            berlaku untuk sesi aktif.
+                            Token akan otomatis berubah setiap {ttlLabel} dan
+                            hanya berlaku untuk sesi aktif.
                         </div>
                     </div>
 
@@ -1071,10 +1086,10 @@ function QrSection({
                         <div className="text-center text-sm text-slate-600 dark:text-slate-300">
                             {token ? (
                                 <div className="space-y-2">
-                                    <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+                                    <p className="text-xs tracking-[0.3em] text-slate-400 uppercase">
                                         Token aktif
                                     </p>
-                                    <div className="break-all rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-mono text-base font-semibold tracking-[0.2em] text-slate-900 dark:border-slate-800 dark:bg-black dark:text-white sm:text-2xl">
+                                    <div className="rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-mono text-base font-semibold tracking-[0.2em] break-all text-slate-900 sm:text-2xl dark:border-slate-800 dark:bg-black dark:text-white">
                                         {token}
                                     </div>
                                     {timeLeft !== null ? (
@@ -1112,7 +1127,9 @@ function MonitorSection({
     const [logs, setLogs] = useState<ActivityLog[]>(initialLogs);
 
     const fetchLogs = useCallback(async () => {
-        const query = activeSession?.id ? `?session_id=${activeSession.id}` : '';
+        const query = activeSession?.id
+            ? `?session_id=${activeSession.id}`
+            : '';
         const response = await fetch(`/attendance-logs${query}`);
         if (!response.ok) return;
         const data = await response.json();
@@ -1171,7 +1188,7 @@ function MonitorSection({
                             return (
                                 <div
                                     key={item.id}
-                                    className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800/70 dark:bg-black/70 sm:flex-row sm:items-center sm:justify-between"
+                                    className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center sm:justify-between dark:border-slate-800/70 dark:bg-black/70"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200">
@@ -1195,8 +1212,10 @@ function MonitorSection({
                                             {item.time}
                                         </span>
                                         <span
-                                            className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${badgeMap[status] ?? 'bg-slate-200 text-slate-700'
-                                                }`}
+                                            className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${
+                                                badgeMap[status] ??
+                                                'bg-slate-200 text-slate-700'
+                                            }`}
                                         >
                                             {status}
                                         </span>
@@ -1630,8 +1649,8 @@ function AiAttendanceSection({
         cameraPermission === 'granted'
             ? 'Diizinkan'
             : cameraPermission === 'denied'
-                ? 'Ditolak'
-                : 'Perlu izin';
+              ? 'Ditolak'
+              : 'Perlu izin';
     const flowItems = [
         { key: 'scan', label: 'Scan', active: flowStep === 'scan' },
         { key: 'verify', label: 'Verifikasi', active: flowStep === 'verify' },
@@ -1760,7 +1779,7 @@ function AiAttendanceSection({
                                         autoplay
                                     />
                                 </div>
-                                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                                     Maintenance
                                 </p>
                                 <p className="text-sm text-slate-200/80">
@@ -1780,7 +1799,7 @@ function AiAttendanceSection({
                                     className="pointer-events-none absolute inset-0 h-full w-full"
                                 />
                                 {running && (
-                                    <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold text-white">
+                                    <div className="absolute top-3 left-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold text-white">
                                         <span className="h-2 w-2 rounded-full bg-white" />
                                         Kamera aktif
                                     </div>
@@ -1795,8 +1814,8 @@ function AiAttendanceSection({
                                 {maintenanceMode
                                     ? 'Maintenance'
                                     : running
-                                        ? 'Aktif'
-                                        : 'Nonaktif'}
+                                      ? 'Aktif'
+                                      : 'Nonaktif'}
                             </span>
                         </div>
                         <div className="flex items-center justify-between">
@@ -1820,10 +1839,11 @@ function AiAttendanceSection({
                             {flowItems.map((item) => (
                                 <span
                                     key={item.key}
-                                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold ${item.active
-                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
-                                        : 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-white/60'
-                                        }`}
+                                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold ${
+                                        item.active
+                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
+                                            : 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-white/60'
+                                    }`}
                                 >
                                     <span className="h-2 w-2 rounded-full bg-current" />
                                     {item.label}
@@ -1835,7 +1855,7 @@ function AiAttendanceSection({
 
                 <div className="grid gap-4">
                     <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 text-sm shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                             Target
                         </p>
                         <h3 className="mt-2 font-display text-lg text-slate-900 dark:text-white">
@@ -1871,7 +1891,7 @@ function AiAttendanceSection({
                     </div>
 
                     <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 text-sm shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                             Hasil
                         </p>
                         <h3 className="mt-2 font-display text-lg text-slate-900 dark:text-white">
@@ -1964,11 +1984,14 @@ function SelfieSection({ selfieQueue }: { selfieQueue: any[] }) {
                                         </div>
                                         <div>
                                             <p className="font-semibold text-slate-900 dark:text-white">
-                                                {item.attendance_log?.mahasiswa?.nama ??
-                                                    'Mahasiswa'}
+                                                {item.attendance_log?.mahasiswa
+                                                    ?.nama ?? 'Mahasiswa'}
                                             </p>
                                             <p className="text-xs text-slate-500">
-                                                {item.attendance_log?.scanned_at}
+                                                {
+                                                    item.attendance_log
+                                                        ?.scanned_at
+                                                }
                                             </p>
                                         </div>
                                     </div>
@@ -2157,7 +2180,7 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                        <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                             Geofence aktif
                         </p>
                         <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -2181,7 +2204,7 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
                                 Memuat peta OpenStreetMap...
                             </div>
                         )}
-                        <div className="pointer-events-none absolute left-4 top-4 rounded-full border border-white/30 bg-white/80 px-3 py-1 text-xs text-slate-600 shadow-sm backdrop-blur dark:border-slate-700/60 dark:bg-slate-950/80 dark:text-slate-300">
+                        <div className="pointer-events-none absolute top-4 left-4 rounded-full border border-white/30 bg-white/80 px-3 py-1 text-xs text-slate-600 shadow-sm backdrop-blur dark:border-slate-700/60 dark:bg-slate-950/80 dark:text-slate-300">
                             Drag pin atau tap peta
                         </div>
                     </div>
@@ -2321,7 +2344,9 @@ function DevicesSection({
                     ) : (
                         deviceDistribution.map((device) => {
                             const percentage = totalDevices
-                                ? Math.round((device.total / totalDevices) * 100)
+                                ? Math.round(
+                                      (device.total / totalDevices) * 100,
+                                  )
                                 : 0;
 
                             return (
@@ -2394,10 +2419,7 @@ function ScheduleSection({
             );
             editForm.setData('meeting_number', session.meeting_number);
             editForm.setData('title', session.title ?? '');
-            editForm.setData(
-                'start_at',
-                formatDateTimeInput(session.start_at),
-            );
+            editForm.setData('start_at', formatDateTimeInput(session.start_at));
             editForm.setData('end_at', formatDateTimeInput(session.end_at));
             editForm.clearErrors();
         },
@@ -2524,7 +2546,8 @@ function ScheduleSection({
                                                     key={course.id}
                                                     value={course.id}
                                                 >
-                                                    {course.nama} (SKS {course.sks})
+                                                    {course.nama} (SKS{' '}
+                                                    {course.sks})
                                                 </option>
                                             ))}
                                         </select>
@@ -2557,7 +2580,9 @@ function ScheduleSection({
                                                 : 'Pilih mata kuliah untuk melihat batas pertemuan.'}
                                         </p>
                                         <InputError
-                                            message={editForm.errors.meeting_number}
+                                            message={
+                                                editForm.errors.meeting_number
+                                            }
                                         />
                                     </div>
                                     <div className="grid gap-2">
@@ -2685,7 +2710,10 @@ function SettingsSection({
                             <Checkbox
                                 checked={form.data.selfie_required}
                                 onCheckedChange={(value) =>
-                                    form.setData('selfie_required', value === true)
+                                    form.setData(
+                                        'selfie_required',
+                                        value === true,
+                                    )
                                 }
                             />
                             <span>Aktifkan selfie wajib</span>
@@ -2703,10 +2731,14 @@ function SettingsSection({
                                     )
                                 }
                             />
-                            <InputError message={form.errors.token_ttl_seconds} />
+                            <InputError
+                                message={form.errors.token_ttl_seconds}
+                            />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="late">Batas terlambat (menit)</Label>
+                            <Label htmlFor="late">
+                                Batas terlambat (menit)
+                            </Label>
                             <Input
                                 id="late"
                                 type="number"
@@ -2904,7 +2936,7 @@ function AuditSection({ auditLogs }: { auditLogs: any[] }) {
                         auditLogs.map((log) => (
                             <div
                                 key={log.id}
-                                className="flex flex-col justify-between gap-2 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-800 dark:bg-black sm:flex-row sm:items-center"
+                                className="flex flex-col justify-between gap-2 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 sm:flex-row sm:items-center dark:border-slate-800 dark:bg-black"
                             >
                                 <div>
                                     <p className="font-semibold text-slate-900 dark:text-white">
@@ -3001,7 +3033,7 @@ function AdminGuideSection() {
             title: 'Mahasiswa',
             items: [
                 'Tambah mahasiswa dengan nama dan NIM.',
-                'Password default mengikuti format yang ditampilkan.',
+                'Password default mengikuti kebijakan credential di server.',
                 'Hapus data mahasiswa yang sudah tidak aktif.',
             ],
         },
@@ -3056,7 +3088,7 @@ function AdminGuideSection() {
             />
             <div className="grid gap-4 lg:grid-cols-3">
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    <p className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                         Alur Harian
                     </p>
                     <h2 className="mt-2 font-display text-lg text-slate-900 dark:text-white">
@@ -3069,7 +3101,7 @@ function AdminGuideSection() {
                     </ul>
                 </div>
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    <p className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                         Persiapan
                     </p>
                     <h2 className="mt-2 font-display text-lg text-slate-900 dark:text-white">
@@ -3082,7 +3114,7 @@ function AdminGuideSection() {
                     </ul>
                 </div>
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    <p className="text-xs tracking-[0.2em] text-slate-400 uppercase">
                         Penutupan
                     </p>
                     <h2 className="mt-2 font-display text-lg text-slate-900 dark:text-white">
@@ -3318,33 +3350,52 @@ function OverviewSection({
     );
     const chartMax = Math.max(1, ...chartData.map((item) => item.total));
 
-    const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-        present: { label: 'Hadir', color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
-        late: { label: 'Terlambat', color: 'text-amber-600', bg: 'bg-amber-100 dark:bg-amber-900/30' },
-        rejected: { label: 'Ditolak', color: 'text-rose-600', bg: 'bg-rose-100 dark:bg-rose-900/30' },
-        pending: { label: 'Pending', color: 'text-sky-600', bg: 'bg-sky-100 dark:bg-sky-900/30' },
+    const statusConfig: Record<
+        string,
+        { label: string; color: string; bg: string }
+    > = {
+        present: {
+            label: 'Hadir',
+            color: 'text-emerald-600',
+            bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+        },
+        late: {
+            label: 'Terlambat',
+            color: 'text-amber-600',
+            bg: 'bg-amber-100 dark:bg-amber-900/30',
+        },
+        rejected: {
+            label: 'Ditolak',
+            color: 'text-rose-600',
+            bg: 'bg-rose-100 dark:bg-rose-900/30',
+        },
+        pending: {
+            label: 'Pending',
+            color: 'text-sky-600',
+            bg: 'bg-sky-100 dark:bg-sky-900/30',
+        },
     };
 
     return (
         <>
             <section className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-slate-950 text-white shadow-2xl">
                 <div className="absolute inset-0 bg-[radial-gradient(900px_600px_at_90%_10%,rgba(16,185,129,0.25),transparent_60%)]" />
-                <div className="absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.08),transparent)] bg-[length:200%_200%] opacity-60 animate-sweep" />
+                <div className="animate-sweep absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.08),transparent)] bg-[length:200%_200%] opacity-60" />
                 <div className="relative grid gap-8 p-6 md:p-10 lg:grid-cols-[1.2fr_0.8fr]">
-                    <div className="flex flex-col gap-6 animate-appear">
-                        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-white/80">
+                    <div className="animate-appear flex flex-col gap-6">
+                        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] tracking-[0.25em] text-white/80 uppercase">
                             <Sparkles className="h-4 w-4 text-emerald-300" />
                             Absensi barcode
                         </div>
                         <div className="space-y-3">
                             <h1 className="font-display text-3xl leading-tight md:text-5xl">
-                                Kontrol absensi real time, selfie wajib,
-                                radius {settings?.geofence.radius_m ?? 100}m.
+                                Kontrol absensi real time, selfie wajib, radius{' '}
+                                {settings?.geofence.radius_m ?? 100}m.
                             </h1>
                             <p className="max-w-xl text-sm text-white/70 md:text-base">
                                 Buat sesi, sebarkan QR dinamis, dan pantau
-                                validasi token, lokasi, serta foto dalam
-                                satu panel yang rapi.
+                                validasi token, lokasi, serta foto dalam satu
+                                panel yang rapi.
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-3">
@@ -3395,7 +3446,7 @@ function OverviewSection({
                             <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3">
                                 <Timer className="h-4 w-4 text-emerald-300" />
                                 <div>
-                                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+                                    <p className="text-[10px] tracking-[0.2em] text-white/50 uppercase">
                                         Token rotasi
                                     </p>
                                     <p className="text-sm font-semibold text-white">
@@ -3409,7 +3460,7 @@ function OverviewSection({
                             <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3">
                                 <Camera className="h-4 w-4 text-sky-300" />
                                 <div>
-                                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+                                    <p className="text-[10px] tracking-[0.2em] text-white/50 uppercase">
                                         Selfie wajib
                                     </p>
                                     <p className="text-sm font-semibold text-white">
@@ -3422,18 +3473,19 @@ function OverviewSection({
                             <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3">
                                 <MapPin className="h-4 w-4 text-amber-300" />
                                 <div>
-                                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+                                    <p className="text-[10px] tracking-[0.2em] text-white/50 uppercase">
                                         Geofence
                                     </p>
                                     <p className="text-sm font-semibold text-white">
-                                        Radius {settings?.geofence.radius_m ?? 100}m
+                                        Radius{' '}
+                                        {settings?.geofence.radius_m ?? 100}m
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-3">
                                 <ShieldCheck className="h-4 w-4 text-emerald-200" />
                                 <div>
-                                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+                                    <p className="text-[10px] tracking-[0.2em] text-white/50 uppercase">
                                         Keamanan
                                     </p>
                                     <p className="text-sm font-semibold text-white">
@@ -3444,10 +3496,10 @@ function OverviewSection({
                         </div>
                     </div>
 
-                    <div className="relative flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm animate-appear [animation-delay:120ms]">
+                    <div className="animate-appear relative flex flex-col gap-4 rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm [animation-delay:120ms]">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+                                <p className="text-[10px] tracking-[0.2em] text-white/50 uppercase">
                                     Sesi aktif
                                 </p>
                                 <p className="text-lg font-semibold">
@@ -3519,7 +3571,9 @@ function OverviewSection({
                                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                                     <div className="flex items-center justify-between text-xs text-white/60">
                                         <span>Selfie pending</span>
-                                        <span>{activeStats?.selfie_pending ?? 0}</span>
+                                        <span>
+                                            {activeStats?.selfie_pending ?? 0}
+                                        </span>
                                     </div>
                                     <div className="mt-2 h-2 rounded-full bg-white/10">
                                         <div className="h-full w-[60%] rounded-full bg-gradient-to-r from-sky-400 to-emerald-200" />
@@ -3534,8 +3588,8 @@ function OverviewSection({
                             <div className="relative mx-auto aspect-square w-40 rounded-2xl border border-white/15 bg-white/5 p-3">
                                 <div className="absolute inset-3 rounded-xl bg-[linear-gradient(90deg,rgba(255,255,255,0.15)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[length:12px_12px]" />
                                 <div className="absolute inset-3 rounded-xl border border-white/20" />
-                                <div className="absolute left-1/2 top-0 h-10 w-20 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-300/60 to-transparent blur-sm" />
-                                <div className="absolute bottom-3 left-3 rounded-lg bg-white/15 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white/70">
+                                <div className="absolute top-0 left-1/2 h-10 w-20 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-300/60 to-transparent blur-sm" />
+                                <div className="absolute bottom-3 left-3 rounded-lg bg-white/15 px-2 py-1 text-[10px] tracking-[0.2em] text-white/70 uppercase">
                                     Token aktif
                                 </div>
                             </div>
@@ -3549,7 +3603,8 @@ function OverviewSection({
                     const Icon = statIcons[index] ?? Users;
                     const trendUp = stat.trend === 'up';
                     const toneMap: Record<string, string> = {
-                        emerald: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
+                        emerald:
+                            'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
                         amber: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
                         rose: 'bg-rose-500/15 text-rose-600 dark:text-rose-300',
                         sky: 'bg-sky-500/15 text-sky-600 dark:text-sky-300',
@@ -3558,7 +3613,7 @@ function OverviewSection({
                     return (
                         <div
                             key={stat.title}
-                            className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear"
+                            className="animate-appear relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800/70 dark:bg-slate-950/70"
                             style={{ animationDelay: `${index * 90}ms` }}
                         >
                             <div className="flex items-center justify-between">
@@ -3568,10 +3623,11 @@ function OverviewSection({
                                     <Icon className="h-5 w-5" />
                                 </div>
                                 <div
-                                    className={`flex items-center gap-1 text-xs font-semibold ${trendUp
-                                        ? 'text-emerald-600 dark:text-emerald-300'
-                                        : 'text-rose-600 dark:text-rose-300'
-                                        }`}
+                                    className={`flex items-center gap-1 text-xs font-semibold ${
+                                        trendUp
+                                            ? 'text-emerald-600 dark:text-emerald-300'
+                                            : 'text-rose-600 dark:text-rose-300'
+                                    }`}
                                 >
                                     {trendUp ? (
                                         <ArrowUpRight className="h-4 w-4" />
@@ -3590,7 +3646,7 @@ function OverviewSection({
                             <p className="text-xs text-slate-500 dark:text-slate-400">
                                 {stat.note}
                             </p>
-                            <div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-gradient-to-br from-white/80 to-transparent opacity-50 dark:from-white/10" />
+                            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-white/80 to-transparent opacity-50 dark:from-white/10" />
                         </div>
                     );
                 })}
@@ -3598,10 +3654,10 @@ function OverviewSection({
 
             <section className="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
                 <div className="grid gap-6">
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:120ms]">
+                    <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:120ms] dark:border-slate-800/70 dark:bg-slate-950/70">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                     Statistik
                                 </p>
                                 <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -3618,7 +3674,12 @@ function OverviewSection({
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
                                     data={chartData}
-                                    margin={{ top: 6, right: 0, left: -8, bottom: 0 }}
+                                    margin={{
+                                        top: 6,
+                                        right: 0,
+                                        left: -8,
+                                        bottom: 0,
+                                    }}
                                 >
                                     <defs>
                                         <linearGradient
@@ -3655,12 +3716,21 @@ function OverviewSection({
                                         axisLine={false}
                                         tickLine={false}
                                         tickMargin={8}
-                                        tick={{ fill: 'currentColor', fontSize: 10 }}
+                                        tick={{
+                                            fill: 'currentColor',
+                                            fontSize: 10,
+                                        }}
                                     />
                                     <YAxis hide domain={[0, chartMax]} />
                                     <Tooltip
-                                        cursor={{ fill: 'rgba(148, 163, 184, 0.12)' }}
-                                        content={({ active, payload, label }) => {
+                                        cursor={{
+                                            fill: 'rgba(148, 163, 184, 0.12)',
+                                        }}
+                                        content={({
+                                            active,
+                                            payload,
+                                            label,
+                                        }) => {
                                             if (!active || !payload?.length) {
                                                 return null;
                                             }
@@ -3694,11 +3764,11 @@ function OverviewSection({
                                 <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
                                     {weekly.values.length
                                         ? Math.round(
-                                            weekly.values.reduce(
-                                                (acc, val) => acc + val,
-                                                0,
-                                            ) / weekly.values.length,
-                                        )
+                                              weekly.values.reduce(
+                                                  (acc, val) => acc + val,
+                                                  0,
+                                              ) / weekly.values.length,
+                                          )
                                         : 0}
                                 </p>
                                 <p className="text-xs text-emerald-600">
@@ -3730,10 +3800,10 @@ function OverviewSection({
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:180ms]">
+                    <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:180ms] dark:border-slate-800/70 dark:bg-slate-950/70">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                     Aktivitas
                                 </p>
                                 <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -3761,7 +3831,7 @@ function OverviewSection({
                                     return (
                                         <div
                                             key={item.id}
-                                            className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800/70 dark:bg-black/70 sm:flex-row sm:items-center sm:justify-between"
+                                            className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center sm:justify-between dark:border-slate-800/70 dark:bg-black/70"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200">
@@ -3783,9 +3853,10 @@ function OverviewSection({
                                                     {item.time}
                                                 </span>
                                                 <span
-                                                    className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${badgeMap[status] ??
+                                                    className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${
+                                                        badgeMap[status] ??
                                                         'bg-slate-200 text-slate-700'
-                                                        }`}
+                                                    }`}
                                                 >
                                                     {status}
                                                 </span>
@@ -3799,10 +3870,10 @@ function OverviewSection({
                 </div>
 
                 <div className="grid gap-6">
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:150ms]">
+                    <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:150ms] dark:border-slate-800/70 dark:bg-slate-950/70">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                     Jadwal
                                 </p>
                                 <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -3829,10 +3900,12 @@ function OverviewSection({
                                                     {session.course?.nama}
                                                 </p>
                                                 <p className="text-xs text-slate-500">
-                                                    {session.start_at} - {session.end_at}
+                                                    {session.start_at} -{' '}
+                                                    {session.end_at}
                                                 </p>
                                                 <p className="text-xs text-slate-500">
-                                                    Pertemuan {session.meeting_number}
+                                                    Pertemuan{' '}
+                                                    {session.meeting_number}
                                                 </p>
                                             </div>
                                             <span className="rounded-full bg-emerald-500/15 px-2 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
@@ -3845,14 +3918,15 @@ function OverviewSection({
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:210ms]">
+                    <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:210ms] dark:border-slate-800/70 dark:bg-slate-950/70">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                     Geofence
                                 </p>
                                 <h2 className="font-display text-xl text-slate-900 dark:text-white">
-                                    Radius {settings?.geofence.radius_m ?? 100} meter
+                                    Radius {settings?.geofence.radius_m ?? 100}{' '}
+                                    meter
                                 </h2>
                             </div>
                             <MapPin className="h-5 w-5 text-emerald-500" />
@@ -3869,10 +3943,10 @@ function OverviewSection({
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:240ms]">
+                    <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:240ms] dark:border-slate-800/70 dark:bg-slate-950/70">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                     Keamanan
                                 </p>
                                 <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -3889,7 +3963,8 @@ function OverviewSection({
                                     Token ganda
                                 </span>
                                 <span className="font-semibold text-emerald-600">
-                                    {securitySummary?.duplicate_tokens ?? 0} kasus
+                                    {securitySummary?.duplicate_tokens ?? 0}{' '}
+                                    kasus
                                 </span>
                             </div>
                             <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black">
@@ -3913,10 +3988,10 @@ function OverviewSection({
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:270ms]">
+                    <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:270ms] dark:border-slate-800/70 dark:bg-slate-950/70">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                     Perangkat
                                 </p>
                                 <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -3956,10 +4031,10 @@ function OverviewSection({
             {/* New: Top Students & Course Stats Section */}
             <section className="grid gap-6 lg:grid-cols-2">
                 {/* Top Students Leaderboard */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:300ms]">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:300ms] dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                 Leaderboard
                             </p>
                             <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -3975,20 +4050,35 @@ function OverviewSection({
                             </div>
                         ) : (
                             (topStudents ?? []).map((student, index) => (
-                                <div key={student.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-black/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
-                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
-                                        index === 1 ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' :
-                                            index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
-                                                'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                                        }`}>
+                                <div
+                                    key={student.id}
+                                    className="flex items-center gap-3 rounded-xl bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-black/50 dark:hover:bg-slate-800/50"
+                                >
+                                    <div
+                                        className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${
+                                            index === 0
+                                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                                : index === 1
+                                                  ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'
+                                                  : index === 2
+                                                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
+                                                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                                        }`}
+                                    >
                                         {index + 1}
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{student.name}</p>
-                                        <p className="text-xs text-slate-500">{student.nim}</p>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                                            {student.name}
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            {student.nim}
+                                        </p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-semibold text-emerald-600 text-sm">{student.attendance}%</p>
+                                        <p className="text-sm font-semibold text-emerald-600">
+                                            {student.attendance}%
+                                        </p>
                                         <div className="flex items-center gap-1 text-xs text-amber-600">
                                             <Flame className="h-3 w-3" />
                                             {student.streak} hari
@@ -4001,10 +4091,10 @@ function OverviewSection({
                 </div>
 
                 {/* Course Stats */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:330ms]">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:330ms] dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                 Per Mata Kuliah
                             </p>
                             <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -4015,35 +4105,90 @@ function OverviewSection({
                     </div>
                     <div className="h-64">
                         {(courseStats ?? []).length === 0 ? (
-                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
+                            <div className="flex h-full items-center justify-center rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                 Belum ada data mata kuliah.
                             </div>
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={courseStats} layout="vertical">
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
-                                    <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
-                                    <YAxis dataKey="name" type="category" tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                        stroke="rgba(148, 163, 184, 0.2)"
+                                    />
+                                    <XAxis
+                                        type="number"
+                                        tick={{ fill: '#64748b', fontSize: 11 }}
+                                    />
+                                    <YAxis
+                                        dataKey="name"
+                                        type="category"
+                                        tick={{ fill: '#64748b', fontSize: 11 }}
+                                        width={100}
+                                    />
                                     <Tooltip
-                                        content={({ active, payload, label }) => {
-                                            if (!active || !payload?.length) return null;
+                                        content={({
+                                            active,
+                                            payload,
+                                            label,
+                                        }) => {
+                                            if (!active || !payload?.length)
+                                                return null;
                                             return (
                                                 <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                                                    <p className="font-semibold text-slate-900 dark:text-white mb-1">{label}</p>
-                                                    {payload.map((entry: any, index: number) => (
-                                                        <div key={index} className="flex items-center gap-2">
-                                                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                                                            <span className="text-slate-600 dark:text-slate-400">{entry.name}:</span>
-                                                            <span className="font-semibold text-slate-900 dark:text-white">{entry.value}</span>
-                                                        </div>
-                                                    ))}
+                                                    <p className="mb-1 font-semibold text-slate-900 dark:text-white">
+                                                        {label}
+                                                    </p>
+                                                    {payload.map(
+                                                        (
+                                                            entry: any,
+                                                            index: number,
+                                                        ) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center gap-2"
+                                                            >
+                                                                <span
+                                                                    className="h-2 w-2 rounded-full"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            entry.color,
+                                                                    }}
+                                                                />
+                                                                <span className="text-slate-600 dark:text-slate-400">
+                                                                    {entry.name}
+                                                                    :
+                                                                </span>
+                                                                <span className="font-semibold text-slate-900 dark:text-white">
+                                                                    {
+                                                                        entry.value
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        ),
+                                                    )}
                                                 </div>
                                             );
                                         }}
                                     />
-                                    <Bar dataKey="hadir" name="Hadir" fill="#10b981" stackId="a" />
-                                    <Bar dataKey="terlambat" name="Terlambat" fill="#f59e0b" stackId="a" />
-                                    <Bar dataKey="tidakHadir" name="Tidak Hadir" fill="#ef4444" stackId="a" radius={[0, 4, 4, 0]} />
+                                    <Bar
+                                        dataKey="hadir"
+                                        name="Hadir"
+                                        fill="#10b981"
+                                        stackId="a"
+                                    />
+                                    <Bar
+                                        dataKey="terlambat"
+                                        name="Terlambat"
+                                        fill="#f59e0b"
+                                        stackId="a"
+                                    />
+                                    <Bar
+                                        dataKey="tidakHadir"
+                                        name="Tidak Hadir"
+                                        fill="#ef4444"
+                                        stackId="a"
+                                        radius={[0, 4, 4, 0]}
+                                    />
                                 </BarChart>
                             </ResponsiveContainer>
                         )}
@@ -4054,10 +4199,10 @@ function OverviewSection({
             {/* New: Attendance Rate & Hourly Distribution */}
             <section className="grid gap-6 lg:grid-cols-3">
                 {/* Attendance Rate Gauge */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:360ms]">
-                    <div className="flex items-center justify-between mb-2">
+                <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:360ms] dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="mb-2 flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                 Keseluruhan
                             </p>
                             <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -4066,24 +4211,45 @@ function OverviewSection({
                         </div>
                         <TrendingUp className="h-5 w-5 text-emerald-500" />
                     </div>
-                    <div className="h-44 flex items-center justify-center">
+                    <div className="flex h-44 items-center justify-center">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" data={[{ value: attendanceRate ?? 0, fill: '#10b981' }]} startAngle={180} endAngle={0}>
-                                <RadialBar background dataKey="value" cornerRadius={10} />
+                            <RadialBarChart
+                                cx="50%"
+                                cy="50%"
+                                innerRadius="60%"
+                                outerRadius="90%"
+                                data={[
+                                    {
+                                        value: attendanceRate ?? 0,
+                                        fill: '#10b981',
+                                    },
+                                ]}
+                                startAngle={180}
+                                endAngle={0}
+                            >
+                                <RadialBar
+                                    background
+                                    dataKey="value"
+                                    cornerRadius={10}
+                                />
                             </RadialBarChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="text-center -mt-6">
-                        <p className="text-4xl font-bold text-slate-900 dark:text-white">{attendanceRate ?? 0}%</p>
-                        <p className="text-sm text-slate-500">Rata-rata kehadiran</p>
+                    <div className="-mt-6 text-center">
+                        <p className="text-4xl font-bold text-slate-900 dark:text-white">
+                            {attendanceRate ?? 0}%
+                        </p>
+                        <p className="text-sm text-slate-500">
+                            Rata-rata kehadiran
+                        </p>
                     </div>
                 </div>
 
                 {/* Hourly Distribution */}
-                <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:390ms]">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:390ms] lg:col-span-2 dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            <p className="text-[10px] tracking-[0.2em] text-slate-400 uppercase">
                                 Hari Ini
                             </p>
                             <h2 className="font-display text-xl text-slate-900 dark:text-white">
@@ -4094,26 +4260,43 @@ function OverviewSection({
                     </div>
                     <div className="h-40">
                         {(hourlyData ?? []).length === 0 ? (
-                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
+                            <div className="flex h-full items-center justify-center rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                 Belum ada data hari ini.
                             </div>
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={hourlyData}>
-                                    <XAxis dataKey="hour" tick={{ fill: '#64748b', fontSize: 10 }} />
+                                    <XAxis
+                                        dataKey="hour"
+                                        tick={{ fill: '#64748b', fontSize: 10 }}
+                                    />
                                     <YAxis hide />
                                     <Tooltip
-                                        content={({ active, payload, label }) => {
-                                            if (!active || !payload?.length) return null;
+                                        content={({
+                                            active,
+                                            payload,
+                                            label,
+                                        }) => {
+                                            if (!active || !payload?.length)
+                                                return null;
                                             return (
                                                 <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm dark:border-slate-800 dark:bg-slate-950">
-                                                    <p className="font-semibold text-slate-900 dark:text-white">{label}</p>
-                                                    <p className="text-slate-600 dark:text-slate-400">{payload[0].value} absen</p>
+                                                    <p className="font-semibold text-slate-900 dark:text-white">
+                                                        {label}
+                                                    </p>
+                                                    <p className="text-slate-600 dark:text-slate-400">
+                                                        {payload[0].value} absen
+                                                    </p>
                                                 </div>
                                             );
                                         }}
                                     />
-                                    <Bar dataKey="count" name="Absen" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                                    <Bar
+                                        dataKey="count"
+                                        name="Absen"
+                                        fill="#6366f1"
+                                        radius={[4, 4, 0, 0]}
+                                    />
                                 </BarChart>
                             </ResponsiveContainer>
                         )}
@@ -4122,48 +4305,78 @@ function OverviewSection({
             </section>
 
             {/* Quick Actions */}
-            <section className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:420ms]">
-                <h2 className="font-display text-xl text-slate-900 dark:text-white mb-4">Aksi Cepat</h2>
+            <section className="animate-appear rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur [animation-delay:420ms] dark:border-slate-800/70 dark:bg-slate-950/70">
+                <h2 className="mb-4 font-display text-xl text-slate-900 dark:text-white">
+                    Aksi Cepat
+                </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <a href="/admin/qr-builder" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 transition-transform group-hover:scale-110">
+                    <a
+                        href="/admin/qr-builder"
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 transition-transform group-hover:scale-110 dark:bg-indigo-900/30 dark:text-indigo-400">
                             <QrCode className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                            <p className="font-semibold text-slate-900 dark:text-white">QR Builder</p>
-                            <p className="text-sm text-slate-500">Buat QR code absensi</p>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                                QR Builder
+                            </p>
+                            <p className="text-sm text-slate-500">
+                                Buat QR code absensi
+                            </p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href="/admin/mahasiswa" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 transition-transform group-hover:scale-110">
+                    <a
+                        href="/admin/mahasiswa"
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 transition-transform group-hover:scale-110 dark:bg-emerald-900/30 dark:text-emerald-400">
                             <Users className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                            <p className="font-semibold text-slate-900 dark:text-white">Mahasiswa</p>
-                            <p className="text-sm text-slate-500">Kelola data mahasiswa</p>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                                Mahasiswa
+                            </p>
+                            <p className="text-sm text-slate-500">
+                                Kelola data mahasiswa
+                            </p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href="/admin/sesi-absen" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 transition-transform group-hover:scale-110">
+                    <a
+                        href="/admin/sesi-absen"
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black"
+                    >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-600 transition-transform group-hover:scale-110 dark:bg-amber-900/30 dark:text-amber-400">
                             <CalendarCheck className="h-6 w-6" />
                         </div>
                         <div className="flex-1">
-                            <p className="font-semibold text-slate-900 dark:text-white">Sesi Absen</p>
-                            <p className="text-sm text-slate-500">Kelola sesi absensi</p>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                                Sesi Absen
+                            </p>
+                            <p className="text-sm text-slate-500">
+                                Kelola sesi absensi
+                            </p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href="/admin/rekap-kehadiran" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
+                    <a
+                        href="/admin/rekap-kehadiran"
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black"
+                    >
                         <img
                             src={rekapanIcon}
                             alt="Rekap Kehadiran"
-                            className="h-12 w-12 object-contain transition-transform group-hover:scale-110 drop-shadow-sm"
+                            className="h-12 w-12 object-contain drop-shadow-sm transition-transform group-hover:scale-110"
                         />
                         <div className="flex-1">
-                            <p className="font-semibold text-slate-900 dark:text-white">Rekap</p>
-                            <p className="text-sm text-slate-500">Lihat rekap kehadiran</p>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                                Rekap
+                            </p>
+                            <p className="text-sm text-slate-500">
+                                Lihat rekap kehadiran
+                            </p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
@@ -4267,7 +4480,11 @@ export default function Dashboard() {
             case 'settings':
                 return <SettingsSection settingsForm={props.settingsForm} />;
             case 'reports':
-                return <ReportsSection reportSessions={props.reportSessions ?? []} />;
+                return (
+                    <ReportsSection
+                        reportSessions={props.reportSessions ?? []}
+                    />
+                );
             case 'audit':
                 return <AuditSection auditLogs={props.auditLogs ?? []} />;
             case 'admin-guide':
@@ -4279,9 +4496,7 @@ export default function Dashboard() {
                     <DashboardOverview
                         stats={props.stats ?? []}
                         activity={props.activity ?? []}
-                        weekly={
-                            props.weekly ?? { labels: [], values: [] }
-                        }
+                        weekly={props.weekly ?? { labels: [], values: [] }}
                         weeklyDetailed={props.weeklyDetailed}
                         hourlyData={props.hourlyData}
                         topStudents={props.topStudents}
@@ -4301,7 +4516,7 @@ export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={sectionTitle} />
-            <div className="relative flex h-full flex-1 flex-col gap-6 overflow-hidden px-6 pb-10 pt-6">
+            <div className="relative flex h-full flex-1 flex-col gap-6 overflow-hidden px-6 pt-6 pb-10">
                 {sectionContent}
             </div>
         </AppLayout>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\CredentialDefaults;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -31,8 +32,7 @@ return new class extends Migration
                 continue;
             }
 
-            $suffix = substr($student->nim, -2);
-            $defaultPassword = 'tplk004#' . $suffix;
+            $defaultPassword = CredentialDefaults::mahasiswaDefaultPassword($student->nim);
 
             DB::table('mahasiswa')
                 ->where('id', $student->id)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mahasiswa;
+use App\Support\CredentialDefaults;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -42,8 +43,13 @@ class MahasiswaController extends Controller
             'nim' => ['required', 'string', 'max:20', 'unique:mahasiswa,nim'],
         ]);
 
-        $suffix = substr($validated['nim'], -2);
-        $defaultPassword = 'tplk004#' . $suffix;
+        try {
+            $defaultPassword = CredentialDefaults::mahasiswaDefaultPassword($validated['nim']);
+        } catch (\RuntimeException $exception) {
+            return back()->withErrors([
+                'password' => $exception->getMessage(),
+            ])->withInput();
+        }
 
         Mahasiswa::create([
             ...$validated,

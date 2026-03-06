@@ -34,6 +34,9 @@ yarn-error.log
 /TPLK004-service/runs
 /tplk004-hosting.zip
 /zip1wa3O
+database/tplk004_data.sql
+database/*.sql
+database/fix_password.php
 
 # Local Netlify folder
 .netlify

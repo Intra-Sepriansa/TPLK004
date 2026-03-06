@@ -24,7 +24,7 @@ class HelpDataSeeder extends Seeder
             [
                 'category' => 'Umum',
                 'question' => 'Bagaimana cara login ke sistem?',
-                'answer' => 'Gunakan NIDN Anda sebagai username dan password default "dosen123". Setelah login pertama kali, segera ubah password Anda melalui menu Pengaturan untuk keamanan akun.',
+                'answer' => 'Gunakan NIDN Anda sebagai username. Password awal mengikuti kebijakan credential yang diatur administrator pada konfigurasi server. Setelah login pertama kali, segera ubah password melalui menu Pengaturan.',
                 'order' => 1,
             ],
             [

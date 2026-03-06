@@ -22,6 +22,7 @@ class Mahasiswa extends Authenticatable
         'kelas',
         'jenis_reguler',
         'semester',
+        'jenis_kelamin',
         'password',
         'avatar_url',
         'remember_token',

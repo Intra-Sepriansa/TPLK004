@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\Mahasiswa;
+use App\Support\CredentialDefaults;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -110,15 +111,21 @@ class MahasiswaController extends Controller
             'prodi' => 'nullable|string|max:100',
             'kelas' => 'nullable|string|max:20',
             'semester' => 'nullable|integer|min:1|max:14',
+            'jenis_kelamin' => 'nullable|in:L,P',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
         
-        // Use provided password or auto-generate from NIM
-        if ($request->filled('password')) {
-            $password = Hash::make($request->password);
-        } else {
-            $lastTwoDigits = substr($request->nim, -2);
-            $password = Hash::make('tplk004#' . $lastTwoDigits);
+        try {
+            // Use provided password or auto-generate from policy
+            if ($request->filled('password')) {
+                $password = Hash::make($request->password);
+            } else {
+                $password = Hash::make(CredentialDefaults::mahasiswaDefaultPassword($request->nim));
+            }
+        } catch (\RuntimeException $exception) {
+            return back()->withErrors([
+                'password' => $exception->getMessage(),
+            ])->withInput();
         }
         
         Mahasiswa::create([
@@ -130,6 +137,7 @@ class MahasiswaController extends Controller
             'prodi' => $request->prodi,
             'kelas' => $request->kelas,
             'semester' => $request->semester,
+            'jenis_kelamin' => $request->jenis_kelamin,
             'password' => $password,
         ]);
         
@@ -170,7 +178,7 @@ class MahasiswaController extends Controller
             'address' => $mahasiswa->address ?? '',
             'date_of_birth' => $mahasiswa->date_of_birth ?? '',
             'place_of_birth' => $mahasiswa->place_of_birth ?? '',
-            'gender' => $mahasiswa->gender ?? 'L',
+            'jenis_kelamin' => $mahasiswa->jenis_kelamin ?? 'L',
             'faculty' => $mahasiswa->fakultas ?? '',
             'major' => $mahasiswa->major ?? '',
             'class' => $mahasiswa->kelas ?? '',
@@ -198,7 +206,7 @@ class MahasiswaController extends Controller
             'address' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
             'place_of_birth' => 'nullable|string|max:100',
-            'gender' => 'nullable|in:L,P',
+            'jenis_kelamin' => 'nullable|in:L,P',
             'faculty' => 'nullable|string|max:100',
             'major' => 'nullable|string|max:100',
             'class' => 'nullable|string|max:20',
@@ -219,7 +227,7 @@ class MahasiswaController extends Controller
             'address' => $request->address,
             'date_of_birth' => $request->date_of_birth,
             'place_of_birth' => $request->place_of_birth,
-            'gender' => $request->gender,
+            'jenis_kelamin' => $request->jenis_kelamin,
             'major' => $request->major,
             'entry_year' => $request->entry_year,
             'status' => $request->status,
@@ -303,6 +311,7 @@ class MahasiswaController extends Controller
             'prodi' => $mahasiswa->prodi,
             'semester' => $mahasiswa->semester,
             'kelas' => $mahasiswa->kelas,
+            'jenis_kelamin' => $mahasiswa->jenis_kelamin,
             'created_at' => $mahasiswa->created_at,
         ];
 
@@ -321,8 +330,13 @@ class MahasiswaController extends Controller
     
     public function resetPassword(Mahasiswa $mahasiswa)
     {
-        $lastTwoDigits = substr($mahasiswa->nim, -2);
-        $defaultPassword = 'tplk004#' . $lastTwoDigits;
+        try {
+            $defaultPassword = CredentialDefaults::mahasiswaDefaultPassword($mahasiswa->nim);
+        } catch (\RuntimeException $exception) {
+            return back()->withErrors([
+                'password' => $exception->getMessage(),
+            ]);
+        }
         
         $mahasiswa->update(['password' => Hash::make($defaultPassword)]);
         

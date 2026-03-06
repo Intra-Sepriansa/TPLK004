@@ -15,7 +15,10 @@ import { useState } from 'react';
 import defaultFemaleAvatar from '@/assets/admin/mahasiswa/perempuan.png';
 import defaultMaleAvatar from '@/assets/admin/mahasiswa/laki.png';
 
-const getFallbackAvatar = (nama: string) => {
+const getFallbackAvatar = (nama: string, jenisKelamin?: string) => {
+    if (jenisKelamin === 'P') return defaultFemaleAvatar;
+    if (jenisKelamin === 'L') return defaultMaleAvatar;
+
     const nameStr = (nama || '').toLowerCase();
     const femaleIndicators = ['siti', 'ayu', 'wati', 'nisa', 'putri', 'dewi', 'nur', 'indah', 'sari', 'lia', 'dwi', 'annisa', 'aulia', 'safitri', 'zahra', 'kartika', 'linda', 'ratna'];
     const isFemale = femaleIndicators.some(indicator => nameStr.includes(indicator)) ||
@@ -39,6 +42,7 @@ interface Props {
         prodi?: string;
         semester?: number;
         kelas?: string;
+        jenis_kelamin?: 'L' | 'P';
         created_at: string;
     };
     stats: {
@@ -112,7 +116,7 @@ export default function MahasiswaDetail({ mahasiswa, stats, recentActivity }: Pr
                                 <div className="w-40 h-40 rounded-full p-1.5 bg-neutral-50 dark:bg-neutral-900 shadow-2xl">
                                     <div className="w-full h-full rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800 relative group">
                                         <img
-                                            src={mahasiswa.photo || getFallbackAvatar(mahasiswa.nama)}
+                                            src={mahasiswa.photo || getFallbackAvatar(mahasiswa.nama, mahasiswa.jenis_kelamin)}
                                             alt={mahasiswa.nama}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-neutral-100"
                                         />

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ImportLog;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
+use App\Support\CredentialDefaults;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -224,7 +225,7 @@ class ImportService
                     'email' => $data['email'] ?? null,
                     'no_hp' => $data['no_hp'] ?? null,
                     'kelas' => $data['kelas'] ?? null,
-                    'password' => Hash::make($data['nim']), // Default password = NIM
+                    'password' => Hash::make(CredentialDefaults::mahasiswaImportPassword($data['nim'])),
                 ]);
 
                 $success++;

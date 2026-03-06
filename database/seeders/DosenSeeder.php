@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Support\CredentialDefaults;
 use App\Models\Dosen;
 use App\Models\MataKuliah;
 use Illuminate\Database\Seeder;
@@ -29,113 +30,24 @@ class DosenSeeder extends Seeder
         
         // STEP 3: INSERT new dosen data
         $this->command->info('✨ Inserting new dosen data...');
+        $defaultDosenPassword = CredentialDefaults::dosenSeedPassword();
         
-        $dosens = [
-            [
-                'nama' => 'Intan Kumalasari, S.Kom., M.Kom.',
-                'nidn' => '0401028605',
-                'email' => 'dosen02368@unpam.ac.id',
-                'jenis_kelamin' => 'Perempuan',
+        $dosens = [];
+        for ($i = 1; $i <= 8; $i++) {
+            $dosens[] = [
+                'nama' => sprintf('Dosen Akademik %02d', $i),
+                'nidn' => sprintf('049800%04d', $i),
+                'email' => sprintf('dosen%02d@example.test', $i),
+                'jenis_kelamin' => $i % 2 === 0 ? 'Perempuan' : 'Laki-laki',
                 'fakultas' => 'Ilmu Komputer',
                 'program_studi' => 'Teknik Informatika',
                 'phone' => null,
-                'password' => Hash::make('dosen123'),
+                'password' => Hash::make($defaultDosenPassword),
                 'avatar_url' => null,
                 'settings' => json_encode([]),
                 'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Muhammad Yasser Arafat, S.Kom., M.Kom.',
-                'nidn' => '0410038801',
-                'email' => 'dosen00680@unpam.ac.id',
-                'jenis_kelamin' => 'Laki-laki',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Kecitaan Harefa, S.Kom., M.Kom.',
-                'nidn' => '0421049102',
-                'email' => 'dosen00842@unpam.ac.id',
-                'jenis_kelamin' => 'Laki-laki',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Drs. Muhammad Rosyid Ridlo, M.Eng.',
-                'nidn' => '8804410016',
-                'email' => 'dosen01873@unpam.ac.id',
-                'jenis_kelamin' => 'Laki-laki',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Farida Nurlaila, S.Kom., M.Kom.',
-                'nidn' => '0409078802',
-                'email' => 'dosen00676@unpam.ac.id',
-                'jenis_kelamin' => 'Perempuan',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Sopiyan Apandi, S.Kom., M.Kom.',
-                'nidn' => '0429069401',
-                'email' => 'dosen02601@unpam.ac.id',
-                'jenis_kelamin' => 'Laki-laki',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Nurhalimah, S.Kom., M.Kom.',
-                'nidn' => '0404059206',
-                'email' => 'dosen02956@unpam.ac.id',
-                'jenis_kelamin' => 'Perempuan',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-            [
-                'nama' => 'Farizi Ilham, S.Kom., M.Kom.',
-                'nidn' => '0416038709',
-                'email' => 'dosen02954@unpam.ac.id',
-                'jenis_kelamin' => 'Laki-laki',
-                'fakultas' => 'Ilmu Komputer',
-                'program_studi' => 'Teknik Informatika',
-                'phone' => null,
-                'password' => Hash::make('dosen123'),
-                'avatar_url' => null,
-                'settings' => json_encode([]),
-                'theme_preference' => 'system',
-            ],
-        ];
+            ];
+        }
 
         foreach ($dosens as $dosen) {
             Dosen::create($dosen);
@@ -158,56 +70,56 @@ class DosenSeeder extends Seeder
                 'nama' => 'REKAYASA PERANGKAT LUNAK',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0401028605', // Intan Kumalasari
+                'dosen_nidn' => '0498000001',
             ],
             [
                 'kode' => '22TIF0353',
                 'nama' => 'PEMROGRAMAN II',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0410038801', // Muhammad Yasser Arafat
+                'dosen_nidn' => '0498000002',
             ],
             [
                 'kode' => '22TIF2012',
                 'nama' => 'SISTEM PENDUKUNG KEPUTUSAN',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0421049102', // Kecitaan Harefa
+                'dosen_nidn' => '0498000003',
             ],
             [
                 'kode' => '22TIF3012',
                 'nama' => 'TEKNIK KOMPILASI',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '8804410016', // Muhammad Rosyid Ridlo
+                'dosen_nidn' => '0498000004',
             ],
             [
                 'kode' => '22TIF0443',
                 'nama' => 'MOBILE PROGRAMMING',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0409078802', // Farida Nurlaila
+                'dosen_nidn' => '0498000005',
             ],
             [
                 'kode' => '22TIF0363',
                 'nama' => 'BASIS DATA II',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0429069401', // Sopiyan Apandi
+                'dosen_nidn' => '0498000006',
             ],
             [
                 'kode' => '22TIF0342',
                 'nama' => 'TEKNOLOGI INTERNET OF THINGS',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0404059206', // Nurhalimah
+                'dosen_nidn' => '0498000007',
             ],
             [
                 'kode' => '22TIF0332',
                 'nama' => 'KERJA PRAKTEK',
                 'sks' => 3,
                 'kelas' => '06TPLK004',
-                'dosen_nidn' => '0416038709', // Farizi Ilham
+                'dosen_nidn' => '0498000008',
             ],
         ];
         

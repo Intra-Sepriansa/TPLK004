@@ -50,7 +50,10 @@ import totalIcon from '@/assets/admin/mahasiswa/total.png';
 import defaultMaleAvatar from '@/assets/admin/mahasiswa/laki.png';
 import defaultFemaleAvatar from '@/assets/admin/mahasiswa/perempuan.png';
 
-const getFallbackAvatar = (nama: string) => {
+const getFallbackAvatar = (nama: string, jenisKelamin?: string) => {
+    if (jenisKelamin === 'P') return defaultFemaleAvatar;
+    if (jenisKelamin === 'L') return defaultMaleAvatar;
+
     const nameStr = (nama || '').toLowerCase();
     const femaleIndicators = [
         'siti',
@@ -109,6 +112,7 @@ interface Mahasiswa {
     fakultas?: string;
     kelas?: string;
     semester?: number;
+    jenis_kelamin?: 'L' | 'P';
     avatar_url?: string;
     created_at?: string;
 }
@@ -610,11 +614,10 @@ export default function AdminMahasiswa({
                                 stiffness: 200,
                                 damping: 20,
                             }}
-                            className={`rounded-2xl border p-4 backdrop-blur-xl ${
-                                flash?.success
-                                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                                    : 'border-red-500/30 bg-red-500/10 text-red-300'
-                            }`}
+                            className={`rounded-2xl border p-4 backdrop-blur-xl ${flash?.success
+                                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                                : 'border-red-500/30 bg-red-500/10 text-red-300'
+                                }`}
                         >
                             <div className="flex items-center gap-3">
                                 <div
@@ -1052,7 +1055,7 @@ export default function AdminMahasiswa({
                                                     >
                                                         {getInitials(
                                                             addForm.data.nama ||
-                                                                'M',
+                                                            'M',
                                                         )}
                                                     </div>
                                                     <div className="min-w-0 flex-1">
@@ -1089,12 +1092,9 @@ export default function AdminMahasiswa({
                                                     </span>
                                                 </div>
                                                 <p className="text-xs text-indigo-600/80 dark:text-indigo-300/80">
-                                                    tplk004#
-                                                    {addForm.data.nim
-                                                        ? addForm.data.nim.slice(
-                                                              -2,
-                                                          )
-                                                        : 'XX'}
+                                                    Password default mengikuti
+                                                    kebijakan credential server
+                                                    (.env).
                                                 </p>
                                             </div>
                                         </div>
@@ -1254,12 +1254,11 @@ export default function AdminMahasiswa({
                                                         onClick={() =>
                                                             applyTemplate(idx)
                                                         }
-                                                        className={`rounded-xl border p-3 text-left transition-all ${
-                                                            selectedTemplate ===
+                                                        className={`rounded-xl border p-3 text-left transition-all ${selectedTemplate ===
                                                             idx
-                                                                ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-400/30 dark:border-amber-500 dark:bg-amber-500/10'
-                                                                : 'border-neutral-200 bg-white hover:border-amber-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-amber-600'
-                                                        }`}
+                                                            ? 'border-amber-400 bg-amber-50 ring-2 ring-amber-400/30 dark:border-amber-500 dark:bg-amber-500/10'
+                                                            : 'border-neutral-200 bg-white hover:border-amber-300 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:border-amber-600'
+                                                            }`}
                                                         whileHover={{
                                                             scale: 1.02,
                                                         }}
@@ -1309,12 +1308,11 @@ export default function AdminMahasiswa({
                                                                 key,
                                                             )
                                                         }
-                                                        className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${
-                                                            warningPriority ===
+                                                        className={`flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${warningPriority ===
                                                             key
-                                                                ? `${cfg.bg} ${cfg.border} ${cfg.text} ring-2 ring-current/20`
-                                                                : 'border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
-                                                        }`}
+                                                            ? `${cfg.bg} ${cfg.border} ${cfg.text} ring-2 ring-current/20`
+                                                            : 'border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
+                                                            }`}
                                                         whileHover={{
                                                             scale: 1.03,
                                                         }}
@@ -1595,6 +1593,7 @@ export default function AdminMahasiswa({
                                                                 m.avatar_url ||
                                                                 getFallbackAvatar(
                                                                     m.nama,
+                                                                    m.jenis_kelamin
                                                                 )
                                                             }
                                                             alt={m.nama}
@@ -1697,13 +1696,12 @@ export default function AdminMahasiswa({
                                             )
                                         }
                                         disabled={!link.url}
-                                        className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
-                                            link.active
-                                                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
-                                                : link.url
-                                                  ? 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-700/50 dark:hover:text-white'
-                                                  : 'cursor-not-allowed bg-neutral-50 text-neutral-300 dark:bg-neutral-900/30 dark:text-neutral-600'
-                                        }`}
+                                        className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${link.active
+                                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
+                                            : link.url
+                                                ? 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-700/50 dark:hover:text-white'
+                                                : 'cursor-not-allowed bg-neutral-50 text-neutral-300 dark:bg-neutral-900/30 dark:text-neutral-600'
+                                            }`}
                                         dangerouslySetInnerHTML={{
                                             __html: formatLabel(link.label),
                                         }}
@@ -1786,15 +1784,14 @@ export default function AdminMahasiswa({
                                             }}
                                         >
                                             <div
-                                                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-lg ${
-                                                    i === 0
-                                                        ? 'border border-yellow-200 bg-gradient-to-br from-yellow-300 to-amber-500 text-amber-900'
-                                                        : i === 1
-                                                          ? 'border border-slate-200 bg-gradient-to-br from-slate-200 to-slate-400 text-slate-800'
-                                                          : i === 2
+                                                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-lg ${i === 0
+                                                    ? 'border border-yellow-200 bg-gradient-to-br from-yellow-300 to-amber-500 text-amber-900'
+                                                    : i === 1
+                                                        ? 'border border-slate-200 bg-gradient-to-br from-slate-200 to-slate-400 text-slate-800'
+                                                        : i === 2
                                                             ? 'border border-orange-200 bg-gradient-to-br from-orange-300 to-orange-500 text-orange-900'
                                                             : 'border border-white/20 bg-white/20 text-white'
-                                                }`}
+                                                    }`}
                                             >
                                                 {i + 1}
                                             </div>
@@ -1897,11 +1894,10 @@ export default function AdminMahasiswa({
                                                     !sentWarningIds.has(s.id) &&
                                                     openWarningModal([s])
                                                 }
-                                                className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all ${
-                                                    sentWarningIds.has(s.id)
-                                                        ? 'cursor-default border-emerald-200 bg-emerald-50 text-emerald-500 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400'
-                                                        : 'border-amber-200 bg-amber-50 text-amber-500 hover:bg-amber-100 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20'
-                                                }`}
+                                                className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all ${sentWarningIds.has(s.id)
+                                                    ? 'cursor-default border-emerald-200 bg-emerald-50 text-emerald-500 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400'
+                                                    : 'border-amber-200 bg-amber-50 text-amber-500 hover:bg-amber-100 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20'
+                                                    }`}
                                                 whileHover={
                                                     sentWarningIds.has(s.id)
                                                         ? {}
