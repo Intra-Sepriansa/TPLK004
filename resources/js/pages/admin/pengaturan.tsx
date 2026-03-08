@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Settings, Shield, Bell, Server, HardDrive, Save, Trash2, Activity, CheckCircle, XCircle, Database, Zap, Lock, RefreshCw, Smartphone, Mail, Calendar, FileText, BarChart3, Palette, Moon, Sun, Monitor, KeyRound, ShieldCheck, Eye, EyeOff, History, AlertTriangle, Globe, UserCog, Fingerprint, Sparkles } from 'lucide-react';
 import { FormEvent, useState, useEffect } from 'react';
@@ -148,7 +148,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                                        
+
                     <div className="relative z-10">
                         <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                             <motion.div
@@ -299,9 +299,9 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">{is2FAEnabled ? 'Akun Anda terlindungi dengan maksimal.' : 'Aktifkan 2FA untuk melindungi akun Anda dari akses tidak sah.'}</p>
                                             </div>
                                         </div>
-                                        <a href="/admin/profile" className="mt-4 flex w-full justify-center items-center gap-2 px-4 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-neutral-800 dark:text-slate-300 dark:hover:bg-neutral-700 text-sm font-semibold transition-all group-hover:shadow-md">
+                                        <Link href="/admin/profile" className="mt-4 flex w-full justify-center items-center gap-2 px-4 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-neutral-800 dark:text-slate-300 dark:hover:bg-neutral-700 text-sm font-semibold transition-all group-hover:shadow-md">
                                             <UserCog className="h-4 w-4" />Kelola 2FA di Profil
-                                        </a>
+                                        </Link>
                                     </motion.div>
 
                                     <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-blue-500/10 transition-all">
