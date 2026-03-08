@@ -131,6 +131,12 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::patch('admin/pengaturan/geofence', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateGeofence'])->name('admin.pengaturan.geofence');
     Route::patch('admin/pengaturan/notifications', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateNotifications'])->name('admin.pengaturan.notifications');
     Route::patch('admin/pengaturan/advanced', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateAdvanced'])->name('admin.pengaturan.advanced');
+    Route::post('admin/pengaturan/backup', [\App\Http\Controllers\Admin\PengaturanController::class, 'createBackup'])->name('admin.pengaturan.backup');
+    Route::post('admin/pengaturan/backup/{backup}/restore', [\App\Http\Controllers\Admin\PengaturanController::class, 'restoreBackup'])->name('admin.pengaturan.backup.restore');
+    Route::delete('admin/pengaturan/backup/{backup}', [\App\Http\Controllers\Admin\PengaturanController::class, 'deleteBackup'])->name('admin.pengaturan.backup.delete');
+    Route::get('admin/pengaturan/export', [\App\Http\Controllers\Admin\PengaturanController::class, 'exportSettings'])->name('admin.pengaturan.export');
+    Route::post('admin/pengaturan/import', [\App\Http\Controllers\Admin\PengaturanController::class, 'importSettings'])->name('admin.pengaturan.import');
+    Route::get('admin/pengaturan/history', [\App\Http\Controllers\Admin\PengaturanController::class, 'history'])->name('admin.pengaturan.history');
     Route::post('admin/pengaturan/clear-cache', [\App\Http\Controllers\Admin\PengaturanController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
     Route::post('admin/pengaturan/optimize', [\App\Http\Controllers\Admin\PengaturanController::class, 'optimize'])->name('admin.pengaturan.optimize');
     

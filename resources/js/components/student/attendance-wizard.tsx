@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from '@inertiajs/react';
+import { toast } from 'sonner';
+import { saveOfflineAttendance } from '@/lib/offline-sync';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
@@ -219,9 +221,49 @@ export function AttendanceWizard({
     }, [captureSelfie]);
 
     // Submit
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        // Prepare offline-friendly payload
+        const offlineData = {
+            token: form.data.token,
+            latitude: form.data.latitude,
+            longitude: form.data.longitude,
+            location_accuracy_m: form.data.location_accuracy_m || 0,
+            location_samples: form.data.location_samples,
+            device_info: form.data.device_info,
+            selfiePreview: selfiePreview,
+        };
+
+        if (!navigator.onLine) {
+            try {
+                await saveOfflineAttendance(offlineData);
+                toast.success('Penyimpanan Offline', {
+                    description: 'Kamu sedang offline. Absen disimpan di HP dan akan otomatis dikirim saat sinyal sudah stabil.'
+                });
+                setCurrentStep('success');
+                onSuccess?.();
+            } catch (err) {
+                toast.error('Gagal menyimpan absen offline. Pastikan penyimpanan browser tidak penuh.');
+            }
+            return;
+        }
+
         form.post('/user/absen', {
             forceFormData: true,
+            onError: async (errors) => {
+                // If it's a network issue rather than a validation issue from backend, save offline
+                if (Object.keys(errors).length === 0) {
+                    try {
+                        await saveOfflineAttendance(offlineData);
+                        toast.success('Koneksi Gagal', {
+                            description: 'Sinyal terputus saat mengirim. Absen disimpan offline dan akan otomatis dikirim nanti.'
+                        });
+                        setCurrentStep('success');
+                        onSuccess?.();
+                    } catch (err) {
+                        toast.error('Gagal menyimpan absen offline.');
+                    }
+                }
+            },
             onSuccess: () => {
                 setCurrentStep('success');
                 onSuccess?.();

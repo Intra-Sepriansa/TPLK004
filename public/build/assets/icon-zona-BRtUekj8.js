@@ -1,1 +1,0 @@
-import{c as o}from"./createLucideIcon-CpY4wrFl.js";const n=[["polygon",{points:"3 11 22 2 13 21 11 13 3 11",key:"1ltx0t"}]],a=o("Navigation",n),c="/build/assets/icon-zona-DH_PjEkp.png";export{a as N,c as l};

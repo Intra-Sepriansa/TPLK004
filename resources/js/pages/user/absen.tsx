@@ -7,6 +7,7 @@ import { BiometricSetup } from '@/components/attendance/BiometricSetup';
 import { GamificationRewards } from '@/components/attendance/GamificationRewards';
 import { NotificationManager } from '@/components/attendance/NotificationManager';
 import { OfflineIndicator } from '@/components/attendance/OfflineIndicator';
+import { NetworkQualityBanner } from '@/components/attendance/NetworkQualityBanner';
 import { SocialProof } from '@/components/attendance/SocialProof';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -884,6 +885,7 @@ export default function UserAbsensi() {
         <StudentLayout>
             <Head title="Absensi" />
             <OfflineIndicator />
+            <NetworkQualityBanner />
 
             <motion.div
                 initial="hidden"
