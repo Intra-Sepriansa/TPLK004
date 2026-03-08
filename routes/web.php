@@ -210,6 +210,23 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::delete('admin/notification-center/{notification}', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'destroy'])->name('admin.notification-center.destroy');
     Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
     Route::get('admin/notification-center/templates', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'templates'])->name('admin.notification-center.templates');
+    Route::get('admin/weekly-digest', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'index'])->name('admin.weekly-digest.index');
+    Route::get('admin/weekly-digest/create', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'create'])->name('admin.weekly-digest.create');
+    Route::post('admin/weekly-digest', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'store'])
+        ->middleware('throttle:weekly-digest-write')
+        ->name('admin.weekly-digest.store');
+    Route::get('admin/weekly-digest/{id}', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'show'])->name('admin.weekly-digest.show');
+    Route::get('admin/weekly-digest/{id}/edit', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'edit'])->name('admin.weekly-digest.edit');
+    Route::patch('admin/weekly-digest/{id}', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'update'])
+        ->middleware('throttle:weekly-digest-write')
+        ->name('admin.weekly-digest.update');
+    Route::delete('admin/weekly-digest/{id}', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'destroy'])
+        ->middleware('throttle:weekly-digest-write')
+        ->name('admin.weekly-digest.destroy');
+    Route::patch('admin/weekly-digest/{id}/publish', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'publish'])
+        ->middleware('throttle:weekly-digest-write')
+        ->name('admin.weekly-digest.publish');
+    Route::get('admin/weekly-digest/{id}/export-pdf', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'exportPdf'])->name('admin.weekly-digest.export-pdf');
     
     // Admin Notifications (for header dropdown)
     Route::post('admin/notifications/{id}/read', [\App\Http\Controllers\Admin\AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');

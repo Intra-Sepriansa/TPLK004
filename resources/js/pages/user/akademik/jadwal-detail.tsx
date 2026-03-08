@@ -33,7 +33,6 @@ import {
     XCircle,
     Clock3,
     TrendingUp,
-    Target,
     Paperclip,
     Plus,
     Edit,
@@ -41,6 +40,7 @@ import {
     ExternalLink,
     Video,
     MessageSquare,
+    ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -103,8 +103,29 @@ interface Note {
     updated_at: string;
 }
 
+interface WeeklyDigestInfo {
+    week_number: number;
+    semester: string;
+    week_range: string;
+    class_label: string;
+    published_at?: string | null;
+    items: Array<{
+        id: number;
+        course_name: string;
+        course_code: string | null;
+        meeting_number: number;
+        title: string | null;
+        display_title: string;
+        has_structured_task: boolean;
+        forum_posts_required: number;
+        mentari_course_url: string | null;
+        mentari_course_id: string | null;
+    }>;
+}
+
 interface Props {
     course: CourseDetail;
+    weeklyDigest: WeeklyDigestInfo | null;
     dosen: DosenInfo;
     attendanceRecords: AttendanceRecord[];
     materials: Material[];
@@ -152,6 +173,7 @@ const itemVariants = {
 
 export default function JadwalDetail({
     course,
+    weeklyDigest,
     dosen,
     attendanceRecords,
     materials,
@@ -469,7 +491,7 @@ export default function JadwalDetail({
                                 glow: 'bg-emerald-500',
                             },
                         },
-                    ].map((stat, index) => (
+                    ].map((stat) => (
                         <motion.div
                             key={stat.title}
                             variants={itemVariants}
@@ -535,10 +557,11 @@ export default function JadwalDetail({
                 >
                     <Tabs value={activeTab} onValueChange={setActiveTab}>
                         <div className="overflow-x-auto no-scrollbar mb-6 pb-2 -mx-2 px-2 sm:mx-0 sm:px-0 sm:pb-0">
-                            <TabsList className="flex w-max min-w-full lg:grid lg:grid-cols-4 gap-1 p-1.5 bg-white/60 dark:bg-black/30 backdrop-blur-md rounded-2xl shadow-inner border border-white/40 dark:border-white/10 h-auto">
+                            <TabsList className="flex w-max min-w-full lg:grid lg:grid-cols-5 gap-1 p-1.5 bg-white/60 dark:bg-black/30 backdrop-blur-md rounded-2xl shadow-inner border border-white/40 dark:border-white/10 h-auto">
                                 <TabsTrigger value="overview" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-neutral-600 dark:text-neutral-300 data-[state=active]:shadow-md px-5 py-2.5 font-semibold transition-all">Overview</TabsTrigger>
                                 <TabsTrigger value="attendance" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-neutral-600 dark:text-neutral-300 data-[state=active]:shadow-md px-5 py-2.5 font-semibold transition-all">Kehadiran</TabsTrigger>
                                 <TabsTrigger value="materials" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-neutral-600 dark:text-neutral-300 data-[state=active]:shadow-md px-5 py-2.5 font-semibold transition-all">Materi</TabsTrigger>
+                                <TabsTrigger value="weekly-digest" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-neutral-600 dark:text-neutral-300 data-[state=active]:shadow-md px-5 py-2.5 font-semibold transition-all">Info Pekanan</TabsTrigger>
                                 <TabsTrigger value="notes" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-neutral-600 dark:text-neutral-300 data-[state=active]:shadow-md px-5 py-2.5 font-semibold transition-all">Catatan</TabsTrigger>
                             </TabsList>
                         </div>
@@ -819,6 +842,116 @@ export default function JadwalDetail({
                                 <div className="rounded-2xl border border-neutral-200 dark:border-white/5 bg-white/60 dark:bg-neutral-800/50 p-8 text-center">
                                     <Paperclip className="h-10 w-10 sm:h-12 sm:w-12 text-neutral-400 mx-auto mb-3 opacity-50" />
                                     <p className="text-sm text-neutral-500">Belum ada materi tersedia</p>
+                                </div>
+                            )}
+                        </TabsContent>
+
+                        {/* WEEKLY DIGEST TAB */}
+                        <TabsContent value="weekly-digest" className="space-y-4">
+                            {weeklyDigest ? (
+                                <div className="space-y-4">
+                                    <div className="rounded-2xl border border-cyan-100 bg-cyan-50/70 p-4 dark:border-cyan-900/40 dark:bg-cyan-950/20">
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-cyan-900 dark:text-cyan-200">
+                                                    Info Pekanan Mentari
+                                                </h3>
+                                                <p className="mt-1 text-xs text-cyan-700 dark:text-cyan-300">
+                                                    Rekap matkul yang materinya sudah masuk pada pekan yang dipublikasikan admin.
+                                                </p>
+                                            </div>
+                                            <div className="text-[11px] text-cyan-700 dark:text-cyan-300">
+                                                Pekan aktif • {weeklyDigest.semester}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-neutral-200 bg-white/70 p-5 shadow-sm dark:border-white/5 dark:bg-neutral-800/50">
+                                        <div className="mb-4 flex items-start gap-3">
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg">
+                                                <ClipboardList className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-base font-semibold text-neutral-900 dark:text-white">
+                                                    Ringkasan Pekanan Kelas
+                                                </h4>
+                                                <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                                    {weeklyDigest.week_range} • {weeklyDigest.class_label}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                            <div className="rounded-xl border border-cyan-100 bg-cyan-50/70 p-3 dark:border-cyan-900/30 dark:bg-cyan-950/20">
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">Total Matkul Masuk</p>
+                                                <p className="mt-1 text-2xl font-bold text-neutral-900 dark:text-white">{weeklyDigest.items.length}</p>
+                                            </div>
+                                            <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 dark:border-emerald-900/30 dark:bg-emerald-950/20">
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Tugas Terstruktur</p>
+                                                <p className="mt-1 text-2xl font-bold text-neutral-900 dark:text-white">{weeklyDigest.items.filter((item) => item.has_structured_task).length}</p>
+                                            </div>
+                                            <div className="rounded-xl border border-violet-100 bg-violet-50/70 p-3 dark:border-violet-900/30 dark:bg-violet-950/20">
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">Aturan Kehadiran</p>
+                                                <p className="mt-1 text-sm font-bold text-neutral-900 dark:text-white">
+                                                    Forum {weeklyDigest.items[0]?.forum_posts_required ?? 2}x
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-neutral-200 bg-white/70 p-5 shadow-sm dark:border-white/5 dark:bg-neutral-800/50">
+                                        <h4 className="mb-4 flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
+                                            <BookOpen className="h-5 w-5 text-cyan-500" />
+                                            Matkul yang Materinya Sudah Masuk
+                                        </h4>
+                                        <div className="space-y-3">
+                                            {weeklyDigest.items.map((item) => (
+                                                <div key={item.id} className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-white/5 dark:bg-neutral-900/50">
+                                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">{item.course_name}</p>
+                                                                <Badge className="bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300">Pertemuan {item.meeting_number}</Badge>
+                                                                {item.has_structured_task ? (
+                                                                    <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Ada Tugas Terstruktur</Badge>
+                                                                ) : (
+                                                                    <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300">Tanpa Tugas Terstruktur</Badge>
+                                                                )}
+                                                            </div>
+                                                            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{item.display_title}</p>
+                                                            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                                                                Kehadiran didapat setelah submit forum diskusi {item.forum_posts_required}x.
+                                                            </p>
+                                                        </div>
+
+                                                        {item.mentari_course_url && (
+                                                            <motion.a
+                                                                whileHover={{ y: -2 }}
+                                                                whileTap={{ scale: 0.98 }}
+                                                                href={item.mentari_course_url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-cyan-700"
+                                                            >
+                                                                <ExternalLink className="h-4 w-4" />
+                                                                Buka Mentari
+                                                            </motion.a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50/80 p-8 text-center dark:border-white/10 dark:bg-neutral-900/50">
+                                    <ClipboardList className="mx-auto mb-3 h-10 w-10 text-neutral-400 opacity-60" />
+                                    <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                                        Info pekanan belum tersedia
+                                    </p>
+                                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                        Admin belum mempublikasikan rekapan mingguan Mentari untuk kelas ini.
+                                    </p>
                                 </div>
                             )}
                         </TabsContent>

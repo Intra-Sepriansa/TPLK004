@@ -44,6 +44,7 @@ const dayNames: Record<string, string> = {
     wednesday: 'Rabu',
     thursday: 'Kamis',
     friday: 'Jumat',
+    saturday: 'Sabtu',
 };
 
 export default function AcademicCourses({ courses }: Props) {
@@ -383,6 +384,7 @@ export default function AcademicCourses({ courses }: Props) {
                                                         <SelectItem value="wednesday">Rabu</SelectItem>
                                                         <SelectItem value="thursday">Kamis</SelectItem>
                                                         <SelectItem value="friday">Jumat</SelectItem>
+                                                        <SelectItem value="saturday">Sabtu</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </div>

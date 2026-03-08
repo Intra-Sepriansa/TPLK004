@@ -5,7 +5,7 @@ import {
     Plus, Search, CheckCircle, TrendingDown, Users,
     Calendar, Receipt, Check, FileText, Download, Printer,
     ChevronDown, ChevronRight, X, Sparkles, ArrowUpRight, ArrowDownRight,
-    Clock, Award, Target, Zap, TrendingUp as TrendUp
+    Clock, Award, Target, Zap, Vote, TrendingUp as TrendUp
 } from 'lucide-react';
 import { useState } from 'react';
 import KasIcon from '@/assets/admin/kas/kas.png';
@@ -423,6 +423,16 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             >
                                 <TrendingDown className="h-4 w-4 shrink-0" />
                                 <span className="truncate">Catat Pengeluaran</span>
+                            </motion.button>
+
+                            <motion.button
+                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => router.visit('/admin/kas-voting')}
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                            >
+                                <Vote className="h-4 w-4 shrink-0" />
+                                <span className="truncate">Voting Kas</span>
                             </motion.button>
 
                             <motion.button

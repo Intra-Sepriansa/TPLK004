@@ -161,25 +161,17 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
     const [verification, setVerification] = useState<Verification>(initialVerification);
     const [privacy, setPrivacy] = useState(initialPrivacy);
     const [facialLandmarks, setFacialLandmarks] = useState(initialLandmarks);
-    const [isProcessing, setIsProcessing] = useState(false);
+    const [isAiProcessing, setIsAiProcessing] = useState(false);
+    const [isSubmittingVerification, setIsSubmittingVerification] = useState(false);
+    const [hasStartedAiAnalysis, setHasStartedAiAnalysis] = useState(false);
     const [aiPhase, setAiPhase] = useState(-1); // -1 = not started, 0-5 = processing, 6 = complete
     const [aiComplete, setAiComplete] = useState(false);
     const [requestReason, setRequestReason] = useState('Permintaan verifikasi ulang selfie untuk validasi kehadiran.');
     const [isRequestingAccess, setIsRequestingAccess] = useState(false);
-
-    // AI Processing animation sequence
-    useEffect(() => {
-        // Start AI analysis automatically
-        const startDelay = setTimeout(() => {
-            setIsProcessing(true);
-            setAiPhase(0);
-        }, 800);
-
-        return () => clearTimeout(startDelay);
-    }, []);
+    const canRunAiComparison = !privacy.is_locked && Boolean(verification.selfie_photo);
 
     useEffect(() => {
-        if (aiPhase < 0 || aiPhase >= AI_PHASES.length) return;
+        if (!hasStartedAiAnalysis || aiPhase < 0 || aiPhase >= AI_PHASES.length) return;
 
         const phase = AI_PHASES[aiPhase];
         const timer = setTimeout(() => {
@@ -187,7 +179,7 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                 setAiPhase(prev => prev + 1);
             } else {
                 // Final phase - complete!
-                setIsProcessing(false);
+                setIsAiProcessing(false);
                 setAiComplete(true);
                 toast.success('🧠 AI Analysis Completed', {
                     description: `Match Score: ${verification.match_score}% | Confidence: ${verification.confidence_level}%`,
@@ -196,18 +188,34 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
         }, phase.duration);
 
         return () => clearTimeout(timer);
-    }, [aiPhase]);
+    }, [aiPhase, hasStartedAiAnalysis, verification.match_score, verification.confidence_level]);
 
     const aiProgress = aiPhase < 0 ? 0 : Math.min(((aiPhase + 1) / AI_PHASES.length) * 100, 100);
 
+    const handleRunAiComparison = () => {
+        if (!canRunAiComparison) {
+            toast.error(
+                privacy.is_locked
+                    ? 'Foto selfie terkunci. Buka akses selfie dulu sebelum menjalankan AI Face Comparison.'
+                    : 'Foto selfie tidak tersedia untuk dianalisis.',
+            );
+            return;
+        }
+
+        setHasStartedAiAnalysis(true);
+        setAiComplete(false);
+        setAiPhase(0);
+        setIsAiProcessing(true);
+    };
+
     const handleVerify = async (action: 'approve' | 'reject') => {
-        setIsProcessing(true);
+        setIsSubmittingVerification(true);
         router.post(`/admin/verifikasi-selfie/${verification.raw_id}/${action}`, {}, {
             onSuccess: () => {
                 toast.success(`Verifikasi ${action === 'approve' ? 'disetujui' : 'ditolak'}`);
             },
             onError: () => toast.error('Gagal memproses verifikasi'),
-            onFinish: () => setIsProcessing(false),
+            onFinish: () => setIsSubmittingVerification(false),
         });
     };
 
@@ -339,17 +347,21 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                             >
                                 <div className={cn(
                                     "absolute inset-0 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity",
-                                    aiComplete ? "bg-gradient-to-r from-emerald-400 to-green-500" : "bg-gradient-to-r from-cyan-400 to-blue-500"
+                                    aiComplete
+                                        ? "bg-gradient-to-r from-emerald-400 to-green-500"
+                                        : isAiProcessing
+                                          ? "bg-gradient-to-r from-cyan-400 to-blue-500"
+                                          : "bg-gradient-to-r from-slate-400 to-slate-500"
                                 )} />
                                 <div className="relative flex items-center gap-3 rounded-2xl bg-white/15 backdrop-blur-xl px-5 py-3 sm:px-6 sm:py-4 shadow-2xl border border-white/20 text-white">
-                                    {!aiComplete ? (
+                                    {isAiProcessing ? (
                                         <motion.div
                                             animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
                                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                         >
                                             <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-300" />
                                         </motion.div>
-                                    ) : (
+                                    ) : aiComplete ? (
                                         <motion.div
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
@@ -357,14 +369,20 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                                         >
                                             <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-300" />
                                         </motion.div>
+                                    ) : (
+                                        <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-slate-200" />
                                     )}
                                     <div>
                                         <p className="text-[10px] sm:text-xs text-indigo-200/80 font-semibold tracking-wide uppercase">AI Status</p>
                                         <p className={cn(
                                             "text-base sm:text-lg font-black tracking-wider",
-                                            aiComplete ? "text-emerald-300" : "text-cyan-300"
+                                            aiComplete
+                                                ? "text-emerald-300"
+                                                : isAiProcessing
+                                                  ? "text-cyan-300"
+                                                  : "text-slate-200"
                                         )}>
-                                            {aiComplete ? 'COMPLETE' : 'PROCESSING'}
+                                            {aiComplete ? 'COMPLETE' : isAiProcessing ? 'PROCESSING' : 'IDLE'}
                                         </p>
                                     </div>
                                 </div>
@@ -383,29 +401,51 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                                 <h2 className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
                                     <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" /> AI Face Comparison
                                 </h2>
-                                {!aiComplete ? (
-                                    <motion.div
-                                        animate={{ opacity: [0.5, 1, 0.5] }}
-                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                        className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white text-xs sm:text-sm font-medium shadow-lg"
+                                <div className="flex items-center gap-2">
+                                    {isAiProcessing ? (
+                                        <motion.div
+                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 px-3 py-1.5 text-xs font-medium text-white shadow-lg sm:px-4 sm:py-2 sm:text-sm"
+                                        >
+                                            <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
+                                                <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            </motion.div>
+                                            AI Processing...
+                                        </motion.div>
+                                    ) : aiComplete ? (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.5 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ type: 'spring', stiffness: 200 }}
+                                            className="flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg sm:px-4 sm:py-2 sm:text-sm"
+                                        >
+                                            <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Complete
+                                        </motion.div>
+                                    ) : (
+                                        <div className="flex items-center gap-2 rounded-full bg-neutral-700 px-3 py-1.5 text-xs font-medium text-white shadow-lg sm:px-4 sm:py-2 sm:text-sm">
+                                            <Brain className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Idle
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        type="button"
+                                        onClick={handleRunAiComparison}
+                                        disabled={isAiProcessing || !canRunAiComparison}
+                                        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg hover:from-indigo-600 hover:to-purple-700 disabled:opacity-60"
                                     >
-                                        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></motion.div>
-                                        AI Processing...
-                                    </motion.div>
-                                ) : (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.5 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ type: 'spring', stiffness: 200 }}
-                                        className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs sm:text-sm font-bold shadow-lg"
-                                    >
-                                        <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Complete
-                                    </motion.div>
-                                )}
+                                        {isAiProcessing ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Brain className="mr-2 h-4 w-4" />
+                                        )}
+                                        {aiComplete ? 'Jalankan Ulang AI' : 'Jalankan AI'}
+                                    </Button>
+                                </div>
                             </div>
 
                             {/* AI Processing HUD Overlay */}
-                            {!aiComplete && aiPhase >= 0 && (
+                            {isAiProcessing && aiPhase >= 0 && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -836,11 +876,11 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                                 )}
                                 {verification.status === 'pending' && !privacy.is_locked && (
                                     <>
-                                        <Button disabled={isProcessing} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg" onClick={() => handleVerify('approve')}>
-                                            {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />} Setujui Verifikasi
+                                        <Button disabled={isSubmittingVerification} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg" onClick={() => handleVerify('approve')}>
+                                            {isSubmittingVerification ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />} Setujui Verifikasi
                                         </Button>
-                                        <Button disabled={isProcessing} variant="destructive" className="w-full shadow-lg" onClick={() => handleVerify('reject')}>
-                                            {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <XCircle className="h-4 w-4 mr-2" />} Tolak Verifikasi
+                                        <Button disabled={isSubmittingVerification} variant="destructive" className="w-full shadow-lg" onClick={() => handleVerify('reject')}>
+                                            {isSubmittingVerification ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <XCircle className="h-4 w-4 mr-2" />} Tolak Verifikasi
                                         </Button>
                                     </>
                                 )}

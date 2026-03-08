@@ -90,6 +90,8 @@ class ScheduleController extends Controller
         $schedules = $enrolledCourses->map(function ($course) use ($dayMapping) {
             $startTime = \Carbon\Carbon::parse($course->schedule_time);
             $endTime = $startTime->copy()->addMinutes($course->sks * 50);
+            $effectiveMode = $course->effective_mode;
+            $effectiveDay = $course->effective_schedule_day;
             
             $mataKuliah = \App\Models\MataKuliah::where('nama', $course->name)->with('dosen')->first();
             
@@ -98,16 +100,16 @@ class ScheduleController extends Controller
                 'course_name' => $course->name,
                 'course_code' => $mataKuliah?->kode ?? ('MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT)),
                 'dosen_name' => $mataKuliah?->dosen?->nama ?? 'Dosen Belum Ditentukan',
-                'ruangan' => $course->mode === 'online' ? 'Online' : ($mataKuliah?->ruang ?? 'Ruang Kelas'),
+                'ruangan' => $effectiveMode === 'online' ? 'Online' : ($mataKuliah?->ruang ?? 'Ruang Kelas'),
                 'time_range' => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
                 'jam_mulai' => $startTime->format('H:i'),
                 'jam_selesai' => $endTime->format('H:i'),
                 'duration' => ($course->sks * 50) . ' menit',
-                'notes' => 'SKS: ' . $course->sks . ' | Mode: ' . ucfirst($course->mode),
+                'notes' => 'SKS: ' . $course->sks . ' | Mode: ' . ucfirst($effectiveMode),
                 'color' => $this->getColorForCourse($course->id),
-                'hari' => $dayMapping[$course->schedule_day] ?? 'Senin',
+                'hari' => $dayMapping[$effectiveDay] ?? 'Senin',
                 'sks' => $course->sks,
-                'mode' => ucfirst($course->mode),
+                'mode' => ucfirst($effectiveMode),
             ];
         })->groupBy('hari');
 

@@ -22,7 +22,6 @@ import { useState } from 'react';
 import DisetujuiVotingIcon from '@/assets/admin/voting-kas/disetujui.png';
 import DitolakVotingIcon from '@/assets/admin/voting-kas/ditolak.png';
 import SedangVotingIcon from '@/assets/admin/voting-kas/icon-coting.png';
-import TotalVotingIcon from '@/assets/admin/voting-kas/total.png';
 import VotingKasIcon from '@/assets/admin/voting-kas/voting.png';
 
 interface Voter {
@@ -442,13 +441,13 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                 >
                     {[
                         {
-                            image: TotalVotingIcon,
+                            image: VotingKasIcon,
                             label: 'Total',
                             value: stats.total,
-                            shadowColor: 'hover:shadow-blue-500/10',
-                            glow: 'bg-blue-500',
+                            shadowColor: 'hover:shadow-violet-500/10',
+                            glow: 'bg-violet-500',
                             innerGrad:
-                                'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10',
+                                'from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10',
                         },
                         {
                             image: SedangVotingIcon,

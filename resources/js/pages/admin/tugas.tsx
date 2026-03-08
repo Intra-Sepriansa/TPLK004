@@ -54,6 +54,7 @@ import {
     Mic,
     Pin,
     Lock,
+    Users,
 } from 'lucide-react';
 import InformasiTugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
@@ -276,8 +277,21 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                 </div>
                             </div>
 
-                            <div className="w-full sm:w-auto flex justify-center mt-2 sm:mt-0">
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <div className="mt-2 flex w-full justify-center gap-3 sm:mt-0 sm:w-auto">
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Link href="/admin/tugas-kelompok">
+                                        <Button className="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg">
+                                            <Users className="mr-2 h-4 w-4" /> Tugas Kelompok
+                                        </Button>
+                                    </Link>
+                                </motion.div>
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
                                     <Link href="/admin/tugas/create">
                                         <Button className="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg">
                                             <Plus className="mr-2 h-4 w-4" /> Tambah Tugas

@@ -12,6 +12,8 @@ class MahasiswaCourse extends Model
 {
     use HasFactory;
 
+    private const ONLINE_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
     protected $fillable = [
         'mahasiswa_id',
         'name',
@@ -23,6 +25,7 @@ class MahasiswaCourse extends Model
         'schedule_day',
         'schedule_time',
         'mode',
+        'period_group',
         'start_date',
         'is_favorite',
         'study_time_hours',
@@ -38,6 +41,7 @@ class MahasiswaCourse extends Model
         'current_meeting' => 'integer',
         'uts_meeting' => 'integer',
         'uas_meeting' => 'integer',
+        'period_group' => 'integer',
         'start_date' => 'date',
         'schedule_time' => 'datetime:H:i',
         'is_favorite' => 'boolean',
@@ -163,18 +167,59 @@ class MahasiswaCourse extends Model
 
     public function getScheduleDayNameAttribute(): string
     {
+        return $this->effective_schedule_day_name;
+    }
+
+    public function getModeNameAttribute(): string
+    {
+        return $this->effective_mode_name;
+    }
+
+    public function getIsAfterUtsAttribute(): bool
+    {
+        return (int) $this->current_meeting > (int) $this->uts_meeting;
+    }
+
+    public function getEffectiveModeAttribute(): string
+    {
+        if (!in_array((int) $this->period_group, [1, 2], true)) {
+            return $this->mode === 'online' ? 'online' : 'offline';
+        }
+
+        if ((int) $this->period_group === 1) {
+            return $this->is_after_uts ? 'online' : 'offline';
+        }
+
+        return $this->is_after_uts ? 'offline' : 'online';
+    }
+
+    public function getEffectiveModeNameAttribute(): string
+    {
+        return $this->effective_mode === 'online' ? 'Online' : 'Offline';
+    }
+
+    public function getEffectiveScheduleDayAttribute(): string
+    {
+        if ($this->effective_mode === 'offline') {
+            return 'thursday';
+        }
+
+        $onlineDay = strtolower((string) $this->schedule_day);
+
+        return in_array($onlineDay, self::ONLINE_DAYS, true) ? $onlineDay : 'monday';
+    }
+
+    public function getEffectiveScheduleDayNameAttribute(): string
+    {
         $days = [
             'monday' => 'Senin',
             'tuesday' => 'Selasa',
             'wednesday' => 'Rabu',
             'thursday' => 'Kamis',
             'friday' => 'Jumat',
+            'saturday' => 'Sabtu',
         ];
-        return $days[$this->schedule_day] ?? $this->schedule_day;
-    }
 
-    public function getModeNameAttribute(): string
-    {
-        return $this->mode === 'online' ? 'Online' : 'Offline';
+        return $days[$this->effective_schedule_day] ?? $this->effective_schedule_day;
     }
 }

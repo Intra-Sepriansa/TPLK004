@@ -280,7 +280,6 @@ const sectionTitles: Record<string, string> = {
     settings: 'Pengaturan',
     reports: 'Rekap Kehadiran',
     audit: 'Audit Keamanan',
-    'absen-ai': 'Absen AI',
     'admin-guide': 'Panduan Admin',
     'help-center': 'Help Center',
 };

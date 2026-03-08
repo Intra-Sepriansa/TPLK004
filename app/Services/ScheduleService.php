@@ -115,25 +115,27 @@ class ScheduleService
         $today = strtolower(now()->format('l')); // monday, tuesday, etc.
 
         return MahasiswaCourse::where('mahasiswa_id', $mahasiswaId)
-            ->where('schedule_day', $today)
             ->with(['meetings' => function ($query) {
                 $query->where('is_completed', false)->orderBy('meeting_number')->limit(1);
             }])
             ->get()
+            ->filter(fn (MahasiswaCourse $course) => $course->effective_schedule_day === $today)
             ->map(function ($course) {
                 $nextMeeting = $course->meetings->first();
                 return [
                     'id' => $course->id,
                     'course_name' => $course->name,
                     'time' => $course->schedule_time?->format('H:i'),
-                    'mode' => $course->mode,
-                    'mode_name' => $course->mode_name,
+                    'mode' => $course->effective_mode,
+                    'mode_name' => $course->effective_mode_name,
                     'meeting_number' => $nextMeeting?->meeting_number ?? ($course->current_meeting + 1),
                     'total_meetings' => $course->total_meetings,
                     'progress' => $course->progress,
                     'is_completed' => $course->current_meeting >= $course->total_meetings,
                 ];
-            });
+            })
+            ->sortBy('time')
+            ->values();
     }
 
     /**
@@ -147,20 +149,20 @@ class ScheduleService
             }])
             ->get();
 
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $schedule = [];
 
         foreach ($days as $day) {
             $schedule[$day] = $courses
-                ->where('schedule_day', $day)
+                ->filter(fn (MahasiswaCourse $course) => $course->effective_schedule_day === $day)
                 ->map(function ($course) {
                     $nextMeeting = $course->meetings->where('is_completed', false)->first();
                     return [
                         'id' => $course->id,
                         'course_name' => $course->name,
                         'time' => $course->schedule_time?->format('H:i'),
-                        'mode' => $course->mode,
-                        'mode_name' => $course->mode_name,
+                        'mode' => $course->effective_mode,
+                        'mode_name' => $course->effective_mode_name,
                         'meeting_number' => $nextMeeting?->meeting_number ?? ($course->current_meeting + 1),
                         'total_meetings' => $course->total_meetings,
                         'progress' => $course->progress,

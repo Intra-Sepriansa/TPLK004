@@ -26,18 +26,15 @@ import {
     MessageCircle,
     NotebookPen,
     QrCode,
-    Trophy,
     UserCircle,
     Wallet,
     FileCheck,
-    Vote,
     BarChart3,
     Bell,
     Settings,
     HelpCircle,
     CalendarDays,
     Shield,
-    Users,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -77,11 +74,6 @@ const studentNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
-        title: 'Tugas Kelompok',
-        href: '/user/akademik/tugas-kelompok',
-        icon: Users,
-    },
-    {
         title: 'Izin/Sakit',
         href: '/user/permit',
         icon: FileCheck,
@@ -97,14 +89,9 @@ const studentNavItems: NavItem[] = [
         icon: BarChart3,
     },
     {
-        title: 'Pencapaian',
+        title: 'Pencapaian & Leaderboard',
         href: '/user/achievements',
         icon: Award,
-    },
-    {
-        title: 'Leaderboard',
-        href: '/user/leaderboard',
-        icon: Trophy,
     },
     {
         title: 'Notifikasi',
@@ -120,11 +107,6 @@ const studentNavItems: NavItem[] = [
         title: 'Uang Kas',
         href: '/user/kas',
         icon: Wallet,
-    },
-    {
-        title: 'Voting Kas',
-        href: '/user/kas-voting',
-        icon: Vote,
     },
     {
         title: 'Dokumentasi',
@@ -198,11 +180,6 @@ export function StudentSidebar() {
             icon: ClipboardList,
         },
         {
-            title: 'Tugas Kelompok',
-            href: '/user/akademik/tugas-kelompok',
-            icon: Users,
-        },
-        {
             title: 'Izin/Sakit',
             href: '/user/permit',
             icon: FileCheck,
@@ -218,14 +195,9 @@ export function StudentSidebar() {
             icon: BarChart3,
         },
         {
-            title: 'Pencapaian',
+            title: 'Pencapaian & Leaderboard',
             href: '/user/achievements',
             icon: Award,
-        },
-        {
-            title: 'Leaderboard',
-            href: '/user/leaderboard',
-            icon: Trophy,
         },
         {
             title: 'Notifikasi',
@@ -241,11 +213,6 @@ export function StudentSidebar() {
             title: 'Uang Kas',
             href: '/user/kas',
             icon: Wallet,
-        },
-        {
-            title: 'Voting Kas',
-            href: '/user/kas-voting',
-            icon: Vote,
         },
         {
             title: 'Dokumentasi',

@@ -10,6 +10,9 @@ import {
     BookOpen,
     Building2,
     Calendar,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
     Download,
     Edit,
     Filter,
@@ -339,6 +342,13 @@ export default function AdminMahasiswa({
         );
     };
 
+    const handleResetFilter = () => {
+        setSearch('');
+        setFakultas('all');
+        setKelas('all');
+        router.get('/admin/mahasiswa', {}, { preserveState: true });
+    };
+
     const handleExportPdf = () => {
         window.open(`/admin/mahasiswa/pdf?fakultas=${fakultas}`, '_blank');
     };
@@ -365,6 +375,32 @@ export default function AdminMahasiswa({
             .replace(/&raquo;/g, '»')
             .replace(/&amp;/g, '&')
             .replace(/<[^>]*>/g, '');
+
+    const normalizePaginationLabel = (label: string) => {
+        const cleaned = formatLabel(label).trim();
+        const normalized = cleaned.toLowerCase();
+
+        const isPrevious =
+            normalized === '«' ||
+            normalized.includes('previous') ||
+            normalized.includes('sebelumnya') ||
+            normalized.includes('pagination.previous');
+        const isNext =
+            normalized === '»' ||
+            normalized.includes('next') ||
+            normalized.includes('berikutnya') ||
+            normalized.includes('pagination.next');
+
+        return {
+            isPrevious,
+            isNext,
+            text: isPrevious
+                ? 'Sebelumnya'
+                : isNext
+                  ? 'Berikutnya'
+                  : cleaned,
+        };
+    };
 
     // Animation variants
     const containerVariants = {
@@ -490,7 +526,7 @@ export default function AdminMahasiswa({
                 {/* ═══════ HEADER — Matching Zona Style ═══════ */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
@@ -515,8 +551,8 @@ export default function AdminMahasiswa({
                     {/* Floating graduation pulses */}
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-start justify-between gap-6">
-                            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
+                        <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left xl:flex-1">
                                 <motion.div
                                     className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24"
                                     initial={{
@@ -572,30 +608,64 @@ export default function AdminMahasiswa({
                                 </div>
                             </div>
 
-                            {/* Quick info badges */}
-                            <div className="mt-4 flex w-full flex-col items-center gap-2 sm:mt-0 sm:w-auto sm:items-end">
+                            {/* Quick info + quick actions */}
+                            <div className="w-full xl:max-w-md">
                                 <motion.div
-                                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
+                                    className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md"
+                                    initial={{ opacity: 0, y: 12 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.3 }}
                                 >
-                                    <Users className="h-4 w-4 text-indigo-200" />
-                                    <span className="text-sm font-medium">
-                                        {stats.total} Mahasiswa
-                                    </span>
-                                </motion.div>
-                                <motion.div
-                                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                >
-                                    <UserCheck className="h-4 w-4 text-indigo-200" />
-                                    <span className="text-sm font-medium">
-                                        {stats.active_this_month} Aktif Bulan
-                                        Ini
-                                    </span>
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                        <div className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium sm:justify-start">
+                                            <Users className="h-4 w-4 text-indigo-200" />
+                                            {stats.total} Mahasiswa
+                                        </div>
+                                        <div className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium sm:justify-start">
+                                            <UserCheck className="h-4 w-4 text-indigo-200" />
+                                            {stats.active_this_month} Aktif
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 grid grid-cols-2 gap-2">
+                                        <motion.button
+                                            onClick={handleFilter}
+                                            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/15 px-3 py-2 text-xs font-semibold whitespace-nowrap text-white transition-all hover:bg-white/20 sm:text-sm"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            Filter
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() =>
+                                                router.visit('/admin/mahasiswa/create')
+                                            }
+                                            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-emerald-300/35 bg-emerald-500/30 px-3 py-2 text-xs font-semibold whitespace-nowrap text-white transition-all hover:bg-emerald-500/40 sm:text-sm"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            Tambah
+                                        </motion.button>
+                                        <motion.a
+                                            href="/mahasiswa/export.csv"
+                                            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold whitespace-nowrap text-white transition-all hover:bg-white/20 sm:text-sm"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            Export CSV
+                                        </motion.a>
+                                        <motion.button
+                                            onClick={handleExportPdf}
+                                            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold whitespace-nowrap text-white transition-all hover:bg-white/20 sm:text-sm"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                            Export PDF
+                                        </motion.button>
+                                    </div>
                                 </motion.div>
                             </div>
                         </div>
@@ -708,7 +778,7 @@ export default function AdminMahasiswa({
                 {/* ═══════ FILTER & ACTIONS ═══════ */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40"
+                    className="rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl transition-all hover:shadow-2xl dark:border-neutral-800 dark:bg-neutral-900/50"
                 >
                     <div className="mb-4 flex items-center gap-2 sm:mb-5">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
@@ -718,9 +788,9 @@ export default function AdminMahasiswa({
                             Filter & Pencarian
                         </h2>
                     </div>
-                    <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-6">
-                        <div className="md:col-span-2">
-                            <Label className="mb-2 block text-xs tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                    <div className="flex flex-nowrap items-end gap-4 overflow-x-auto pb-1">
+                        <div className="min-w-[260px] flex-1 space-y-1.5">
+                            <Label className="ml-1 block text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                                 Cari
                             </Label>
                             <div className="relative">
@@ -732,89 +802,68 @@ export default function AdminMahasiswa({
                                     onKeyDown={(e) =>
                                         e.key === 'Enter' && handleFilter()
                                     }
-                                    className="w-full rounded-xl border border-neutral-200 bg-white/60 px-4 py-2.5 pl-10 text-sm text-neutral-900 placeholder-neutral-400 transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-white"
+                                    className="w-full rounded-xl border border-neutral-200 bg-white/60 px-4 py-2.5 pl-10 text-sm font-medium text-neutral-700 shadow-sm transition-all focus:border-blue-500 focus:ring-blue-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
                                 />
                             </div>
                         </div>
-                        <div>
-                            <Label className="mb-2 block text-xs tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                        <div className="min-w-[210px] space-y-1.5">
+                            <Label className="ml-1 block text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                                 Fakultas
                             </Label>
-                            <select
-                                value={fakultas}
-                                onChange={(e) => setFakultas(e.target.value)}
-                                className="w-full rounded-xl border border-neutral-200 bg-white/60 px-3 py-2.5 text-sm text-neutral-900 transition-all focus:ring-2 focus:ring-indigo-500/50 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-white"
-                            >
-                                <option value="all">Semua</option>
-                                {fakultasList.map((f) => (
-                                    <option key={f} value={f}>
-                                        {f}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                <select
+                                    value={fakultas}
+                                    onChange={(e) => setFakultas(e.target.value)}
+                                    className="w-full appearance-none rounded-xl border border-neutral-200 bg-white/60 px-4 py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-all focus:border-blue-500 focus:ring-blue-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                                >
+                                    <option value="all">Semua</option>
+                                    {fakultasList.map((f) => (
+                                        <option key={f} value={f}>
+                                            {f}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <Label className="mb-2 block text-xs tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                        <div className="min-w-[180px] space-y-1.5">
+                            <Label className="ml-1 block text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                                 Kelas
                             </Label>
-                            <select
-                                value={kelas}
-                                onChange={(e) => setKelas(e.target.value)}
-                                className="w-full rounded-xl border border-neutral-200 bg-white/60 px-3 py-2.5 text-sm text-neutral-900 transition-all focus:ring-2 focus:ring-indigo-500/50 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-white"
-                            >
-                                <option value="all">Semua</option>
-                                {kelasList.map((k) => (
-                                    <option key={k} value={k}>
-                                        {k}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="relative">
+                                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                <select
+                                    value={kelas}
+                                    onChange={(e) => setKelas(e.target.value)}
+                                    className="w-full appearance-none rounded-xl border border-neutral-200 bg-white/60 px-4 py-2.5 text-sm font-medium text-neutral-700 shadow-sm transition-all focus:border-blue-500 focus:ring-blue-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                                >
+                                    <option value="all">Semua</option>
+                                    {kelasList.map((k) => (
+                                        <option key={k} value={k}>
+                                            {k}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        <div className="md:col-span-2 lg:col-span-1" />
-                    </div>
-                    <div className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
-                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                            <motion.button
-                                onClick={handleFilter}
-                                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-3 py-2.5 text-xs font-semibold whitespace-nowrap text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-600 hover:to-purple-700 sm:gap-2 sm:px-5 sm:text-sm"
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                            >
-                                <RefreshCw className="h-4 w-4" />
-                                Filter
-                            </motion.button>
-                            <motion.button
-                                onClick={() =>
-                                    router.visit('/admin/mahasiswa/create')
-                                }
-                                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-3 py-2.5 text-xs font-semibold whitespace-nowrap text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-600 hover:to-teal-700 sm:gap-2 sm:px-5 sm:text-sm"
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                            >
-                                <Plus className="h-4 w-4" />
-                                Tambah Mahasiswa
-                            </motion.button>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                            <motion.a
-                                href="/mahasiswa/export.csv"
-                                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-white/60 px-3 py-2.5 text-xs font-medium whitespace-nowrap text-neutral-600 transition-all hover:bg-neutral-100 sm:gap-2 sm:px-5 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60"
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                            >
-                                <Download className="h-4 w-4" />
-                                Export CSV
-                            </motion.a>
-                            <motion.button
-                                onClick={handleExportPdf}
-                                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-white/60 px-3 py-2.5 text-xs font-medium whitespace-nowrap text-neutral-600 transition-all hover:bg-neutral-100 sm:gap-2 sm:px-5 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60"
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                            >
-                                <Download className="h-4 w-4" />
-                                Export PDF
-                            </motion.button>
-                        </div>
+                        <motion.button
+                            onClick={handleResetFilter}
+                            className="flex h-[42px] shrink-0 items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white/60 px-5 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                        >
+                            <X className="h-4 w-4" />
+                            Reset
+                        </motion.button>
+                        <motion.button
+                            onClick={handleFilter}
+                            className="flex h-[42px] shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-bold whitespace-nowrap text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                        >
+                            <RefreshCw className="h-4 w-4" />
+                            Filter
+                        </motion.button>
                     </div>
                 </motion.div>
 
@@ -1683,36 +1732,49 @@ export default function AdminMahasiswa({
                             </table>
                         </div>
                         {mahasiswa.last_page > 1 && (
-                            <div className="flex justify-center gap-2 border-t border-neutral-200 p-4 dark:border-neutral-800">
-                                {mahasiswa.links.map((link, i) => (
-                                    <motion.button
-                                        key={i}
-                                        onClick={() =>
-                                            link.url &&
-                                            router.get(
-                                                link.url,
-                                                {},
-                                                { preserveState: true },
-                                            )
-                                        }
-                                        disabled={!link.url}
-                                        className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${link.active
-                                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
-                                            : link.url
-                                                ? 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-700/50 dark:hover:text-white'
-                                                : 'cursor-not-allowed bg-neutral-50 text-neutral-300 dark:bg-neutral-900/30 dark:text-neutral-600'
-                                            }`}
-                                        dangerouslySetInnerHTML={{
-                                            __html: formatLabel(link.label),
-                                        }}
-                                        whileHover={
-                                            link.url ? { scale: 1.05 } : {}
-                                        }
-                                        whileTap={
-                                            link.url ? { scale: 0.95 } : {}
-                                        }
-                                    />
-                                ))}
+                            <div className="flex flex-wrap items-center justify-center gap-2 border-t border-neutral-200 p-4 dark:border-neutral-800">
+                                {mahasiswa.links.map((link, i) => {
+                                    const parsed = normalizePaginationLabel(
+                                        link.label,
+                                    );
+                                    const isEdge =
+                                        parsed.isPrevious || parsed.isNext;
+
+                                    return (
+                                        <motion.button
+                                            key={i}
+                                            onClick={() =>
+                                                link.url &&
+                                                router.get(
+                                                    link.url,
+                                                    {},
+                                                    { preserveState: true },
+                                                )
+                                            }
+                                            disabled={!link.url}
+                                            className={`inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${link.active
+                                                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
+                                                : link.url
+                                                  ? 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-700/50 dark:hover:text-white'
+                                                  : 'cursor-not-allowed bg-neutral-50 text-neutral-300 dark:bg-neutral-900/30 dark:text-neutral-600'
+                                                } ${isEdge ? 'min-w-[110px] sm:min-w-[125px]' : 'min-w-[42px]'}`}
+                                            whileHover={
+                                                link.url ? { scale: 1.05 } : {}
+                                            }
+                                            whileTap={
+                                                link.url ? { scale: 0.95 } : {}
+                                            }
+                                        >
+                                            {parsed.isPrevious && (
+                                                <ChevronLeft className="h-4 w-4" />
+                                            )}
+                                            <span>{parsed.text}</span>
+                                            {parsed.isNext && (
+                                                <ChevronRight className="h-4 w-4" />
+                                            )}
+                                        </motion.button>
+                                    );
+                                })}
                             </div>
                         )}
                     </motion.div>

@@ -165,7 +165,7 @@ class MataKuliahController extends Controller
             if ($nextMeeting) {
                 $sessionDate = $nextMeeting->scheduled_date
                     ? Carbon::parse($nextMeeting->scheduled_date)
-                    : Carbon::now()->next($course->schedule_day ?? 'monday');
+                    : Carbon::now()->next($course->effective_schedule_day ?? 'monday');
 
                 $nextSession = [
                     'meeting_number' => $nextMeeting->meeting_number,
@@ -200,10 +200,10 @@ class MataKuliahController extends Controller
                 'semester' => (int) ($mahasiswa->semester ?? 1),
                 'dosen' => $mk?->dosen?->nama ?? 'Dosen Belum Ditentukan',
                 'dosen_avatar' => $mk?->dosen?->avatar_url,
-                'mode' => in_array($course->mode, ['online', 'offline'], true) ? $course->mode : 'offline',
-                'ruangan' => $course->ruangan ?: ($course->mode === 'online' ? 'Zoom / LMS' : 'Ruang Kelas'),
+                'mode' => $course->effective_mode,
+                'ruangan' => $course->ruangan ?: ($course->effective_mode === 'online' ? 'Zoom / LMS' : 'Ruang Kelas'),
                 'schedule' => [
-                    'day' => $course->schedule_day_name,
+                    'day' => $course->effective_schedule_day_name,
                     'time' => $course->schedule_time?->format('H:i') ?? '-',
                 ],
                 'progress' => [
@@ -300,7 +300,7 @@ class MataKuliahController extends Controller
         $rows = MahasiswaCourse::query()
             ->where('mahasiswa_id', $mahasiswa->id)
             ->orderBy('name')
-            ->get(['name', 'sks', 'mode', 'current_meeting', 'total_meetings', 'study_time_hours']);
+            ->get(['name', 'sks', 'mode', 'period_group', 'uts_meeting', 'current_meeting', 'total_meetings', 'study_time_hours']);
 
         $filename = 'laporan-mata-kuliah-' . now()->format('Ymd-His') . '.csv';
 
@@ -316,7 +316,7 @@ class MataKuliahController extends Controller
                 fputcsv($handle, [
                     $row->name,
                     $row->sks,
-                    ucfirst((string) $row->mode),
+                    ucfirst((string) $row->effective_mode),
                     $row->current_meeting,
                     $row->total_meetings,
                     $row->study_time_hours,
@@ -453,7 +453,7 @@ class MataKuliahController extends Controller
         }
 
         foreach ($courseModels as $course) {
-            $label = $dayMap[$course->schedule_day] ?? null;
+            $label = $dayMap[$course->effective_schedule_day] ?? null;
             if (!$label) {
                 continue;
             }
@@ -538,16 +538,16 @@ class MataKuliahController extends Controller
             return;
         }
 
-        $mataKuliahs = MataKuliah::query()->with('dosen')->get();
+        $mataKuliahs = MataKuliah::query()->with('dosen')->orderBy('id')->get()->values();
 
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-        $times = ['08:00', '10:00', '13:00', '15:00'];
-        $dayIndex = 0;
-        $timeIndex = 0;
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $times = ['07:40', '09:20', '11:00', '13:50', '16:00'];
+        $periodOneLimit = (int) ceil($mataKuliahs->count() / 2);
 
-        foreach ($mataKuliahs as $mk) {
+        foreach ($mataKuliahs as $index => $mk) {
             $sks = (int) ($mk->sks ?? 3);
             $totalMeetings = $sks === 2 ? 14 : 21;
+            $periodGroup = $index < $periodOneLimit ? 1 : 2;
 
             MahasiswaCourse::query()->create([
                 'mahasiswa_id' => $mahasiswaId,
@@ -557,9 +557,10 @@ class MataKuliahController extends Controller
                 'current_meeting' => 0,
                 'uts_meeting' => $sks === 2 ? 7 : 14,
                 'uas_meeting' => $totalMeetings,
-                'schedule_day' => $days[$dayIndex % count($days)],
-                'schedule_time' => $times[$timeIndex % count($times)],
-                'mode' => 'offline',
+                'schedule_day' => $days[$index % count($days)],
+                'schedule_time' => $times[$index % count($times)],
+                'mode' => $periodGroup === 1 ? 'offline' : 'online',
+                'period_group' => $periodGroup,
                 'start_date' => now()->startOfMonth(),
                 'is_favorite' => false,
                 'study_time_hours' => 0,
@@ -568,11 +569,6 @@ class MataKuliahController extends Controller
                 'color' => '#6366f1',
                 'ruangan' => null,
             ]);
-
-            $timeIndex++;
-            if ($timeIndex % count($times) === 0) {
-                $dayIndex++;
-            }
         }
     }
 }

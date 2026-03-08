@@ -216,6 +216,20 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             </div>
                         </div>
                     </div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.45 }}
+                        className="relative z-10 mt-4 flex justify-center lg:justify-end"
+                    >
+                        <Button
+                            onClick={() => router.visit('/user/akademik/tugas-kelompok')}
+                            className="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg"
+                        >
+                            <ListTodo className="mr-2 h-4 w-4" /> Tugas Kelompok
+                        </Button>
+                    </motion.div>
                 </motion.div>
 
                 <motion.div variants={containerVariants} className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">

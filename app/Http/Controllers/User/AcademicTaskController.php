@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class AcademicTaskController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
         
@@ -26,7 +26,7 @@ class AcademicTaskController extends Controller
         $this->syncCoursesFromMataKuliah($mahasiswa->id);
 
         $query = AcademicTask::where('mahasiswa_id', $mahasiswa->id)
-            ->with('course:id,name,mode');
+            ->with('course');
 
         // Filter by course
         if ($request->filled('course_id')) {
@@ -64,7 +64,7 @@ class AcademicTaskController extends Controller
                     'description' => $task->description,
                     'course_id' => $task->mahasiswa_course_id,
                     'course_name' => $task->course?->name ?? 'Unknown',
-                    'course_mode' => $task->course?->mode ?? 'online',
+                    'course_mode' => $task->course?->effective_mode ?? 'online',
                     'meeting_number' => $task->meeting_number,
                     'deadline' => $task->deadline?->format('Y-m-d'),
                     'deadline_formatted' => $task->deadline?->translatedFormat('d M Y'),
@@ -225,9 +225,15 @@ class AcademicTaskController extends Controller
         }
 
         // Get all mata kuliah with dosen info
-        $mataKuliahs = MataKuliah::with('dosen')->get();
+        $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
 
-        foreach ($mataKuliahs as $mk) {
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $times = ['07:40', '09:20', '11:00', '13:50', '16:00'];
+        $periodOneLimit = (int) ceil($mataKuliahs->count() / 2);
+
+        foreach ($mataKuliahs as $index => $mk) {
+            $periodGroup = $index < $periodOneLimit ? 1 : 2;
+
             MahasiswaCourse::create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
@@ -236,9 +242,10 @@ class AcademicTaskController extends Controller
                 'current_meeting' => 1,
                 'uts_meeting' => 8,
                 'uas_meeting' => 16,
-                'schedule_day' => 'monday', // Default
-                'schedule_time' => '08:00',
-                'mode' => 'offline',
+                'schedule_day' => $days[$index % count($days)],
+                'schedule_time' => $times[$index % count($times)],
+                'mode' => $periodGroup === 1 ? 'offline' : 'online',
+                'period_group' => $periodGroup,
                 'start_date' => now()->startOfMonth(),
             ]);
         }

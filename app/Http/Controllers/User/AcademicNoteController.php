@@ -24,7 +24,7 @@ class AcademicNoteController extends Controller
         $this->aiService = $aiService;
     }
 
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
         
@@ -36,7 +36,7 @@ class AcademicNoteController extends Controller
         $this->syncCoursesFromMataKuliah($mahasiswa->id);
 
         $query = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with(['course:id,name,mode']);
+            ->with('course');
 
         // Filter by course
         if ($request->filled('course_id')) {
@@ -67,7 +67,7 @@ class AcademicNoteController extends Controller
                     'ai_keywords' => $note->ai_keywords ?? [],
                     'course_id' => $note->mahasiswa_course_id,
                     'course_name' => $note->course?->name ?? 'Unknown',
-                    'course_mode' => $note->course?->mode ?? 'online',
+                    'course_mode' => $note->course?->effective_mode ?? 'online',
                     'meeting_number' => $note->meeting_number,
                     'links' => $note->links ?? [],
                     'collaborators' => [],
@@ -79,9 +79,14 @@ class AcademicNoteController extends Controller
 
         // Get courses for filter dropdown
         $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
-            ->select('id', 'name', 'mode', 'total_meetings')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(fn (MahasiswaCourse $course) => [
+                'id' => $course->id,
+                'name' => $course->name,
+                'mode' => $course->effective_mode,
+                'total_meetings' => $course->total_meetings,
+            ]);
 
         $stats = [
             'total_notes' => $notes->count(),
@@ -102,7 +107,7 @@ class AcademicNoteController extends Controller
         ]);
     }
 
-    public function show(int $id): Response
+    public function show(int $id): Response|RedirectResponse
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
         if (!$mahasiswa) {
@@ -110,7 +115,7 @@ class AcademicNoteController extends Controller
         }
 
         $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with(['course:id,name,mode,total_meetings,sks'])
+            ->with('course')
             ->findOrFail($id);
 
         $plainText = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $note->content)));
@@ -141,7 +146,7 @@ class AcademicNoteController extends Controller
                 'meeting_number' => $note->meeting_number,
                 'course_id' => $note->mahasiswa_course_id,
                 'course_name' => $note->course?->name ?? '-',
-                'course_mode' => $note->course?->mode ?? 'offline',
+                'course_mode' => $note->course?->effective_mode ?? 'offline',
                 'total_meetings' => $note->course?->total_meetings ?? 16,
                 'sks' => $note->course?->sks ?? null,
                 'tags' => $note->tags ?? [],
@@ -170,9 +175,15 @@ class AcademicNoteController extends Controller
         }
 
         // Get all mata kuliah with dosen info
-        $mataKuliahs = MataKuliah::with('dosen')->get();
+        $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
 
-        foreach ($mataKuliahs as $mk) {
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $times = ['07:40', '09:20', '11:00', '13:50', '16:00'];
+        $periodOneLimit = (int) ceil($mataKuliahs->count() / 2);
+
+        foreach ($mataKuliahs as $index => $mk) {
+            $periodGroup = $index < $periodOneLimit ? 1 : 2;
+
             MahasiswaCourse::create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
@@ -181,9 +192,10 @@ class AcademicNoteController extends Controller
                 'current_meeting' => 1,
                 'uts_meeting' => 8,
                 'uas_meeting' => 16,
-                'schedule_day' => 'monday', // Default
-                'schedule_time' => '08:00',
-                'mode' => 'offline',
+                'schedule_day' => $days[$index % count($days)],
+                'schedule_time' => $times[$index % count($times)],
+                'mode' => $periodGroup === 1 ? 'offline' : 'online',
+                'period_group' => $periodGroup,
                 'start_date' => now()->startOfMonth(),
             ]);
         }
@@ -376,7 +388,7 @@ class AcademicNoteController extends Controller
         $mahasiswa = $request->user('mahasiswa');
 
         $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with(['course:id,name,mode,total_meetings,sks'])
+            ->with('course')
             ->findOrFail($id);
 
         $plainText = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $note->content)));

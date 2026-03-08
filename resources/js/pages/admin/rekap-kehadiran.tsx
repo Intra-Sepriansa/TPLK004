@@ -319,15 +319,26 @@ export default function AdminRekapKehadiran({
                                 </div>
                             </div>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleExportPdf}
-                                className="flex items-center justify-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg w-fit mt-2 sm:mt-0"
-                            >
-                                <Download className="h-5 w-5" />
-                                Export Laporan
-                            </motion.button>
+                            <div className="mt-2 flex w-fit flex-wrap items-center justify-center gap-3 sm:mt-0">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => router.visit('/admin/analytics')}
+                                    className="flex items-center justify-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                >
+                                    <TrendingUp className="h-5 w-5" />
+                                    Buka Analitik
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleExportPdf}
+                                    className="flex items-center justify-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                >
+                                    <Download className="h-5 w-5" />
+                                    Export Laporan
+                                </motion.button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>

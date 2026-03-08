@@ -14,7 +14,6 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
-    Camera,
     CalendarCheck,
     ClipboardList,
     Clock,
@@ -27,15 +26,11 @@ import {
     QrCode,
     Radar,
     ScanFace,
-    Settings,
     ShieldCheck,
     TabletSmartphone,
     Trophy,
     Users,
-    Vote,
     Wallet,
-
-    Shield,
     Bell,
 
 } from 'lucide-react';
@@ -61,11 +56,6 @@ const attendanceNavItems: NavItem[] = [
         title: 'Live Monitor',
         href: '/admin/live-monitor',
         icon: Radar,
-    },
-    {
-        title: 'Absen AI',
-        href: dashboard({ query: { section: 'absen-ai' } }),
-        icon: Camera,
     },
     {
         title: 'Verifikasi Selfie',
@@ -106,42 +96,20 @@ const managementNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
-        title: 'Tugas Kelompok',
-        href: '/admin/tugas-kelompok',
-        icon: Users,
-    },
-    {
         title: 'Uang Kas',
         href: '/admin/kas',
         icon: Wallet,
-    },
-    {
-        title: 'Voting Kas',
-        href: '/admin/kas-voting',
-        icon: Vote,
     },
     {
         title: 'Leaderboard',
         href: '/admin/leaderboard',
         icon: Trophy,
     },
-    {
-        title: 'Pengaturan',
-        href: '/admin/pengaturan',
-        icon: Settings,
-    },
 ];
 
 const reportNavItems: NavItem[] = [
     {
-        title: 'Rekap Kehadiran',
-        href: '/admin/rekap-kehadiran',
-        icon: FileBarChart,
-    },
-
-
-    {
-        title: 'Analitik',
+        title: 'Rekap Kehadiran & Analitik',
         href: '/admin/analytics',
         icon: FileBarChart,
     },

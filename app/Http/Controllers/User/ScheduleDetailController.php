@@ -10,6 +10,7 @@ use App\Models\CourseNote;
 use App\Models\MahasiswaCourse;
 use App\Models\MataKuliah;
 use App\Models\ScheduleReminder;
+use App\Models\WeeklyLearningDigest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -24,8 +25,63 @@ class ScheduleDetailController extends Controller
             ->where('mahasiswa_id', $mahasiswa->id)
             ->firstOrFail();
 
+        $mataKuliah = MataKuliah::with('dosen')
+            ->where('nama', $course->name)
+            ->when($mahasiswa->kelas, function ($query) use ($mahasiswa) {
+                $query->orderByRaw(
+                    "case when kelas = ? then 0 when kelas is null or kelas = '' then 1 else 2 end",
+                    [$mahasiswa->kelas]
+                );
+            })
+            ->first();
+
+        $weeklyDigest = null;
+
+        if ($mataKuliah) {
+            $digestModel = WeeklyLearningDigest::query()
+                ->where('class_label', '06TPLK004')
+                ->published()
+                ->orderByDesc('week_number')
+                ->orderByDesc('updated_at')
+                ->first();
+
+            if ($digestModel) {
+                $digestEntries = WeeklyLearningDigest::with('mataKuliah')
+                    ->where('class_label', '06TPLK004')
+                    ->where('semester', $digestModel->semester)
+                    ->where('week_number', $digestModel->week_number)
+                    ->published()
+                    ->orderBy('meeting_number')
+                    ->orderBy('mata_kuliah_id')
+                    ->get();
+
+                $weeklyDigest = [
+                    'week_number' => $digestModel->week_number,
+                    'semester' => $digestModel->semester,
+                    'week_range' => $digestModel->week_range,
+                    'class_label' => '06TPLK004',
+                    'published_at' => $digestModel->published_at?->format('d M Y H:i'),
+                    'items' => $digestEntries->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'course_name' => $item->mataKuliah?->nama ?? 'Mata Kuliah',
+                            'course_code' => $item->mataKuliah?->kode,
+                            'meeting_number' => $item->meeting_number,
+                            'title' => $item->title,
+                            'display_title' => $item->title ?: 'Materi Pertemuan ' . $item->meeting_number,
+                            'has_structured_task' => (bool) $item->has_structured_task,
+                            'forum_posts_required' => (int) $item->forum_posts_required,
+                            'mentari_course_url' => $item->mentari_course_url,
+                            'mentari_course_id' => $item->mentari_course_id,
+                        ];
+                    })->values()->all(),
+               ];
+            }
+        }
+
         $startTime = Carbon::parse($course->schedule_time);
         $endTime   = $startTime->copy()->addMinutes($course->sks * 50);
+        $effectiveMode = $course->effective_mode;
 
         $courseDetail = [
             'id'           => $course->id,
@@ -33,10 +89,10 @@ class ScheduleDetailController extends Controller
             'course_code'  => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
             'sks'          => $course->sks,
             'semester'     => 1,
-            'mode'         => $course->mode,
-            'ruangan'      => $course->mode === 'online' ? 'Online' : 'Ruang Kelas',
-            'meeting_link' => $course->mode === 'online' ? 'https://meet.google.com' : null,
-            'schedule_day' => $course->schedule_day_name,
+            'mode'         => $effectiveMode,
+            'ruangan'      => $effectiveMode === 'online' ? 'Online' : 'Ruang Kelas',
+            'meeting_link' => null,
+            'schedule_day' => $course->effective_schedule_day_name,
             'time_range'   => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
             'jam_mulai'    => $startTime->format('H:i'),
             'jam_selesai'  => $endTime->format('H:i'),
@@ -48,8 +104,6 @@ class ScheduleDetailController extends Controller
 
         // Real attendance from AttendanceLog via AttendanceSession
         // Match MahasiswaCourse.name to MataKuliah.nama to find sessions
-        $mataKuliah = MataKuliah::where('nama', $course->name)->first();
-
         $attendanceRecords = [];
         if ($mataKuliah) {
             $sessionIds = AttendanceSession::where('course_id', $mataKuliah->id)
@@ -158,12 +212,13 @@ class ScheduleDetailController extends Controller
 
         return Inertia::render('user/akademik/jadwal-detail', [
             'course'            => $courseDetail,
+            'weeklyDigest'      => $weeklyDigest,
             'dosen'             => [
-                'id'        => 0,
-                'name'      => 'Dosen Pengampu',
-                'nidn'      => '-',
-                'email'     => null,
-                'phone'     => null,
+                'id'        => $mataKuliah?->dosen?->id ?? 0,
+                'name'      => $mataKuliah?->dosen?->nama ?? 'Dosen Pengampu',
+                'nidn'      => $mataKuliah?->dosen?->nidn ?? '-',
+                'email'     => $mataKuliah?->dosen?->email,
+                'phone'     => $mataKuliah?->dosen?->phone,
                 'photo_url' => null,
                 'expertise' => [],
             ],
@@ -244,6 +299,8 @@ class ScheduleDetailController extends Controller
 
         $startTime = Carbon::parse($course->schedule_time);
         $endTime   = $startTime->copy()->addMinutes($course->sks * 50);
+        $effectiveMode = $course->effective_mode;
+        $effectiveScheduleDay = $course->effective_schedule_day;
 
         $ical  = "BEGIN:VCALENDAR\r\n";
         $ical .= "VERSION:2.0\r\n";
@@ -254,8 +311,8 @@ class ScheduleDetailController extends Controller
         $ical .= "DTSTART:" . $startTime->format('Ymd\THis\Z') . "\r\n";
         $ical .= "DTEND:" . $endTime->format('Ymd\THis\Z') . "\r\n";
         $ical .= "SUMMARY:" . $course->name . "\r\n";
-        $ical .= "LOCATION:" . ($course->mode === 'online' ? 'Online' : 'Ruang Kelas') . "\r\n";
-        $ical .= "RRULE:FREQ=WEEKLY;BYDAY=" . $this->getDayAbbr($course->schedule_day) . "\r\n";
+        $ical .= "LOCATION:" . ($effectiveMode === 'online' ? 'Online' : 'Ruang Kelas') . "\r\n";
+        $ical .= "RRULE:FREQ=WEEKLY;BYDAY=" . $this->getDayAbbr($effectiveScheduleDay) . "\r\n";
         $ical .= "END:VEVENT\r\n";
         $ical .= "END:VCALENDAR\r\n";
 
@@ -310,9 +367,10 @@ class ScheduleDetailController extends Controller
             'wednesday' => Carbon::WEDNESDAY,
             'thursday'  => Carbon::THURSDAY,
             'friday'    => Carbon::FRIDAY,
+            'saturday'  => Carbon::SATURDAY,
         ];
 
-        $dayOfWeek = $dayMapping[$course->schedule_day] ?? Carbon::MONDAY;
+        $dayOfWeek = $dayMapping[$course->effective_schedule_day] ?? Carbon::MONDAY;
         $nextDate  = Carbon::now()->next($dayOfWeek);
         $time      = Carbon::parse($course->schedule_time)->format('H:i');
 

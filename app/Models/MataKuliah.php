@@ -35,4 +35,9 @@ class MataKuliah extends Model
     {
         return $this->hasMany(AttendanceSession::class, 'course_id');
     }
+
+    public function weeklyDigests(): HasMany
+    {
+        return $this->hasMany(WeeklyLearningDigest::class, 'mata_kuliah_id');
+    }
 }

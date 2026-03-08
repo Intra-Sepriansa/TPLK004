@@ -8,6 +8,7 @@ use App\Models\AcademicTask;
 use App\Models\MahasiswaCourse;
 use App\Models\MataKuliah;
 use App\Services\ScheduleService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,7 +20,7 @@ class AcademicScheduleController extends Controller
         private ScheduleService $scheduleService
     ) {}
 
-    public function dashboard(): Response
+    public function dashboard(): Response|RedirectResponse
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
         
@@ -64,12 +65,12 @@ class AcademicScheduleController extends Controller
                 'progress' => $course->progress,
                 'current_meeting' => $course->current_meeting,
                 'total_meetings' => $course->total_meetings,
-                'mode' => $course->mode,
+                'mode' => $course->effective_mode,
             ]);
 
         // Recent notes
         $recentNotes = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with('course:id,name,mode')
+            ->with('course')
             ->latest()
             ->limit(3)
             ->get()
@@ -77,7 +78,7 @@ class AcademicScheduleController extends Controller
                 'id' => $note->id,
                 'title' => $note->title,
                 'course_name' => $note->course?->name ?? 'Unknown',
-                'course_mode' => $note->course?->mode ?? 'online',
+                'course_mode' => $note->course?->effective_mode ?? 'online',
                 'meeting_number' => $note->meeting_number,
                 'created_at' => $note->created_at->diffForHumans(),
             ]);
@@ -142,6 +143,7 @@ class AcademicScheduleController extends Controller
             'wednesday' => 'Rabu',
             'thursday' => 'Kamis',
             'friday' => 'Jumat',
+            'saturday' => 'Sabtu',
         ];
 
         // Get all courses for stats
@@ -198,7 +200,7 @@ class AcademicScheduleController extends Controller
         // Next class calculation
         $currentTime = now()->format('H:i');
         $nextClass = null;
-        $daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        $daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $currentDayIndex = array_search($currentDayEn, $daysOrder);
 
         // Check today's remaining classes first
@@ -217,8 +219,9 @@ class AcademicScheduleController extends Controller
 
         // If no class today, check next days
         if (!$nextClass) {
-            for ($i = 1; $i <= 5; $i++) {
-                $checkIndex = (($currentDayIndex !== false ? $currentDayIndex : 0) + $i) % 5;
+            $daysCount = count($daysOrder);
+            for ($i = 1; $i <= $daysCount; $i++) {
+                $checkIndex = (($currentDayIndex !== false ? $currentDayIndex : 0) + $i) % $daysCount;
                 $checkDay = $daysOrder[$checkIndex];
                 $dayItems = $enrichedSchedule[$checkDay] ?? [];
                 if (!empty($dayItems)) {
@@ -326,14 +329,15 @@ class AcademicScheduleController extends Controller
         }
 
         // Get all mata kuliah with dosen info
-        $mataKuliahs = MataKuliah::with('dosen')->get();
+        $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
 
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-        $times = ['08:00', '10:00', '13:00', '15:00'];
-        $dayIndex = 0;
-        $timeIndex = 0;
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $times = ['07:40', '09:20', '11:00', '13:50', '16:00'];
+        $periodOneLimit = (int) ceil($mataKuliahs->count() / 2);
 
-        foreach ($mataKuliahs as $mk) {
+        foreach ($mataKuliahs as $index => $mk) {
+            $periodGroup = $index < $periodOneLimit ? 1 : 2;
+
             MahasiswaCourse::create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
@@ -342,16 +346,12 @@ class AcademicScheduleController extends Controller
                 'current_meeting' => 1,
                 'uts_meeting' => 8,
                 'uas_meeting' => 16,
-                'schedule_day' => $days[$dayIndex % count($days)],
-                'schedule_time' => $times[$timeIndex % count($times)],
-                'mode' => 'offline',
+                'schedule_day' => $days[$index % count($days)],
+                'schedule_time' => $times[$index % count($times)],
+                'mode' => $periodGroup === 1 ? 'offline' : 'online',
+                'period_group' => $periodGroup,
                 'start_date' => now()->startOfMonth(),
             ]);
-
-            $timeIndex++;
-            if ($timeIndex % count($times) === 0) {
-                $dayIndex++;
-            }
         }
     }
 
@@ -363,7 +363,7 @@ class AcademicScheduleController extends Controller
         $mahasiswa = Auth::guard('mahasiswa')->user();
 
         $validated = $request->validate([
-            'schedule_day'  => 'required|in:monday,tuesday,wednesday,thursday,friday',
+            'schedule_day'  => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'schedule_time' => 'required|date_format:H:i',
         ]);
 

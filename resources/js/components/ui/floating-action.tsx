@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, X, QrCode, Camera, MapPin, Users, FileText } from 'lucide-react';
+import { Plus, X, QrCode, MapPin, Users, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FloatingAction {
@@ -71,12 +71,6 @@ export function AdminFloatingActions() {
             label: 'Generate QR',
             onClick: () => window.location.href = '/dashboard?section=qr',
             color: 'bg-violet-600 text-white',
-        },
-        {
-            icon: Camera,
-            label: 'Absen AI',
-            onClick: () => window.location.href = '/dashboard?section=absen-ai',
-            color: 'bg-sky-600 text-white',
         },
         {
             icon: MapPin,

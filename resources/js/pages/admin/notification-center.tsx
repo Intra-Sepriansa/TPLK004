@@ -4,17 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import {
   Bell, Send, Users, Mail, MessageSquare,
-  Smartphone, Eye, MousePointer, Plus, Filter, Trash2, CheckCircle, Clock, AlertTriangle,
-  Globe, GraduationCap, UserCog, Target, Info, Megaphone, Siren, Trophy, Circle,
+  Eye, Plus, Filter, Trash2, CheckCircle, Clock, AlertTriangle,
+  Globe, GraduationCap, UserCog, Target, Info, Megaphone, Siren, Trophy, Circle, BookOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
@@ -38,10 +37,25 @@ interface Notification {
   created_at: string;
 }
 
+interface PaginationLink {
+  url: string | null;
+  label: string;
+  active: boolean;
+}
+
+interface StatColorConfig {
+  from: string;
+  to: string;
+  shadow: string;
+  bg: string;
+  hoverShadow: string;
+  gradientBg: string;
+}
+
 interface NotificationCenterProps {
   notifications: {
     data: Notification[];
-    links: any[];
+    links: PaginationLink[];
     current_page: number;
     last_page: number;
   };
@@ -67,11 +81,6 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
 };
-const cardVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 20 } },
-  hover: { scale: 1.03, y: -8, transition: { type: 'spring' as const, stiffness: 400, damping: 10 } },
-};
 
 export default function NotificationCenter({ notifications, stats, filters, mahasiswaCount, dosenCount }: NotificationCenterProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -83,7 +92,6 @@ export default function NotificationCenter({ notifications, stats, filters, maha
   });
   const [typeFilter, setTypeFilter] = useState(filters.type);
   const [statusFilter, setStatusFilter] = useState(filters.status);
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     target: 'all',
     title: '',
@@ -243,17 +251,29 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
             >
-              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <DialogTrigger asChild>
-                  <motion.button
-                    className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
-                    whileHover={{ scale: 1.03, y: -2 }}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    <Plus className="h-4 w-4" />
-                    Buat Notifikasi
-                  </motion.button>
-                </DialogTrigger>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <motion.button
+                  type="button"
+                  onClick={() => router.get('/admin/weekly-digest')}
+                  className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Info Pekanan
+                </motion.button>
+
+                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                  <DialogTrigger asChild>
+                    <motion.button
+                      className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
+                      whileHover={{ scale: 1.03, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Buat Notifikasi
+                    </motion.button>
+                  </DialogTrigger>
                 <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-2xl max-h-[90vh] flex flex-col">
                   {/* ── Animated Gradient Header ── */}
                   <div className="relative overflow-hidden p-6 text-white">
@@ -406,8 +426,9 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                       </motion.div>
                     </div>
                   </form>
-                </DialogContent>
-              </Dialog>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </motion.div>
           </div>
 
@@ -437,7 +458,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             { title: 'Scheduled', value: stats.scheduled.toString(), change: 'Upcoming', isUp: true, imgSrc: scheduledIcon, color: 'amber' },
             { title: 'Recipients', value: (mahasiswaCount + dosenCount).toString(), change: 'Users', isUp: true, imgSrc: recipientsIcon, color: 'rose' },
           ].map((stat, i) => {
-            const colorConfigs: Record<string, any> = {
+            const colorConfigs: Record<string, StatColorConfig> = {
               indigo: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
               emerald: { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
               amber: { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-500', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
@@ -782,7 +803,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
         {/* Pagination */}
         {notifications.last_page > 1 && (
           <div className="flex justify-center gap-2">
-            {notifications.links.map((link: any, i: number) => (
+            {notifications.links.map((link, i: number) => (
               <motion.button
                 key={i}
                 whileHover={{ scale: link.url ? 1.05 : 1 }}

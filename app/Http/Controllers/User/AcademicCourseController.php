@@ -20,7 +20,7 @@ class AcademicCourseController extends Controller
         private ScheduleService $scheduleService
     ) {}
 
-    public function index(): Response
+    public function index(): Response|RedirectResponse
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
         
@@ -48,11 +48,11 @@ class AcademicCourseController extends Controller
                     'current_meeting' => $course->current_meeting,
                     'uts_meeting' => $course->uts_meeting,
                     'uas_meeting' => $course->uas_meeting,
-                    'schedule_day' => $course->schedule_day,
-                    'schedule_day_name' => $course->schedule_day_name,
+                    'schedule_day' => $course->effective_schedule_day,
+                    'schedule_day_name' => $course->effective_schedule_day_name,
                     'schedule_time' => $course->schedule_time?->format('H:i'),
-                    'mode' => $course->mode,
-                    'mode_name' => $course->mode_name,
+                    'mode' => $course->effective_mode,
+                    'mode_name' => $course->effective_mode_name,
                     'start_date' => $course->start_date?->format('Y-m-d'),
                     'progress' => $course->progress,
                     'uts_date' => $course->uts_date,
@@ -80,13 +80,13 @@ class AcademicCourseController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'sks' => 'required|integer|in:2,3',
-            'schedule_day' => 'required|in:monday,tuesday,wednesday,thursday,friday',
+            'schedule_day' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'schedule_time' => 'required|date_format:H:i',
             'mode' => 'required|in:online,offline',
             'start_date' => 'nullable|date',
         ], [
             'sks.in' => 'SKS harus 2 atau 3.',
-            'schedule_day.in' => 'Hari harus Senin-Jumat.',
+            'schedule_day.in' => 'Hari harus Senin-Sabtu.',
             'mode.in' => 'Mode harus online atau offline.',
         ]);
 
@@ -124,7 +124,7 @@ class AcademicCourseController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'schedule_day' => 'required|in:monday,tuesday,wednesday,thursday,friday',
+            'schedule_day' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
             'schedule_time' => 'required|date_format:H:i',
             'mode' => 'required|in:online,offline',
             'start_date' => 'nullable|date',
@@ -185,14 +185,15 @@ class AcademicCourseController extends Controller
         }
 
         // Get all mata kuliah with dosen info
-        $mataKuliahs = MataKuliah::with('dosen')->get();
+        $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
 
-        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-        $times = ['08:00', '10:00', '13:00', '15:00'];
-        $dayIndex = 0;
-        $timeIndex = 0;
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $times = ['07:40', '09:20', '11:00', '13:50', '16:00'];
+        $periodOneLimit = (int) ceil($mataKuliahs->count() / 2);
 
-        foreach ($mataKuliahs as $mk) {
+        foreach ($mataKuliahs as $index => $mk) {
+            $periodGroup = $index < $periodOneLimit ? 1 : 2;
+
             MahasiswaCourse::create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
@@ -201,16 +202,12 @@ class AcademicCourseController extends Controller
                 'current_meeting' => 1,
                 'uts_meeting' => 8,
                 'uas_meeting' => 16,
-                'schedule_day' => $days[$dayIndex % count($days)],
-                'schedule_time' => $times[$timeIndex % count($times)],
-                'mode' => 'offline',
+                'schedule_day' => $days[$index % count($days)],
+                'schedule_time' => $times[$index % count($times)],
+                'mode' => $periodGroup === 1 ? 'offline' : 'online',
+                'period_group' => $periodGroup,
                 'start_date' => now()->startOfMonth(),
             ]);
-
-            $timeIndex++;
-            if ($timeIndex % count($times) === 0) {
-                $dayIndex++;
-            }
         }
     }
 }

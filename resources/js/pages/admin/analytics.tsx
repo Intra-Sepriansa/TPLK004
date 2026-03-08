@@ -290,6 +290,15 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                     {isExporting ? <Activity className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
                                     {isExporting ? 'Exporting...' : 'Export Laporan'}
                                 </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => router.visit('/admin/rekap-kehadiran')}
+                                    className="flex w-fit items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-6 py-3 text-sm font-bold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30"
+                                >
+                                    <BarChart3 className="h-5 w-5" />
+                                    Buka Rekap Kehadiran
+                                </motion.button>
                             </div>
                         </div>
                     </div>

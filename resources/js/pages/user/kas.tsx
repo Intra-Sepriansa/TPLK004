@@ -25,6 +25,7 @@ import {
     TrendingDown,
     TrendingUp as TrendUp,
     Upload,
+    Vote,
     XCircle,
     Zap,
 } from 'lucide-react';
@@ -567,6 +568,23 @@ export default function UserKas({
                                 </div>
                             </motion.div>
                         </div>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="mt-5 flex justify-center sm:justify-end"
+                        >
+                            <motion.button
+                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => router.visit('/user/kas-voting')}
+                                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-5 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30"
+                            >
+                                <Vote className="h-4 w-4 shrink-0" />
+                                <span>Voting Kas</span>
+                            </motion.button>
+                        </motion.div>
                     </div>
                 </motion.div>
 
