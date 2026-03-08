@@ -139,6 +139,8 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::get('admin/pengaturan/history', [\App\Http\Controllers\Admin\PengaturanController::class, 'history'])->name('admin.pengaturan.history');
     Route::post('admin/pengaturan/clear-cache', [\App\Http\Controllers\Admin\PengaturanController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
     Route::post('admin/pengaturan/optimize', [\App\Http\Controllers\Admin\PengaturanController::class, 'optimize'])->name('admin.pengaturan.optimize');
+    Route::patch('admin/pengaturan/templates/{template}', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateTemplate'])->name('admin.pengaturan.templates.update');
+    Route::patch('admin/pengaturan/preferences/{preference}', [\App\Http\Controllers\Admin\PengaturanController::class, 'updatePreference'])->name('admin.pengaturan.preferences.update');
     
     // Admin QR Builder
     Route::get('admin/qr-builder', [\App\Http\Controllers\Admin\QrBuilderController::class, 'index'])->name('admin.qr-builder');

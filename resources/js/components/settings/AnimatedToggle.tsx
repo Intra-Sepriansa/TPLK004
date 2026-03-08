@@ -53,11 +53,7 @@ export function AnimatedToggle({
             >
                 {/* Animated thumb */}
                 <motion.span
-                    className={`
-                        pointer-events-none inline-block h-6 w-6 transform 
-                        rounded-full bg-white shadow-lg ring-0 
-                        flex items-center justify-center
-                    `}
+                    className="pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-lg ring-0"
                     animate={{
                         x: checked ? 28 : 0,
                     }}
@@ -66,37 +62,7 @@ export function AnimatedToggle({
                         stiffness: 500,
                         damping: 30,
                     }}
-                >
-                    {/* Icon inside thumb */}
-                    <motion.div
-                        initial={false}
-                        animate={{
-                            scale: checked ? [1, 1.3, 1] : 1,
-                            rotate: checked ? 360 : 0,
-                        }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {checked ? (
-                            <svg className="w-3 h-3 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                        ) : (
-                            <svg className="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                        )}
-                    </motion.div>
-                </motion.span>
-
-                {/* Ripple effect on toggle */}
-                {checked && (
-                    <motion.span
-                        className="absolute inset-0 rounded-full bg-white"
-                        initial={{ scale: 0, opacity: 0.5 }}
-                        animate={{ scale: 2, opacity: 0 }}
-                        transition={{ duration: 0.6 }}
-                    />
-                )}
+                />
             </motion.button>
         </div>
     );

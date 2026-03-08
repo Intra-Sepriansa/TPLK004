@@ -14,6 +14,7 @@ import {
     History,
     KeyRound,
     Lock,
+    Mail,
     MapPinned,
     Palette,
     RefreshCw,
@@ -137,8 +138,20 @@ interface Stats {
     last_backup_at: string | null;
 }
 
+interface EmailTemplate {
+    id: number;
+    name: string;
+    slug: string;
+    type: string;
+    subject: string;
+    body: string;
+    variables: Record<string, string> | null;
+    is_active: boolean;
+}
+
 interface PageProps {
     settings: SettingsState;
+    emailTemplates: EmailTemplate[];
     systemInfo: SystemInfo;
     storageInfo: StorageInfo;
     stats: Stats;
@@ -148,7 +161,7 @@ interface PageProps {
     flash?: { success?: string; error?: string };
 }
 
-type TabType = 'general' | 'security' | 'notifications' | 'advanced' | 'system';
+type TabType = 'general' | 'security' | 'notifications' | 'templates' | 'advanced' | 'system';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -199,11 +212,12 @@ const tabs: Array<{ id: TabType; label: string; icon: typeof Settings; keywords:
     { id: 'general', label: 'Umum', icon: Settings, keywords: ['token', 'ttl', 'selfie', 'geofence', 'tema'] },
     { id: 'security', label: 'Keamanan Akun', icon: ShieldCheck, keywords: ['password', '2fa', 'sesi', 'keamanan'] },
     { id: 'notifications', label: 'Notifikasi', icon: Bell, keywords: ['email', 'push', 'laporan'] },
+    { id: 'templates', label: 'Template Email', icon: Mail, keywords: ['template', 'email', 'body', 'subject'] },
     { id: 'advanced', label: 'Lanjutan', icon: Zap, keywords: ['ai', 'maintenance', 'threshold', 'login'] },
     { id: 'system', label: 'Sistem', icon: Server, keywords: ['server', 'storage', 'backup', 'history', 'cache'] },
 ];
 
-export default function AdminPengaturan({ settings, systemInfo, storageInfo, stats, recentHistory, backups, auth, flash }: PageProps) {
+export default function AdminPengaturan({ settings, emailTemplates, systemInfo, storageInfo, stats, recentHistory, backups, auth, flash }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabType>('general');
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -212,8 +226,15 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
     const { theme, resolvedTheme, setTheme } = useTheme();
     const importInputRef = useRef<HTMLInputElement | null>(null);
+
+    const templateForm = useForm({
+        subject: '',
+        body: '',
+        is_active: true,
+    });
 
     const generalForm = useForm({
         token_ttl_seconds: settings.token_ttl_seconds,
@@ -334,6 +355,10 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                     matcher(['notifikasi', 'email', 'push']),
                     matcher(['laporan', 'daily', 'weekly']),
                 ].filter(Boolean).length;
+            case 'templates':
+                return [
+                    matcher(['template', 'email', 'body', 'subject']),
+                ].filter(Boolean).length;
             case 'advanced':
                 return [
                     matcher(['max login', 'lockout', 'session lifetime', 'keamanan login']),
@@ -401,6 +426,19 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
         });
     };
 
+    const submitTemplate = (e: FormEvent) => {
+        e.preventDefault();
+        if (!editingTemplate) return;
+        templateForm.patch(`/admin/pengaturan/templates/${editingTemplate.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                pushToast('success', 'Template berhasil diperbarui.');
+                setEditingTemplate(null);
+            },
+            onError: () => pushToast('error', 'Gagal memperbarui template.'),
+        });
+    };
+
     const handleCreateBackup = (e: FormEvent) => {
         e.preventDefault();
         backupForm.post('/admin/pengaturan/backup', {
@@ -415,7 +453,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
     };
 
     const handleRestoreBackup = (backupId: number) => {
-        if (! window.confirm('Restore backup ini akan mengganti pengaturan saat ini. Lanjutkan?')) {
+        if (!window.confirm('Restore backup ini akan mengganti pengaturan saat ini. Lanjutkan?')) {
             return;
         }
 
@@ -427,7 +465,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
     };
 
     const handleDeleteBackup = (backupId: number) => {
-        if (! window.confirm('Hapus backup ini?')) {
+        if (!window.confirm('Hapus backup ini?')) {
             return;
         }
 
@@ -442,7 +480,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
 
     const handleImportFile = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (! file) {
+        if (!file) {
             return;
         }
 
@@ -494,11 +532,10 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                             initial={{ opacity: 0, y: -16, x: 20 }}
                             animate={{ opacity: 1, y: 0, x: 0 }}
                             exit={{ opacity: 0, y: -16, x: 20 }}
-                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-2xl border px-4 py-3 shadow-2xl backdrop-blur-md ${
-                                activeToast.type === 'success'
-                                    ? 'border-emerald-200 bg-emerald-500/10 text-emerald-600 dark:border-emerald-800 dark:text-emerald-300'
-                                    : 'border-red-200 bg-red-500/10 text-red-600 dark:border-red-800 dark:text-red-300'
-                            }`}
+                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-2xl border px-4 py-3 shadow-2xl backdrop-blur-md ${activeToast.type === 'success'
+                                ? 'border-emerald-200 bg-emerald-500/10 text-emerald-600 dark:border-emerald-800 dark:text-emerald-300'
+                                : 'border-red-200 bg-red-500/10 text-red-600 dark:border-red-800 dark:text-red-300'
+                                }`}
                         >
                             {activeToast.type === 'success' ? <Sparkles className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
                             <span className="text-sm font-semibold">{activeToast.message}</span>
@@ -556,29 +593,6 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                     </div>
                 </motion.section>
 
-                <motion.section variants={itemVariants} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    {quickStats.map((card, index) => (
-                        <motion.div
-                            key={card.key}
-                            variants={cardVariants}
-                            whileHover="hover"
-                            custom={index}
-                            className="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/75 p-5 shadow-xl backdrop-blur-xl dark:border-neutral-800/70 dark:bg-neutral-900/75"
-                        >
-                            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${card.tone}`} />
-                            <div className={`absolute right-4 top-4 h-16 w-16 rounded-full ${card.glow} opacity-10 blur-2xl`} />
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-neutral-400">{card.label}</p>
-                                    <p className="mt-3 text-3xl font-black tracking-tight text-slate-900 dark:text-white">{card.value}</p>
-                                    <p className="mt-1 text-xs text-slate-500 dark:text-neutral-400">{card.sub}</p>
-                                </div>
-                                <img src={card.image} alt={card.label} className="h-14 w-14 shrink-0 object-contain drop-shadow-md" />
-                            </div>
-                        </motion.div>
-                    ))}
-                </motion.section>
-
                 <motion.section variants={itemVariants} className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                     <div className="relative w-full max-w-xl">
                         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
@@ -586,7 +600,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                             value={searchQuery}
                             onChange={(event) => setSearchQuery(event.target.value)}
                             placeholder="Cari kata kunci pengaturan, mis. geofence, AI, backup..."
-                            className="h-12 rounded-2xl border-slate-200 bg-white pl-12 pr-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
+                            className="h-12 rounded-2xl border-slate-200 bg-white pl-12 pr-4 shadow-sm dark:border-neutral-600 dark:bg-neutral-900"
                         />
                     </div>
 
@@ -606,7 +620,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                     </div>
                 </motion.section>
 
-                <motion.section variants={itemVariants} className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200/70 bg-white/70 p-1.5 shadow-lg backdrop-blur-xl dark:border-neutral-800/70 dark:bg-neutral-900/70">
+                <motion.section variants={itemVariants} className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200/70 bg-white/70 p-1.5 shadow-lg backdrop-blur-xl dark:border-neutral-600/70 dark:bg-neutral-900/70">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         const isActive = activeTab === tab.id;
@@ -617,11 +631,10 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                 key={tab.id}
                                 type="button"
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold whitespace-nowrap transition-all ${
-                                    isActive
-                                        ? 'text-indigo-600 dark:text-indigo-300'
-                                        : 'text-slate-500 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200'
-                                }`}
+                                className={`relative flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold whitespace-nowrap transition-all ${isActive
+                                    ? 'text-indigo-600 dark:text-indigo-300'
+                                    : 'text-slate-500 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+                                    }`}
                             >
                                 {isActive && (
                                     <motion.div
@@ -640,7 +653,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                     })}
                 </motion.section>
 
-                <motion.section variants={itemVariants} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/70 bg-white/70 px-5 py-4 shadow-lg backdrop-blur-xl dark:border-neutral-800/70 dark:bg-neutral-900/70">
+                <motion.section variants={itemVariants} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/70 bg-white/70 px-5 py-4 shadow-lg backdrop-blur-xl dark:border-neutral-600/70 dark:bg-neutral-900/70">
                     <div>
                         <p className="text-sm font-bold text-slate-900 dark:text-white">{currentTabInfo.label}</p>
                         <p className="text-xs text-slate-500 dark:text-neutral-400">
@@ -655,7 +668,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                 </motion.section>
 
                 <AnimatePresence mode="wait">
-                    <motion.div key={activeTab} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.24 }} className="grid gap-6 lg:grid-cols-2">
+                    <motion.div key={activeTab} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.24 }} className="grid gap-6">
                         {activeTab === 'general' && (
                             <>
                                 {matchesSearch('keamanan sesi', 'token', 'ttl', 'terlambat', 'selfie', 'rejected', 'blur') && (
@@ -664,7 +677,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Shield}
                                             title="Keamanan Sesi"
                                             description="Atur durasi token, toleransi keterlambatan, dan validasi selfie di alur absensi."
-                                            tone="indigo"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitGeneral} className="space-y-5">
                                                 <div className="grid gap-4 sm:grid-cols-2">
@@ -673,7 +686,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                             type="number"
                                                             value={generalForm.data.token_ttl_seconds}
                                                             onChange={(event) => generalForm.setData('token_ttl_seconds', parseInt(event.target.value || '0', 10))}
-                                                            className="mt-2 rounded-xl"
+                                                            className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                         />
                                                         <InputError message={generalForm.errors.token_ttl_seconds} />
                                                     </FieldWrapper>
@@ -682,27 +695,27 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                             type="number"
                                                             value={generalForm.data.late_minutes}
                                                             onChange={(event) => generalForm.setData('late_minutes', parseInt(event.target.value || '0', 10))}
-                                                            className="mt-2 rounded-xl"
+                                                            className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                         />
                                                         <InputError message={generalForm.errors.late_minutes} />
                                                     </FieldWrapper>
                                                 </div>
 
-                                                <div className="space-y-4 rounded-3xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-neutral-800 dark:bg-black/20">
+                                                <div className="space-y-4 rounded-3xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-neutral-600 dark:bg-black/20">
                                                     <AnimatedToggle
                                                         checked={generalForm.data.selfie_required}
                                                         onChange={() => generalForm.setData('selfie_required', !generalForm.data.selfie_required)}
                                                         label="Wajib selfie saat absen"
                                                         description="Mahasiswa harus mengirim selfie sebelum absensi diproses."
                                                     />
-                                                    <div className="h-px bg-slate-200/70 dark:bg-neutral-800" />
+                                                    <div className="h-px bg-slate-300 dark:bg-neutral-600" />
                                                     <AnimatedToggle
                                                         checked={generalForm.data.notify_rejected}
                                                         onChange={() => generalForm.setData('notify_rejected', !generalForm.data.notify_rejected)}
                                                         label="Notifikasi absen ditolak"
                                                         description="Admin atau user menerima info saat validasi absensi ditolak."
                                                     />
-                                                    <div className="h-px bg-slate-200/70 dark:bg-neutral-800" />
+                                                    <div className="h-px bg-slate-300 dark:bg-neutral-600" />
                                                     <AnimatedToggle
                                                         checked={generalForm.data.notify_selfie_blur}
                                                         onChange={() => generalForm.setData('notify_selfie_blur', !generalForm.data.notify_selfie_blur)}
@@ -725,7 +738,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={MapPinned}
                                             title="Geofence Kampus"
                                             description="Kelola titik pusat dan radius validasi lokasi absensi kampus."
-                                            tone="emerald"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitGeofence} className="space-y-5">
                                                 <div className="grid gap-4 sm:grid-cols-2">
@@ -733,7 +746,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                         <Input
                                                             value={geofenceForm.data.geofence_lat}
                                                             onChange={(event) => geofenceForm.setData('geofence_lat', Number(event.target.value))}
-                                                            className="mt-2 rounded-xl"
+                                                            className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                         />
                                                         <InputError message={geofenceForm.errors.geofence_lat} />
                                                     </FieldWrapper>
@@ -741,7 +754,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                         <Input
                                                             value={geofenceForm.data.geofence_lng}
                                                             onChange={(event) => geofenceForm.setData('geofence_lng', Number(event.target.value))}
-                                                            className="mt-2 rounded-xl"
+                                                            className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                         />
                                                         <InputError message={geofenceForm.errors.geofence_lng} />
                                                     </FieldWrapper>
@@ -752,12 +765,12 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                         type="number"
                                                         value={geofenceForm.data.geofence_radius_m}
                                                         onChange={(event) => geofenceForm.setData('geofence_radius_m', parseInt(event.target.value || '0', 10))}
-                                                        className="mt-2 rounded-xl"
+                                                        className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                     />
                                                     <InputError message={geofenceForm.errors.geofence_radius_m} />
                                                 </FieldWrapper>
 
-                                                <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/70 p-4 text-sm text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/20 dark:text-emerald-300">
+                                                <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/70 p-4 text-sm text-emerald-700 dark:border-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-300">
                                                     Radius aktif saat ini: <span className="font-bold">{geofenceForm.data.geofence_radius_m} meter</span>
                                                 </div>
 
@@ -770,12 +783,12 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                 )}
 
                                 {matchesSearch('tema', 'appearance', 'dark mode', 'tampilan', 'theme') && (
-                                    <motion.div variants={cardVariants} whileHover="hover" className="lg:col-span-2">
+                                    <motion.div variants={cardVariants} whileHover="hover">
                                         <SectionCard
                                             icon={Palette}
                                             title="Tema Tampilan"
                                             description="Kontrol mode tampilan antarmuka admin tanpa meninggalkan halaman pengaturan."
-                                            tone="violet"
+                                            tone="slate"
                                         >
                                             <ThemeToggle value={theme} resolvedTheme={resolvedTheme} onChange={setTheme} />
                                         </SectionCard>
@@ -792,7 +805,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={KeyRound}
                                             title="Ganti Password"
                                             description="Perbarui kata sandi admin tanpa keluar dari dashboard."
-                                            tone="amber"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitPassword} className="space-y-4">
                                                 {[
@@ -821,7 +834,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                                 type={field.visible ? 'text' : 'password'}
                                                                 value={passwordForm.data[field.key]}
                                                                 onChange={(event) => passwordForm.setData(field.key, event.target.value)}
-                                                                className="rounded-xl pr-11"
+                                                                className="rounded-xl pr-11 border-slate-300 dark:border-neutral-600"
                                                             />
                                                             <button
                                                                 type="button"
@@ -849,10 +862,10 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Fingerprint}
                                             title="Proteksi Akun"
                                             description="Pantau status 2FA dan akses cepat ke pengelolaan profil admin."
-                                            tone="blue"
+                                            tone="slate"
                                         >
                                             <div className="space-y-4">
-                                                <div className={`rounded-2xl border p-4 ${is2FAEnabled ? 'border-emerald-200 bg-emerald-50/70 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/20 dark:text-emerald-300' : 'border-amber-200 bg-amber-50/70 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/20 dark:text-amber-300'}`}>
+                                                <div className={`rounded-2xl border p-4 ${is2FAEnabled ? 'border-emerald-300 bg-emerald-50/70 text-emerald-700 dark:border-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-300' : 'border-amber-300 bg-amber-50/70 text-amber-700 dark:border-amber-600 dark:bg-amber-950/20 dark:text-amber-300'}`}>
                                                     <div className="flex items-start gap-3">
                                                         {is2FAEnabled ? <Shield className="mt-0.5 h-5 w-5" /> : <AlertTriangle className="mt-0.5 h-5 w-5" />}
                                                         <div>
@@ -866,7 +879,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                     </div>
                                                 </div>
 
-                                                <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-neutral-800 dark:bg-black/20">
+                                                <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-neutral-600 dark:bg-black/20">
                                                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-neutral-400">Sesi Aktif</p>
                                                     <div className="mt-3 flex items-center justify-between gap-3">
                                                         <div>
@@ -877,7 +890,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                     </div>
                                                 </div>
 
-                                                <Link href="/admin/profile" className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
+                                                <Link href="/admin/profile" className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
                                                     <UserCog className="h-4 w-4" />Kelola Profil & 2FA
                                                 </Link>
                                             </div>
@@ -895,17 +908,17 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Bell}
                                             title="Kanal Notifikasi"
                                             description="Pilih kanal pengiriman notifikasi utama untuk dashboard admin."
-                                            tone="cyan"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitNotifications} className="space-y-4">
-                                                <div className="space-y-4 rounded-3xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-neutral-800 dark:bg-black/20">
+                                                <div className="space-y-4 rounded-3xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-neutral-600 dark:bg-black/20">
                                                     <AnimatedToggle
                                                         checked={notificationForm.data.email_notifications}
                                                         onChange={() => notificationForm.setData('email_notifications', !notificationForm.data.email_notifications)}
                                                         label="Notifikasi Email"
                                                         description="Kirim update penting ke email admin."
                                                     />
-                                                    <div className="h-px bg-slate-200/70 dark:bg-neutral-800" />
+                                                    <div className="h-px bg-slate-300 dark:bg-neutral-600" />
                                                     <AnimatedToggle
                                                         checked={notificationForm.data.push_notifications}
                                                         onChange={() => notificationForm.setData('push_notifications', !notificationForm.data.push_notifications)}
@@ -928,10 +941,10 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Smartphone}
                                             title="Laporan Otomatis"
                                             description="Aktifkan ringkasan berkala untuk evaluasi operasional."
-                                            tone="teal"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitNotifications} className="space-y-4">
-                                                <div className="space-y-4 rounded-3xl border border-teal-200/70 bg-teal-50/60 p-5 dark:border-teal-900/50 dark:bg-teal-950/20">
+                                                <div className="space-y-4 rounded-3xl border border-teal-200/70 bg-teal-50/60 p-5 dark:border-teal-600 dark:bg-teal-950/20">
                                                     <AnimatedToggle
                                                         checked={notificationForm.data.daily_report}
                                                         onChange={() => notificationForm.setData('daily_report', !notificationForm.data.daily_report)}
@@ -965,7 +978,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Lock}
                                             title="Keamanan Login"
                                             description="Konfigurasi proteksi brute-force dan durasi sesi admin."
-                                            tone="rose"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitAdvanced} className="space-y-5">
                                                 <div className="grid gap-4 sm:grid-cols-2">
@@ -974,7 +987,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                             type="number"
                                                             value={advancedForm.data.max_login_attempts}
                                                             onChange={(event) => advancedForm.setData('max_login_attempts', parseInt(event.target.value || '0', 10))}
-                                                            className="mt-2 rounded-xl"
+                                                            className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                         />
                                                         <InputError message={advancedForm.errors.max_login_attempts} />
                                                     </FieldWrapper>
@@ -983,7 +996,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                             type="number"
                                                             value={advancedForm.data.lockout_duration}
                                                             onChange={(event) => advancedForm.setData('lockout_duration', parseInt(event.target.value || '0', 10))}
-                                                            className="mt-2 rounded-xl"
+                                                            className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                         />
                                                         <InputError message={advancedForm.errors.lockout_duration} />
                                                     </FieldWrapper>
@@ -994,7 +1007,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                         type="number"
                                                         value={advancedForm.data.session_lifetime}
                                                         onChange={(event) => advancedForm.setData('session_lifetime', parseInt(event.target.value || '0', 10))}
-                                                        className="mt-2 rounded-xl"
+                                                        className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                     />
                                                     <InputError message={advancedForm.errors.session_lifetime} />
                                                 </FieldWrapper>
@@ -1013,10 +1026,10 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Wand2}
                                             title="Verifikasi AI"
                                             description="Atur engine verifikasi wajah, threshold kecocokan, dan auto-approval."
-                                            tone="violet"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitAdvanced} className="space-y-5">
-                                                <div className="space-y-4 rounded-3xl border border-violet-200/70 bg-violet-50/60 p-5 dark:border-violet-900/50 dark:bg-violet-950/20">
+                                                <div className="space-y-4 rounded-3xl border border-violet-200/70 bg-violet-50/60 p-5 dark:border-violet-600 dark:bg-violet-950/20">
                                                     <AnimatedToggle
                                                         checked={advancedForm.data.ai_verification_enabled}
                                                         onChange={() => advancedForm.setData('ai_verification_enabled', !advancedForm.data.ai_verification_enabled)}
@@ -1044,7 +1057,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                         type="number"
                                                         value={advancedForm.data.face_match_threshold}
                                                         onChange={(event) => advancedForm.setData('face_match_threshold', parseInt(event.target.value || '0', 10))}
-                                                        className="mt-2 rounded-xl"
+                                                        className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
                                                     />
                                                     <InputError message={advancedForm.errors.face_match_threshold} />
                                                 </FieldWrapper>
@@ -1058,15 +1071,15 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                 )}
 
                                 {matchesSearch('maintenance', 'mode maintenance', 'pemeliharaan') && (
-                                    <motion.div variants={cardVariants} whileHover="hover" className="lg:col-span-2">
+                                    <motion.div variants={cardVariants} whileHover="hover">
                                         <SectionCard
                                             icon={AlertTriangle}
                                             title="Mode Maintenance"
                                             description="Aktifkan mode pemeliharaan ketika sistem sedang diperbaiki atau dirombak."
-                                            tone="amber"
+                                            tone="slate"
                                         >
                                             <form onSubmit={submitAdvanced} className="space-y-4">
-                                                <div className={`rounded-2xl border p-5 ${advancedForm.data.maintenance_mode ? 'border-amber-200 bg-amber-50/70 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/20 dark:text-amber-300' : 'border-slate-200 bg-slate-50/70 text-slate-700 dark:border-neutral-800 dark:bg-black/20 dark:text-neutral-200'}`}>
+                                                <div className={`rounded-2xl border p-5 ${advancedForm.data.maintenance_mode ? 'border-amber-200 bg-amber-50/70 text-amber-700 dark:border-amber-600 dark:bg-amber-950/20 dark:text-amber-300' : 'border-slate-200 bg-slate-50/70 text-slate-700 dark:border-neutral-600 dark:bg-black/20 dark:text-neutral-200'}`}>
                                                     <AnimatedToggle
                                                         checked={advancedForm.data.maintenance_mode}
                                                         onChange={() => advancedForm.setData('maintenance_mode', !advancedForm.data.maintenance_mode)}
@@ -1084,6 +1097,101 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                             </>
                         )}
 
+                        {activeTab === 'templates' && (
+                            <>
+                                {matchesSearch('template', 'email', 'body', 'subject') && (
+                                    <motion.div variants={cardVariants} whileHover="hover">
+                                        <SectionCard
+                                            icon={Mail}
+                                            title="Kelola Template Email"
+                                            description="Edit template untuk berbagai notifikasi email seperti ucapan selamat, reminder, atau info akun."
+                                            tone="slate"
+                                        >
+                                            <div className="space-y-4">
+                                                {emailTemplates && emailTemplates.map((template) => (
+                                                    <div key={template.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-neutral-600 dark:bg-neutral-900">
+                                                        <div className="flex items-start justify-between">
+                                                            <div>
+                                                                <h4 className="font-bold text-slate-800 dark:text-neutral-200">{template.name}</h4>
+                                                                <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">Tipe: {template.type} | Slug: <span className="font-mono text-xs">{template.slug}</span></p>
+                                                            </div>
+                                                            <Badge className={template.is_active ? 'border-0 bg-emerald-500 text-white' : 'border-0 bg-slate-300 text-slate-800 dark:bg-neutral-700 dark:text-neutral-300'}>
+                                                                {template.is_active ? 'Aktif' : 'Tidak Aktif'}
+                                                            </Badge>
+                                                        </div>
+
+                                                        {editingTemplate?.id === template.id ? (
+                                                            <form onSubmit={submitTemplate} className="mt-4 space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-neutral-600 dark:bg-black/20">
+                                                                <FieldWrapper label="Subjek Email">
+                                                                    <Input
+                                                                        type="text"
+                                                                        value={templateForm.data.subject}
+                                                                        onChange={(event) => templateForm.setData('subject', event.target.value)}
+                                                                        className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600"
+                                                                        required
+                                                                    />
+                                                                </FieldWrapper>
+
+                                                                <FieldWrapper label="Isi Pesan (Body)">
+                                                                    <Textarea
+                                                                        value={templateForm.data.body}
+                                                                        onChange={(event) => templateForm.setData('body', event.target.value)}
+                                                                        className="mt-2 rounded-xl font-mono text-sm"
+                                                                        rows={8}
+                                                                        required
+                                                                    />
+                                                                    <p className="mt-2 text-xs text-slate-500">Variabel yang tersedia (jika ada): {template.variables ? Object.keys(template.variables).map(v => `{{${v}}}`).join(', ') : '-'}</p>
+                                                                </FieldWrapper>
+
+                                                                <div className="flex items-center justify-between pt-2">
+                                                                    <AnimatedToggle
+                                                                        checked={templateForm.data.is_active}
+                                                                        onChange={() => templateForm.setData('is_active', !templateForm.data.is_active)}
+                                                                        label="Status Aktif"
+                                                                        description="Gunakan template ini untuk notifikasi."
+                                                                    />
+
+                                                                    <div className="flex gap-2">
+                                                                        <Button type="button" variant="outline" className="rounded-xl" onClick={() => setEditingTemplate(null)}>Batal</Button>
+                                                                        <SaveButton onClick={() => submitTemplate({ preventDefault: () => undefined } as FormEvent)} isSaving={templateForm.processing} hasChanges={templateForm.isDirty} disabled={!templateForm.isDirty} />
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                        ) : (
+                                                            <div className="mt-4 flex justify-end">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    className="rounded-xl border-slate-200 transition-colors hover:bg-slate-50 dark:border-neutral-600 dark:hover:bg-neutral-800"
+                                                                    onClick={() => {
+                                                                        setEditingTemplate(template);
+                                                                        templateForm.setData({
+                                                                            subject: template.subject || '',
+                                                                            body: template.body || '',
+                                                                            is_active: template.is_active,
+                                                                        });
+                                                                    }}
+                                                                >
+                                                                    <Wand2 className="mr-2 h-4 w-4" /> Edit Template
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+
+                                                {(!emailTemplates || emailTemplates.length === 0) && (
+                                                    <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-neutral-600">
+                                                        <Mail className="mx-auto h-8 w-8 text-slate-400/50 dark:text-neutral-600/50" />
+                                                        <p className="mt-3 text-sm text-slate-500 dark:text-neutral-500">Belum ada template email. Tambahkan template untuk mulai kustomisasi notifikasi.</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </SectionCard>
+                                    </motion.div>
+                                )}
+                            </>
+                        )}
+
                         {activeTab === 'system' && (
                             <>
                                 {matchesSearch('server', 'php', 'laravel', 'database', 'queue', 'cache') && (
@@ -1092,7 +1200,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Server}
                                             title="Status Server"
                                             description="Informasi lingkungan runtime dan resource utama aplikasi."
-                                            tone="blue"
+                                            tone="slate"
                                         >
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 <InfoTile label="PHP" value={systemInfo.php_version} />
@@ -1114,7 +1222,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={HardDrive}
                                             title="Storage & Footprint"
                                             description="Pantau penggunaan disk dan ukuran komponen penting di server."
-                                            tone="emerald"
+                                            tone="slate"
                                         >
                                             <div className="space-y-5">
                                                 <div>
@@ -1152,7 +1260,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={Database}
                                             title="Backup & Restore"
                                             description="Buat snapshot, import JSON, export pengaturan, dan restore versi sebelumnya."
-                                            tone="violet"
+                                            tone="slate"
                                         >
                                             <div className="space-y-4">
                                                 <div className="grid gap-3 sm:grid-cols-2">
@@ -1165,13 +1273,13 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                                     <Button variant="outline" className="rounded-xl" onClick={handleImportClick}>
                                                         <FileUp className="mr-2 h-4 w-4" />Import JSON
                                                     </Button>
-                                                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-neutral-800 dark:bg-black/20 dark:text-neutral-300">
+                                                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-neutral-600 dark:bg-black/20 dark:text-neutral-300">
                                                         Backup tersedia: <span className="font-bold">{stats.backups_count}</span>
                                                     </div>
                                                 </div>
 
                                                 {backups.length > 0 && (
-                                                    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-neutral-800 dark:bg-black/20">
+                                                    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-neutral-600 dark:bg-black/20">
                                                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-neutral-400">Backup Terbaru</p>
                                                         <p className="mt-2 font-bold text-slate-900 dark:text-white">{backups[0].backup_name}</p>
                                                         <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">{backups[0].created_at ? formatDate(backups[0].created_at, 'full') : '-'}</p>
@@ -1188,11 +1296,11 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                             icon={History}
                                             title="Activity Log"
                                             description="Audit trail singkat untuk perubahan konfigurasi yang sudah dilakukan admin."
-                                            tone="amber"
+                                            tone="slate"
                                         >
                                             <div className="space-y-3">
                                                 {recentHistory.length > 0 ? recentHistory.slice(0, 3).map((item) => (
-                                                    <div key={item.id} className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-neutral-800 dark:bg-black/20">
+                                                    <div key={item.id} className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-neutral-600 dark:bg-black/20">
                                                         <div className="flex items-start justify-between gap-3">
                                                             <div>
                                                                 <p className="font-bold text-slate-900 dark:text-white">{item.setting_label ?? item.setting_key}</p>
@@ -1216,7 +1324,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, sta
                                 )}
 
                                 {matchesSearch('clear cache', 'optimize', 'utility', 'maintenance tools') && (
-                                    <motion.div variants={cardVariants} whileHover="hover" className="lg:col-span-2">
+                                    <motion.div variants={cardVariants} whileHover="hover">
                                         <SectionCard
                                             icon={Zap}
                                             title="System Utility"
@@ -1314,13 +1422,13 @@ function SectionCard({
         cyan: 'from-cyan-500/10 to-sky-500/10 border-cyan-200/60 dark:border-cyan-900/50',
         teal: 'from-teal-500/10 to-emerald-500/10 border-teal-200/60 dark:border-teal-900/50',
         rose: 'from-rose-500/10 to-red-500/10 border-rose-200/60 dark:border-rose-900/50',
-        slate: 'from-slate-500/10 to-slate-700/10 border-slate-200/60 dark:border-slate-800/70',
+        slate: 'from-slate-500/10 to-slate-700/10 border-slate-200/60 dark:border-neutral-600',
     }[tone];
 
     return (
         <div className={`rounded-3xl border bg-gradient-to-br ${toneClass} bg-white/80 p-6 shadow-xl backdrop-blur-xl dark:bg-neutral-900/80`}>
             <div className="mb-6 flex items-start gap-4">
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-3 text-slate-700 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-3 text-slate-700 shadow-sm dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100">
                     <Icon className="h-6 w-6" />
                 </div>
                 <div>
@@ -1345,7 +1453,7 @@ function FieldWrapper({ label, hint, children }: { label: string; hint?: string;
 
 function InfoTile({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-neutral-800 dark:bg-black/20">
+        <div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-neutral-600 dark:bg-black/20">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-neutral-400">{label}</p>
             <p className="mt-2 text-sm font-bold text-slate-900 dark:text-white break-all">{value}</p>
         </div>
@@ -1388,16 +1496,16 @@ function BackupDialog({
                 </DialogHeader>
 
                 <div className="space-y-6">
-                    <form onSubmit={onSubmit} className="rounded-3xl border border-violet-200/60 bg-violet-50/60 p-5 dark:border-violet-900/50 dark:bg-violet-950/20">
+                    <form onSubmit={onSubmit} className="rounded-3xl border border-violet-200/60 bg-violet-50/60 p-5 dark:border-violet-600 dark:bg-violet-950/20">
                         <div className="grid gap-4 lg:grid-cols-[1fr,1fr,auto] lg:items-end">
                             <div>
                                 <Label>Nama Backup</Label>
-                                <Input value={backupData.name} onChange={(event) => onBackupFieldChange('name', event.target.value)} className="mt-2 rounded-xl" placeholder="Contoh: Backup sebelum update semester baru" />
+                                <Input value={backupData.name} onChange={(event) => onBackupFieldChange('name', event.target.value)} className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600" placeholder="Contoh: Backup sebelum update semester baru" />
                                 <InputError message={backupErrors.name} />
                             </div>
                             <div>
                                 <Label>Deskripsi</Label>
-                                <Textarea value={backupData.description} onChange={(event) => onBackupFieldChange('description', event.target.value)} className="mt-2 rounded-xl" rows={3} placeholder="Opsional, jelaskan konteks backup ini." />
+                                <Textarea value={backupData.description} onChange={(event) => onBackupFieldChange('description', event.target.value)} className="mt-2 rounded-xl border-slate-300 dark:border-neutral-600" rows={3} placeholder="Opsional, jelaskan konteks backup ini." />
                                 <InputError message={backupErrors.description} />
                             </div>
                             <Button type="submit" className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white" disabled={backupProcessing}>
@@ -1412,7 +1520,7 @@ function BackupDialog({
                                 Belum ada backup tersimpan.
                             </div>
                         ) : backups.map((backup) => (
-                            <div key={backup.id} className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                            <div key={backup.id} className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm dark:border-neutral-600 dark:bg-neutral-900">
                                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
@@ -1474,7 +1582,7 @@ function HistoryDialog({
                             Belum ada aktivitas perubahan yang tercatat.
                         </div>
                     ) : recentHistory.map((item) => (
-                        <div key={item.id} className="rounded-2xl border border-slate-200/70 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+                        <div key={item.id} className="rounded-2xl border border-slate-200/70 bg-white p-4 dark:border-neutral-600 dark:bg-neutral-900">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                 <div className="space-y-3">
                                     <div>
@@ -1503,8 +1611,8 @@ function HistoryDialog({
 
 function HistoryValue({ label, value, tone }: { label: string; value: string | null; tone: 'rose' | 'emerald' }) {
     const classes = tone === 'rose'
-        ? 'border-rose-200 bg-rose-50/70 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/20 dark:text-rose-300'
-        : 'border-emerald-200 bg-emerald-50/70 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-300';
+        ? 'border-rose-200 bg-rose-50/70 text-rose-700 dark:border-rose-600 dark:bg-rose-950/20 dark:text-rose-300'
+        : 'border-emerald-200 bg-emerald-50/70 text-emerald-700 dark:border-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-300';
 
     return (
         <div className={`rounded-2xl border p-3 ${classes}`}>

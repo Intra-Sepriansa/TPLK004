@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Models\SettingBackup;
 use App\Models\SettingHistory;
+use App\Models\NotificationTemplate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,6 +45,7 @@ class PengaturanController extends Controller
     public function index(): Response
     {
         $settings = $this->getAllSettings();
+        $emailTemplates = NotificationTemplate::orderBy('name')->get();
 
         $recentHistory = SettingHistory::with('user')
             ->latest('created_at')
@@ -91,6 +93,7 @@ class PengaturanController extends Controller
             'stats' => $this->buildStats(),
             'recentHistory' => $recentHistory,
             'backups' => $backups,
+            'emailTemplates' => $emailTemplates,
         ]);
     }
 
@@ -189,6 +192,19 @@ class PengaturanController extends Controller
         Cache::forget('app_settings');
 
         return back()->with('success', 'Pengaturan lanjutan berhasil disimpan.');
+    }
+
+    public function updateTemplate(Request $request, NotificationTemplate $template): RedirectResponse
+    {
+        $validated = $request->validate([
+            'subject' => 'required|string|max:255',
+            'body' => 'required|string',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $template->update($validated);
+
+        return back()->with('success', 'Template notifikasi berhasil diperbarui.');
     }
 
     public function createBackup(Request $request): RedirectResponse

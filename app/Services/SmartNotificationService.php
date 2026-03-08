@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\NotificationTemplate;
 use App\Models\NotificationCampaign;
 use App\Models\NotificationLog;
-use App\Models\NotificationPreference;
 use App\Models\Mahasiswa;
 use App\Models\Dosen;
 use App\Models\User;
@@ -23,12 +22,19 @@ class SmartNotificationService
             return null;
         }
 
-        // Check user preferences
-        $preference = NotificationPreference::where('user_type', get_class($recipient))
-            ->where('user_id', $recipient->id)
-            ->first();
+        // Check user preferences using unified PreferenceManagerService
+        $preferenceManager = app(\App\Services\PreferenceManagerService::class);
+        $settings = $preferenceManager->getCategorySettings($recipient, 'notifications');
+        $channelType = $type ?? $template->type;
 
-        if ($preference && !$preference->canReceive($type ?? $template->type)) {
+        $isEnabled = match($channelType) {
+            'email' => data_get($settings, 'email.enabled', true),
+            'push' => data_get($settings, 'push.enabled', true),
+            'in_app' => data_get($settings, 'inApp.enabled', true),
+            default => true,
+        };
+
+        if (!$isEnabled) {
             return null;
         }
 
