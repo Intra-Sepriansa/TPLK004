@@ -30,11 +30,11 @@ interface Notification {
   message: string;
   type: string;
   priority: string;
-  target_type: string;
-  target_id: number | null;
   read_at: string | null;
   scheduled_at: string | null;
   created_at: string;
+  total_recipients: number;
+  read_count: number;
 }
 
 interface PaginationLink {
@@ -263,171 +263,16 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   Info Pekanan
                 </motion.button>
 
-                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                  <DialogTrigger asChild>
-                    <motion.button
-                      className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
-                      whileHover={{ scale: 1.03, y: -2 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Buat Notifikasi
-                    </motion.button>
-                  </DialogTrigger>
-                <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-2xl max-h-[90vh] flex flex-col">
-                  {/* ── Animated Gradient Header ── */}
-                  <div className="relative overflow-hidden p-6 text-white">
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                      animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                      style={{ backgroundSize: '200% 200%' }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
-                    <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-                                        
-                    <div className="relative flex items-center gap-4">
-                      <motion.div
-                        initial={{ scale: 0, rotate: -45 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-                        className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl"
-                      >
-                        <Send className="h-7 w-7 text-white" />
-                      </motion.div>
-                      <div>
-                        <h2 className="text-xl font-bold text-white">Buat Notifikasi Baru</h2>
-                        <p className="text-sm text-indigo-100">Kirim notifikasi ke mahasiswa dan dosen</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── Form Body ── */}
-                  <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-                    <div className="p-6 space-y-5">
-                      {/* Target */}
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                          <Users className="h-4 w-4 text-blue-500" />
-                          Target Penerima
-                        </label>
-                        <Select value={formData.target} onValueChange={(value) => setFormData({ ...formData, target: value })}>
-                          <SelectTrigger className="h-11 rounded-xl bg-neutral-50/80 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white backdrop-blur">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-xl">
-                            <SelectItem value="all"><span className="flex items-center gap-2"><Globe className="h-4 w-4 text-blue-500" /> Semua Pengguna</span></SelectItem>
-                            <SelectItem value="mahasiswa"><span className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-indigo-500" /> Semua Mahasiswa ({mahasiswaCount})</span></SelectItem>
-                            <SelectItem value="dosen"><span className="flex items-center gap-2"><UserCog className="h-4 w-4 text-purple-500" /> Semua Dosen ({dosenCount})</span></SelectItem>
-                            <SelectItem value="specific"><span className="flex items-center gap-2"><Target className="h-4 w-4 text-cyan-500" /> Spesifik</span></SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Judul */}
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                          <MessageSquare className="h-4 w-4 text-indigo-500" />
-                          Judul Notifikasi
-                        </label>
-                        <Input
-                          value={formData.title}
-                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                          placeholder="Masukkan judul notifikasi..."
-                          className="h-11 rounded-xl bg-neutral-50/80 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white backdrop-blur placeholder:text-neutral-400"
-                          required
-                        />
-                      </div>
-
-                      {/* Pesan */}
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                          <Mail className="h-4 w-4 text-cyan-500" />
-                          Isi Pesan
-                        </label>
-                        <Textarea
-                          value={formData.message}
-                          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                          placeholder="Tulis isi pesan notifikasi..."
-                          rows={4}
-                          className="rounded-xl bg-neutral-50/80 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white backdrop-blur placeholder:text-neutral-400 resize-none"
-                          required
-                        />
-                      </div>
-
-                      {/* Tipe & Prioritas */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                            <Bell className="h-4 w-4 text-purple-500" />
-                            Tipe
-                          </label>
-                          <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                            <SelectTrigger className="h-11 rounded-xl bg-neutral-50/80 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white backdrop-blur">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-xl">
-                              <SelectItem value="info"><span className="flex items-center gap-2"><Info className="h-4 w-4 text-blue-500" /> Info</span></SelectItem>
-                              <SelectItem value="reminder"><span className="flex items-center gap-2"><Clock className="h-4 w-4 text-amber-500" /> Reminder</span></SelectItem>
-                              <SelectItem value="announcement"><span className="flex items-center gap-2"><Megaphone className="h-4 w-4 text-purple-500" /> Pengumuman</span></SelectItem>
-                              <SelectItem value="alert"><span className="flex items-center gap-2"><Siren className="h-4 w-4 text-red-500" /> Alert</span></SelectItem>
-                              <SelectItem value="warning"><span className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500" /> Peringatan</span></SelectItem>
-                              <SelectItem value="achievement"><span className="flex items-center gap-2"><Trophy className="h-4 w-4 text-emerald-500" /> Achievement</span></SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                            <AlertTriangle className="h-4 w-4 text-amber-500" />
-                            Prioritas
-                          </label>
-                          <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
-                            <SelectTrigger className="h-11 rounded-xl bg-neutral-50/80 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white backdrop-blur">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-xl">
-                              <SelectItem value="low"><span className="flex items-center gap-2"><Circle className="h-3 w-3 fill-emerald-500 text-emerald-500" /> Low</span></SelectItem>
-                              <SelectItem value="normal"><span className="flex items-center gap-2"><Circle className="h-3 w-3 fill-blue-500 text-blue-500" /> Normal</span></SelectItem>
-                              <SelectItem value="high"><span className="flex items-center gap-2"><Circle className="h-3 w-3 fill-amber-500 text-amber-500" /> High</span></SelectItem>
-                              <SelectItem value="urgent"><span className="flex items-center gap-2"><Circle className="h-3 w-3 fill-red-500 text-red-500" /> Urgent</span></SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      {/* Jadwal */}
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                          <Clock className="h-4 w-4 text-emerald-500" />
-                          Jadwal Pengiriman
-                          <span className="text-xs text-neutral-400 font-normal">(Opsional)</span>
-                        </label>
-                        <Input
-                          type="datetime-local"
-                          value={formData.scheduled_at}
-                          onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
-                          className="h-11 rounded-xl bg-neutral-50/80 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white backdrop-blur"
-                        />
-                      </div>
-                    </div>
-
-                    {/* ── Footer ── */}
-                    <div className="p-5 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 flex justify-end gap-3">
-                      <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="rounded-xl px-5">
-                        Batal
-                      </Button>
-                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                        <Button type="submit" className="rounded-xl px-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-600 hover:to-purple-700">
-                          <Send className="h-4 w-4 mr-2" />
-                          Kirim Notifikasi
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </form>
-                  </DialogContent>
-                </Dialog>
+                <motion.button
+                  type="button"
+                  onClick={() => router.get('/admin/notification-center/create')}
+                  className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <Plus className="h-4 w-4" />
+                  Buat Notifikasi
+                </motion.button>
               </div>
             </motion.div>
           </div>
@@ -453,13 +298,15 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           }}
         >
           {[
-            { title: 'Total', value: stats.total.toString(), change: 'All time', isUp: true, imgSrc: totalIcon, color: 'indigo' },
-            { title: 'Unread', value: stats.unread.toString(), change: 'Action needed', isUp: false, imgSrc: unreadIcon, color: 'emerald' },
+            { title: 'Total', value: stats.total.toString(), change: 'All time', isUp: true, imgSrc: totalIcon, color: 'purple' },
+            { title: 'Unread', value: stats.unread.toString(), change: 'Action needed', isUp: false, imgSrc: unreadIcon, color: 'blue' },
             { title: 'Scheduled', value: stats.scheduled.toString(), change: 'Upcoming', isUp: true, imgSrc: scheduledIcon, color: 'amber' },
-            { title: 'Recipients', value: (mahasiswaCount + dosenCount).toString(), change: 'Users', isUp: true, imgSrc: recipientsIcon, color: 'rose' },
+            { title: 'Recipients', value: (mahasiswaCount + dosenCount).toString(), change: 'Users', isUp: true, imgSrc: recipientsIcon, color: 'emerald' },
           ].map((stat, i) => {
             const colorConfigs: Record<string, StatColorConfig> = {
-              indigo: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
+              purple: { from: 'from-purple-400', to: 'to-fuchsia-600', shadow: 'shadow-purple-500/30', bg: 'bg-purple-500', hoverShadow: 'hover:shadow-purple-500/10', gradientBg: 'from-purple-500/5 to-fuchsia-500/5 dark:from-purple-500/10 dark:to-fuchsia-500/10' },
+              blue: { from: 'from-sky-400', to: 'to-blue-600', shadow: 'shadow-blue-500/30', bg: 'bg-blue-500', hoverShadow: 'hover:shadow-blue-500/10', gradientBg: 'from-blue-500/5 to-sky-500/5 dark:from-blue-500/10 dark:to-sky-500/10' },
+              indigo: { from: 'from-indigo-400', to: 'to-violet-600', shadow: 'shadow-indigo-500/30', bg: 'bg-indigo-500', hoverShadow: 'hover:shadow-indigo-500/10', gradientBg: 'from-indigo-500/5 to-violet-500/5 dark:from-indigo-500/10 dark:to-violet-500/10' },
               emerald: { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
               amber: { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-500', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
               rose: { from: 'from-rose-400', to: 'to-pink-600', shadow: 'shadow-rose-500/30', bg: 'bg-rose-500', hoverShadow: 'hover:shadow-rose-500/10', gradientBg: 'from-rose-500/5 to-pink-500/5 dark:from-rose-500/10 dark:to-pink-500/10' },
@@ -631,7 +478,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   }
                 })();
 
-                const isUnread = !notification.read_at;
+                const isUnread = notification.read_count === 0;
 
                 return (
                   <motion.div
@@ -695,15 +542,19 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                               {notification.title}
                             </h3>
                             {getPriorityBadge(notification.priority)}
-                            {isUnread ? (
+                            {notification.read_count === notification.total_recipients && notification.total_recipients > 0 ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+                                <Eye className="h-3 w-3" />
+                                Semua Dibaca
+                              </span>
+                            ) : notification.read_count > 0 ? (
                               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20">
                                 <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
-                                Baru
+                                {notification.read_count}/{notification.total_recipients} Dibaca
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
-                                <Eye className="h-3 w-3" />
-                                Dibaca
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-500 ring-1 ring-neutral-200 dark:ring-neutral-700">
+                                0/{notification.total_recipients} Dibaca
                               </span>
                             )}
                             {notification.scheduled_at && (
@@ -731,12 +582,10 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                 hour: '2-digit', minute: '2-digit',
                               })}
                             </span>
-                            {notification.target_type && (
-                              <span className="inline-flex items-center gap-1.5">
-                                <Users className="h-3.5 w-3.5" />
-                                {notification.target_type === 'mahasiswa' ? 'Mahasiswa' : notification.target_type === 'dosen' ? 'Dosen' : notification.target_type}
-                              </span>
-                            )}
+                            <span className="inline-flex items-center gap-1.5">
+                              <Users className="h-3.5 w-3.5" />
+                              {notification.total_recipients} Penerima
+                            </span>
                             <span className={cn(
                               'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium',
                               notification.type === 'alert' || notification.type === 'warning'
@@ -751,6 +600,15 @@ export default function NotificationCenter({ notifications, stats, filters, maha
 
                         {/* Actions */}
                         <div className="flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <motion.button
+                            whileHover={{ scale: 1.15 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => router.get(`/admin/notification-center/${notification.id}`)}
+                            className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all shadow-sm"
+                            title="Lihat detail notifikasi"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </motion.button>
                           <motion.button
                             whileHover={{ scale: 1.15 }}
                             whileTap={{ scale: 0.9 }}

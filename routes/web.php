@@ -205,16 +205,24 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
 
     // Admin Notification Center
+    Route::get('admin/notification-center/create', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'create'])->name('admin.notification-center.create');
+    Route::get('admin/notification-center/templates', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'templates'])->name('admin.notification-center.templates');
+    Route::get('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
+    Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
     Route::get('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'index'])->name('admin.notification-center');
     Route::post('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'store'])->name('admin.notification-center.store');
+    Route::get('admin/notification-center/{id}', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'show'])->name('admin.notification-center.show');
+    Route::post('admin/notification-center/{id}/resend', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'resend'])->name('admin.notification-center.resend');
+    Route::post('admin/notification-center/{id}/cancel', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'cancel'])->name('admin.notification-center.cancel');
+    Route::get('admin/notification-center/{id}/export/{format}', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'export'])->name('admin.notification-center.export');
     Route::delete('admin/notification-center/{notification}', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'destroy'])->name('admin.notification-center.destroy');
-    Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
-    Route::get('admin/notification-center/templates', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'templates'])->name('admin.notification-center.templates');
     Route::get('admin/weekly-digest', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'index'])->name('admin.weekly-digest.index');
     Route::get('admin/weekly-digest/create', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'create'])->name('admin.weekly-digest.create');
     Route::post('admin/weekly-digest', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'store'])
         ->middleware('throttle:weekly-digest-write')
         ->name('admin.weekly-digest.store');
+    Route::post('admin/weekly-digest/batch-export', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'batchExport'])
+        ->name('admin.weekly-digest.batch-export');
     Route::get('admin/weekly-digest/{id}', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'show'])->name('admin.weekly-digest.show');
     Route::get('admin/weekly-digest/{id}/edit', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'edit'])->name('admin.weekly-digest.edit');
     Route::patch('admin/weekly-digest/{id}', [\App\Http\Controllers\Admin\WeeklyDigestController::class, 'update'])
@@ -419,9 +427,14 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     
     // Notifications
     Route::get('user/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('user.notifications');
+    Route::get('user/notifications/{id}', [\App\Http\Controllers\User\NotificationController::class, 'show'])->name('user.notifications.show');
     Route::post('user/notifications/{id}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
     Route::post('user/notifications/read-all', [\App\Http\Controllers\User\NotificationController::class, 'markAllAsRead'])->name('user.notifications.read-all');
     Route::delete('user/notifications/{id}', [\App\Http\Controllers\User\NotificationController::class, 'destroy'])->name('user.notifications.destroy');
+    
+    // Weekly Learning Digest (Hidden from sidebar, accessible from Notifications)
+    Route::get('user/weekly-digest/{id}', [\App\Http\Controllers\User\WeeklyDigestController::class, 'show'])->name('user.weekly-digest.show');
+    Route::get('user/weekly-digest/{id}/export-pdf', [\App\Http\Controllers\User\WeeklyDigestController::class, 'exportPdf'])->name('user.weekly-digest.export-pdf');
     
     // Settings, Documentation, Help (Inertia pages)
     Route::get('user/settings', fn () => inertia('student/settings'))->name('user.settings');

@@ -94,15 +94,13 @@ class HandleInertiaRequests extends Middleware
         $headerNotifications = null;
         $notificationConfig = null;
         
-        // Temporarily disabled notifications until app_notifications table is created
-        /*
         if (auth()->guard('mahasiswa')->check()) {
-            $mahasiswa = auth()->guard('mahasiswa')->user();
-            $notifications = AppNotification::forUser('mahasiswa', $mahasiswa->id)
+            $mahasiswaUser = auth()->guard('mahasiswa')->user();
+            $notifications = AppNotification::forUser('mahasiswa', $mahasiswaUser->id)
                 ->orderBy('created_at', 'desc')
                 ->limit(10)
                 ->get();
-            $unreadCount = AppNotification::forUser('mahasiswa', $mahasiswa->id)->unread()->count();
+            $unreadCount = AppNotification::forUser('mahasiswa', $mahasiswaUser->id)->unread()->count();
             
             $headerNotifications = [
                 'items' => $notifications,
@@ -145,7 +143,6 @@ class HandleInertiaRequests extends Middleware
                 'allUrl' => '/admin/notification-center',
             ];
         }
-        */
 
         return [
             ...parent::share($request),

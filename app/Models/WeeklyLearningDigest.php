@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WeeklyLearningDigest extends Model
@@ -11,14 +12,11 @@ class WeeklyLearningDigest extends Model
     protected $table = 'weekly_learning_digests';
 
     protected $fillable = [
-        'mata_kuliah_id',
         'class_label',
         'week_number',
-        'meeting_number',
         'semester',
         'week_start_date',
         'week_end_date',
-        'title',
         'description',
         'has_structured_task',
         'forum_posts_required',
@@ -38,9 +36,11 @@ class WeeklyLearningDigest extends Model
         'week_end_date' => 'date',
     ];
 
-    public function mataKuliah(): BelongsTo
+    public function mataKuliahs(): BelongsToMany
     {
-        return $this->belongsTo(MataKuliah::class, 'mata_kuliah_id');
+        return $this->belongsToMany(MataKuliah::class, 'digest_mata_kuliah', 'digest_id', 'mata_kuliah_id')
+            ->withPivot(['meeting_number', 'title'])
+            ->withTimestamps();
     }
 
     public function creator(): BelongsTo
@@ -101,7 +101,9 @@ class WeeklyLearningDigest extends Model
 
     public function scopeForCourse($query, int $courseId)
     {
-        return $query->where('mata_kuliah_id', $courseId);
+        return $query->whereHas('mataKuliahs', function ($q) use ($courseId) {
+            $q->where('mata_kuliah_id', $courseId);
+        });
     }
 
     public function getWeekRangeAttribute(): string

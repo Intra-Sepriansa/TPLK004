@@ -1146,3 +1146,986 @@ export default function CreateWeeklyDigest({ courses, semesters, weeks }: Create
 ```
 
 Saya akan lanjutkan dengan implementasi setiap step form di message berikutnya karena sudah panjang. Apakah Anda ingin saya lanjutkan dengan detail setiap step form (Step1BasicInfo, Step2ForumDiscussions, dll)?
+
+
+### 4.2 Step Components Implementation
+
+**Step 1: Basic Information**
+
+```tsx
+// Component for Step 1
+function Step1BasicInfo({ form, courses, semesters, weeks }: any) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+          <Info className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Informasi Dasar</h2>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">Isi informasi dasar digest mingguan</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Mata Kuliah */}
+        <div>
+          <Label htmlFor="mata_kuliah_id">Mata Kuliah *</Label>
+          <Select
+            value={form.data.mata_kuliah_id}
+            onValueChange={(value) => form.setData('mata_kuliah_id', value)}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Pilih mata kuliah" />
+            </SelectTrigger>
+            <SelectContent>
+              {courses.map((course: any) => (
+                <SelectItem key={course.id} value={course.id.toString()}>
+                  {course.nama} - {course.dosen?.nama || 'No Dosen'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {form.errors.mata_kuliah_id && (
+            <p className="text-sm text-red-600 mt-1">{form.errors.mata_kuliah_id}</p>
+          )}
+        </div>
+
+        {/* Class Label */}
+        <div>
+          <Label htmlFor="class_label">Kelas (Opsional)</Label>
+          <Input
+            id="class_label"
+            value={form.data.class_label}
+            onChange={(e) => form.setData('class_label', e.target.value)}
+            placeholder="e.g., TI-6A"
+            className="mt-2"
+          />
+        </div>
+
+        {/* Week Number */}
+        <div>
+          <Label htmlFor="week_number">Minggu Ke- *</Label>
+          <Select
+            value={form.data.week_number.toString()}
+            onValueChange={(value) => form.setData('week_number', parseInt(value))}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {weeks.map((week: number) => (
+                <SelectItem key={week} value={week.toString()}>
+                  Minggu {week}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Semester */}
+        <div>
+          <Label htmlFor="semester">Semester *</Label>
+          <Select
+            value={form.data.semester}
+            onValueChange={(value) => form.setData('semester', value)}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {semesters.map((semester: string) => (
+                <SelectItem key={semester} value={semester}>
+                  {semester}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Week Start Date */}
+        <div>
+          <Label htmlFor="week_start_date">Tanggal Mulai *</Label>
+          <Input
+            id="week_start_date"
+            type="date"
+            value={form.data.week_start_date}
+            onChange={(e) => form.setData('week_start_date', e.target.value)}
+            className="mt-2"
+          />
+        </div>
+
+        {/* Week End Date */}
+        <div>
+          <Label htmlFor="week_end_date">Tanggal Selesai *</Label>
+          <Input
+            id="week_end_date"
+            type="date"
+            value={form.data.week_end_date}
+            onChange={(e) => form.setData('week_end_date', e.target.value)}
+            className="mt-2"
+          />
+        </div>
+      </div>
+
+      {/* Title */}
+      <div>
+        <Label htmlFor="title">Judul Digest *</Label>
+        <Input
+          id="title"
+          value={form.data.title}
+          onChange={(e) => form.setData('title', e.target.value)}
+          placeholder="e.g., Rekapan Pembelajaran Minggu 1"
+          className="mt-2"
+        />
+      </div>
+
+      {/* Description */}
+      <div>
+        <Label htmlFor="description">Deskripsi</Label>
+        <Textarea
+          id="description"
+          value={form.data.description}
+          onChange={(e) => form.setData('description', e.target.value)}
+          placeholder="Deskripsi singkat tentang digest ini..."
+          rows={4}
+          className="mt-2"
+        />
+      </div>
+
+      {/* Mentari Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Label htmlFor="mentari_course_url">URL Course Mentari</Label>
+          <Input
+            id="mentari_course_url"
+            type="url"
+            value={form.data.mentari_course_url}
+            onChange={(e) => form.setData('mentari_course_url', e.target.value)}
+            placeholder="https://mentari.unpam.ac.id/..."
+            className="mt-2"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="mentari_course_id">ID Course Mentari</Label>
+          <Input
+            id="mentari_course_id"
+            value={form.data.mentari_course_id}
+            onChange={(e) => form.setData('mentari_course_id', e.target.value)}
+            placeholder="e.g., 12345"
+            className="mt-2"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+Karena implementasi lengkap untuk semua 8 steps akan sangat panjang, saya akan membuat file terpisah yang fokus pada view mahasiswa yang lebih penting. Apakah Anda setuju saya buat file baru untuk:
+
+1. **View Mahasiswa untuk Weekly Learning Digest** - Halaman untuk mahasiswa melihat digest yang sudah dipublish
+2. Melanjutkan implementasi step-step form di file yang sudah ada
+
+Atau Anda ingin saya lanjutkan semua step form dulu di file ini?
+
+
+
+### 4.2 Step Components Implementation
+
+**Step 1: Basic Information**
+
+```tsx
+// Component for Step 1
+function Step1BasicInfo({ form, courses, semesters, weeks }: any) {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+          <Info className="h-6 w-6 text-white" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Informasi Dasar</h2>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">Isi informasi dasar digest mingguan</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Mata Kuliah */}
+        <div>
+          <Label htmlFor="mata_kuliah_id">Mata Kuliah *</Label>
+          <Select
+            value={form.data.mata_kuliah_id}
+            onValueChange={(value) => form.setData('mata_kuliah_id', value)}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Pilih mata kuliah" />
+            </SelectTrigger>
+            <SelectContent>
+              {courses.map((course: any) => (
+                <SelectItem key={course.id} value={course.id.toString()}>
+                  {course.nama} - {course.dosen?.nama || 'No Dosen'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {form.errors.mata_kuliah_id && (
+            <p className="text-sm text-red-600 mt-1">{form.errors.mata_kuliah_id}</p>
+          )}
+        </div>
+
+        {/* Class Label */}
+        <div>
+          <Label htmlFor="class_label">Label Kelas</Label>
+          <Input
+            id="class_label"
+            value={form.data.class_label}
+            onChange={(e) => form.setData('class_label', e.target.value)}
+            placeholder="e.g., TI-6A"
+            className="mt-2"
+          />
+        </div>
+
+        {/* Week Number */}
+        <div>
+          <Label htmlFor="week_number">Minggu Ke- *</Label>
+          <Select
+            value={form.data.week_number.toString()}
+            onValueChange={(value) => form.setData('week_number', parseInt(value))}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {weeks.map((week: number) => (
+                <SelectItem key={week} value={week.toString()}>
+                  Minggu {week}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Semester */}
+        <div>
+          <Label htmlFor="semester">Semester *</Label>
+          <Select
+            value={form.data.semester}
+            onValueChange={(value) => form.setData('semester', value)}
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {semesters.map((semester: string) => (
+                <SelectItem key={semester} value={semester}>
+                  {semester}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Week Start Date */}
+        <div>
+          <Label htmlFor="week_start_date">Tanggal Mulai *</Label>
+          <Input
+            id="week_start_date"
+            type="date"
+            value={form.data.week_start_date}
+            onChange={(e) => form.setData('week_start_date', e.target.value)}
+            className="mt-2"
+          />
+        </div>
+
+        {/* Week End Date */}
+        <div>
+          <Label htmlFor="week_end_date">Tanggal Selesai *</Label>
+          <Input
+            id="week_end_date"
+            type="date"
+            value={form.data.week_end_date}
+            onChange={(e) => form.setData('week_end_date', e.target.value)}
+            className="mt-2"
+          />
+        </div>
+      </div>
+
+      {/* Title */}
+      <div>
+        <Label htmlFor="title">Judul Digest *</Label>
+        <Input
+          id="title"
+          value={form.data.title}
+          onChange={(e) => form.setData('title', e.target.value)}
+          placeholder="e.g., Weekly Digest - Minggu 1"
+          className="mt-2"
+        />
+      </div>
+
+      {/* Description */}
+      <div>
+        <Label htmlFor="description">Deskripsi</Label>
+        <Textarea
+          id="description"
+          value={form.data.description}
+          onChange={(e) => form.setData('description', e.target.value)}
+          placeholder="Deskripsi singkat tentang digest ini..."
+          rows={4}
+          className="mt-2"
+        />
+      </div>
+
+      {/* Mentari Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Label htmlFor="mentari_course_url">URL Course Mentari</Label>
+          <Input
+            id="mentari_course_url"
+            type="url"
+            value={form.data.mentari_course_url}
+            onChange={(e) => form.setData('mentari_course_url', e.target.value)}
+            placeholder="https://mentari.unpam.ac.id/..."
+            className="mt-2"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="mentari_course_id">ID Course Mentari</Label>
+          <Input
+            id="mentari_course_id"
+            value={form.data.mentari_course_id}
+            onChange={(e) => form.setData('mentari_course_id', e.target.value)}
+            placeholder="Course ID"
+            className="mt-2"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+**Step 2: Forum Discussions**
+
+```tsx
+function Step2ForumDiscussions({ form }: any) {
+  const addForum = () => {
+    form.setData('forum_discussions', [
+      ...form.data.forum_discussions,
+      {
+        topic_title: '',
+        topic_description: '',
+        mentari_forum_url: '',
+        total_posts: 0,
+        total_participants: 0,
+        key_points: '',
+        best_contributions: '',
+        discussion_date: '',
+      }
+    ]);
+  };
+
+  const removeForum = (index: number) => {
+    const updated = form.data.forum_discussions.filter((_: any, i: number) => i !== index);
+    form.setData('forum_discussions', updated);
+  };
+
+  const updateForum = (index: number, field: string, value: any) => {
+    const updated = [...form.data.forum_discussions];
+    updated[index][field] = value;
+    form.setData('forum_discussions', updated);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <MessageSquare className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Forum Diskusi</h2>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Tambahkan topik diskusi yang berlangsung minggu ini
+            </p>
+          </div>
+        </div>
+
+        <Button type="button" onClick={addForum} className="rounded-xl">
+          <Plus className="h-4 w-4 mr-2" />
+          Tambah Forum
+        </Button>
+      </div>
+
+      {form.data.forum_discussions.length === 0 ? (
+        <div className="text-center py-12 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border-2 border-dashed border-neutral-300 dark:border-neutral-700">
+          <MessageSquare className="h-16 w-16 text-neutral-400 mx-auto mb-4" />
+          <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+            Belum ada forum diskusi ditambahkan
+          </p>
+          <Button type="button" onClick={addForum} variant="outline">
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Forum Pertama
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {form.data.forum_discussions.map((forum: any, index: number) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-6 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 space-y-4"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-lg">Forum #{index + 1}</h3>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeForum(index)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Label>Judul Topik *</Label>
+                  <Input
+                    value={forum.topic_title}
+                    onChange={(e) => updateForum(index, 'topic_title', e.target.value)}
+                    placeholder="Judul topik diskusi"
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label>Deskripsi Topik</Label>
+                  <Textarea
+                    value={forum.topic_description}
+                    onChange={(e) => updateForum(index, 'topic_description', e.target.value)}
+                    placeholder="Deskripsi singkat topik"
+                    rows={3}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label>URL Forum Mentari</Label>
+                  <Input
+                    type="url"
+                    value={forum.mentari_forum_url}
+                    onChange={(e) => updateForum(index, 'mentari_forum_url', e.target.value)}
+                    placeholder="https://mentari.unpam.ac.id/..."
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label>Total Posts</Label>
+                  <Input
+                    type="number"
+                    value={forum.total_posts}
+                    onChange={(e) => updateForum(index, 'total_posts', parseInt(e.target.value) || 0)}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label>Total Partisipan</Label>
+                  <Input
+                    type="number"
+                    value={forum.total_participants}
+                    onChange={(e) => updateForum(index, 'total_participants', parseInt(e.target.value) || 0)}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label>Poin-Poin Penting</Label>
+                  <Textarea
+                    value={forum.key_points}
+                    onChange={(e) => updateForum(index, 'key_points', e.target.value)}
+                    placeholder="Ringkasan poin penting dari diskusi..."
+                    rows={3}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <Label>Kontribusi Terbaik</Label>
+                  <Textarea
+                    value={forum.best_contributions}
+                    onChange={(e) => updateForum(index, 'best_contributions', e.target.value)}
+                    placeholder="Highlight kontribusi mahasiswa terbaik..."
+                    rows={3}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div>
+                  <Label>Tanggal Diskusi</Label>
+                  <Input
+                    type="date"
+                    value={forum.discussion_date}
+                    onChange={(e) => updateForum(index, 'discussion_date', e.target.value)}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+Karena implementasi lengkap semua step akan sangat panjang, saya akan lanjutkan dengan membuat view untuk mahasiswa yang lebih penting. Apakah Anda setuju saya fokus ke view mahasiswa dulu, atau Anda ingin saya selesaikan semua 8 step form terlebih dahulu?
+
+
+
+---
+
+## 📋 PART 5: MAHASISWA VIEW (READ-ONLY)
+
+### 5.1 Controller for Mahasiswa
+
+**File: `app/Http/Controllers/User/WeeklyDigestController.php`**
+
+```php
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\WeeklyLearningDigest;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+
+class WeeklyDigestController extends Controller
+{
+    public function index(Request $request)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('login');
+        }
+
+        // Get mahasiswa's enrolled courses
+        $enrolledCourses = $mahasiswa->enrollments()->pluck('mata_kuliah_id');
+
+        $query = WeeklyLearningDigest::with(['mataKuliah.dosen'])
+            ->where('is_published', true)
+            ->whereIn('mata_kuliah_id', $enrolledCourses)
+            ->withCount([
+                'forumDiscussions',
+                'assignments',
+                'learningMaterials',
+                'announcements',
+                'upcomingSchedules'
+            ]);
+
+        // Filters
+        if ($request->filled('course_id')) {
+            $query->where('mata_kuliah_id', $request->course_id);
+        }
+
+        if ($request->filled('week')) {
+            $query->where('week_number', $request->week);
+        }
+
+        $digests = $query->latest('week_start_date')->paginate(12);
+
+        // Get current week digest
+        $currentWeekDigest = WeeklyLearningDigest::published()
+            ->currentWeek()
+            ->whereIn('mata_kuliah_id', $enrolledCourses)
+            ->first();
+
+        return Inertia::render('user/weekly-digest/index', [
+            'digests' => $digests,
+            'currentWeekDigest' => $currentWeekDigest,
+            'enrolledCourses' => $mahasiswa->enrollments()->with('mataKuliah')->get(),
+            'filters' => $request->only(['course_id', 'week']),
+        ]);
+    }
+
+    public function show($id)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('login');
+        }
+
+        $digest = WeeklyLearningDigest::with([
+            'mataKuliah.dosen',
+            'forumDiscussions' => function($query) {
+                $query->where('is_active', true)->orderBy('display_order');
+            },
+            'assignments' => function($query) {
+                $query->orderBy('deadline_date', 'asc');
+            },
+            'learningMaterials' => function($query) {
+                $query->orderBy('display_order');
+            },
+            'announcements' => function($query) {
+                $query->orderBy('priority_level', 'desc')
+                      ->orderBy('display_order');
+            },
+            'upcomingSchedules' => function($query) {
+                $query->where('event_date', '>=', now())
+                      ->orderBy('event_date', 'asc');
+            },
+            'supportContacts' => function($query) {
+                $query->orderBy('display_order');
+            },
+        ])->findOrFail($id);
+
+        // Check if mahasiswa is enrolled in this course
+        $isEnrolled = $mahasiswa->enrollments()
+            ->where('mata_kuliah_id', $digest->mata_kuliah_id)
+            ->exists();
+
+        if (!$isEnrolled) {
+            abort(403, 'Anda tidak terdaftar di mata kuliah ini');
+        }
+
+        // Get related digests (same course, different weeks)
+        $relatedDigests = WeeklyLearningDigest::where('mata_kuliah_id', $digest->mata_kuliah_id)
+            ->where('id', '!=', $digest->id)
+            ->where('is_published', true)
+            ->orderBy('week_number', 'desc')
+            ->limit(5)
+            ->get();
+
+        return Inertia::render('user/weekly-digest/show', [
+            'digest' => $digest,
+            'relatedDigests' => $relatedDigests,
+            'mahasiswa' => [
+                'id' => $mahasiswa->id,
+                'nama' => $mahasiswa->nama,
+                'nim' => $mahasiswa->nim,
+            ],
+        ]);
+    }
+}
+```
+
+### 5.2 Mahasiswa View Component
+
+**File: `resources/js/pages/user/weekly-digest/show.tsx`**
+
+```tsx
+import { Head, router } from '@inertiajs/react';
+import StudentLayout from '@/layouts/student-layout';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import {
+    ArrowLeft, ExternalLink, Download, Share2, Bookmark, Calendar,
+    BookOpen, MessageSquare, FileText, Bell, Clock, Users, MapPin,
+    Video, FileDown, Link as LinkIcon, Phone, Mail, AlertTriangle,
+    CheckCircle, Info, Award, Sparkles, TrendingUp, Target
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+
+// Import icons - MATCHING DASHBOARD MAHASISWA
+import DigestIcon from '@/assets/mahasiswa/akademik/akademik.png';
+import WeekIcon from '@/assets/admin/dashboard/total-icon.png';
+import CourseIcon from '@/assets/admin/dashboard/hadir-icon.png';
+import ItemsIcon from '@/assets/admin/dashboard/selfie-icon.png';
+
+interface Digest {
+    id: number;
+    title: string;
+    description: string;
+    week_number: number;
+    semester: string;
+    week_start_date: string;
+    week_end_date: string;
+    mentari_course_url: string | null;
+    mata_kuliah: {
+        id: number;
+        nama: string;
+        dosen: { nama: string };
+    };
+    forum_discussions: ForumDiscussion[];
+    assignments: Assignment[];
+    learning_materials: LearningMaterial[];
+    announcements: Announcement[];
+    upcoming_schedules: UpcomingSchedule[];
+    support_contacts: SupportContact[];
+}
+
+interface ForumDiscussion {
+    id: number;
+    topic_title: string;
+    topic_description: string;
+    mentari_forum_url: string | null;
+    total_posts: number;
+    total_participants: number;
+    key_points: string | null;
+    best_contributions: string | null;
+    discussion_date: string | null;
+}
+
+interface Assignment {
+    id: number;
+    assignment_title: string;
+    assignment_description: string;
+    assignment_type: string;
+    mentari_assignment_url: string | null;
+    deadline_date: string;
+    max_score: number;
+    submission_format: string | null;
+    detailed_instructions: string | null;
+    is_mandatory: boolean;
+}
+
+interface LearningMaterial {
+    id: number;
+    material_title: string;
+    material_description: string;
+    material_type: string;
+    mentari_material_url: string | null;
+    file_size: string | null;
+    duration: string | null;
+    topics_covered: string | null;
+    is_downloadable: boolean;
+}
+
+interface Announcement {
+    id: number;
+    announcement_title: string;
+    announcement_content: string;
+    announcement_type: string;
+    priority_level: string;
+    is_pinned: boolean;
+    announced_date: string | null;
+}
+
+interface UpcomingSchedule {
+    id: number;
+    event_title: string;
+    event_description: string;
+    event_type: string;
+    event_date: string;
+    event_time: string | null;
+    platform: string | null;
+    meeting_link: string | null;
+    is_mandatory: boolean;
+}
+
+interface SupportContact {
+    id: number;
+    contact_name: string;
+    contact_role: string;
+    contact_type: string;
+    contact_value: string;
+    available_hours: string | null;
+}
+
+interface ShowPageProps {
+    digest: Digest;
+    relatedDigests: any[];
+    mahasiswa: {
+        id: number;
+        nama: string;
+        nim: string;
+    };
+}
+
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.05, delayChildren: 0.1 }
+    }
+} as const;
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring', stiffness: 300, damping: 24 }
+    }
+} as const;
+
+export default function WeeklyDigestShow({ digest, relatedDigests, mahasiswa }: ShowPageProps) {
+    const [activeTab, setActiveTab] = useState('overview');
+    const [isSaved, setIsSaved] = useState(false);
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    const getDeadlineStatus = (deadline: string) => {
+        const now = new Date();
+        const deadlineDate = new Date(deadline);
+        const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) return { label: 'Terlewat', color: 'red' };
+        if (diffDays === 0) return { label: 'Hari Ini', color: 'orange' };
+        if (diffDays <= 3) return { label: `${diffDays} Hari Lagi`, color: 'amber' };
+        return { label: `${diffDays} Hari Lagi`, color: 'emerald' };
+    };
+
+    const materialTypeIcons = {
+        pdf: FileText,
+        video: Video,
+        slide: FileDown,
+        document: FileText,
+        link: LinkIcon,
+        other: FileText,
+    };
+
+    const totalItems = 
+        digest.forum_discussions.length +
+        digest.assignments.length +
+        digest.learning_materials.length +
+        digest.announcements.length +
+        digest.upcoming_schedules.length;
+
+    return (
+        <StudentLayout>
+            <Head title={`${digest.title} - Weekly Digest`} />
+
+            <motion.div
+                className="p-4 md:p-6 lg:p-8 space-y-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+                {/* ═══════ HEADER - MATCHING DASHBOARD ═══════ */}
+                <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                >
+                    <div className="flex items-center gap-3">
+                        {/* Icon Header - NO CONTAINER */}
+                        <img 
+                            src={DigestIcon} 
+                            alt="Weekly Digest" 
+                            className="h-10 w-10 md:h-12 md:w-12 object-contain"
+                        />
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-neutral-900 dark:text-white">
+                                Weekly Learning Digest
+                            </h1>
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                                Rekapan Pembelajaran Minggu Ini
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => router.visit(route('user.weekly-digest.index'))}
+                            className="flex items-center gap-2"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            <span className="hidden sm:inline">Kembali</span>
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsSaved(!isSaved)}
+                            className={isSaved ? 'text-amber-600 border-amber-600' : ''}
+                        >
+                            <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+                        </Button>
+
+                        <Button variant="outline">
+                            <Share2 className="h-4 w-4" />
+                        </Button>
+
+                        <Button variant="outline">
+                            <Download className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </motion.div>
+
+                {/* ═══════ INFO CARDS - MATCHING DASHBOARD ═══════ */}
+                <motion.div 
+                    variants={itemVariants}
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                >
+                    {[
+                        { 
+                            label: 'Minggu Ke', 
+                            value: digest.week_number, 
+                            icon: WeekIcon,
+                            gradient: 'from-blue-500 to-cyan-500',
+                            subtext: digest.semester
+                        },
+                        { 
+                            label: 'Mata Kuliah', 
+                            value: digest.mata_kuliah.nama.substring(0, 20) + '...', 
+                            icon: CourseIcon,
+                            gradient: 'from-emerald-500 to-teal-500',
+                            subtext: digest.mata_kuliah.dosen.nama
+                        },
+                        { 
+                            label: 'Total Item', 
+                            value: totalItems, 
+                            icon: ItemsIcon,
+                            gradient: 'from-purple-500 to-pink-500',
+                            subtext: 'Konten tersedia'
+                        },
+                        { 
+                            label: 'Periode', 
+                            value: `${new Date(digest.week_start_date).getDate()} - ${new Date(digest.week_end_date).getDate()}`,
+                            icon: DigestIcon,
+                            gradient: 'from-amber-500 to-orange-500',
+                            subtext: new Date(digest.week_start_date).toLocaleDateString('id-ID', { month: 'short' })
+                        },
+                    ].map((stat, idx) => (
+                        <motion.div
+                            key={idx}
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            className="relative overflow-hidden rounded-2xl bg-white dark:bg-neutral-800 p-6 shadow-lg border border-neutral-200 dark:border-neutral-700"
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5`} />
+                            <div className="relative">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                                        {stat.label}
+                                    </p>
+                                    <img 
+                                        src={stat.icon} 
+                                        alt={stat.label}
+                                        className="h-8 w-8 object-contain opacity-80"
+                                    />
+                                </div>
+                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
+                                    {stat.value}
+                                </p>
+                                <p className="text-xs text-neutral-500 mt-2">
+                                    {stat.subtext}
+                                </p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+Saya akan lanjutkan implementasi view mahasiswa di message berikutnya. Apakah format ini sudah sesuai dengan yang Anda inginkan?
+

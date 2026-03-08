@@ -4,7 +4,7 @@ import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import StudentLayout from '@/layouts/student-layout';
 import { cn } from '@/lib/utils';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     ArrowDownRight,
@@ -309,8 +309,8 @@ export default function UserKas({
     const paymentRate =
         personalStats.paid_count + personalStats.unpaid_count > 0
             ? (personalStats.paid_count /
-                  (personalStats.paid_count + personalStats.unpaid_count)) *
-              100
+                (personalStats.paid_count + personalStats.unpaid_count)) *
+            100
             : 0;
 
     const healthLabel = {
@@ -1390,10 +1390,10 @@ export default function UserKas({
                                                     )}
                                                 >
                                                     {item.status ===
-                                                    'verified' ? (
+                                                        'verified' ? (
                                                         <CheckCircle className="h-3 w-3" />
                                                     ) : item.status ===
-                                                      'rejected' ? (
+                                                        'rejected' ? (
                                                         <XCircle className="h-3 w-3" />
                                                     ) : (
                                                         <Clock className="h-3 w-3" />
@@ -1411,8 +1411,8 @@ export default function UserKas({
                                                             ? 'bg-emerald-500'
                                                             : item.status ===
                                                                 'rejected'
-                                                              ? 'bg-rose-500'
-                                                              : 'bg-amber-500',
+                                                                ? 'bg-rose-500'
+                                                                : 'bg-amber-500',
                                                     )}
                                                     style={{
                                                         width: `${status.progress}%`,
@@ -1676,7 +1676,7 @@ export default function UserKas({
                                                     )}
                                                 >
                                                     {record.status ===
-                                                    'paid' ? (
+                                                        'paid' ? (
                                                         <CheckCircle className="h-5 w-5" />
                                                     ) : (
                                                         <Clock className="h-5 w-5" />

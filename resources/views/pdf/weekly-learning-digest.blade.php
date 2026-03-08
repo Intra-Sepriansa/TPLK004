@@ -2,73 +2,377 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $digest->mataKuliah?->nama ?? $displayTitle }}</title>
+    <title>Info Pekanan Mentari - {{ $displayTitle }}</title>
     <style>
-        @page { margin: 24px 28px 50px; }
-        * { box-sizing: border-box; }
-        body { font-family: DejaVu Sans, Arial, sans-serif; color: #1f2937; font-size: 11px; line-height: 1.55; }
-        .header { display: table; width: 100%; border-bottom: 2px solid #4338ca; padding-bottom: 12px; margin-bottom: 16px; }
-        .logo, .logo-right, .title { display: table-cell; vertical-align: middle; }
-        .logo, .logo-right { width: 84px; text-align: center; }
-        .logo img, .logo-right img { width: 64px; }
-        .title { text-align: center; }
-        .title h1 { margin: 0; font-size: 18px; text-transform: uppercase; }
-        .title p { margin: 4px 0 0; color: #475569; font-size: 10px; }
-        .hero { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
-        .hero h2 { margin: 0 0 4px; color: #312e81; font-size: 17px; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 9px; font-weight: 700; margin-right: 6px; }
-        .badge-success { background: #dcfce7; color: #166534; }
-        .badge-muted { background: #e2e8f0; color: #334155; }
-        .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: #111827; border-left: 4px solid #7c3aed; padding-left: 10px; margin: 18px 0 10px; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table td, .table th { border: 1px solid #cbd5e1; padding: 8px 10px; vertical-align: top; }
-        .table th { background: #f8fafc; text-align: left; width: 28%; }
-        .callout { margin-top: 16px; border: 1px solid #bae6fd; background: #ecfeff; border-radius: 10px; padding: 14px; }
-        .callout strong { color: #0f172a; }
-        .footer { position: fixed; bottom: -34px; left: 0; right: 0; font-size: 8px; color: #64748b; text-align: center; border-top: 1px solid #cbd5e1; padding-top: 6px; }
+        /* Document Setup */
+        @page {
+            margin: 20px 40px 40px 40px;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            color: #111827;
+            font-size: 9.5pt;
+            line-height: 1.4;
+            background-color: #ffffff;
+        }
+
+        /* Header Section */
+        .header-table {
+            width: 100%;
+            table-layout: fixed;
+            border-bottom: 3px solid #111827;
+            padding-bottom: 12px;
+            margin-bottom: 2px;
+        }
+        .header-table td {
+            vertical-align: middle;
+        }
+        .logo-col {
+            width: 80px;
+            text-align: center;
+        }
+        .logo-col img {
+            width: 70px;
+            height: auto;
+        }
+        .header-text {
+            text-align: center;
+        }
+        .inst-name {
+            font-size: 13pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .faculty-name {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 4px 0;
+        }
+        .address {
+            font-size: 9pt;
+            font-family: Arial, sans-serif;
+            color: #4b5563;
+            margin: 0;
+        }
+        .header-separator {
+            border-top: 1px solid #111827;
+            margin-bottom: 12px;
+        }
+
+        /* Document Title */
+        .doc-title-container {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .doc-title {
+            font-size: 12pt;
+            font-weight: bold;
+            text-decoration: underline;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .doc-subtitle {
+            font-size: 10pt;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        /* Information Section */
+        .info-table {
+            width: 100%;
+            margin-bottom: 12px;
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+        }
+        .info-table td {
+            padding: 1px 0;
+            vertical-align: top;
+        }
+        .info-label {
+            width: 180px;
+            font-weight: bold;
+        }
+        .info-colon {
+            width: 15px;
+            text-align: center;
+        }
+
+        /* Data Tables */
+        .section-heading {
+            font-size: 10pt;
+            font-weight: bold;
+            margin: 12px 0 6px 0;
+            text-transform: uppercase;
+            border-left: 4px solid #111827;
+            padding-left: 8px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 8.5pt;
+            margin-bottom: 12px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #374151;
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+        .data-table th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 9pt;
+        }
+        .data-table td {
+            text-align: left;
+        }
+        .text-center { text-align: center !important; }
+
+        /* Notes Box */
+        .notes-box {
+            border: 1px solid #9ca3af;
+            background-color: #f9fafb;
+            padding: 8px 12px;
+            font-family: Arial, sans-serif;
+            font-size: 8.5pt;
+            text-align: justify;
+            margin-top: 6px;
+        }
+        .notes-box strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 9pt;
+            text-transform: uppercase;
+        }
+
+        /* Signatures */
+        .signature-section {
+            width: 100%;
+            margin-top: 16px;
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+        }
+        .signature-table {
+            width: 100%;
+        }
+        .signature-table td {
+            width: 33%;
+            text-align: center;
+            vertical-align: bottom;
+        }
+        .sign-area {
+            height: 50px;
+        }
+        .sign-name {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            font-family: Arial, sans-serif;
+            font-size: 8pt;
+            color: #6b7280;
+            border-top: 1px solid #d1d5db;
+            padding-top: 5px;
+        }
+        .footer-left { float: left; }
+        .footer-right { float: right; }
         .page-number:before { content: counter(page); }
+
+        /* Dynamic Visuals */
+        .watermark {
+            position: absolute;
+            top: 40%;
+            left: 0;
+            right: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 55pt;
+            font-weight: bold;
+            color: rgba(200, 200, 200, 0.35);
+            z-index: -1000;
+        }
+        .qr-box {
+            width: 80px;
+            height: 80px;
+        }
+
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">@if(file_exists($logoUnpam))<img src="{{ $logoUnpam }}" alt="UNPAM">@endif</div>
-        <div class="title">
-            <h1>Info Pekanan Mentari</h1>
-            <p>{{ $constants['platform_name'] }} • Universitas Pamulang</p>
-        </div>
-        <div class="logo-right">@if(file_exists($logoSasmita))<img src="{{ $logoSasmita }}" alt="SASMITA">@endif</div>
+
+    <!-- Watermark -->
+    <div class="watermark">CONFIDENTIAL - UNPAM</div>
+
+    <!-- Header -->
+    <table class="header-table">
+        <tr>
+            <td class="logo-col">
+                @if(file_exists($logoUnpam))
+                    <img src="{{ $logoUnpam }}" alt="Logo Inst">
+                @endif
+            </td>
+            <td class="header-text">
+                <p class="inst-name">YAYASAN SASMITA JAYA<br>UNIVERSITAS PAMULANG</p>
+                <p class="faculty-name">PROGRAM STUDI TEKNIK INFORMATIKA</p>
+                <p class="address">Jl. Surya Kencana No. 1 Pamulang Barat, Tangerang Selatan, Banten<br>Telp/Fax: (021) 7412566, Website: unpam.ac.id</p>
+            </td>
+            <td class="logo-col">
+                @if(file_exists($logoSasmita))
+                    <img src="{{ $logoSasmita }}" alt="Logo Yayasan">
+                @endif
+            </td>
+        </tr>
+    </table>
+    <div class="header-separator"></div>
+
+    <!-- Title -->
+    <div class="doc-title-container">
+        <h1 class="doc-title">SUMMARY INFO PEKANAN MENTARI</h1>
+        <p class="doc-subtitle">Nomor Register: WLD-{{ $digest->semester }}-{{ str_pad($digest->id, 4, '0', STR_PAD_LEFT) }}</p>
     </div>
 
-    <div class="hero">
-        <h2>{{ $digest->mataKuliah?->nama ?? 'Mata Kuliah' }}</h2>
-        <p>{{ $displayTitle }} • Pertemuan {{ $digest->meeting_number }} • Pekan Aktif</p>
-        <div style="margin-top: 8px;">
-            <span class="badge {{ $digest->is_published ? 'badge-success' : 'badge-muted' }}">{{ $digest->is_published ? 'Published' : 'Draft' }}</span>
-            <span class="badge badge-muted">Kelas {{ $constants['class_label'] }}</span>
-            <span class="badge badge-muted">{{ $digest->semester }}</span>
-        </div>
-    </div>
-
-    <div class="section-title">Ringkasan Entry</div>
-    <table class="table">
-        <tr><th>Mata Kuliah</th><td>{{ $digest->mataKuliah?->nama ?? '-' }}</td></tr>
-        <tr><th>Dosen</th><td>{{ $digest->mataKuliah?->dosen?->nama ?? '-' }}</td></tr>
-        <tr><th>Pertemuan</th><td>{{ $digest->meeting_number }}</td></tr>
-        <tr><th>Judul</th><td>{{ $displayTitle }}</td></tr>
-        <tr><th>Tugas Terstruktur</th><td>{{ $digest->has_structured_task ? 'Ada' : 'Tidak Ada' }}</td></tr>
-        <tr><th>Aturan Kehadiran</th><td>Submit forum diskusi {{ $digest->forum_posts_required }}x</td></tr>
-        <tr><th>Platform</th><td>{{ $constants['platform_name'] }}</td></tr>
-        <tr><th>Portal Mentari</th><td>{{ $digest->mentari_course_url ?: '-' }}</td></tr>
-        <tr><th>Periode Pekan</th><td>{{ $digest->week_start_date?->format('d M') }} - {{ $digest->week_end_date?->format('d M Y') }}</td></tr>
+    <!-- Info Umum -->
+    <table class="info-table">
+        <tr>
+            <td class="info-label">Periode Pekan</td>
+            <td class="info-colon">:</td>
+            <td><strong>{{ $digest->week_start_date?->translatedFormat('d F Y') }}</strong> s/d <strong>{{ $digest->week_end_date?->translatedFormat('d F Y') }}</strong></td>
+        </tr>
+        <tr>
+            <td class="info-label">Tahun Akademik/Semester</td>
+            <td class="info-colon">:</td>
+            <td>{{ $digest->semester }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Kelas Spesifikasi</td>
+            <td class="info-colon">:</td>
+            <td>{{ $constants['class_label'] ?? 'Reguler' }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Platform Terintegrasi</td>
+            <td class="info-colon">:</td>
+            <td>{{ $constants['platform_name'] }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">URL Portal</td>
+            <td class="info-colon">:</td>
+            <td><a href="{{ $digest->mentari_course_url ?: '#' }}" style="color: #2563eb;">{{ $digest->mentari_course_url ?: 'Belum diisi' }}</a></td>
+        </tr>
+        <tr>
+            <td class="info-label">Status Dokumen</td>
+            <td class="info-colon">:</td>
+            <td><strong>{{ $digest->is_published ? 'DIPUBLIKASIKAN' : 'DRAFT (BELUM PUBLIKASI)' }}</strong></td>
+        </tr>
     </table>
 
-    <div class="callout">
-        <strong>Ketentuan mahasiswa:</strong>
-        Materi sudah masuk di {{ $constants['platform_name'] }}. Mahasiswa wajib submit forum diskusi sebanyak {{ $digest->forum_posts_required }} kali untuk mendapatkan kehadiran.
+    <!-- Rincian Mata Kuliah -->
+    <div class="section-title">A. Rincian Mata Kuliah dan Pertemuan</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">No</th>
+                <th style="width: 35%;">Mata Kuliah / Kode</th>
+                <th style="width: 30%;">Dosen Pengampu</th>
+                <th style="width: 10%;">Pert. Ke</th>
+                <th style="width: 20%;">Materi Pokok</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($courses as $index => $course)
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td>
+                        <strong>{{ $course->nama }}</strong><br>
+                        <span style="font-size: 8pt; color: #4b5563;">{{ $course->kode }}</span>
+                    </td>
+                    <td>{{ $course->dosen->nama ?? '-' }}</td>
+                    <td class="text-center">{{ $course->pivot->meeting_number }}</td>
+                    <td>{{ $course->pivot->title ?: 'Sesuai RPS' }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="text-center"><em>Tidak ada mata kuliah yang didaftarkan pada info pekanan ini.</em></td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <!-- Persyaratan & Ketentuan -->
+    <div class="section-title">B. Ketentuan dan Pemenuhan Tugas</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Persyaratan Forum Diskusi</th>
+                <th>Tugas Terstruktur</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center">Wajib memposting <strong>{{ $digest->forum_posts_required }}x</strong> pada Forum</td>
+                <td class="text-center"><strong>{{ $digest->has_structured_task ? 'TERDAPAT TUGAS' : 'TIDAK ADA TUGAS' }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Catatan Tambahan -->
+    <div class="notes-box">
+        <strong>PEMBERITAHUAN MAHASISWA:</strong>
+        Materi untuk seluruh mata kuliah di atas telah terunggah dan dapat diakses melalui platform Mentari E-Learning. 
+        Mahasiswa diwajibkan untuk login dan membaca seluruh materi yang disediakan. Untuk mendapatkan status kehadiran yang valid pada pertemuan pekan ini, mahasiswa mutlak diwajibkan untuk menanggapi/mensubmit forum diskusi sesuai dengan ketentuan (minimal {{ $digest->forum_posts_required }} tanggapan). Batas waktu submit forum diskusi mengacu pada jadwal yang tertera di sistem e-learning.
     </div>
 
-    <div class="footer">
-        Digenerate {{ $generatedAt->format('d M Y H:i') }} WIB oleh {{ $generatedBy }} • Halaman <span class="page-number"></span>
+    <!-- Tanda Tangan & Visual Analytics -->
+    <div class="signature-section">
+        <table class="signature-table">
+            <tr>
+                <td style="text-align: left; vertical-align: top;">
+                    @if(!empty($qrcode))
+                        <div style="font-size: 8pt; margin-bottom: 4px;">Verifikasi Dokumen:</div>
+                        <img src="{{ $qrcode }}" class="qr-box" alt="QR Code">
+                    @endif
+                </td>
+                <td style="text-align: center; vertical-align: top;">
+                    @if(!empty($chartBase64))
+                        <div style="font-size: 8pt; margin-bottom: 4px;">Persentase Komponen:</div>
+                        <img src="{{ $chartBase64 }}" alt="Chart" style="height: 90px; width: auto;">
+                    @else
+                        &nbsp;
+                    @endif
+                </td>
+                <td style="text-align: right; vertical-align: top;">
+                    Tangerang Selatan, {{ now()->translatedFormat('d F Y') }}<br>
+                    <strong>Dibuat & Diverifikasi Oleh,</strong>
+                    <div class="sign-area"></div>
+                    <div class="sign-name">{{ $generatedBy }}</div>
+                    <div>Administrator Mentari</div>
+                </td>
+            </tr>
+        </table>
     </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-left">
+            Dokumen: <strong>Info Pekanan V2 (Many-to-Many)</strong> | UUID: {{ mb_strtoupper(substr(md5($digest->id . $digest->created_at), 0, 8)) }}<br>
+            Dicetak pada: {{ $generatedAt->translatedFormat('d F Y H:i:s') }} WIB
+        </div>
+        <div class="footer-right">
+            Halaman <span class="page-number"></span>
+        </div>
+    </div>
+
 </body>
 </html>

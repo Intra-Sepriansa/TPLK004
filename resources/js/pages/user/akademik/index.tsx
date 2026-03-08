@@ -80,10 +80,10 @@ export default function AcademicDashboard({
             value: stats.totalCourses,
             note: 'Semester ini',
             colorConfig: {
-                from: 'from-emerald-400', to: 'to-teal-600',
-                shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500',
-                hoverShadow: 'hover:shadow-emerald-500/10',
-                gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
+                from: 'from-sky-400', to: 'to-indigo-600',
+                shadow: 'shadow-sky-500/30', bg: 'bg-sky-500',
+                hoverShadow: 'hover:shadow-sky-500/10',
+                gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
             },
         },
         {
@@ -92,10 +92,10 @@ export default function AcademicDashboard({
             value: stats.completedTasks,
             note: 'Completed',
             colorConfig: {
-                from: 'from-sky-400', to: 'to-indigo-600',
-                shadow: 'shadow-sky-500/30', bg: 'bg-sky-500',
-                hoverShadow: 'hover:shadow-sky-500/10',
-                gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
+                from: 'from-emerald-400', to: 'to-teal-600',
+                shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500',
+                hoverShadow: 'hover:shadow-emerald-500/10',
+                gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
             },
         },
         {
@@ -227,8 +227,8 @@ export default function AcademicDashboard({
                             ].map((item, index) => (
                                 <motion.a key={item.href} href={item.href}
                                     className={`inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-semibold shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl ${index === 0
-                                            ? 'bg-white text-indigo-600'
-                                            : 'bg-white/20 text-white backdrop-blur-md border border-white/20 hover:bg-white/30'
+                                        ? 'bg-white text-indigo-600'
+                                        : 'bg-white/20 text-white backdrop-blur-md border border-white/20 hover:bg-white/30'
                                         }`}
                                     whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                                 >
@@ -323,8 +323,8 @@ export default function AcademicDashboard({
                                             onClick={() => router.visit('/user/akademik/jadwal')}>
                                             <div className="relative">
                                                 <div className={`flex h-10 w-10 items-center justify-center rounded-full shadow-lg ${item.is_completed
-                                                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
-                                                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                                    ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+                                                    : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                                                     }`}>
                                                     {item.is_completed ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
                                                 </div>
@@ -394,8 +394,8 @@ export default function AcademicDashboard({
                                             transition={{ delay: index * 0.05 }}
                                             whileHover={{ scale: 1.02, x: 4 }}
                                             className={`relative p-4 rounded-2xl border backdrop-blur-xl cursor-pointer transition-all overflow-hidden ${task.is_overdue
-                                                    ? 'bg-red-50/60 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                                                    : 'bg-white/60 dark:bg-neutral-800/60 border-white/20 dark:border-white/5'
+                                                ? 'bg-red-50/60 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                                : 'bg-white/60 dark:bg-neutral-800/60 border-white/20 dark:border-white/5'
                                                 }`}>
                                             <div className={`absolute left-0 top-0 h-full w-1 ${task.is_overdue ? 'bg-gradient-to-b from-red-500 to-rose-600' : (task.days_remaining !== null && task.days_remaining <= 3) ? 'bg-gradient-to-b from-amber-500 to-orange-600' : 'bg-gradient-to-b from-blue-500 to-indigo-600'}`} />
                                             <div className="flex items-start justify-between gap-2 pl-2">
@@ -405,10 +405,10 @@ export default function AcademicDashboard({
                                                 </div>
                                                 {task.deadline_formatted && (
                                                     <Badge className={`shrink-0 text-[10px] font-bold ${task.is_overdue
-                                                            ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white'
-                                                            : task.days_remaining !== null && task.days_remaining <= 3
-                                                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                                                                : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                                                        ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white'
+                                                        : task.days_remaining !== null && task.days_remaining <= 3
+                                                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
+                                                            : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                                                         }`}>
                                                         {task.is_overdue ? '⚠️ Terlambat' : task.days_remaining !== null ? `⏰ ${task.days_remaining} hari` : task.deadline_formatted}
                                                     </Badge>
@@ -465,10 +465,10 @@ export default function AcademicDashboard({
                                             transition={{ delay: index * 0.08 }}
                                             whileHover={{ scale: 1.02, x: 4 }}
                                             className={`p-4 rounded-2xl border backdrop-blur-xl cursor-pointer transition-all ${exam.is_critical
-                                                    ? 'bg-red-50/60 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                                                    : exam.is_warning
-                                                        ? 'bg-amber-50/60 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-                                                        : 'bg-white/60 dark:bg-neutral-800/60 border-white/20 dark:border-white/5'
+                                                ? 'bg-red-50/60 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                                : exam.is_warning
+                                                    ? 'bg-amber-50/60 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                                                    : 'bg-white/60 dark:bg-neutral-800/60 border-white/20 dark:border-white/5'
                                                 }`}>
                                             <div className="flex items-center justify-between">
                                                 <div>
@@ -484,12 +484,12 @@ export default function AcademicDashboard({
                                                     animate={exam.is_critical ? { scale: [1, 1.1, 1] } : {}}
                                                     transition={exam.is_critical ? { duration: 1.5, repeat: Infinity } : {}}
                                                     className={`text-right p-3 rounded-xl ${exam.is_critical ? 'bg-red-100 dark:bg-red-900/30' :
-                                                            exam.is_warning ? 'bg-amber-100 dark:bg-amber-900/30' :
-                                                                'bg-neutral-100 dark:bg-neutral-800'
+                                                        exam.is_warning ? 'bg-amber-100 dark:bg-amber-900/30' :
+                                                            'bg-neutral-100 dark:bg-neutral-800'
                                                         }`}>
                                                     <p className={`text-2xl font-extrabold ${exam.is_critical ? 'text-red-600 dark:text-red-400' :
-                                                            exam.is_warning ? 'text-amber-600 dark:text-amber-400' :
-                                                                'text-neutral-700 dark:text-neutral-300'
+                                                        exam.is_warning ? 'text-amber-600 dark:text-amber-400' :
+                                                            'text-neutral-700 dark:text-neutral-300'
                                                         }`}>{exam.days_remaining}</p>
                                                     <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">hari lagi</p>
                                                 </motion.div>

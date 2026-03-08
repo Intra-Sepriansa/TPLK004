@@ -107,10 +107,10 @@ export default function Notifications({
     };
 
     const openDetail = (notif: Notification) => {
-        setDetailModal({ open: true, notification: notif });
         if (!notif.read_at) {
             handleMarkAsRead(notif.id);
         }
+        router.visit(`/user/notifications/${notif.id}`);
     };
 
     const getTypeIcon = (type: string) => {
@@ -244,15 +244,7 @@ export default function Notifications({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                        <motion.button
-                            whileHover={{ scale: 1.02, x: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => router.visit('/user/dashboard')}
-                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Kembali
-                        </motion.button>
+                        
 
                         <div className="flex flex-wrap items-start justify-between gap-6">
                             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
@@ -572,7 +564,7 @@ export default function Notifications({
                                     className={cn(
                                         'group relative overflow-hidden',
                                         !notif.read_at &&
-                                            'bg-indigo-50/30 dark:bg-indigo-900/10',
+                                        'bg-indigo-50/30 dark:bg-indigo-900/10',
                                     )}
                                 >
                                     <motion.div
@@ -746,11 +738,10 @@ export default function Notifications({
                                                 page: i + 1,
                                             })
                                         }
-                                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
-                                            notifications.current_page === i + 1
+                                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${notifications.current_page === i + 1
                                                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
                                                 : 'border border-white/20 bg-white/60 text-neutral-700 backdrop-blur-xl hover:bg-white/80 dark:border-white/5 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/70'
-                                        }`}
+                                            }`}
                                     >
                                         {i + 1}
                                     </motion.button>

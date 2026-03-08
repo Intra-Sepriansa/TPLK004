@@ -58,6 +58,89 @@ class NotificationController extends Controller
         ]);
     }
 
+    public function show($id)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
+
+        $notification = AppNotification::findOrFail($id);
+
+        // Check access
+        $isRecipient = $notification->notifiable_type === 'all' ||
+            ($notification->notifiable_type === 'mahasiswa' &&
+             $notification->notifiable_id === $mahasiswa->id);
+
+        if (!$isRecipient) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Auto mark as read
+        if (!$notification->read_at) {
+            $notification->update(['read_at' => now()]);
+        }
+
+        // Related notifications from same sender
+        $relatedNotifications = AppNotification::where('id', '!=', $notification->id)
+            ->where(function ($q) use ($notification) {
+                if ($notification->created_by) {
+                    $q->where('created_by', $notification->created_by);
+                } else {
+                    $q->where('type', $notification->type);
+                }
+            })
+            ->where(function ($q) use ($mahasiswa) {
+                $q->where('notifiable_type', 'all')
+                  ->orWhere(function ($q2) use ($mahasiswa) {
+                      $q2->where('notifiable_type', 'mahasiswa')
+                         ->where('notifiable_id', $mahasiswa->id);
+                  });
+            })
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn ($n) => [
+                'id' => $n->id,
+                'title' => $n->title,
+                'type' => $n->type,
+                'priority' => $n->priority,
+                'created_at' => $n->created_at,
+                'read_at' => $n->read_at,
+            ]);
+
+        // Sender info
+        $senderInfo = ['type' => 'System', 'name' => 'System', 'identifier' => 'AUTO', 'email' => null];
+        if ($notification->created_by) {
+            $admin = \App\Models\User::find($notification->created_by);
+            if ($admin) {
+                $senderInfo = [
+                    'type' => 'Admin',
+                    'name' => $admin->name,
+                    'identifier' => 'Admin',
+                    'email' => $admin->email,
+                ];
+            }
+        }
+
+        return Inertia::render('user/notifications/detail', [
+            'notification' => [
+                'id' => $notification->id,
+                'title' => $notification->title,
+                'message' => $notification->message,
+                'type' => $notification->type,
+                'priority' => $notification->priority,
+                'action_url' => $notification->action_url,
+                'created_at' => $notification->created_at,
+                'read_at' => $notification->read_at,
+                'metadata' => $notification->metadata,
+            ],
+            'relatedNotifications' => $relatedNotifications,
+            'senderInfo' => $senderInfo,
+        ]);
+    }
+
     public function markAsRead($id)
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();

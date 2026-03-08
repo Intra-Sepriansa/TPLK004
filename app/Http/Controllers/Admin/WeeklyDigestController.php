@@ -9,6 +9,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
+use App\Services\PdfReportService;
+use App\Jobs\ProcessBatchPdfExport;
 
 class WeeklyDigestController extends Controller
 {
@@ -27,14 +29,14 @@ class WeeklyDigestController extends Controller
         $week = $request->integer('week') ?: null;
 
         $digests = WeeklyLearningDigest::query()
-            ->with(['mataKuliah', 'creator'])
+            ->with(['mataKuliahs', 'creator'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($inner) use ($search) {
-                    $inner->where('title', 'like', "%{$search}%")
-                        ->orWhereHas('mataKuliah', function ($courseQuery) use ($search) {
-                            $courseQuery->where('nama', 'like', "%{$search}%")
-                                ->orWhere('kode', 'like', "%{$search}%");
-                        });
+                    $inner->whereHas('mataKuliahs', function ($courseQuery) use ($search) {
+                        $courseQuery->where('nama', 'like', "%{$search}%")
+                            ->orWhere('kode', 'like', "%{$search}%")
+                            ->orWhere('digest_mata_kuliah.title', 'like', "%{$search}%");
+                    });
                 });
             })
             ->when($semester !== '', fn ($query) => $query->where('semester', $semester))
@@ -42,18 +44,22 @@ class WeeklyDigestController extends Controller
             ->when($status === 'draft', fn ($query) => $query->where('is_published', false))
             ->when($week, fn ($query) => $query->where('week_number', $week))
             ->orderByDesc('week_number')
-            ->orderBy('meeting_number')
-            ->orderBy('mata_kuliah_id')
+            ->orderByDesc('week_number')
             ->paginate(12)
             ->withQueryString()
             ->through(function (WeeklyLearningDigest $digest) {
+                $courses = $digest->mataKuliahs->map(fn($course) => [
+                    'id' => $course->id,
+                    'name' => $course->nama,
+                    'code' => $course->kode,
+                    'meeting_number' => $course->pivot->meeting_number,
+                    'title' => $course->pivot->title,
+                ]);
+
                 return [
                     'id' => $digest->id,
-                    'title' => $digest->title,
-                    'display_title' => $this->displayTitle($digest),
-                    'course_name' => $digest->mataKuliah?->nama,
-                    'course_code' => $digest->mataKuliah?->kode,
-                    'meeting_number' => $digest->meeting_number,
+                    'courses' => $courses,
+                    'display_title' => $this->displayDigestTitle($courses),
                     'week_number' => $digest->week_number,
                     'semester' => $digest->semester,
                     'week_range' => $digest->week_range,
@@ -105,10 +111,27 @@ class WeeklyDigestController extends Controller
     {
         $adminId = $this->ensureAdminAccess();
         $validated = $this->validatePayload($request);
-        $validated['created_by'] = $adminId;
-        $validated['published_at'] = $validated['is_published'] ? now() : null;
 
-        WeeklyLearningDigest::create($validated);
+        $baseData = $validated;
+        $baseData['created_by'] = $adminId;
+        $baseData['published_at'] = $baseData['is_published'] ? now() : null;
+        unset($baseData['mata_kuliah_ids']);
+
+        $digest = WeeklyLearningDigest::create($baseData);
+
+        $syncData = [];
+        foreach ($validated['mata_kuliah_ids'] as $courseId) {
+            $meetingNumber = $validated['meetings'][$courseId] ?? 1;
+            $title = $this->nullableText($validated['titles'][$courseId] ?? null, 255) 
+                ?: 'Materi Pertemuan ' . $meetingNumber;
+                
+            $syncData[$courseId] = [
+                'meeting_number' => $meetingNumber,
+                'title' => $title,
+            ];
+        }
+
+        $digest->mataKuliahs()->sync($syncData);
 
         return redirect()
             ->route('admin.weekly-digest.index')
@@ -143,11 +166,29 @@ class WeeklyDigestController extends Controller
 
         $digest = WeeklyLearningDigest::findOrFail($id);
         $validated = $this->validatePayload($request, $digest);
-        $validated['published_at'] = $validated['is_published']
+        $data = $validated;
+        $data['published_at'] = $validated['is_published']
             ? ($digest->published_at ?? now())
             : null;
+        unset($data['mata_kuliah_ids']);
+        unset($data['meetings']);
+        unset($data['titles']);
 
-        $digest->update($validated);
+        $digest->update($data);
+
+        $syncData = [];
+        foreach ($validated['mata_kuliah_ids'] as $courseId) {
+            $meetingNumber = $validated['meetings'][$courseId] ?? 1;
+            $title = $this->nullableText($validated['titles'][$courseId] ?? null, 255) 
+                ?: 'Materi Pertemuan ' . $meetingNumber;
+                
+            $syncData[$courseId] = [
+                'meeting_number' => $meetingNumber,
+                'title' => $title,
+            ];
+        }
+
+        $digest->mataKuliahs()->sync($syncData);
 
         return redirect()
             ->route('admin.weekly-digest.show', $digest->id)
@@ -160,7 +201,7 @@ class WeeklyDigestController extends Controller
 
         WeeklyLearningDigest::findOrFail($id)->delete();
 
-        return back()->with('success', 'Info Pekanan Mentari berhasil dihapus.');
+        return redirect()->route('admin.weekly-digest.index')->with('success', 'Info Pekanan Mentari berhasil dihapus.');
     }
 
     public function publish(int $id)
@@ -175,28 +216,70 @@ class WeeklyDigestController extends Controller
             'published_at' => $nextStatus ? ($digest->published_at ?? now()) : null,
         ]);
 
+        if ($nextStatus) {
+            // Cek apakah notifikasi untuk digest ini sudah pernah dikirim sebelumnya
+            $notificationExists = \App\Models\AppNotification::where('type', 'announcement')
+                ->where('action_url', '/user/weekly-digest/' . $digest->id)
+                ->exists();
+
+            if (!$notificationExists) {
+                // Ambil daftar mata kuliah untuk judul notifikasi
+                $courses = $digest->mataKuliahs->map(fn ($c) => [
+                    'title' => $c->pivot->title,
+                    'meeting_number' => $c->pivot->meeting_number,
+                ]);
+                $displayTitle = $this->displayDigestTitle($courses);
+
+                \App\Models\AppNotification::create([
+                    'notifiable_type' => 'all',
+                    'notifiable_id' => 0,
+                    'title' => 'Info Pekanan Mentari: ' . $displayTitle,
+                    'message' => 'Ringkasan pembelajaran minggu ke-' . $digest->week_number . ' telah diterbitkan. Silakan cek materi, tugas, dan forum diskusi terbaru.',
+                    'type' => 'announcement',
+                    'priority' => 'normal',
+                    'action_url' => '/user/weekly-digest/' . $digest->id,
+                    'created_by' => auth()->user()?->name ?? 'System Admin',
+                    'created_by_type' => 'admin',
+                    'created_by_id' => auth()->id(),
+                ]);
+            }
+        }
+
         return back()->with('success', $nextStatus
-            ? 'Info Pekanan Mentari berhasil dipublikasikan.'
+            ? 'Info Pekanan Mentari berhasil dipublikasikan dan notifikasi telah dikirim ke mahasiswa.'
             : 'Info Pekanan Mentari dikembalikan ke draft.');
     }
 
-    public function exportPdf(int $id)
+    public function exportPdf(int $id, PdfReportService $pdfService)
     {
         $this->ensureAdminAccess();
 
         $digest = $this->findDigest($id);
-        $pdf = Pdf::loadView('pdf.weekly-learning-digest', [
-            'digest' => $digest,
-            'displayTitle' => $this->displayTitle($digest),
-            'constants' => $this->constantsPayload(),
-            'generatedAt' => now(),
-            'generatedBy' => auth()->guard('web')->user()?->name ?? 'System',
-            'logoUnpam' => public_path('assets/logos/unpam-logo.png'),
-            'logoSasmita' => public_path('assets/logos/sasmita-logo.png'),
-        ]);
-        $pdf->setPaper('a4', 'portrait');
+        $user = auth()->guard('web')->user();
 
-        return $pdf->download('info-pekanan-mentari-' . $digest->week_number . '-' . $digest->id . '.pdf');
+        $pdfContent = $pdfService->generateWeeklyDigestPdf($digest, $user);
+        
+        $filename = 'Info_Pekanan_Mentari_Minggu_' . $digest->week_number . '_ID_' . $digest->id . '.pdf';
+
+        return response($pdfContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function batchExport(Request $request)
+    {
+        $this->ensureAdminAccess();
+        
+        $request->validate([
+            'digest_ids' => 'required|array|min:1',
+            'digest_ids.*' => 'exists:weekly_learning_digests,id'
+        ]);
+
+        $userId = auth()->guard('web')->id();
+        
+        ProcessBatchPdfExport::dispatch($request->digest_ids, $userId);
+
+        return back()->with('success', 'Proses ekspor PDF masal sedang berjalan di latar belakang. Anda akan menerima notifikasi saat file siap diunduh.');
     }
 
     private function validatePayload(Request $request, ?WeeklyLearningDigest $digest = null): array
@@ -204,14 +287,17 @@ class WeeklyDigestController extends Controller
         $payload = $this->normalizePayload($request->all(), $digest);
 
         return Validator::make($payload, [
-            'mata_kuliah_id' => 'required|exists:mata_kuliah,id',
+            'mata_kuliah_ids' => 'required|array|min:1',
+            'mata_kuliah_ids.*' => 'exists:mata_kuliah,id',
+            'meetings' => 'required|array',
+            'meetings.*' => 'integer|min:1|max:32',
+            'titles' => 'nullable|array',
+            'titles.*' => 'nullable|string|max:255',
             'class_label' => 'required|string|max:50',
             'week_number' => 'required|integer|min:1|max:53',
             'semester' => 'required|string|max:20',
             'week_start_date' => 'required|date',
             'week_end_date' => 'required|date|after_or_equal:week_start_date',
-            'meeting_number' => 'required|integer|min:1|max:32',
-            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:5000',
             'has_structured_task' => 'boolean',
             'forum_posts_required' => 'required|integer|min:1|max:10',
@@ -219,16 +305,22 @@ class WeeklyDigestController extends Controller
             'mentari_course_id' => 'nullable|string|max:100',
             'is_published' => 'boolean',
         ])->after(function ($validator) use ($payload, $digest) {
-            $exists = WeeklyLearningDigest::query()
-                ->where('mata_kuliah_id', $payload['mata_kuliah_id'])
-                ->where('week_number', $payload['week_number'])
-                ->where('semester', $payload['semester'])
-                ->where('meeting_number', $payload['meeting_number'])
-                ->when($digest, fn ($query) => $query->where('id', '!=', $digest->id))
-                ->exists();
+            foreach ($payload['mata_kuliah_ids'] as $courseId) {
+                $meetingNum = $payload['meetings'][$courseId] ?? 1;
 
-            if ($exists) {
-                $validator->errors()->add('meeting_number', 'Matkul dan pertemuan ini sudah tercatat pada minggu yang sama.');
+                $exists = WeeklyLearningDigest::query()
+                    ->whereHas('mataKuliahs', function ($q) use ($courseId, $meetingNum) {
+                        $q->where('mata_kuliah_id', $courseId)
+                          ->where('digest_mata_kuliah.meeting_number', $meetingNum);
+                    })
+                    ->where('week_number', $payload['week_number'])
+                    ->where('semester', $payload['semester'])
+                    ->when($digest, fn ($query) => $query->where('id', '!=', $digest->id))
+                    ->exists();
+
+                if ($exists) {
+                    $validator->errors()->add("meetings.{$courseId}", 'Matkul ini sudah memiliki jadwal di pertemuan ' . $meetingNum . ' pada minggu yang sama.');
+                }
             }
         })->validate();
     }
@@ -237,15 +329,34 @@ class WeeklyDigestController extends Controller
     {
         $defaults = $this->defaultWeekData();
 
+        $courseIds = $payload['mata_kuliah_ids'] ?? [];
+        if (empty($courseIds) && isset($payload['mata_kuliah_id'])) {
+            $courseIds = [$payload['mata_kuliah_id']];
+        }
+
+        $meetings = $payload['meetings'] ?? [];
+        if (empty($meetings) && isset($payload['meeting_number']) && !empty($courseIds)) {
+            foreach ((array) $courseIds as $cid) {
+                $meetings[$cid] = (int) $payload['meeting_number'];
+            }
+        }
+
+        $titles = $payload['titles'] ?? [];
+        if (empty($titles) && isset($payload['title']) && !empty($courseIds)) {
+            foreach ((array) $courseIds as $cid) {
+                $titles[$cid] = $payload['title'];
+            }
+        }
+
         return [
-            'mata_kuliah_id' => isset($payload['mata_kuliah_id']) ? (int) $payload['mata_kuliah_id'] : null,
+            'mata_kuliah_ids' => array_map('intval', (array) $courseIds),
+            'meetings' => $meetings,
+            'titles' => $titles,
             'class_label' => self::DEFAULT_CLASS_LABEL,
             'week_number' => $digest?->week_number ?? $defaults['week_number'],
             'semester' => $digest?->semester ?? $defaults['semester'],
             'week_start_date' => $digest?->week_start_date?->toDateString() ?? $defaults['week_start_date'],
             'week_end_date' => $digest?->week_end_date?->toDateString() ?? $defaults['week_end_date'],
-            'meeting_number' => (int) ($payload['meeting_number'] ?? 1),
-            'title' => $this->nullableText($payload['title'] ?? null, 255),
             'description' => null,
             'has_structured_task' => filter_var($payload['has_structured_task'] ?? false, FILTER_VALIDATE_BOOL),
             'forum_posts_required' => self::DEFAULT_FORUM_POSTS_REQUIRED,
@@ -257,24 +368,31 @@ class WeeklyDigestController extends Controller
 
     private function findDigest(int $id): WeeklyLearningDigest
     {
-        return WeeklyLearningDigest::with(['mataKuliah.dosen', 'creator'])->findOrFail($id);
+        return WeeklyLearningDigest::with(['mataKuliahs.dosen', 'creator'])->findOrFail($id);
     }
 
     private function detailPayload(WeeklyLearningDigest $digest): array
     {
+        $courses = $digest->mataKuliahs->map(fn($course) => [
+            'id' => $course->id,
+            'name' => $course->nama,
+            'code' => $course->kode,
+            'dosen_name' => $course->dosen?->nama,
+            'meeting_number' => $course->pivot->meeting_number,
+            'title' => $course->pivot->title,
+        ]);
+
         return [
             'id' => $digest->id,
-            'mata_kuliah_id' => $digest->mata_kuliah_id,
-            'course_name' => $digest->mataKuliah?->nama,
-            'course_code' => $digest->mataKuliah?->kode,
-            'dosen_name' => $digest->mataKuliah?->dosen?->nama,
+            'courses' => $courses,
+            'mata_kuliah_ids' => $courses->pluck('id')->toArray(),
+            'meetings' => $courses->pluck('meeting_number', 'id')->toArray(),
+            'titles' => $courses->pluck('title', 'id')->toArray(),
             'class_label' => self::DEFAULT_CLASS_LABEL,
             'week_number' => $digest->week_number,
             'semester' => $digest->semester,
             'week_range' => $digest->week_range,
-            'meeting_number' => $digest->meeting_number,
-            'title' => $digest->title,
-            'display_title' => $this->displayTitle($digest),
+            'display_title' => $this->displayDigestTitle($courses),
             'has_structured_task' => (bool) $digest->has_structured_task,
             'forum_posts_required' => (int) $digest->forum_posts_required,
             'mentari_course_url' => $digest->mentari_course_url,
@@ -287,13 +405,22 @@ class WeeklyDigestController extends Controller
         ];
     }
 
-    private function displayTitle(WeeklyLearningDigest $digest): string
+    private function displayDigestTitle($courses): string
     {
-        if ($digest->title) {
-            return $digest->title;
+        if (count($courses) > 1) {
+            return count($courses) . ' Mata Kuliah Terpilih';
         }
 
-        return 'Materi Pertemuan ' . $digest->meeting_number;
+        if (count($courses) === 1) {
+            $course = is_array($courses[0]) ? $courses[0] : (is_object($courses[0]) ? $courses[0] : collect($courses)->first());
+            
+            $title = is_array($course) ? ($course['title'] ?? null) : ($course->pivot->title ?? $course->title ?? null);
+            $meetingInfo = is_array($course) ? ($course['meeting_number'] ?? 1) : ($course->pivot->meeting_number ?? $course->meeting_number ?? 1);
+
+            return $title ?: 'Materi Pertemuan ' . $meetingInfo;
+        }
+
+        return 'Materi Informasi Pekanan';
     }
 
     private function availableSemesters(): array
@@ -369,6 +496,10 @@ class WeeklyDigestController extends Controller
 
     private function nullableText(mixed $value, int $limit = 5000): ?string
     {
+        if (is_array($value)) {
+            return null; // Don't allow passing arrays straight into text fields
+        }
+
         $text = trim(strip_tags((string) ($value ?? '')));
 
         if ($text === '') {

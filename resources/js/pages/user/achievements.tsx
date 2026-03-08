@@ -235,15 +235,7 @@ export default function Achievements() {
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative z-10">
-                        <motion.button
-                            whileHover={{ scale: 1.02, x: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => router.visit('/user/dashboard')}
-                            className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors text-sm font-medium mb-3 sm:mb-4"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Kembali
-                        </motion.button>
+
 
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex w-full flex-col sm:w-auto sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
@@ -277,6 +269,20 @@ export default function Achievements() {
                                     >
                                         Pencapaian Saya
                                     </motion.h1>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.35 }}
+                                        className="mt-3"
+                                    >
+                                        <button
+                                            onClick={() => router.get('/user/leaderboard')}
+                                            className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold text-white backdrop-blur-md ring-1 ring-white/30 transition-all hover:bg-white/30 hover:scale-105 active:scale-95"
+                                        >
+                                            <Trophy className="h-4 w-4 text-amber-300" />
+                                            Lihat Leaderboard
+                                        </button>
+                                    </motion.div>
                                 </div>
                             </div>
                             <motion.div

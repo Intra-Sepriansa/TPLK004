@@ -1,28 +1,33 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, BookOpen, CalendarDays, CheckCircle2, Eye, EyeOff, Filter, Globe, MessageSquare, Plus, Search, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { AlertCircle, ArrowLeft, BookOpen, CheckCircle2, Download, Eye, EyeOff, Filter, Plus, Search, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import DashboardIcon from '@/assets/dosen/dashboard/dashboard-icon.png';
+import NotificationIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
 import StatTotalCourse from '@/assets/dosen/dashboard/stat-total-course.png';
 import PublishedIcon from '@/assets/admin/informasi-tugas/publised.png';
 import DraftIcon from '@/assets/admin/informasi-tugas/draft.png';
 import SessionIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
 import CourseIcon from '@/assets/dosen/dashboard/course-icon.png';
+import TotalNotificationIcon from '@/assets/admin/notification-center/total.png';
 
 interface DigestItem {
   id: number;
-  title: string | null;
   display_title: string;
-  course_name: string | null;
-  course_code: string | null;
-  meeting_number: number;
+  courses: {
+    id: number;
+    name: string;
+    code: string;
+    meeting_number: number;
+    title: string | null;
+  }[];
   week_number: number;
   semester: string;
   week_range: string;
@@ -43,6 +48,7 @@ interface PaginationLink {
 }
 
 interface PageProps {
+  [key: string]: any;
   digests: {
     data: DigestItem[];
     total: number;
@@ -116,30 +122,73 @@ const statCards = [
     title: 'Draft',
     field: 'draft',
     imageSrc: DraftIcon,
-    gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
-    glow: 'bg-amber-500',
+    gradientBg: 'from-slate-200/50 to-white/50 dark:from-slate-800/50 dark:to-neutral-900/50',
+    glow: 'bg-slate-300',
   },
   {
     key: 'current_week',
     title: 'Pekan Aktif',
     field: 'current_week',
     imageSrc: SessionIcon,
-    gradientBg: 'from-violet-500/5 to-pink-500/5 dark:from-violet-500/10 dark:to-pink-500/10',
-    glow: 'bg-violet-500',
+    gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
+    glow: 'bg-emerald-500',
   },
 ] as const;
 
 export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, filters, constants }: PageProps) {
-  const { flash } = usePage<PageProps>().props;
+  const { flash, auth } = usePage<PageProps>().props;
+  const user = auth?.user;
   const [search, setSearch] = useState(filters.search);
   const [semester, setSemester] = useState(filters.semester || 'all');
   const [status, setStatus] = useState(filters.status || 'all');
   const [week, setWeek] = useState(filters.week ? String(filters.week) : 'all');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null; title: string }>({
     open: false,
     id: null,
     title: '',
   });
+
+  useEffect(() => {
+    if (window.Echo && user) {
+      const channel = window.Echo.private(`admin.exports.${user.id}`)
+        .listen('BatchExportCompleted', (e: any) => {
+          setIsExporting(false);
+          setSelectedIds([]);
+          const link = document.createElement('a');
+          link.href = e.downloadUrl;
+          link.download = e.filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+      return () => {
+        channel.stopListening('BatchExportCompleted');
+      };
+    }
+  }, [user]);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === digests.data.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(digests.data.map((d) => d.id));
+    }
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
+  };
+
+  const handleBatchExport = () => {
+    if (selectedIds.length === 0) return;
+    setIsExporting(true);
+    router.post('/admin/weekly-digest/batch-export', { digest_ids: selectedIds }, {
+      preserveScroll: true,
+      preserveState: true,
+    });
+  };
 
   const applyFilter = () => {
     router.get(
@@ -159,19 +208,7 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
       <Head title="Info Pekanan Mentari" />
 
       <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-6 p-6">
-        <motion.div variants={itemVariants} className="flex items-center">
-          <motion.button
-            type="button"
-            onClick={() => router.get('/admin/notification-center')}
-            whileHover={{ x: -4 }}
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/60 px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-lg backdrop-blur-xl transition-all hover:bg-white dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-100"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Kembali ke Notification Center
-          </motion.button>
-        </motion.div>
-
-        <motion.div variants={headerVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
+        <motion.div variants={headerVariants} className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8">
           <motion.div
             className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
             animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
@@ -182,75 +219,53 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-          {[0, 1, 2].map((ring) => (
-            <motion.div
-              key={ring}
-              className="absolute right-16 top-1/2 h-28 w-28 -translate-y-1/2 rounded-full border border-white/10"
-              animate={{ scale: [1, 2.2], opacity: [0.4, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: ring }}
-            />
-          ))}
-
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
-              <motion.div
-                whileHover={{ scale: 1.04, rotate: 5 }}
-                className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
-                initial={{ opacity: 0, scale: 0.65, rotate: -8 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 260, delay: 0.15 }}
-              >
-                <img src={DashboardIcon} alt="Info Pekanan Mentari" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.55)]" />
-              </motion.div>
-
-              <div>
-                <p className="text-sm font-medium tracking-wide text-indigo-100">Panel Ringkas Mentari</p>
-                <h1 className="font-display text-3xl leading-tight md:text-5xl">Info Pekanan Mentari.</h1>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-indigo-100/90 sm:text-base">
-                  Alur admin dibuat sesingkat mungkin: pilih mata kuliah, tentukan pertemuan, isi judul opsional,
-                  lalu tentukan apakah ada tugas terstruktur. Semua entry otomatis digabung ke pekan aktif.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-3 lg:items-end">
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-5 py-3 shadow-lg backdrop-blur-xl">
-                <div className="rounded-xl bg-indigo-500/20 p-2 text-white">
-                  <Globe className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs text-indigo-100">Platform Tetap</p>
-                  <p className="text-xl font-bold text-white">{constants.platform_name}</p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-2 lg:justify-end">
-                {[
-                  { label: `Kelas ${constants.class_label}`, icon: BookOpen },
-                  { label: `Forum ${constants.forum_posts_required}x`, icon: MessageSquare },
-                  { label: `${digests.total} entry`, icon: CalendarDays },
-                ].map((chip) => (
-                  <motion.div
-                    key={chip.label}
-                    whileHover={{ scale: 1.03, y: -2 }}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
-                  >
-                    <chip.icon className="h-4 w-4" />
-                    {chip.label}
-                  </motion.div>
-                ))}
-              </div>
-
+          <div className="relative space-y-6">
+            <div className="flex justify-start">
               <motion.button
                 type="button"
-                onClick={() => router.get('/admin/weekly-digest/create')}
-                whileHover={{ scale: 1.03, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-6 py-3.5 text-sm font-semibold text-white shadow-lg backdrop-blur-xl transition-colors hover:bg-white/30"
+                onClick={() => router.get('/admin/notification-center')}
+                whileHover={{ x: -4 }}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-colors"
               >
-                <Plus className="h-4 w-4" />
-                Tambah Entry Pekanan
+                <ArrowLeft className="h-4 w-4" />
+                Kembali ke Notification Center
               </motion.button>
+            </div>
+
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
+                <div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
+                  <img src={NotificationIcon} alt="Info Pekanan Mentari" className="h-full w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.45)]" />
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-sm font-medium tracking-wide text-indigo-100">Panel Ringkas Mentari</p>
+                  <h1 className="mt-1 font-bold text-2xl sm:text-3xl leading-tight">Info Pekanan Mentari</h1>
+                  <p className="mt-2 text-sm text-indigo-100/90 max-w-2xl">
+                    Gabungkan entry menjadi rekap pekanan mahasiswa secara otomatis.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center sm:items-start lg:items-end gap-3 mt-4 sm:mt-0 w-full lg:w-auto">
+                <div className="flex flex-wrap justify-center gap-2 sm:justify-start lg:justify-end">
+                  <Badge className="border-white/20 bg-white/15 px-3 py-1.5 text-white backdrop-blur-md">Kelas {constants.class_label}</Badge>
+                  <Badge className="border-white/20 bg-white/15 px-3 py-1.5 text-white backdrop-blur-md">{constants.platform_name}</Badge>
+                  <Badge className="border-white/20 bg-white/15 px-3 py-1.5 text-white backdrop-blur-md">Forum {constants.forum_posts_required}x</Badge>
+                  <Badge className="border-white/20 bg-white/15 px-3 py-1.5 text-white backdrop-blur-md">{digests.total} Entry</Badge>
+                </div>
+
+                <motion.button
+                  type="button"
+                  onClick={() => router.get('/admin/weekly-digest/create')}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/20 bg-white/20 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-white/30"
+                >
+                  <Plus className="h-4 w-4" />
+                  Tambah Entry Pekanan
+                </motion.button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -272,10 +287,10 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
                 <div className={cn('absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-15 blur-3xl transition-all group-hover:opacity-30', card.glow)} />
                 <div className="relative z-10 flex items-center gap-4">
                   <motion.div
-                    whileHover={{ scale: 1.08, rotate: 8 }}
-                    className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-14 sm:w-14"
+                    whileHover={{ scale: 1.1, rotate: 10 }}
+                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
                   >
-                    <img src={card.imageSrc} alt={card.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]" />
+                    <img src={card.imageSrc} alt={card.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                   </motion.div>
                   <div>
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400 sm:text-sm">{card.title}</p>
@@ -365,6 +380,35 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
         </motion.div>
 
         <motion.div variants={itemVariants} className="space-y-4">
+          {digests.data.length > 0 && (
+            <motion.div variants={itemVariants} className="flex items-center justify-between rounded-2xl bg-white/50 p-4 shadow-md backdrop-blur-xl dark:bg-neutral-900/50">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={selectedIds.length > 0 && selectedIds.length === digests.data.length}
+                  onCheckedChange={toggleSelectAll}
+                  className="h-5 w-5 rounded border-slate-300 dark:border-neutral-600"
+                />
+                <span className="text-sm font-medium text-slate-700 dark:text-neutral-300">
+                  {selectedIds.length} terpilih
+                </span>
+              </div>
+
+              {selectedIds.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  type="button"
+                  disabled={isExporting}
+                  onClick={handleBatchExport}
+                  className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white shadow hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-white dark:text-slate-900 dark:hover:bg-neutral-200"
+                >
+                  {isExporting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent dark:border-slate-900 dark:border-t-transparent" /> : <Download className="h-4 w-4" />}
+                  {isExporting ? 'Memproses ZIP...' : 'Export Terpilih'}
+                </motion.button>
+              )}
+            </motion.div>
+          )}
+
           {digests.data.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-slate-300 bg-white/60 p-14 text-center shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/50">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-slate-400" />
@@ -379,8 +423,22 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
                 whileHover={{ y: -4, transition: { type: 'spring', stiffness: 280, damping: 20 } }}
-                className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/55 p-5 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/55"
+                className={cn(
+                  'group relative overflow-hidden rounded-3xl border p-5 shadow-xl backdrop-blur-xl transition-colors cursor-pointer hover:border-indigo-500/30',
+                  digest.is_published
+                    ? 'border-emerald-200 bg-emerald-50/90 dark:border-emerald-900/30 dark:bg-emerald-900/20'
+                    : 'border-white/50 bg-white/95 dark:border-white/10 dark:bg-neutral-900/90'
+                )}
+                onClick={() => toggleSelect(digest.id)}
               >
+                <div className="absolute right-5 top-5 z-20">
+                  <Checkbox
+                    checked={selectedIds.includes(digest.id)}
+                    onCheckedChange={() => toggleSelect(digest.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="h-5 w-5 rounded border-slate-300 shadow-sm dark:border-neutral-600"
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-40 dark:from-white/5" />
                 <div className={cn(
                   'absolute -right-12 -top-12 h-32 w-32 rounded-full blur-3xl transition-all',
@@ -397,15 +455,29 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
                     </motion.div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="truncate text-lg font-bold text-slate-900 dark:text-white">{digest.course_name || 'Mata Kuliah'}</h3>
-                        <Badge className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">Pertemuan {digest.meeting_number}</Badge>
-                        <Badge className={digest.is_published ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300'}>
-                          {digest.is_published ? 'Published' : 'Draft'}
-                        </Badge>
-                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{digest.display_title}</h3>
+                          {digest.courses?.length === 1 && (
+                            <Badge className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                              Pertemuan {digest.courses[0].meeting_number}
+                            </Badge>
+                          )}
+                          <Badge className={digest.is_published ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300'}>
+                            {digest.is_published ? 'Published' : 'Draft'}
+                          </Badge>
+                        </div>
 
-                      <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">{digest.display_title}</p>
+                        {digest.courses?.length > 1 && (
+                          <div className="flex flex-wrap gap-2">
+                            {digest.courses.map(course => (
+                              <Badge key={course.id} className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                {course.name} (P{course.meeting_number})
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                         Minggu {digest.week_number} • {digest.semester} • {digest.class_label}
                       </p>
@@ -449,7 +521,7 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
                     <Button
                       type="button"
                       className="rounded-2xl bg-rose-500 text-white shadow-lg hover:bg-rose-600"
-                      onClick={() => setDeleteDialog({ open: true, id: digest.id, title: digest.course_name || digest.display_title })}
+                      onClick={() => setDeleteDialog({ open: true, id: digest.id, title: digest.display_title })}
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Hapus
@@ -461,7 +533,7 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
           )}
         </motion.div>
 
-        <motion.div variants={itemVariants} className="flex flex-wrap gap-2">
+        <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-2">
           {digests.links.map((link) => (
             <button
               key={`${link.label}-${link.url}`}
@@ -474,7 +546,13 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
                   ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg'
                   : 'border-white/20 bg-white/70 text-slate-700 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-200',
               )}
-              dangerouslySetInnerHTML={{ __html: link.label }}
+              dangerouslySetInnerHTML={{
+                __html: link.label.includes('pagination.previous')
+                  ? '&laquo; Sebelumnya'
+                  : link.label.includes('pagination.next')
+                    ? 'Selanjutnya &raquo;'
+                    : link.label
+              }}
             />
           ))}
         </motion.div>
@@ -482,7 +560,14 @@ export default function WeeklyDigestIndex({ digests, semesters, weeks, stats, fi
         <ConfirmDialog
           open={deleteDialog.open}
           onOpenChange={(open) => setDeleteDialog((current) => ({ ...current, open }))}
-          onConfirm={() => deleteDialog.id && router.delete(`/admin/weekly-digest/${deleteDialog.id}`)}
+          onConfirm={() => {
+            if (deleteDialog.id) {
+              router.delete(`/admin/weekly-digest/${deleteDialog.id}`, {
+                preserveScroll: true,
+                onSuccess: () => setDeleteDialog({ open: false, id: null, title: '' }),
+              });
+            }
+          }}
           title="Hapus Entry Pekanan"
           message={`Yakin ingin menghapus entry "${deleteDialog.title}"?`}
           variant="danger"

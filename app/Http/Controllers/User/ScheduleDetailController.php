@@ -46,13 +46,15 @@ class ScheduleDetailController extends Controller
                 ->first();
 
             if ($digestModel) {
-                $digestEntries = WeeklyLearningDigest::with('mataKuliah')
+                $digestEntries = WeeklyLearningDigest::with('mataKuliahs')
                     ->where('class_label', '06TPLK004')
                     ->where('semester', $digestModel->semester)
                     ->where('week_number', $digestModel->week_number)
                     ->published()
-                    ->orderBy('meeting_number')
-                    ->orderBy('mata_kuliah_id')
+                    ->join('digest_mata_kuliah', 'weekly_learning_digests.id', '=', 'digest_mata_kuliah.digest_id')
+                    ->select('weekly_learning_digests.*', 'digest_mata_kuliah.meeting_number', 'digest_mata_kuliah.title', 'digest_mata_kuliah.mata_kuliah_id')
+                    ->orderBy('digest_mata_kuliah.meeting_number')
+                    ->orderBy('digest_mata_kuliah.mata_kuliah_id')
                     ->get();
 
                 $weeklyDigest = [
@@ -64,8 +66,8 @@ class ScheduleDetailController extends Controller
                     'items' => $digestEntries->map(function ($item) {
                         return [
                             'id' => $item->id,
-                            'course_name' => $item->mataKuliah?->nama ?? 'Mata Kuliah',
-                            'course_code' => $item->mataKuliah?->kode,
+                            'course_name' => $item->mataKuliahs->firstWhere('id', $item->mata_kuliah_id)?->nama ?? 'Mata Kuliah',
+                            'course_code' => $item->mataKuliahs->firstWhere('id', $item->mata_kuliah_id)?->kode,
                             'meeting_number' => $item->meeting_number,
                             'title' => $item->title,
                             'display_title' => $item->title ?: 'Materi Pertemuan ' . $item->meeting_number,

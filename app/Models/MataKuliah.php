@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 class MataKuliah extends Model
 {
     protected $table = 'mata_kuliah';
@@ -36,8 +38,10 @@ class MataKuliah extends Model
         return $this->hasMany(AttendanceSession::class, 'course_id');
     }
 
-    public function weeklyDigests(): HasMany
+    public function weeklyDigests(): BelongsToMany
     {
-        return $this->hasMany(WeeklyLearningDigest::class, 'mata_kuliah_id');
+        return $this->belongsToMany(WeeklyLearningDigest::class, 'digest_mata_kuliah', 'mata_kuliah_id', 'digest_id')
+            ->withPivot(['meeting_number', 'title'])
+            ->withTimestamps();
     }
 }
