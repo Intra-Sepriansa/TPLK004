@@ -1,5 +1,6 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { DosenSidebar } from '@/components/dosen-sidebar';
+import { NetworkQualityAlert } from '@/components/network/NetworkQualityAlert';
 import { NotificationDropdownAdvanced, type Notification } from '@/components/ui/notification-dropdown-advanced';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode } from 'react';
@@ -17,11 +18,11 @@ interface DosenLayoutProps {
 }
 
 export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayoutProps) {
-    const { props } = usePage<{ 
+    const { props } = usePage<{
         headerNotifications?: HeaderNotifications;
         notificationConfig?: { baseUrl: string; allUrl: string };
     }>();
-    
+
     const notifications = props.headerNotifications;
     const config = props.notificationConfig;
 
@@ -63,6 +64,7 @@ export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayou
                     <main className="flex-1">{children}</main>
                 </div>
             </SidebarInset>
+            <NetworkQualityAlert />
         </SidebarProvider>
     );
 }

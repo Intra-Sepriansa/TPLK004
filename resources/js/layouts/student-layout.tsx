@@ -1,4 +1,5 @@
 import StudentSidebarLayout from '@/layouts/student/student-sidebar-layout';
+import { NetworkQualityAlert } from '@/components/network/NetworkQualityAlert';
 import { OfflineIndicator } from '@/components/offline/offline-indicator';
 import { InstallPrompt } from '@/components/pwa/install-prompt';
 import { Toaster } from 'sonner';
@@ -38,6 +39,7 @@ export default function StudentLayout({
             <div>{children}</div>
             <OfflineIndicator />
             <InstallPrompt />
+            <NetworkQualityAlert />
             <Toaster
                 position="top-right"
                 theme="dark"
