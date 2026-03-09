@@ -159,8 +159,8 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::get('admin/verifikasi-selfie/{id}', [SelfieVerificationController::class, 'show'])->name('admin.verifikasi-selfie.show');
     Route::post('admin/verifikasi-selfie/{id}/approve', [SelfieVerificationController::class, 'approve'])->name('admin.verifikasi-selfie.approve');
     Route::post('admin/verifikasi-selfie/{id}/reject', [SelfieVerificationController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
-    Route::patch('admin/verifikasi-selfie/{selfieVerification}/approve', [VerifikasiSelfieController::class, 'approve'])->name('admin.verifikasi-selfie.approve');
-    Route::patch('admin/verifikasi-selfie/{selfieVerification}/reject', [VerifikasiSelfieController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/approve', [VerifikasiSelfieController::class, 'approve'])->name('admin.verifikasi-selfie.patch-approve');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/reject', [VerifikasiSelfieController::class, 'reject'])->name('admin.verifikasi-selfie.patch-reject');
     Route::post('admin/verifikasi-selfie/bulk-approve', [VerifikasiSelfieController::class, 'bulkApprove'])->name('admin.verifikasi-selfie.bulk-approve');
     Route::post('admin/verifikasi-selfie/bulk-reject', [VerifikasiSelfieController::class, 'bulkReject'])->name('admin.verifikasi-selfie.bulk-reject');
     Route::patch('admin/verifikasi-selfie/{selfieVerification}/consume-view', [VerifikasiSelfieController::class, 'consumeViewRequest'])->name('admin.verifikasi-selfie.consume-view');
