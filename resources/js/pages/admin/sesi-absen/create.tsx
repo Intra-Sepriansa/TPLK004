@@ -290,7 +290,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Animations (Pulses) */}
-                                                            
+
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
@@ -491,16 +491,16 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                             </div>
 
                                             {/* Waktu Scan Absensi */}
-                                            <h3 className="text-lg font-bold flex items-center gap-2 mt-4"><Scan className="w-5 h-5 text-indigo-500" /> Interval Scan Absensi</h3>
+                                            <h3 className="text-lg font-bold flex items-center gap-2 mt-4 text-slate-800 dark:text-slate-200"><Scan className="w-5 h-5 text-indigo-500" /> Interval Scan Absensi</h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div className="space-y-2 p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/50">
                                                     <Label className="font-semibold text-slate-700 dark:text-emerald-200 flex items-center gap-2"><Unlock className="w-4 h-4" /> Waktu Buka Absen</Label>
-                                                    <p className="text-xs text-slate-500 mb-2">Berapa menit sebelum sesi mulai absen dibuka?</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Berapa menit sebelum sesi mulai absen dibuka?</p>
                                                     <Input type="time" value={formData.waktu_buka_absen} onChange={e => updateField('waktu_buka_absen', e.target.value)} className="h-12 bg-white/80 dark:bg-black/40 rounded-xl dark:[color-scheme:dark]" />
                                                 </div>
                                                 <div className="space-y-2 p-5 rounded-2xl bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-800/50">
                                                     <Label className="font-semibold text-slate-700 dark:text-rose-200 flex items-center gap-2"><Lock className="w-4 h-4" /> Waktu Tutup Absen</Label>
-                                                    <p className="text-xs text-slate-500 mb-2">Jam berapa mahasiswa sudah tidak bisa absen?</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Jam berapa mahasiswa sudah tidak bisa absen?</p>
                                                     <Input type="time" value={formData.waktu_tutup_absen} onChange={e => updateField('waktu_tutup_absen', e.target.value)} className="h-12 bg-white/80 dark:bg-black/40 rounded-xl dark:[color-scheme:dark]" />
                                                 </div>
                                             </div>
@@ -514,7 +514,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                 <div className="flex items-center space-x-4 p-4 rounded-xl border border-white/30 dark:border-neutral-800 bg-white/30 dark:bg-neutral-800/30">
                                                     <div className="flex-1">
                                                         <Label className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2"><Repeat className="w-4 h-4" /> Ulangi Otomatis (Recurring)</Label>
-                                                        <p className="text-xs text-slate-500">Buat sesi yang sama setiap minggu otomatis.</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">Buat sesi yang sama setiap minggu otomatis.</p>
                                                     </div>
                                                     <Switch checked={formData.recurring} onCheckedChange={v => updateField('recurring', v)} />
                                                 </div>
@@ -617,7 +617,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                                 <MapPin className="w-10 h-10 text-slate-500 group-hover:text-emerald-600 dark:text-slate-400 dark:group-hover:text-emerald-400 transition-colors" />
                                                             </div>
                                                             <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">Tentukan Geofencing & Ruangan</h3>
-                                                            <p className="text-slate-500 text-sm max-w-lg mb-8">Untuk kelas fisik, mahasiswa diwajibkan berada dalam radius yang Anda tentukan dari titik pusat kelas agar dapat melakukan presensi kehadiran.</p>
+                                                            <p className="text-slate-500 dark:text-slate-400 text-sm max-w-lg mb-8">Untuk kelas fisik, mahasiswa diwajibkan berada dalam radius yang Anda tentukan dari titik pusat kelas agar dapat melakukan presensi kehadiran.</p>
 
                                                             <Button onClick={() => router.visit('/admin/zona?redirect=/admin/sesi-absen/create')} size="lg" className="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white dark:bg-white dark:text-black dark:hover:bg-slate-200 rounded-xl shadow-lg h-14 px-10 text-lg font-bold group-button group-hover:bg-emerald-600 dark:group-hover:bg-emerald-500 dark:group-hover:text-white transition-all transform group-hover:scale-105">
                                                                 <Settings className="w-5 h-5 mr-3 group-hover:rotate-90 transition-transform duration-500" />
@@ -676,7 +676,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                             </div>
                                                             <div>
                                                                 <h4 className="font-bold text-slate-800 dark:text-slate-200">{method.title}</h4>
-                                                                <p className="text-xs text-slate-500 mt-1 leading-relaxed">{method.desc}</p>
+                                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">{method.desc}</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -706,7 +706,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                                     <Label className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                                                                         <QrCode className="w-4 h-4 text-indigo-500" /> Dynamic QR Interval
                                                                     </Label>
-                                                                    <p className="text-xs text-slate-500 mb-2">QR Code akan diperbarui otomatis setiap detik ini.</p>
+                                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">QR Code akan diperbarui otomatis setiap detik ini.</p>
                                                                     <Select
                                                                         value={formData.qr_settings.refresh_interval?.toString() || '15'}
                                                                         onValueChange={(val) => setFormData((prev: typeof formData) => ({ ...prev, qr_settings: { ...prev.qr_settings, refresh_interval: parseInt(val) } }))}
@@ -802,11 +802,11 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                             <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-neutral-800">
                                                 <h3 className="font-bold flex items-center gap-2"><Lock className="w-4 h-4" /> Aturan Absensi Ekstra</h3>
                                                 <div className="flex items-center justify-between p-4 rounded-xl border border-white/30 dark:border-neutral-800 bg-white/30 dark:bg-neutral-800/30">
-                                                    <div><Label className="font-semibold text-slate-700 dark:text-slate-200">Izinkan Keterlambatan</Label><p className="text-xs text-slate-500">Mahasiswa tetap bisa absen setelah waktu mulai, status (Terlambat)</p></div>
+                                                    <div><Label className="font-semibold text-slate-700 dark:text-slate-200">Izinkan Keterlambatan</Label><p className="text-xs text-slate-500 dark:text-slate-400">Mahasiswa tetap bisa absen setelah waktu mulai, status (Terlambat)</p></div>
                                                     <Switch defaultChecked />
                                                 </div>
                                                 <div className="flex items-center justify-between p-4 rounded-xl border border-white/30 dark:border-neutral-800 bg-white/30 dark:bg-neutral-800/30">
-                                                    <div><Label className="font-semibold text-slate-700 dark:text-slate-200">Izinkan Izin/Sakit via App</Label><p className="text-xs text-slate-500">Mahasiswa dapat mengunggah surat dokter langsung.</p></div>
+                                                    <div><Label className="font-semibold text-slate-700 dark:text-slate-200">Izinkan Izin/Sakit via App</Label><p className="text-xs text-slate-500 dark:text-slate-400">Mahasiswa dapat mengunggah surat dokter langsung.</p></div>
                                                     <Switch defaultChecked />
                                                 </div>
                                                 <div className="flex items-center justify-between p-4 rounded-xl border border-red-500/20 bg-red-50/50 dark:bg-red-900/10">
