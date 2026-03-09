@@ -6,11 +6,13 @@ interface SaveButtonProps {
     isSaving: boolean;
     hasChanges: boolean;
     disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
 }
 
-export function SaveButton({ onClick, isSaving, hasChanges, disabled }: SaveButtonProps) {
+export function SaveButton({ onClick, isSaving, hasChanges, disabled, type = 'submit' }: SaveButtonProps) {
     return (
         <motion.button
+            type={type}
             onClick={onClick}
             disabled={disabled || isSaving || !hasChanges}
             className={`

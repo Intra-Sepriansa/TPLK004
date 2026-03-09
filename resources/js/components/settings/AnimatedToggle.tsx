@@ -18,12 +18,15 @@ export function AnimatedToggle({
     return (
         <div className="flex items-center justify-between gap-4">
             {label && (
-                <div className="flex-1">
-                    <label className="font-medium text-gray-900 dark:text-white">
+                <div
+                    className="flex-1 cursor-pointer select-none"
+                    onClick={!disabled ? onChange : undefined}
+                >
+                    <label className="font-medium text-gray-900 dark:text-white cursor-pointer">
                         {label}
                     </label>
                     {description && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 cursor-pointer">
                             {description}
                         </p>
                     )}
