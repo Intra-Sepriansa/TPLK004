@@ -216,7 +216,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::get('admin/notification-center/create', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'create'])->name('admin.notification-center.create');
     Route::get('admin/notification-center/templates', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'templates'])->name('admin.notification-center.templates');
     Route::get('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
-    Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
+    Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.post-bulk-delete');
     Route::get('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'index'])->name('admin.notification-center');
     Route::post('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'store'])->name('admin.notification-center.store');
     Route::get('admin/notification-center/{id}', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'show'])->name('admin.notification-center.show');
