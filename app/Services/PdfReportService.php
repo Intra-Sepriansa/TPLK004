@@ -19,6 +19,10 @@ class PdfReportService
      */
     public function generateWeeklyDigestPdf(WeeklyLearningDigest $digest, $user = null): string
     {
+        // Increase memory and time limit to prevent 500 error on VPS
+        ini_set('memory_limit', '512M');
+        set_time_limit(120);
+
         // Setup QR Code
         $urlToVerify = url('/admin/weekly-digest/' . $digest->id); // Can point to a public verify route if exists
         $qrOptions = new QROptions([
@@ -101,7 +105,7 @@ class PdfReportService
                 ]
             ];
 
-            $response = Http::get('https://quickchart.io/chart', [
+            $response = Http::timeout(5)->get('https://quickchart.io/chart', [
                 'c' => json_encode($chartConfig),
                 'w' => 400,
                 'h' => 200,
