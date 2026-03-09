@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { QRCodeAnimated } from '@/components/ui/qr-code-animated';
 import StudentLayout from '@/layouts/student-layout';
 import { cn } from '@/lib/utils';
+import { saveOfflineAttendance } from '@/lib/offline-sync';
 import { type SharedData } from '@/types';
 import { captureDeviceInfo } from '@/utils/deviceCapture';
 import { Head, useForm, usePage } from '@inertiajs/react';
@@ -236,6 +237,7 @@ export default function UserAbsensi() {
     const [selfieStatus, setSelfieStatus] = useState('');
     const [successToast, setSuccessToast] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [isOfflineDraft, setIsOfflineDraft] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitMessage, setSubmitMessage] = useState<string | null>(null);
     const [consentAccepted, setConsentAccepted] = useState(false);
@@ -754,6 +756,7 @@ export default function UserAbsensi() {
         setConsentError(null);
         setPreviewUrl(null);
         setSubmitSuccess(false);
+        setIsOfflineDraft(false);
         setSubmitMessage(null);
         setSuccessToast(null);
         setSubmitError(null);
@@ -761,10 +764,53 @@ export default function UserAbsensi() {
         setQrLoopIndex(0);
     };
 
-    const submit = (event: React.FormEvent) => {
+    // Helper: convert File to base64 data URL
+    const fileToBase64 = (file: File): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+    const submit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!submitReady || submitSuccess) return;
         setSubmitError(null);
+
+        // --- Offline Draft Path ---
+        if (!navigator.onLine) {
+            try {
+                let selfieBase64: string | null = null;
+                if (form.data.selfie) {
+                    selfieBase64 = await fileToBase64(form.data.selfie);
+                }
+
+                await saveOfflineAttendance({
+                    token: form.data.token,
+                    latitude: form.data.latitude,
+                    longitude: form.data.longitude,
+                    location_accuracy_m: form.data.location_accuracy_m ?? 0,
+                    location_samples: form.data.location_samples,
+                    device_info: form.data.device_info,
+                    selfiePreview: selfieBase64,
+                });
+
+                stopSelfie();
+                setSelfieStatus('');
+                stopScan();
+                setScanning(false);
+                setSubmitSuccess(true);
+                setIsOfflineDraft(true);
+                setSubmitError(null);
+                setSubmitMessage('Absen disimpan sebagai draft offline. Akan otomatis terkirim saat sinyal kembali.');
+            } catch {
+                setSubmitError('Gagal menyimpan draft offline. Pastikan penyimpanan browser tidak penuh.');
+            }
+            return;
+        }
+
+        // --- Online Path ---
         form.post('/user/absen', {
             forceFormData: true,
             onSuccess: () => {
@@ -773,15 +819,42 @@ export default function UserAbsensi() {
                 stopScan();
                 setScanning(false);
                 setSubmitSuccess(true);
+                setIsOfflineDraft(false);
                 setSubmitError(null);
             },
-            onError: (errors) => {
-                // Get the first error message to display
+            onError: async (errors) => {
                 const errorMessages = Object.values(errors);
-                const firstError =
-                    errorMessages.length > 0
-                        ? String(errorMessages[0])
-                        : 'Gagal mengirim absensi. Coba lagi.';
+                // If no validation errors returned, it's likely a network failure → save offline
+                if (errorMessages.length === 0) {
+                    try {
+                        let selfieBase64: string | null = null;
+                        if (form.data.selfie) {
+                            selfieBase64 = await fileToBase64(form.data.selfie);
+                        }
+                        await saveOfflineAttendance({
+                            token: form.data.token,
+                            latitude: form.data.latitude,
+                            longitude: form.data.longitude,
+                            location_accuracy_m: form.data.location_accuracy_m ?? 0,
+                            location_samples: form.data.location_samples,
+                            device_info: form.data.device_info,
+                            selfiePreview: selfieBase64,
+                        });
+                        stopSelfie();
+                        setSelfieStatus('');
+                        stopScan();
+                        setScanning(false);
+                        setSubmitSuccess(true);
+                        setIsOfflineDraft(true);
+                        setSubmitError(null);
+                        setSubmitMessage('Koneksi terputus saat mengirim. Absen disimpan offline dan akan otomatis terkirim nanti.');
+                    } catch {
+                        setSubmitError('Gagal mengirim dan gagal menyimpan offline.');
+                    }
+                    return;
+                }
+
+                const firstError = String(errorMessages[0]);
                 setSubmitError(firstError);
                 if (
                     firstError.toLowerCase().includes('token') ||
@@ -2169,10 +2242,15 @@ export default function UserAbsensi() {
                                             stiffness: 300,
                                             damping: 20,
                                         }}
-                                        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
+                                        className={cn(
+                                            'flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold text-white shadow-lg',
+                                            isOfflineDraft
+                                                ? 'bg-gradient-to-r from-amber-400 to-orange-500'
+                                                : 'bg-gradient-to-r from-emerald-400 to-teal-600'
+                                        )}
                                     >
                                         <CheckCircle2 className="h-4 w-4" />
-                                        Terkirim
+                                        {isOfflineDraft ? 'Draft Offline' : 'Terkirim'}
                                     </motion.span>
                                 )}
                             </AnimatePresence>
@@ -2228,18 +2306,25 @@ export default function UserAbsensi() {
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="flex items-center gap-4 rounded-2xl border border-emerald-200/50 bg-gradient-to-r from-emerald-50 to-teal-50 p-5 text-emerald-800 shadow-sm dark:border-emerald-700/50 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-200"
+                                    className={cn(
+                                        'flex items-center gap-4 rounded-2xl border p-5 shadow-sm',
+                                        isOfflineDraft
+                                            ? 'border-amber-200/50 bg-gradient-to-r from-amber-50 to-orange-50 text-amber-800 dark:border-amber-700/50 dark:from-amber-900/40 dark:to-orange-900/40 dark:text-amber-200'
+                                            : 'border-emerald-200/50 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 dark:border-emerald-700/50 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-200'
+                                    )}
                                 >
                                     <div className="shrink-0 rounded-xl bg-emerald-200 p-2 dark:bg-emerald-800">
                                         <Sparkles className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />
                                     </div>
                                     <div>
                                         <p className="text-lg font-bold">
-                                            Absensi Berhasil!
+                                            {isOfflineDraft ? 'Absensi Tersimpan Offline!' : 'Absensi Berhasil!'}
                                         </p>
                                         <p className="text-sm opacity-90">
                                             {submitMessage ??
-                                                'Data absensi kamu sudah tercatat dengan aman.'}
+                                                (isOfflineDraft
+                                                    ? 'Data absensi disimpan di perangkat. Akan otomatis terkirim saat sinyal kembali.'
+                                                    : 'Data absensi kamu sudah tercatat dengan aman.')}
                                         </p>
                                     </div>
                                 </motion.div>

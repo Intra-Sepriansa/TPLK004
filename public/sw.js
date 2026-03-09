@@ -7,6 +7,7 @@ const PRECACHE_ASSETS = [
     '/offline.html',
     '/manifest.json',
     '/images/logo-unpam.png',
+    '/user/absen',
 ];
 
 // Install event - cache essential assets
@@ -41,11 +42,11 @@ self.addEventListener('fetch', (event) => {
 
     // Skip API requests and form submissions
     const url = new URL(event.request.url);
-    if (url.pathname.startsWith('/api') || 
+    if (url.pathname.startsWith('/api') ||
         url.pathname.includes('/login') ||
         url.pathname.includes('/logout') ||
         event.request.headers.get('accept')?.includes('text/html')) {
-        
+
         // For HTML pages, try network first
         event.respondWith(
             fetch(event.request)
