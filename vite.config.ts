@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { compression } from 'vite-plugin-compression2';
 
 export default defineConfig({
     assetsInclude: ['**/*.glb'],
@@ -35,8 +36,54 @@ export default defineConfig({
         wayfinder({
             formVariants: true,
         }),
+        compression({
+            algorithm: 'gzip',
+            exclude: [/\.(br)$ /, /\.(gz)$/],
+        } as any),
+        compression({
+            algorithm: 'brotliCompress',
+            exclude: [/\.(br)$ /, /\.(gz)$/],
+        } as any),
     ],
     esbuild: {
         jsx: 'automatic',
+    },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-react': ['react', 'react-dom'],
+                    'vendor-inertia': ['@inertiajs/react', 'ziggy-js'],
+                    'vendor-ui': [
+                        '@radix-ui/react-accordion',
+                        '@radix-ui/react-alert-dialog',
+                        '@radix-ui/react-avatar',
+                        '@radix-ui/react-checkbox',
+                        '@radix-ui/react-collapsible',
+                        '@radix-ui/react-dialog',
+                        '@radix-ui/react-dropdown-menu',
+                        '@radix-ui/react-label',
+                        '@radix-ui/react-navigation-menu',
+                        '@radix-ui/react-progress',
+                        '@radix-ui/react-select',
+                        '@radix-ui/react-separator',
+                        '@radix-ui/react-slider',
+                        '@radix-ui/react-slot',
+                        '@radix-ui/react-switch',
+                        '@radix-ui/react-tabs',
+                        '@radix-ui/react-toggle-group',
+                        '@radix-ui/react-toggle',
+                        '@radix-ui/react-tooltip',
+                    ],
+                    'vendor-motion': ['framer-motion'],
+                    'vendor-3d': ['three', '@react-three/fiber', '@react-three/drei', '@react-three/rapier'],
+                    'vendor-editor': ['@tiptap/react', '@tiptap/starter-kit'],
+                    'vendor-chart': ['chart.js', 'react-chartjs-2', 'recharts'],
+                    'vendor-lucide': ['lucide-react'],
+                    'vendor-utils': ['clsx', 'tailwind-merge', 'date-fns', 'moment', 'localforage'],
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1000,
     },
 });
