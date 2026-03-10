@@ -220,7 +220,6 @@ export default function AcademicDashboard({
                         >
                             {[
                                 { href: '/user/akademik/jadwal', icon: Calendar, label: 'Jadwal' },
-                                { href: '/user/akademik/tugas', icon: ListTodo, label: 'Tugas' },
                                 { href: '/user/akademik/catatan', icon: NotebookPen, label: 'Catatan' },
                                 { href: '/user/akademik/matkul', icon: BookOpen, label: 'Mata Kuliah' },
                                 { href: '/user/akademik/ujian', icon: GraduationCap, label: 'Ujian' },
@@ -365,71 +364,7 @@ export default function AcademicDashboard({
                         </div>
                     </motion.div>
 
-                    {/* Tugas Pending */}
-                    <motion.div variants={itemVariants}
-                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden">
-                        <div className="p-5 border-b border-white/20 dark:border-white/5">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: -5 }}
-                                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
-                                        <ListTodo className="h-5 w-5" />
-                                    </motion.div>
-                                    <div>
-                                        <h2 className="font-bold text-neutral-900 dark:text-white">Tugas Pending</h2>
-                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{pendingTasks.length} tugas menunggu</p>
-                                    </div>
-                                </div>
-                                <Link href="/user/akademik/tugas" className="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 font-bold flex items-center gap-1">
-                                    Semua <ArrowRight className="h-4 w-4" />
-                                </Link>
-                            </div>
-                        </div>
-                        <div className="p-5">
-                            {pendingTasks.length > 0 ? (
-                                <div className="space-y-3">
-                                    {pendingTasks.slice(0, 4).map((task, index) => (
-                                        <motion.div key={task.id}
-                                            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            whileHover={{ scale: 1.02, x: 4 }}
-                                            className={`relative p-4 rounded-2xl border backdrop-blur-xl cursor-pointer transition-all overflow-hidden ${task.is_overdue
-                                                ? 'bg-red-50/60 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                                                : 'bg-white/60 dark:bg-neutral-800/60 border-white/20 dark:border-white/5'
-                                                }`}>
-                                            <div className={`absolute left-0 top-0 h-full w-1 ${task.is_overdue ? 'bg-gradient-to-b from-red-500 to-rose-600' : (task.days_remaining !== null && task.days_remaining <= 3) ? 'bg-gradient-to-b from-amber-500 to-orange-600' : 'bg-gradient-to-b from-blue-500 to-indigo-600'}`} />
-                                            <div className="flex items-start justify-between gap-2 pl-2">
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="font-bold text-sm text-neutral-900 dark:text-white line-clamp-1">{task.title}</p>
-                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{task.course_name}</p>
-                                                </div>
-                                                {task.deadline_formatted && (
-                                                    <Badge className={`shrink-0 text-[10px] font-bold ${task.is_overdue
-                                                        ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white'
-                                                        : task.days_remaining !== null && task.days_remaining <= 3
-                                                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                                                            : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                                                        }`}>
-                                                        {task.is_overdue ? '⚠️ Terlambat' : task.days_remaining !== null ? `⏰ ${task.days_remaining} hari` : task.deadline_formatted}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center py-10">
-                                    <div className="relative mx-auto w-16 h-16 mb-3">
-                                        <div className="relative flex items-center justify-center w-full h-full bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
-                                            <CheckCircle2 className="h-8 w-8 text-emerald-500" />
-                                        </div>
-                                    </div>
-                                    <p className="text-neutral-700 dark:text-neutral-300 font-bold">Semua Tugas Selesai! 🎉</p>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Kerja bagus!</p>
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
+
                 </motion.div>
 
                 {/* ═══════════════════════════════════════════════════ */}

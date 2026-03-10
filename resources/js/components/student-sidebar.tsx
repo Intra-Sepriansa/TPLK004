@@ -69,11 +69,6 @@ const studentNavItems: NavItem[] = [
         icon: MessageCircle,
     },
     {
-        title: 'Informasi Tugas',
-        href: '/user/tugas',
-        icon: ClipboardList,
-    },
-    {
         title: 'Izin/Sakit',
         href: '/user/permit',
         icon: FileCheck,
@@ -82,6 +77,11 @@ const studentNavItems: NavItem[] = [
         title: 'Akademik',
         href: '/user/akademik',
         icon: GraduationCap,
+    },
+    {
+        title: 'Monitoring Kehadiran',
+        href: '/user/akademik/kehadiran',
+        icon: CalendarCheck,
     },
     {
         title: 'Personal Analytics',
@@ -188,6 +188,11 @@ export function StudentSidebar() {
             title: 'Akademik',
             href: '/user/akademik',
             icon: GraduationCap,
+        },
+        {
+            title: 'Monitoring Kehadiran',
+            href: '/user/akademik/kehadiran',
+            icon: CalendarCheck,
         },
         {
             title: 'Personal Analytics',

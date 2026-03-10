@@ -53,14 +53,19 @@ class ScheduleService
      */
     public function calculateExamDate(MahasiswaCourse $course, string $examType): ?Carbon
     {
-        if (!$course->start_date) {
-            return null;
+        // Global exam dates
+        // UTS: 4-9 May 2026
+        // UAS: 29 June - 4 July 2026
+        
+        if ($examType === 'uts') {
+            return Carbon::create(2026, 5, 4, 0, 0, 0); // May 4, 2026
+        }
+        
+        if ($examType === 'uas') {
+            return Carbon::create(2026, 6, 29, 0, 0, 0); // June 29, 2026
         }
 
-        $meetingNumber = $examType === 'uts' ? $course->uts_meeting : $course->uas_meeting;
-        $weeksToAdd = $meetingNumber - 1;
-
-        return Carbon::parse($course->start_date)->addWeeks($weeksToAdd);
+        return null;
     }
 
     /**
