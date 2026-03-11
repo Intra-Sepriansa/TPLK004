@@ -40,7 +40,7 @@ class ReportController extends Controller
                 'Jarak (m)',
             ]);
 
-            $query->orderByDesc('scanned_at')->chunk(200, function ($logs) use ($handle) {
+            $query->orderByDesc('scanned_at')->chunk(200, function ($logs) use ($handle, $timezone) {
                 foreach ($logs as $log) {
                     fputcsv($handle, [
                         $log->mahasiswa?->nama,
@@ -75,7 +75,7 @@ class ReportController extends Controller
                 'Pertemuan',
             ]);
 
-            $query->chunk(200, function ($logs) use ($handle) {
+            $query->chunk(200, function ($logs) use ($handle, $timezone) {
                 foreach ($logs as $log) {
                     fputcsv($handle, [
                         $this->formatDisplayTime($log->created_at, 'Y-m-d H:i:s', $timezone),

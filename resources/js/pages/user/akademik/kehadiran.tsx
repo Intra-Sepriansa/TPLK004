@@ -11,7 +11,7 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import React, { useState, useMemo } from 'react';
 
 // PNG Icons — matching admin/student dashboard pattern
-import kehadiranIcon from '@/assets/mahasiswa/akademik/kehadiran.png';
+import kehadiranIcon from '@/assets/mahasiswa/monitoring/monitoring.png';
 import totalIcon from '@/assets/admin/dashboard/total-icon.png';
 import hadirIcon from '@/assets/admin/dashboard/hadir-icon.png';
 import terlambatIcon from '@/assets/admin/dashboard/terlambat-icon.png';

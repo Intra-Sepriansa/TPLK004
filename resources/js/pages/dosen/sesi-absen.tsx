@@ -482,9 +482,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                                     <td className="px-4 py-4 text-center">
                                                         {session.is_active ? (
                                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-semibold text-emerald-700 dark:text-emerald-400 shadow-sm">
-                                                                <motion.span className="h-2 w-2 rounded-full bg-emerald-500"
-                                                                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                                                                    transition={{ duration: 2, repeat: Infinity }} />
+                                                                    <div className="h-2 w-2 rounded-full bg-emerald-500" />
                                                                 Aktif
                                                             </span>
                                                         ) : (
@@ -555,8 +553,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                                 </div>
                                                 {session.is_active ? (
                                                     <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                                                        <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                                                            animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                                                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                                         Aktif
                                                     </span>
                                                 ) : (
@@ -636,11 +633,6 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                     <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
                                         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/20 blur-2xl" />
                                         <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-                                        {[0, 1].map(i => (
-                                            <motion.div key={i} className="absolute right-8 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10"
-                                                animate={{ scale: [1, 2], opacity: [0.3, 0] }}
-                                                transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.8 }} />
-                                        ))}
                                         <div className="relative flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}

@@ -1,5 +1,6 @@
 import KasIcon from '@/assets/admin/kas/kas.png';
-import PengeluaranIcon from '@/assets/admin/kas/pengeluaran.png';
+
+import StatusIcon from '@/assets/admin/kas/status.png';
 import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import StudentLayout from '@/layouts/student-layout';
@@ -669,7 +670,7 @@ export default function UserKas({
                                 className="relative flex h-11 w-11 items-center justify-center p-1 sm:h-14 sm:w-14"
                             >
                                 <img
-                                    src={PengeluaranIcon}
+                                    src={StatusIcon}
                                     alt="Total Belum Bayar"
                                     className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
                                     onError={(e) => {

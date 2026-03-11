@@ -46,10 +46,7 @@ class ProcessSelfieVerification implements ShouldQueue
             $quality = $this->analyzeQuality($log);
             usleep(600_000);
 
-            // Step 5: Fraud Detection
-            $log->update(['ai_processing_step' => 'fraud_detection']);
-            $fraud = $this->detectFraud($log);
-            usleep(1_000_000);
+
 
             // Calculate overall confidence
             $confidence = $this->calculateConfidence([
@@ -57,14 +54,13 @@ class ProcessSelfieVerification implements ShouldQueue
                 'face_match' => $faceMatch,
                 'liveness' => $liveness,
                 'quality' => $quality,
-                'fraud' => $fraud,
             ]);
 
             // Determine recommendation
             $recommendation = 'review';
-            if ($confidence >= 85 && !$fraud['is_suspicious']) {
+            if ($confidence >= 85) {
                 $recommendation = 'approve';
-            } elseif ($confidence < 50 || $fraud['is_suspicious']) {
+            } elseif ($confidence < 50) {
                 $recommendation = 'reject';
             }
 
@@ -78,19 +74,15 @@ class ProcessSelfieVerification implements ShouldQueue
                 'image_quality_score' => $quality['overall_score'],
                 'ai_confidence' => $confidence,
                 'ai_recommendation' => $recommendation,
-                'is_suspicious' => $fraud['is_suspicious'],
-                'risk_score' => $fraud['risk_score'],
-                'fraud_flags' => $fraud['flags'],
                 'ai_analysis_json' => [
                     'face_detection' => $faceDetection,
                     'face_match' => $faceMatch,
                     'liveness' => $liveness,
                     'quality' => $quality,
-                    'fraud' => $fraud,
                     'confidence' => $confidence,
                     'recommendation' => $recommendation,
                 ],
-                'ai_processed_at' => now(),
+                'ai_processed_at' => \now(),
             ]);
 
             Log::info("AI Verification completed for log {$this->logId}: {$recommendation} ({$confidence}%)");
@@ -182,61 +174,15 @@ class ProcessSelfieVerification implements ShouldQueue
         ];
     }
 
-    private function detectFraud(AttendanceLog $log): array
-    {
-        $flags = [];
-        $riskScore = 0;
 
-        // Check location validity
-        if ($log->distance_m && $log->distance_m > 200) {
-            $flags[] = 'location_out_of_range';
-            $riskScore += 30;
-        }
-
-        // Check device trust
-        if (!$log->is_device_trusted) {
-            $flags[] = 'new_device';
-            $riskScore += 10;
-        }
-
-        // Check rapid submissions
-        $recentCount = AttendanceLog::where('mahasiswa_id', $log->mahasiswa_id)
-            ->where('scanned_at', '>=', now()->subMinutes(5))
-            ->where('id', '!=', $log->id)
-            ->count();
-
-        if ($recentCount > 2) {
-            $flags[] = 'rapid_submissions';
-            $riskScore += 40;
-        }
-
-        // Seed-based additional checks for demo consistency
-        $seed = crc32($log->id . 'fraud');
-        mt_srand($seed);
-
-        if (mt_rand(0, 100) > 90) {
-            $flags[] = 'unusual_timing';
-            $riskScore += 15;
-        }
-
-        $riskScore = min(100, $riskScore);
-
-        return [
-            'is_suspicious' => $riskScore >= 50,
-            'risk_score' => $riskScore,
-            'flags' => $flags,
-            'processing_time_ms' => mt_rand(300, 700),
-        ];
-    }
 
     private function calculateConfidence(array $results): int
     {
         $score = 0;
-        $score += ($results['face_detection']['detected'] ? 100 : 0) * 0.15;
-        $score += ($results['face_match']['score'] ?? 0) * 0.35;
-        $score += ($results['liveness']['is_live'] ? 100 : 0) * 0.20;
+        $score += ($results['face_detection']['detected'] ? 100 : 0) * 0.20;
+        $score += ($results['face_match']['score'] ?? 0) * 0.40;
+        $score += ($results['liveness']['is_live'] ? 100 : 0) * 0.25;
         $score += ($results['quality']['overall_score'] ?? 0) * 0.15;
-        $score += (100 - ($results['fraud']['risk_score'] ?? 0)) * 0.15;
 
         return (int) round($score);
     }

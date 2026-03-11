@@ -8,6 +8,8 @@ import {
     ChevronLeft, ChevronRight, Clock, Flame, Grid3X3, Info, List,
     MapPin, Printer, RefreshCw, Sparkles, TrendingUp, User, Wifi, X, XCircle, GraduationCap
 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 
 import kehadiranIcon from '@/assets/mahasiswa/akademik/kehadiran.png';
 import totalIcon from '@/assets/admin/dashboard/total-icon.png';
@@ -51,7 +53,27 @@ interface Props {
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } } } as const;
 const itemVariants = { hidden: { opacity: 0, y: 30, scale: 0.9 }, visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } } } as const;
 
-function MeetingModal({ meeting, courseName, onClose }: { meeting: Meeting; courseName: string; onClose: () => void }) {
+function MeetingModal({ meeting, courseName, courseId, onClose }: { meeting: Meeting; courseName: string; courseId: number; onClose: () => void }) {
+    const [isChecked, setIsChecked] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleClaimOnline = () => {
+        if (!isChecked) return;
+        setIsSubmitting(true);
+        router.post('/user/akademik/kehadiran/online-claim', {
+            mahasiswa_course_id: courseId,
+            meeting_number: meeting.number
+        }, {
+            onSuccess: () => {
+                setIsSubmitting(false);
+                onClose();
+            },
+            onError: () => {
+                setIsSubmitting(false);
+            }
+        });
+    };
+
     return (
         <AnimatePresence>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -83,6 +105,29 @@ function MeetingModal({ meeting, courseName, onClose }: { meeting: Meeting; cour
                             {meeting.completedAt && <div className="flex items-center gap-3"><Clock className="w-5 h-5 text-neutral-400" /><div><p className="text-xs text-neutral-500">Waktu Absen</p><p className="text-sm font-medium text-neutral-900 dark:text-white">{meeting.completedAt}</p></div></div>}
                             {meeting.notes && <div className="flex items-start gap-3"><BookOpen className="w-5 h-5 text-neutral-400 mt-0.5" /><div><p className="text-xs text-neutral-500">Catatan</p><p className="text-sm text-neutral-700 dark:text-neutral-300">{meeting.notes}</p></div></div>}
                         </div>
+
+                        {meeting.mode === 'online' && meeting.status === 'belum-dimulai' && (
+                            <div className="mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-800 space-y-4">
+                                <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                                    <Checkbox
+                                        id="mentari-check"
+                                        checked={isChecked}
+                                        onCheckedChange={(checked) => setIsChecked(checked === true)}
+                                        className="mt-1"
+                                    />
+                                    <label htmlFor="mentari-check" className="text-sm font-medium text-blue-900 dark:text-blue-100 leading-tight cursor-pointer">
+                                        Saya telah mengikuti dan menyelesaikan Forum Diskusi (Fordis) pada pertemuan ini di <a href="https://mentari.unpam.ac.id/" target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 font-bold underline hover:no-underline">Mentari Unpam</a>.
+                                    </label>
+                                </div>
+                                <Button
+                                    onClick={handleClaimOnline}
+                                    disabled={!isChecked || isSubmitting}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-11"
+                                >
+                                    {isSubmitting ? 'Menyimpan...' : 'Tandai Hadir (Fordis)'}
+                                </Button>
+                            </div>
+                        )}
                     </div>
                     <div className="p-5 border-t border-neutral-200 dark:border-neutral-800">
                         <button onClick={onClose} className="w-full px-4 py-2.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-xl font-medium text-sm">Tutup</button>
@@ -488,7 +533,7 @@ export default function DetailKehadiranMataKuliah({ course, meetings, stats, pre
                     </div>
                 </motion.div>
             </motion.div>
-            {selectedMeeting && <MeetingModal meeting={selectedMeeting} courseName={course.name} onClose={() => setSelectedMeeting(null)} />}
+            {selectedMeeting && <MeetingModal meeting={selectedMeeting} courseName={course.name} courseId={course.id} onClose={() => setSelectedMeeting(null)} />}
         </StudentLayout>
     );
 }

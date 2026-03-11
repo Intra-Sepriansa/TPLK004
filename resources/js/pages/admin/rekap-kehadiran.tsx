@@ -344,10 +344,9 @@ export default function AdminRekapKehadiran({
                 </motion.div>
 
 
-                {/* Summary Cards - Advanced Glassmorphism */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 lg:grid-cols-4"
+                    className="grid grid-cols-4 gap-1 sm:gap-6"
                 >
                     {/* Total Visitors Card */}
                     <motion.div
@@ -355,7 +354,7 @@ export default function AdminRekapKehadiran({
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('total')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-sky-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-1.5 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-sky-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10" />
                         <motion.div
@@ -367,17 +366,17 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-row items-center gap-1.5 sm:gap-4 text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
+                                className="relative flex shrink-0 h-6 w-6 sm:h-14 sm:w-14 items-center justify-center"
                             >
                                 <img src={totalScanIcon} alt="Total Scan" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Total Scan</p>
-                                <div className="mt-0.5 sm:mt-1">
-                                    <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                <p className="text-[7px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 line-clamp-1">Total Scan</p>
+                                <div className="mt-0 sm:mt-1">
+                                    <span className="text-[10px] sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                         {stats.total}
                                     </span>
                                 </div>
@@ -391,7 +390,7 @@ export default function AdminRekapKehadiran({
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('hadir')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-1.5 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
                         <motion.div
@@ -403,17 +402,17 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-row items-center gap-1.5 sm:gap-4 text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
+                                className="relative flex shrink-0 h-6 w-6 sm:h-14 sm:w-14 items-center justify-center"
                             >
                                 <img src={hadirIcon} alt="Hadir" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Hadir</p>
-                                <div className="mt-0.5 sm:mt-1 flex items-baseline gap-2">
-                                    <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                <p className="text-[7px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 line-clamp-1">Hadir</p>
+                                <div className="mt-0 sm:mt-1 flex items-baseline gap-2">
+                                    <span className="text-[10px] sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                         {stats.present}
                                     </span>
                                 </div>
@@ -427,7 +426,7 @@ export default function AdminRekapKehadiran({
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('terlambat')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-amber-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-1.5 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-amber-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10" />
                         <motion.div
@@ -439,17 +438,17 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-row items-center gap-1.5 sm:gap-4 text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
+                                className="relative flex shrink-0 h-6 w-6 sm:h-14 sm:w-14 items-center justify-center"
                             >
                                 <img src={terlambatIcon} alt="Terlambat" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Terlambat</p>
-                                <div className="mt-0.5 sm:mt-1">
-                                    <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                <p className="text-[7px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 line-clamp-1">Terlambat</p>
+                                <div className="mt-0 sm:mt-1">
+                                    <span className="text-[10px] sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                         {stats.late}
                                     </span>
                                 </div>
@@ -463,7 +462,7 @@ export default function AdminRekapKehadiran({
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('ditolak')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-rose-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-1.5 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-rose-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-pink-500/5 dark:from-rose-500/10 dark:to-pink-500/10" />
                         <motion.div
@@ -475,17 +474,17 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-rose-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-row items-center gap-4 text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
                             >
                                 <img src={ditolakIcon} alt="Ditolak" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Ditolak</p>
-                                <div className="mt-0.5 sm:mt-1">
-                                    <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                <p className="text-[7px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 line-clamp-1">Ditolak</p>
+                                <div className="mt-0 sm:mt-1">
+                                    <span className="text-[10px] sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                         {stats.rejected}
                                     </span>
                                 </div>

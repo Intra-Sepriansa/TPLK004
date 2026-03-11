@@ -61,6 +61,19 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
     const [activeTab, setActiveTab] = useState(filters.status || 'pending');
 
     const rejectForm = useForm({ rejection_reason: '' });
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Variants for staggered children
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
+    };
+
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoaded(true), 100);
@@ -145,14 +158,19 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
     return (
         <DosenLayout>
             <Head title="Persetujuan Izin" />
-            <div className="space-y-6 p-6">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-6 p-6">
                 {/* Header with Black Gradient */}
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, type: 'spring', stiffness: 100 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-2xl border border-gray-800"
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl border border-gray-800"
                 >
+                    <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-800"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
+                    
                     {/* Animated Background Orbs */}
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-3xl animate-pulse" />
                     <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
@@ -182,8 +200,18 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                     whileHover={{ scale: 1.05, rotate: 5 }}
                                     className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    animate={{ 
+                                        opacity: 1, 
+                                        scale: 1, 
+                                        rotate: 0,
+                                        y: [0, -8, 0]
+                                    }}
+                                    transition={{ 
+                                        opacity: { duration: 0.4, delay: 0.2 },
+                                        scale: { type: 'spring', stiffness: 300, delay: 0.2 },
+                                        rotate: { type: 'spring', stiffness: 300, delay: 0.2 },
+                                        y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                                    }}
                                 >
                                     <img src={IzinIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
@@ -195,7 +223,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                     <motion.h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2"
                                         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
                                         Izin & Sakit
-                                        <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
+                                        <Sparkles className="h-6 w-6 animate-spin text-amber-400" style={{ animationDuration: '3s' }} />
                                     </motion.h1>
                                 </div>
                             </div>
@@ -231,17 +259,21 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                 { icon: CheckCircle, label: 'Disetujui', value: stats.approved, iconBg: 'bg-emerald-500' },
                                 { icon: XCircle, label: 'Ditolak', value: stats.rejected, iconBg: 'bg-red-500' },
                             ].map((stat, i) => (
-                                <div key={i} className="relative rounded-2xl bg-white/10 backdrop-blur-sm p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
+                                <motion.div 
+                                    key={i} 
+                                    variants={itemVariants}
+                                    className="relative rounded-2xl bg-white/10 backdrop-blur-sm p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group"
+                                >
                                     <div className="relative">
                                         <div className="flex items-center justify-between mb-3">
-                                            <div className={`p-2.5 rounded-xl ${stat.iconBg} shadow-lg`}>
+                                            <div className={`p-2.5 rounded-xl ${stat.iconBg} shadow-lg shadow-${stat.iconBg.split('-')[1]}-500/20`}>
                                                 <stat.icon className="h-5 w-5 text-white" />
                                             </div>
                                         </div>
                                         <p className="text-xs font-medium text-gray-400 mb-2">{stat.label}</p>
                                         <p className="text-2xl font-bold">{stat.value}</p>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
@@ -602,7 +634,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                         </div>
                     </div>
                 )}
-            </div>
+            </motion.div>
 
         </DosenLayout>
     );

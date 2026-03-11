@@ -59,60 +59,86 @@ class RekapanController extends Controller
         if ($selectedSessionId) {
             $selectedSession = AttendanceSession::with('course')->find($selectedSessionId);
             
-            $logsQuery = AttendanceLog::with('mahasiswa')
-                ->where('attendance_session_id', $selectedSessionId);
+            // Get all students in this class
+            $students = \App\Models\Mahasiswa::where('kelas', $selectedCourse->kelas)->orderBy('nama')->get();
             
-            // Status filter
-            if ($statusFilter && $statusFilter !== 'all') {
-                $logsQuery->where('status', $statusFilter);
-            }
-            
-            // Search filter
-            if ($searchQuery) {
-                $logsQuery->whereHas('mahasiswa', function ($q) use ($searchQuery) {
-                    $q->where('nama', 'like', "%{$searchQuery}%")
-                      ->orWhere('nim', 'like', "%{$searchQuery}%");
-                });
-            }
-            
-            $attendanceLogs = $logsQuery
-                ->orderBy('scanned_at')
+            // Get existing logs for this session
+            $logs = AttendanceLog::where('attendance_session_id', $selectedSessionId)
                 ->get()
-                ->map(function ($log) {
-                    return [
-                        'id' => $log->id,
-                        'mahasiswa_id' => $log->mahasiswa_id,
-                        'nama' => $log->mahasiswa->nama ?? '-',
-                        'nim' => $log->mahasiswa->nim ?? '-',
-                        'fakultas' => $log->mahasiswa->fakultas ?? 'Teknik',
-                        'prodi' => $log->mahasiswa->prodi ?? 'Teknik Informatika',
-                        'kelas' => $log->mahasiswa->kelas ?? '05TPLK004',
-                        'jenis_reguler' => $log->mahasiswa->jenis_reguler ?? 'Reguler A',
-                        'semester' => $log->mahasiswa->semester ?? '5',
-                        'status' => $log->status,
-                        'scanned_at' => $log->scanned_at?->format('H:i:s'),
-                        'scanned_date' => $log->scanned_at?->format('d/m/Y'),
-                    ];
+                ->keyBy('mahasiswa_id');
+            
+            // Merge students with logs
+            $attendanceLogs = $students->map(function ($student) use ($logs) {
+                $log = $logs->get($student->id);
+                $status = $log ? $log->status : 'absent';
+                
+                return [
+                    'id' => $log->id ?? 0,
+                    'mahasiswa_id' => $student->id,
+                    'nama' => $student->nama,
+                    'nim' => $student->nim,
+                    'fakultas' => $student->fakultas ?? 'Teknik',
+                    'prodi' => $student->prodi ?? 'Teknik Informatika',
+                    'kelas' => $student->kelas ?? '-',
+                    'jenis_reguler' => $student->jenis_reguler ?? 'Reguler A',
+                    'semester' => $student->semester ?? '-',
+                    'status' => $status,
+                    'scanned_at' => $log ? $log->scanned_at?->format('H:i:s') : null,
+                    'scanned_date' => $log ? $log->scanned_at?->format('d/m/Y') : null,
+                ];
+            });
+
+            // Apply search filter
+            if ($searchQuery) {
+                $attendanceLogs = $attendanceLogs->filter(function ($item) use ($searchQuery) {
+                    return stripos($item['nama'], $searchQuery) !== false || 
+                           stripos($item['nim'], $searchQuery) !== false;
                 });
+            }
+
+            // Apply status filter
+            if ($statusFilter && $statusFilter !== 'all') {
+                $attendanceLogs = $attendanceLogs->filter(function ($item) use ($statusFilter) {
+                    return $item['status'] === $statusFilter;
+                });
+            }
         }
         
-        // Statistics (always from unfiltered session data for accurate totals)
-        $totalLogs = $selectedSessionId
-            ? AttendanceLog::where('attendance_session_id', $selectedSessionId)->get()
-            : collect();
+        // Statistics (based on class population and processed logs)
+        $totalStudentsCount = $selectedCourse ? \App\Models\Mahasiswa::where('kelas', $selectedCourse->kelas)->count() : 0;
         
-        $totalCount = $totalLogs->count();
-        $hadirCount = $totalLogs->where('status', 'present')->count();
-        $terlambatCount = $totalLogs->where('status', 'late')->count();
-        $tidakHadirCount = $totalLogs->where('status', 'absent')->count();
+        // Count statuses from ALL students in the class for the session
+        $allClassLogs = [];
+        if ($selectedSessionId && $selectedCourse) {
+            $studentsInClass = \App\Models\Mahasiswa::where('kelas', $selectedCourse->kelas)->get();
+            $existingLogs = AttendanceLog::where('attendance_session_id', $selectedSessionId)
+                ->get()
+                ->keyBy('mahasiswa_id');
+            
+            $hadirCount = 0;
+            $terlambatCount = 0;
+            $tidakHadirCount = 0;
+
+            foreach ($studentsInClass as $s) {
+                $l = $existingLogs->get($s->id);
+                $status = $l ? $l->status : 'absent';
+                if ($status === 'present') $hadirCount++;
+                elseif ($status === 'late') $terlambatCount++;
+                else $tidakHadirCount++;
+            }
+        } else {
+            $hadirCount = 0;
+            $terlambatCount = 0;
+            $tidakHadirCount = 0;
+        }
         
         $stats = [
-            'total' => $totalCount,
+            'total' => $totalStudentsCount,
             'hadir' => $hadirCount,
             'terlambat' => $terlambatCount,
             'tidak_hadir' => $tidakHadirCount,
-            'attendance_rate' => $totalCount > 0
-                ? round((($hadirCount + $terlambatCount) / $totalCount) * 100, 1)
+            'attendance_rate' => $totalStudentsCount > 0
+                ? round((($hadirCount + $terlambatCount) / $totalStudentsCount) * 100, 1)
                 : 0,
         ];
         
@@ -155,24 +181,32 @@ class RekapanController extends Controller
             return back()->with('error', 'Sesi tidak ditemukan');
         }
         
-        $attendanceLogs = AttendanceLog::with('mahasiswa')
-            ->where('attendance_session_id', $sessionId)
-            ->orderBy('scanned_at')
+        // Get all students in this class
+        $students = \App\Models\Mahasiswa::where('kelas', $session->course->kelas)->orderBy('nama')->get();
+        
+        // Get existing logs for this session
+        $logs = AttendanceLog::where('attendance_session_id', $sessionId)
             ->get()
-            ->map(function ($log, $index) {
-                return [
-                    'no' => $index + 1,
-                    'nama' => $log->mahasiswa->nama ?? '-',
-                    'nim' => $log->mahasiswa->nim ?? '-',
-                    'fakultas' => $log->mahasiswa->fakultas ?? 'Teknik',
-                    'prodi' => $log->mahasiswa->prodi ?? 'Teknik Informatika',
-                    'kelas' => $log->mahasiswa->kelas ?? '05TPLK004',
-                    'jenis_reguler' => $log->mahasiswa->jenis_reguler ?? 'Reguler A',
-                    'semester' => $log->mahasiswa->semester ?? '5',
-                    'status' => $this->getStatusLabel($log->status),
-                    'waktu' => $log->scanned_at?->format('H:i:s') ?? '-',
-                ];
-            });
+            ->keyBy('mahasiswa_id');
+        
+        // Merge students with logs
+        $attendanceLogs = $students->map(function ($student, $index) use ($logs) {
+            $log = $logs->get($student->id);
+            $status = $log ? $log->status : 'absent';
+            
+            return [
+                'no' => $index + 1,
+                'nama' => $student->nama,
+                'nim' => $student->nim,
+                'fakultas' => $student->fakultas ?? 'Teknik',
+                'prodi' => $student->prodi ?? 'Teknik Informatika',
+                'kelas' => $student->kelas ?? '-',
+                'jenis_reguler' => $student->jenis_reguler ?? 'Reguler A',
+                'semester' => $student->semester ?? '-',
+                'status' => $this->getStatusLabel($status),
+                'waktu' => $log ? ($log->scanned_at?->format('H:i:s') ?? '-') : '-',
+            ];
+        });
         
         $data = [
             'dosen' => $dosen,
@@ -198,7 +232,7 @@ class RekapanController extends Controller
         $dosen = Auth::guard('dosen')->user();
 
         // Load all relationships
-        $log->load(['mahasiswa', 'session.course', 'selfieVerification', 'fraudAlerts']);
+        $log->load(['mahasiswa', 'session.course', 'selfieVerification']);
 
         // Ensure the log belongs to a course owned by this dosen
         $course = $log->session?->course;
@@ -277,7 +311,7 @@ class RekapanController extends Controller
                 'ai_recommendation' => $log->ai_recommendation,
                 'is_suspicious' => $log->is_suspicious,
                 'risk_score' => $log->risk_score,
-                'fraud_flags' => $log->fraud_flags,
+
                 'ai_analysis_json' => $log->ai_analysis_json,
                 'ai_processing_step' => $log->ai_processing_step,
                 'ai_processed_at' => $log->ai_processed_at?->format('d/m/Y H:i:s'),
@@ -312,13 +346,7 @@ class RekapanController extends Controller
                 'rejection_reason' => $log->selfieVerification->rejection_reason,
                 'note' => $log->selfieVerification->note,
             ] : null,
-            'fraudAlerts' => $log->fraudAlerts->map(fn($a) => [
-                'id' => $a->id,
-                'type' => $a->type,
-                'severity' => $a->severity,
-                'description' => $a->description,
-                'status' => $a->status,
-            ]),
+            'fraudAlerts' => [],
             'history' => $history,
             'studentStats' => [
                 'total_sessions' => $totalSessions,

@@ -24,7 +24,6 @@ class SelfieVerificationController extends Controller
 
         // Extract AI data from attendanceLog
         $aiData = $log ? ($log->ai_analysis_json ?? []) : [];
-        $fraudFlags = $log ? ($log->fraud_flags ?? []) : [];
 
         $history = [];
         if ($log && $log->scanned_at) {
@@ -66,13 +65,7 @@ class SelfieVerificationController extends Controller
             ];
         }
 
-        $anomalies = array_map(function($flag) {
-            return [
-                'type' => 'Warning',
-                'message' => 'Indikasi: ' . $flag,
-                'severity' => 'high'
-            ];
-        }, $fraudFlags);
+
 
         // Build photo URLs - strip leading /storage/ from paths if present to avoid double-storage
         $avatarPath = $mhs && $mhs->avatar_url ? ltrim(str_replace('/storage/', '', $mhs->avatar_url), '/') : null;
@@ -181,13 +174,13 @@ class SelfieVerificationController extends Controller
                     'head_movement' => $aiData['liveness_checks']['head_movement'] ?? true,
                 ],
                 'anti_spoofing_passed' => !($log && $log->spoofing_detected),
-                'overall_assessment' => $log->ai_recommendation ?? ($log && $log->is_suspicious ? "Peringatan: Verifikasi mencurigakan." : "Verifikasi biometrik berhasil."),
+                'overall_assessment' => $log->ai_recommendation ?? "Verifikasi biometrik berhasil.",
                 'verified_by' => $model->verified_by_name ?? null,
                 'verification_date' => $model->verified_at ? $model->verified_at->format('d M Y, H:i') : null,
                 'ai_model_version' => $aiData['ai_model_version'] ?? 'v2.4.1-production',
-                'recommendations' => !empty($fraudFlags) ? $fraudFlags : ($log && $log->is_suspicious ? ['Periksa manual foto selfie ini.'] : ['Kualitas foto memenuhi standar.']),
+                'recommendations' => $log && $log->ai_recommendation ? [$log->ai_recommendation] : ['Kualitas foto memenuhi standar.'],
                 'history' => $history,
-                'anomalies' => $anomalies,
+                'anomalies' => [],
             ],
             'privacy' => [
                 'is_locked' => $isLocked,

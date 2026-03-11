@@ -139,13 +139,10 @@ class SesiAbsenController extends Controller
                 // AI fields (null if not scanned)
                 'face_match_score' => $log->face_match_score,
                 'ai_confidence' => $log->ai_confidence,
-                'risk_score' => $log->risk_score,
-                'is_suspicious' => $log->is_suspicious ?? false,
                 'is_live_photo' => $log->is_live_photo,
                 'spoofing_detected' => $log->spoofing_detected,
                 'image_quality_score' => $log->image_quality_score,
                 'ai_recommendation' => $log->ai_recommendation,
-                'fraud_flags' => $log->fraud_flags ?? [],
                 'ai_scanned' => $log->ai_processed_at !== null,
                 'selfie_url' => $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
             ];
@@ -160,7 +157,7 @@ class SesiAbsenController extends Controller
         $absent = max(0, ($session->course?->sks ?? 0) * 10 - $total); // estimate
         $scanned = $logs->where('ai_scanned', true);
         $aiVerified = $scanned->where('ai_recommendation', 'approve')->count();
-        $suspicious = $logs->where('is_suspicious', true)->count();
+        $suspicious = $scanned->where('spoofing_detected', true)->count();
         $locationValid = $logs->filter(fn($l) => $l['distance_m'] !== null && $l['distance_m'] <= 100)->count();
         $faceMatchRate = $scanned->count() > 0 ? round($scanned->avg('face_match_score'), 1) : 0;
 

@@ -306,12 +306,12 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
 
                 {/* KPI Stats Grid */}
                 <motion.div
-                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+                    className="grid grid-cols-3 gap-1.5 sm:gap-6"
                     initial="hidden"
                     animate="visible"
                     variants={{
                         hidden: { opacity: 0 },
-                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
+                        visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.2 } }
                     }}
                 >
                     {[
@@ -340,7 +340,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                     }
                                 }}
                                 whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
-                                className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
+                                className={`group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-2 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
                             >
                                 <div className={`absolute inset-0 bg-gradient-to-br ${colorConfig.gradientBg} opacity-50 dark:opacity-100`} />
 
@@ -348,27 +348,27 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                     className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${colorConfig.bg} blur-3xl transition-all opacity-20 group-hover:opacity-40`}
                                 />
 
-                                <div className="relative z-10 flex flex-col items-center sm:items-start gap-4 sm:gap-5 h-full justify-between">
-                                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                <div className="relative z-10 flex flex-row items-center gap-4 h-full">
+                                    <div className="relative flex flex-row items-center gap-4 text-left">
                                         <motion.div
                                             whileHover={{ scale: 1.1, rotate: 10 }}
-                                            className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
+                                            className="relative flex shrink-0 h-6 w-6 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
                                         >
                                             <img src={stat.imgSrc} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                                         </motion.div>
                                         <div className="flex flex-col">
-                                            <h3 className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{stat.title}</h3>
-                                            <div className="flex items-baseline gap-2 justify-center sm:justify-start">
-                                                <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
+                                            <h3 className="text-[7px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1 line-clamp-1">{stat.title}</h3>
+                                            <div className="flex items-baseline gap-1 justify-start">
+                                                <span className="text-xs sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
                                                     {stat.value}
                                                 </span>
                                             </div>
-                                            <div className="mt-1 flex items-center gap-1 justify-center sm:justify-start">
-                                                <div className={`flex items-center gap-0.5 text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-sm border ${stat.isUp
+                                            <div className="mt-0.5 flex items-center gap-0.5 justify-start">
+                                                <div className={`flex items-center gap-0 text-[6px] sm:text-[10px] font-bold px-1 py-0 rounded-[1px] border ${stat.isUp
                                                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
                                                     : 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400'
                                                     }`}>
-                                                    {stat.isUp ? <ArrowUpRight className="h-2 w-2" /> : <ArrowDownRight className="h-2 w-2" />}
+                                                    {stat.isUp ? <ArrowUpRight className="h-1.5 w-1.5" /> : <ArrowDownRight className="h-1.5 w-1.5" />}
                                                     {stat.change}
                                                 </div>
                                             </div>

@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import moment from 'moment';
 import PersetujuanIzinIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
 import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
-import PendingIcon from '@/assets/admin/fraud-detection/pending.png';
+import PendingIcon from '@/assets/admin/verifikasi-selfie/pending.png';
 import DisetujuiIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
 import DitolakIcon from '@/assets/admin/voting-kas/ditolak.png';
 

@@ -18,7 +18,7 @@ import TemplateHeaderIcon from '@/assets/dosen/template/template.png';
 import TotalTemplateIcon from '@/assets/dosen/template/total-template.png';
 import TemplateAktifIcon from '@/assets/dosen/template/template-aktif.png';
 import AutoActivateIcon from '@/assets/dosen/template/Auto-Activate.png';
-import DurasiIcon from '@/assets/admin/fraud-detection/pending.png';
+import DurasiIcon from '@/assets/admin/verifikasi-selfie/pending.png';
 import DeleteIconImage from '@/assets/matkul/image.png';
 
 // ═══ INTERFACES ═══
@@ -286,15 +286,6 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* 3 Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div
-                            key={i}
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }}
-                        />
-                    ))}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -568,9 +559,6 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                                 {/* Modal Header */}
                                 <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
                                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                                    {[0, 1, 2].map(i => (
-                                        <motion.div key={i} className="absolute right-10 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10" animate={{ scale: [1, 2], opacity: [0.3, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: i * 0.8 }} />
-                                    ))}
                                     <div className="relative flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">

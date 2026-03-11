@@ -1,4 +1,5 @@
 import { NavMain } from '@/components/nav-main';
+import { DosenNavUser } from './dosen-nav-user';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     Sidebar,
@@ -95,34 +96,9 @@ const dosenNavItems: NavItem[] = [
         icon: FileText,
     },
     {
-        title: 'Notifikasi',
-        href: '/dosen/notifications',
-        icon: Bell,
-    },
-    {
-        title: 'Dokumentasi',
-        href: '/dosen/docs',
-        icon: BookOpen,
-    },
-    {
-        title: 'Dokumentasi UML',
-        href: '/dosen/dokumentasi-uml',
-        icon: FileText,
-    },
-    {
-        title: 'Pengaturan',
-        href: '/dosen/settings',
-        icon: Settings,
-    },
-    {
         title: 'Bantuan',
         href: '/dosen/help',
         icon: HelpCircle,
-    },
-    {
-        title: 'Profil',
-        href: '/dosen/profile',
-        icon: UserCircle,
     },
 ];
 
@@ -168,44 +144,7 @@ export function DosenSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 p-3">
-                    <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                            {dosen?.avatar_url && (
-                                <AvatarImage
-                                    src={dosen.avatar_url}
-                                    alt={dosen.nama}
-                                    className="object-cover"
-                                />
-                            )}
-                            <AvatarFallback className="bg-indigo-100 text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200">
-                                {dosen?.initials ||
-                                    initials(dosen?.nama ?? 'Dosen')}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0 flex-1">
-                            <p className="truncate text-xs font-semibold text-sidebar-foreground">
-                                {dosen?.nama
-                                    ? formatShortName(dosen.nama)
-                                    : 'Dosen'}
-                            </p>
-                            <p className="mt-0.5 truncate text-[10px] text-sidebar-foreground/60">
-                                NIDN {dosen?.nidn ?? '-'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            type="button"
-                            onClick={() => router.post('/dosen/logout')}
-                        >
-                            <LogOut />
-                            <span>Logout</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                {dosen && <DosenNavUser dosen={dosen} />}
             </SidebarFooter>
         </Sidebar>
     );

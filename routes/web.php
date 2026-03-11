@@ -371,6 +371,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/akademik/jadwal', [\App\Http\Controllers\User\AcademicScheduleController::class, 'schedule'])->name('user.akademik.jadwal');
     Route::patch('user/akademik/jadwal/{course}/reschedule', [\App\Http\Controllers\User\AcademicScheduleController::class, 'reschedule'])->name('user.akademik.jadwal.reschedule');
     Route::get('user/akademik/kehadiran', [KehadiranController::class, 'index'])->name('user.akademik.kehadiran');
+    Route::post('user/akademik/kehadiran/online-claim', [KehadiranController::class, 'onlineSelfClaim'])->name('user.akademik.kehadiran.online-claim');
     Route::get('user/akademik/kehadiran/{mahasiswaCourse}', [KehadiranController::class, 'show'])->name('user.akademik.kehadiran.show');
     Route::get('user/akademik/ujian', [\App\Http\Controllers\User\AcademicScheduleController::class, 'exams'])->name('user.akademik.ujian');
     Route::get('user/akademik/ujian/detail', [\App\Http\Controllers\User\AcademicScheduleController::class, 'examDetail'])->name('user.akademik.ujian.detail');

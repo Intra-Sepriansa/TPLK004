@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import RekapIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
+import PenilaianIcon from '@/assets/grading/penilaian.png';
 import TotalScanIcon from '@/assets/admin/rekap-kehadiran/total-scan.png';
 import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
 import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
@@ -302,32 +302,40 @@ export default function DosenRekapan({
 
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
                 {/* ═══════ HEADER — Dosen Profile ═══════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-500" />
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl border border-gray-800">
+                    <motion.div 
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-pulse" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
                     {/* Floating Pulses */}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
+                                <motion.div 
                                     className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <img src={RekapIcon} alt="Rekapan Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                    <img src={PenilaianIcon} alt="Rekapan Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
                                 <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2 justify-center sm:justify-start"
                                         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
                                         <GraduationCap className="h-4 w-4" /> Rekapan Kehadiran
                                     </motion.p>
-                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center gap-2"
                                         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
                                         {dosen.nama}
+                                        <Sparkles className="h-6 w-6 animate-spin text-amber-400" style={{ animationDuration: '3s' }} />
                                     </motion.h1>
                                     <motion.div className="mt-1 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm text-indigo-100"
                                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
@@ -437,7 +445,7 @@ export default function DosenRekapan({
                             <motion.div
                                 key={card.key}
                                 variants={cardVariants}
-                                whileHover={{ scale: 1.03, y: -8, transition: { type: 'spring', stiffness: 400, damping: 10 } }}
+                                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
                                 onHoverStart={() => setHoveredCard(card.key)}
                                 onHoverEnd={() => setHoveredCard(null)}
                                 className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
@@ -505,7 +513,7 @@ export default function DosenRekapan({
                         <div className="relative flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={RekapIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    <img src={PenilaianIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <h2 className="text-2xl font-bold tracking-tight">Daftar Kehadiran</h2>
@@ -595,8 +603,8 @@ export default function DosenRekapan({
                                                         exit={{ opacity: 0, x: 20 }}
                                                         transition={{ delay: Math.min(index * 0.05, 0.5) }}
                                                         whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
-                                                        onClick={() => router.visit(`/dosen/rekapan/${log.id}`)}
-                                                        className="group border-b border-neutral-100 dark:border-neutral-800 cursor-pointer"
+                                                        onClick={() => log.id > 0 && router.visit(`/dosen/rekapan/${log.id}`)}
+                                                        className={`group border-b border-neutral-100 dark:border-neutral-800 ${log.id > 0 ? 'cursor-pointer' : 'cursor-default'}`}
                                                     >
                                                         {/* No */}
                                                         <td className="px-4 py-3 text-center font-bold text-sm text-neutral-900 dark:text-white bg-neutral-50/50 dark:bg-neutral-900/50 sticky left-0">
@@ -707,8 +715,8 @@ export default function DosenRekapan({
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: Math.min(index * 0.05, 0.4) }}
-                                            onClick={() => router.visit(`/dosen/rekapan/${log.id}`)}
-                                            className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 cursor-pointer active:scale-[0.98] transition-transform"
+                                            onClick={() => log.id > 0 && router.visit(`/dosen/rekapan/${log.id}`)}
+                                            className={`p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 transition-transform ${log.id > 0 ? 'cursor-pointer active:scale-[0.98]' : 'cursor-default'}`}
                                         >
                                             {/* Name Row */}
                                             <div className="flex items-center gap-3 mb-3">

@@ -44,4 +44,6 @@ class AttendanceSession extends Model
     {
         return $this->hasMany(AttendanceLog::class);
     }
+
+
 }

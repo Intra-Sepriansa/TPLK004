@@ -19,7 +19,6 @@ class SelfieVerificationAIService
             'face_recognition' => null,
             'liveness_detection' => null,
             'image_quality' => null,
-            'fraud_detection' => null,
             'device_analysis' => null,
             'location_verification' => null,
             'behavioral_analysis' => null,
@@ -32,7 +31,7 @@ class SelfieVerificationAIService
             $results['face_recognition'] = $this->performFaceRecognition($log);
             $results['liveness_detection'] = $this->performLivenessDetection($log);
             $results['image_quality'] = $this->analyzeImageQuality($log);
-            $results['fraud_detection'] = $this->detectFraud($log);
+
             $results['device_analysis'] = $this->analyzeDevice($log);
             $results['location_verification'] = $this->verifyLocation($log);
             $results['behavioral_analysis'] = $this->analyzeBehavior($log);
@@ -173,48 +172,7 @@ class SelfieVerificationAIService
         ];
     }
 
-    protected function detectFraud(AttendanceLog $log): array
-    {
-        $seed = crc32($log->id . 'fraud');
-        mt_srand($seed);
 
-        $riskScore = mt_rand(5, 95);
-        $flags = [];
-
-        if ($riskScore > 70) $flags[] = 'High risk score detected';
-        if (mt_rand(0, 100) > 85) $flags[] = 'Unusual submission timing';
-        if (mt_rand(0, 100) > 88) $flags[] = 'Device fingerprint mismatch';
-        if (mt_rand(0, 100) > 90) $flags[] = 'Potential photo manipulation';
-        if (mt_rand(0, 100) > 92) $flags[] = 'EXIF data inconsistency';
-        if (mt_rand(0, 100) > 93) $flags[] = 'Multiple face submissions within short interval';
-        if (mt_rand(0, 100) > 95) $flags[] = 'GPS spoofing indicators detected';
-
-        $riskLevel = 'low';
-        if ($riskScore > 40) $riskLevel = 'medium';
-        if ($riskScore > 65) $riskLevel = 'high';
-        if ($riskScore > 85) $riskLevel = 'critical';
-
-        return [
-            'risk_score' => $riskScore,
-            'risk_level' => $riskLevel,
-            'fraud_probability' => round($riskScore / 100, 4),
-            'anomaly_score' => round(mt_rand(0, 100) / 100, 4),
-            'flags' => $flags,
-            'metadata_analysis' => [
-                'exif_present' => mt_rand(0, 100) > 20,
-                'exif_consistent' => mt_rand(0, 100) > 15,
-                'timestamp_valid' => mt_rand(0, 100) > 10,
-                'camera_model' => collect(['iPhone 15 Pro', 'Samsung Galaxy S24', 'Google Pixel 8', 'OPPO A78', 'Xiaomi 14 Ultra'])->random(),
-                'software_modified' => mt_rand(0, 100) > 90,
-            ],
-            'pattern_analysis' => [
-                'submission_frequency' => collect(['normal', 'normal', 'suspicious', 'normal'])->random(),
-                'time_consistency' => mt_rand(70, 100),
-                'historical_anomalies' => mt_rand(0, 3),
-            ],
-            'processing_time_ms' => mt_rand(300, 800),
-        ];
-    }
 
     protected function analyzeDevice(AttendanceLog $log): array
     {
@@ -352,10 +310,9 @@ class SelfieVerificationAIService
     protected function calculateOverallDecision(array $results): array
     {
         $scores = [
-            ($results['face_recognition']['face_match_score'] ?? 0) * 0.30,
-            ($results['liveness_detection']['liveness_score'] ?? 0) * 0.20,
+            ($results['face_recognition']['face_match_score'] ?? 0) * 0.40,
+            ($results['liveness_detection']['liveness_score'] ?? 0) * 0.25,
             ($results['image_quality']['overall_score'] ?? 0) * 0.10,
-            (100 - ($results['fraud_detection']['risk_score'] ?? 0)) * 0.15,
             ($results['device_analysis']['trust_score'] ?? 0) * 0.10,
             ($results['location_verification']['is_verified'] ?? false ? 100 : 30) * 0.10,
             ($results['behavioral_analysis']['historical_comparison']['consistency_score'] ?? 0) * 0.05,
@@ -364,10 +321,10 @@ class SelfieVerificationAIService
         $confidence = round(array_sum($scores));
         $results['confidence_score'] = $confidence;
 
-        if ($confidence >= 80 && ($results['fraud_detection']['risk_level'] ?? 'low') === 'low') {
+        if ($confidence >= 80) {
             $results['overall_decision'] = 'approve';
             $results['recommendations'][] = 'AI mendeteksi identitas valid — direkomendasikan untuk disetujui.';
-        } elseif ($confidence < 50 || ($results['fraud_detection']['risk_level'] ?? 'low') === 'critical') {
+        } elseif ($confidence < 50) {
             $results['overall_decision'] = 'reject';
             $results['recommendations'][] = 'AI mendeteksi anomali signifikan — direkomendasikan untuk ditolak.';
         } else {
@@ -385,12 +342,10 @@ class SelfieVerificationAIService
         if (($results['liveness_detection']['liveness_score'] ?? 0) < 75) {
             $results['warnings'][] = 'Liveness score rendah — kemungkinan foto bukan live';
         }
-        if (!empty($results['fraud_detection']['flags'])) {
-            $results['warnings'] = array_merge($results['warnings'], $results['fraud_detection']['flags']);
         }
 
         $totalTime = 0;
-        foreach (['face_recognition', 'liveness_detection', 'image_quality', 'fraud_detection', 'device_analysis', 'location_verification', 'behavioral_analysis'] as $key) {
+        foreach (['face_recognition', 'liveness_detection', 'image_quality', 'device_analysis', 'location_verification', 'behavioral_analysis'] as $key) {
             $totalTime += $results[$key]['processing_time_ms'] ?? 0;
         }
         $results['total_processing_time_ms'] = $totalTime;

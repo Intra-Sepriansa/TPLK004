@@ -46,7 +46,7 @@ class AttendanceLog extends Model
         'ai_recommendation',
         'is_suspicious',
         'risk_score',
-        'fraud_flags',
+
         'ai_analysis_json',
         'ai_processed_at',
     ];
@@ -54,7 +54,7 @@ class AttendanceLog extends Model
     protected $casts = [
         'scanned_at' => 'datetime',
         'ai_processed_at' => 'datetime',
-        'fraud_flags' => 'array',
+
         'ai_analysis_json' => 'array',
         'is_device_trusted' => 'boolean',
         'face_detected' => 'boolean',

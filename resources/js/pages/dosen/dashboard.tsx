@@ -140,12 +140,6 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i }} />
-                    ))}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">

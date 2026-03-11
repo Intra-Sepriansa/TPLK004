@@ -27,7 +27,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SedangVotingIcon from '@/assets/admin/voting-kas/icon-coting.png';
 import DisetujuiVotingIcon from '@/assets/admin/voting-kas/disetujui.png';
 import DitolakVotingIcon from '@/assets/admin/voting-kas/ditolak.png';
-import ApprovalRateIcon from '@/assets/mahasiswa/voting/approval.png';
+
 
 interface Props {
     votings: Array<{
@@ -275,8 +275,8 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                             delay: 0.2,
                         },
                         {
-                            image: ApprovalRateIcon,
-                            cropImage: true,
+                            image: VotingKasIcon,
+                            cropImage: false,
                             label: 'Approval Rate',
                             value: approvalRate,
                             valueSuffix: '%',

@@ -176,7 +176,6 @@ class AdvancedAnalyticsService
     public function detectAnomalies(): void
     {
         $this->detectUnusualAttendancePatterns();
-        $this->detectFraudAttempts();
         $this->detectPerformanceAnomalies();
     }
 
@@ -207,30 +206,6 @@ class AdvancedAnalyticsService
         }
     }
 
-    private function detectFraudAttempts(): void
-    {
-        // Detect multiple scans in short time
-        $suspiciousLogs = AttendanceLog::select('mahasiswa_id', DB::raw('COUNT(*) as scan_count'))
-            ->where('created_at', '>=', now()->subMinutes(5))
-            ->groupBy('mahasiswa_id')
-            ->having('scan_count', '>', 1)
-            ->get();
-
-        foreach ($suspiciousLogs as $log) {
-            Anomaly::create([
-                'anomaly_type' => 'fraud_attempt',
-                'subject_type' => Mahasiswa::class,
-                'subject_id' => $log->mahasiswa_id,
-                'severity' => 'critical',
-                'description' => 'Multiple attendance scans detected within 5 minutes',
-                'evidence' => [
-                    'scan_count' => $log->scan_count,
-                    'time_window' => '5 minutes',
-                ],
-            ]);
-        }
-    }
-
     private function detectPerformanceAnomalies(): void
     {
         // Detect sudden drops in engagement
@@ -239,12 +214,12 @@ class AdvancedAnalyticsService
         foreach ($students as $student) {
             $recentEvents = AnalyticsEvent::where('user_type', Mahasiswa::class)
                 ->where('user_id', $student->id)
-                ->where('created_at', '>=', now()->subDays(7))
+                ->where('created_at', '>=', \now()->subDays(7))
                 ->count();
 
             $previousEvents = AnalyticsEvent::where('user_type', Mahasiswa::class)
                 ->where('user_id', $student->id)
-                ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+                ->whereBetween('created_at', [\now()->subDays(14), \now()->subDays(7)])
                 ->count();
 
             if ($previousEvents > 10 && $recentEvents < $previousEvents * 0.3) {
@@ -267,11 +242,11 @@ class AdvancedAnalyticsService
     private function getRecentAttendanceRate(Mahasiswa $mahasiswa, int $days): float
     {
         $total = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
-            ->where('created_at', '>=', now()->subDays($days))
+            ->where('created_at', '>=', \now()->subDays($days))
             ->count();
 
         $present = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
-            ->where('created_at', '>=', now()->subDays($days))
+            ->where('created_at', '>=', \now()->subDays($days))
             ->whereIn('status', ['present', 'late'])
             ->count();
 
@@ -282,9 +257,9 @@ class AdvancedAnalyticsService
     {
         return [
             'today' => [
-                'attendance_rate' => DailyMetric::getMetric('attendance_rate', now()->toDateString())?->value ?? 0,
-                'active_students' => DailyMetric::getMetric('active_students', now()->toDateString())?->value ?? 0,
-                'engagement_score' => DailyMetric::getMetric('engagement_score', now()->toDateString())?->value ?? 0,
+                'attendance_rate' => DailyMetric::getMetric('attendance_rate', \now()->toDateString())?->value ?? 0,
+                'active_students' => DailyMetric::getMetric('active_students', \now()->toDateString())?->value ?? 0,
+                'engagement_score' => DailyMetric::getMetric('engagement_score', \now()->toDateString())?->value ?? 0,
             ],
             'trends' => [
                 'attendance' => DailyMetric::getTrend('attendance_rate', 7),

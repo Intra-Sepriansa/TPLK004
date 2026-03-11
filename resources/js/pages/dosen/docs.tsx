@@ -775,51 +775,6 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                     ))}
                 </div>
 
-                <motion.button
-                    type="button"
-                    onClick={() => router.visit('/dosen/dokumentasi-uml')}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                        delay: 0.18,
-                        type: 'spring',
-                        stiffness: 260,
-                        damping: 24,
-                    }}
-                    whileHover={{ y: -3, scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="group relative w-full overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-5 text-left shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/50"
-                >
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/8 via-purple-500/8 to-pink-500/8" />
-                    <div className="absolute -top-14 -right-14 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl transition-all group-hover:bg-purple-500/25" />
-
-                    <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-start gap-4">
-                            <div className="rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-3 text-white shadow-lg shadow-indigo-500/30">
-                                <GitBranch className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-semibold tracking-wide text-indigo-600 dark:text-indigo-300">
-                                    ADD-ON BARU
-                                </p>
-                                <h3 className="mt-0.5 text-xl font-bold text-neutral-900 dark:text-white">
-                                    Dokumentasi UML Dosen
-                                </h3>
-                                <p className="mt-1 max-w-2xl text-sm text-neutral-600 dark:text-neutral-300">
-                                    Activity Eksisting, Use Case, Activity Baru,
-                                    Sequence, dan Class Diagram per menu dosen
-                                    dengan viewer interaktif dan penjelasan
-                                    arsitektur detail.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition group-hover:border-indigo-300 group-hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 dark:group-hover:bg-indigo-900/40">
-                            Buka Dokumentasi UML
-                            <ChevronRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                        </div>
-                    </div>
-                </motion.button>
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

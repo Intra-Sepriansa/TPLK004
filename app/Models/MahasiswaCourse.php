@@ -191,11 +191,16 @@ class MahasiswaCourse extends Model
             return $this->mode === 'online' ? 'online' : 'offline';
         }
 
+        $isBeforeUTS = !$this->is_after_uts;
+        
         if ((int) $this->period_group === 1) {
-            return $this->is_after_uts ? 'online' : 'offline';
+            // Periode 1: Before UTS dominan offline, After UTS dominan online
+            return $isBeforeUTS ? 'offline' : 'online';
         }
 
-        return $this->is_after_uts ? 'offline' : 'online';
+        // Periode 2: SKS 3 Sebelum UTS dominan online (1-10 online, kecuali 3,6,9). SKS 2 Sebelum UTS online semua.
+        // Periode 2: Sesudah UTS SKS 3 dominan offline, SKS 2 offline semua.
+        return $isBeforeUTS ? 'online' : 'offline';
     }
 
     public function getEffectiveModeNameAttribute(): string

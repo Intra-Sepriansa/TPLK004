@@ -8,11 +8,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+
 import { useInitials } from '@/hooks/use-initials';
 import { type SharedData, type NavItem } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
+import { StudentNavUser } from './student-nav-user';
 import {
     Award,
     BookOpen,
@@ -113,21 +114,7 @@ const studentNavItems: NavItem[] = [
         href: '/user/docs',
         icon: BookOpen,
     },
-    {
-        title: 'Pengaturan',
-        href: '/user/settings',
-        icon: Settings,
-    },
-    {
-        title: 'Bantuan',
-        href: '/user/help',
-        icon: HelpCircle,
-    },
-    {
-        title: 'Profil',
-        href: '/user/profile',
-        icon: UserCircle,
-    },
+
 ];
 
 type MahasiswaInfo = {
@@ -140,7 +127,6 @@ type MahasiswaInfo = {
 export function StudentSidebar() {
     const { props } = usePage<SharedData & { mahasiswa?: MahasiswaInfo }>();
     const mahasiswa = props.mahasiswa;
-    const initials = useInitials();
 
     const studentNavItems: NavItem[] = [
         {
@@ -224,21 +210,7 @@ export function StudentSidebar() {
             href: '/user/docs',
             icon: BookOpen,
         },
-        {
-            title: 'Pengaturan',
-            href: '/user/settings',
-            icon: Settings,
-        },
-        {
-            title: 'Bantuan',
-            href: '/user/help',
-            icon: HelpCircle,
-        },
-        {
-            title: 'Profil',
-            href: '/user/profile',
-            icon: UserCircle,
-        },
+
     ];
 
     return (
@@ -270,34 +242,7 @@ export function StudentSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 p-3">
-                    <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                            <AvatarFallback className="bg-emerald-100 text-emerald-700 dark:bg-emerald-400/20 dark:text-emerald-200">
-                                {initials(mahasiswa?.nama ?? 'Mahasiswa')}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 text-sm">
-                            <p className="truncate font-semibold text-sidebar-foreground">
-                                {mahasiswa?.nama ?? 'Mahasiswa'}
-                            </p>
-                            <p className="text-xs text-sidebar-foreground/60">
-                                NIM {mahasiswa?.nim ?? '-'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            type="button"
-                            onClick={() => router.post('/logout/mahasiswa')}
-                        >
-                            <LogOut />
-                            <span>Logout</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+                <StudentNavUser mahasiswa={mahasiswa} />
             </SidebarFooter>
         </Sidebar>
     );

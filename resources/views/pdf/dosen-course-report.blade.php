@@ -340,7 +340,7 @@
                 <tr>
                     <th style="width: 20px;">No</th>
                     <th style="width: 60px;">NIM</th>
-                    <th style="auto">Nama Mahasiswa</th>
+                    <th style="width: auto;">Nama Mahasiswa</th>
                     @foreach($sessions as $session)
                     <th style="width: 14px; font-size: 6px;">
                         P{{ $session->meeting_number }}<br>

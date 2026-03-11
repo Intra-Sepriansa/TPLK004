@@ -33,41 +33,76 @@ class KehadiranController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Try to match dosen from mata_kuliah
-        $mataKuliahs = MataKuliah::with('dosen')->get();
-        $dosenMap = [];
-        foreach ($mataKuliahs as $mk) {
-            $dosenMap[strtolower(trim($mk->nama))] = $mk->dosen?->nama ?? '-';
-        }
+        // Try to match dosen and fetch sessions from mata_kuliah
+    $mataKuliahs = MataKuliah::with('dosen')->get();
+    $dosenMap = [];
+    $mataKuliahMap = [];
+    foreach ($mataKuliahs as $mk) {
+        $nameKey = strtolower(trim($mk->nama));
+        $dosenMap[$nameKey] = $mk->dosen?->nama ?? '-';
+        $mataKuliahMap[$nameKey] = $mk->id;
+    }
 
-        // Build course data with meeting mode calculation
-        $courseData = $courses->map(function ($course) use ($dosenMap) {
-            $totalMeetings = $course->sks === 3 ? 21 : 14;
-            $isAfterUts = $course->is_after_uts;
+    $allSessions = \App\Models\AttendanceSession::whereIn('course_id', array_values($mataKuliahMap))->get()->groupBy('course_id');
+    $allSessionIds = $allSessions->flatten()->pluck('id');
+    $allLogs = \App\Models\AttendanceLog::whereIn('attendance_session_id', $allSessionIds)
+        ->where('mahasiswa_id', $mahasiswa->id)
+        ->get()
+        ->keyBy('attendance_session_id');
 
-            // Build meetings array
-            $meetings = [];
-            for ($i = 1; $i <= $totalMeetings; $i++) {
-                $meeting = $course->meetings->firstWhere('meeting_number', $i);
-                $isOnline = $this->getMeetingMode(
-                    $i,
-                    $course->sks,
-                    $course->period_group ?? 1,
-                    !$isAfterUts
-                );
+    // Build course data with meeting mode calculation
+    $courseData = $courses->map(function ($course) use ($dosenMap, $mataKuliahMap, $allSessions, $allLogs) {
+        $totalMeetings = $course->sks === 3 ? 21 : 14;
+        $utsMeetingNumber = $course->sks === 3 ? 10 : 7;
+        
+        $mkId = $mataKuliahMap[strtolower(trim($course->name))] ?? null;
+        $courseSessions = $mkId ? ($allSessions->get($mkId) ?? collect())->keyBy('meeting_number') : collect();
 
-                $meetings[] = [
-                    'number' => $i,
-                    'date' => $meeting?->scheduled_date?->format('d M Y'),
-                    'status' => $this->getMeetingStatus($meeting),
-                    'mode' => $isOnline ? 'online' : 'offline',
-                    'notes' => $meeting?->notes,
-                    'completedAt' => $meeting?->completed_at?->format('d M Y H:i'),
-                ];
+        // Build meetings array
+        $meetings = [];
+        for ($i = 1; $i <= $totalMeetings; $i++) {
+            $isThisMeetingBeforeUTS = $i <= $utsMeetingNumber;
+            $isOnline = $this->getMeetingMode(
+                $i,
+                $course->sks,
+                $course->period_group ?? 1,
+                $isThisMeetingBeforeUTS,
+                $course->name
+            );
+
+            $session = $courseSessions->get($i);
+            $log = $session ? $allLogs->get($session->id) : null;
+
+            $status = 'belum-dimulai';
+            $date = null;
+            $notes = null;
+            $completedAt = null;
+
+            if ($log && in_array($log->status, ['present', 'late'])) {
+                $status = 'hadir';
+                $date = $log->scanned_at?->format('d M Y');
+                $completedAt = $log->scanned_at?->format('d M Y H:i');
+                $notes = $log->note;
+            } elseif ($session && !$session->is_active && $session->end_at && now()->greaterThan($session->end_at)) {
+                $status = 'tidak-hadir';
+                $date = $session->start_at?->format('d M Y');
+                $notes = 'Absen tidak tercatat di sesi ini';
+            } elseif ($session) {
+                $date = $session->start_at?->format('d M Y');
             }
 
-            $attendedCount = collect($meetings)->where('status', 'hadir')->count();
-            $absentCount = collect($meetings)->where('status', 'tidak-hadir')->count();
+            $meetings[] = [
+                'number' => $i,
+                'date' => $date,
+                'status' => $status,
+                'mode' => $isOnline ? 'online' : 'offline',
+                'notes' => $notes,
+                'completedAt' => $completedAt,
+            ];
+        }
+
+        $attendedCount = collect($meetings)->where('status', 'hadir')->count();
+        $absentCount = collect($meetings)->where('status', 'tidak-hadir')->count();
             $attendanceRate = $totalMeetings > 0
                 ? round(($attendedCount / $totalMeetings) * 100, 1)
                 : 0;
@@ -172,18 +207,23 @@ class KehadiranController extends Controller
         $attendedCount = 0;
         $absentCount = 0;
 
+        $utsMeetingNumber = $mahasiswaCourse->sks === 3 ? 10 : 7;
+
         for ($i = 1; $i <= $totalMeetings; $i++) {
+            $isThisMeetingBeforeUTS = $i <= $utsMeetingNumber;
+
             $isOnline = $this->getMeetingMode(
                 $i,
                 $mahasiswaCourse->sks,
                 $mahasiswaCourse->period_group ?? 1,
-                !$isAfterUts
+                $isThisMeetingBeforeUTS,
+                $mahasiswaCourse->name
             );
 
             $session = $actualSessions->get($i);
             $log = $session ? $actualLogs->get($session->id) : null;
 
-            $status = 'belum';
+            $status = 'belum-dimulai';
             $date = null;
             $rawDate = null;
             $notes = null;
@@ -311,36 +351,141 @@ class KehadiranController extends Controller
         ]);
     }
 
-    /**
-     * Determine meeting mode (online/offline) based on SKS, period, meeting number, and UTS status.
-     */
-    private function getMeetingMode(int $meetingNumber, int $sks, int $period, bool $isBeforeUTS): bool
+    public function onlineSelfClaim(\Illuminate\Http\Request $request)
     {
-        // After UTS, periods are flipped
-        $effectivePeriod = $isBeforeUTS ? $period : ($period === 1 ? 2 : 1);
+        $request->validate([
+            'mahasiswa_course_id' => 'required|exists:mahasiswa_courses,id',
+            'meeting_number' => 'required|integer|min:1|max:21',
+        ]);
 
-        if ($effectivePeriod === 1) {
-            if ($isBeforeUTS) {
-                if ($sks === 3) {
-                    // SKS 3: every 3rd meeting is online
-                    return $meetingNumber % 3 === 0;
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        if (!$mahasiswa) {
+            return back()->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        $mahasiswaCourse = MahasiswaCourse::where('id', $request->mahasiswa_course_id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->firstOrFail();
+
+        // 1. Matakuliah Lookup
+        $mataKuliah = MataKuliah::whereRaw('LOWER(TRIM(nama)) = ?', [strtolower(trim($mahasiswaCourse->name))])->first();
+        if (!$mataKuliah) {
+            return back()->with('error', 'Data referensi mata kuliah tidak ditemukan.');
+        }
+
+        // 2. Ensure meeting is Online
+        $totalMeetings = $mahasiswaCourse->sks === 3 ? 21 : 14;
+        $utsMeetingNumber = $mahasiswaCourse->sks === 3 ? 10 : 7;
+        $isThisMeetingBeforeUTS = $request->meeting_number <= $utsMeetingNumber;
+        
+        $isOnline = $this->getMeetingMode(
+            $request->meeting_number,
+            $mahasiswaCourse->sks,
+            $mahasiswaCourse->period_group ?? 1,
+            $isThisMeetingBeforeUTS,
+            $mahasiswaCourse->name
+        );
+
+        if (!$isOnline) {
+            return back()->with('error', 'Pertemuan ini tidak diselenggarakan secara online.');
+        }
+
+        // 3. Find or create an AttendanceSession
+        $session = \App\Models\AttendanceSession::firstOrCreate([
+            'course_id' => $mataKuliah->id,
+            'meeting_number' => $request->meeting_number,
+        ], [
+            'title' => "Pertemuan Online " . $request->meeting_number,
+            'start_at' => now(),
+            'end_at' => now()->addDays(7),
+            'is_active' => false,
+            'created_by' => null,
+            'created_by_dosen_id' => $mataKuliah->dosen_id
+        ]);
+
+        // 4. Create the AttendanceLog
+        \App\Models\AttendanceLog::updateOrCreate([
+            'attendance_session_id' => $session->id,
+            'mahasiswa_id' => $mahasiswa->id,
+        ], [
+            'status' => 'present',
+            'note' => 'Hadir via absensi mandiri kelas online (Fordis Mentari)',
+            'scanned_at' => now(),
+        ]);
+
+        return back()->with('success', 'Kehadiran online berhasil dicatat!');
+    }
+
+
+    /**
+     * Determine meeting mode (online/offline) based on SKS, period, meeting number, course name, and UTS status.
+     */
+    private function getMeetingMode(int $meetingNumber, int $sks, int $period, bool $isBeforeUTS, ?string $courseName = null): bool
+    {
+        // Special case overrides based on strict user request
+        if ($courseName) {
+            $normalizedName = strtolower(trim($courseName));
+            
+            // Rule: Basis Data II / Mobile Programming -> P1-10 Online, P11-21 mixed (12,15,18,21 online)
+            if (in_array($normalizedName, ['basis data ii', 'mobile programming'])) {
+                if ($isBeforeUTS) {
+                    return true;
+                } else {
+                    return in_array($meetingNumber, [12, 15, 18, 21]);
                 }
-                return false;
             }
-            return true;
+            // Rule: KP & TIoT -> Before UTS: Online Semua, After UTS: Offline Semua
+            if (in_array($normalizedName, ['kerja praktek', 'kp', 'teknologi internet of things'])) {
+                if ($isBeforeUTS) {
+                    return true; // Online
+                } else {
+                    return false; // Offline
+                }
+            }
         }
 
-        if ($effectivePeriod === 2) {
-            if ($isBeforeUTS) {
-                return true;
-            }
+        if ($period === 1) {
             if ($sks === 3) {
-                return $meetingNumber % 3 === 0;
+                if ($isBeforeUTS) {
+                    // If special course, overriding here to ensure it's online
+                    if ($courseName && in_array(strtolower(trim($courseName)), ['basis data ii', 'mobile programming'])) {
+                        return true;
+                    }
+                    // Pertemuan 1-10 offline, kecuali 3, 6, 9 online (for regular courses)
+                    return in_array($meetingNumber, [3, 6, 9]);
+                } else {
+                    // Pertemuan 11-21 online semua
+                    return true;
+                }
+            } else {
+                if ($isBeforeUTS) {
+                    // Pertemuan 1-7 offline
+                    return false;
+                } else {
+                    // Pertemuan 8-14 online
+                    return true;
+                }
             }
-            return false;
+        } else {
+            // Periode 2
+            if ($sks === 3) {
+                if ($isBeforeUTS) {
+                    // Pertemuan 1-10 online semua
+                    return true;
+                } else {
+                    // Pertemuan 11-21 offline, kecuali 12, 15, 18, 21 online
+                    return in_array($meetingNumber, [12, 15, 18, 21]);
+                }
+            } else {
+                if ($isBeforeUTS) {
+                    // Pertemuan 1-7 online
+                    return true;
+                } else {
+                    // Pertemuan 8-14 offline
+                    return false;
+                }
+            }
         }
-
-        return false;
     }
 
     /**
@@ -399,3 +544,6 @@ class KehadiranController extends Controller
         }
     }
 }
+
+
+

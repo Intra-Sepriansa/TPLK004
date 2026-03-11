@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { compression } from 'vite-plugin-compression2';
 
 export default defineConfig({
@@ -22,6 +23,33 @@ export default defineConfig({
         },
     },
     plugins: [
+        ViteImageOptimizer({
+            svg: {
+                multipass: true,
+                plugins: [
+                    {
+                        name: 'preset-default',
+                        params: {
+                            overrides: {
+                                removeViewBox: false,
+                            },
+                        },
+                    } as any,
+                ],
+            },
+            png: {
+                quality: 80,
+            },
+            jpeg: {
+                quality: 80,
+            },
+            jpg: {
+                quality: 80,
+            },
+            webp: {
+                lossless: true,
+            },
+        }),
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             ssr: 'resources/js/ssr.tsx',

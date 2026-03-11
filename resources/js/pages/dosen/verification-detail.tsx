@@ -322,7 +322,7 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                 {/* ═══ Back ═══ */}
                 {/* ═══ Back ═══ */}
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="mb-2">
-                    <Button variant="ghost" onClick={() => router.visit('/dosen/verify')} className="group hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60 transition-all duration-300 text-neutral-500 hover:text-neutral-900">
+                    <Button variant="ghost" onClick={() => router.visit('/dosen/verify')} className="group hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60 transition-all duration-300 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
                         <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                         </motion.div>

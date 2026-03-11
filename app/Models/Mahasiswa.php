@@ -60,4 +60,6 @@ class Mahasiswa extends Authenticatable
     {
         return $this->hasMany(StudyGroupMember::class, 'mahasiswa_id');
     }
+
+
 }

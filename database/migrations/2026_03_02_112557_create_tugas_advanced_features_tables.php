@@ -17,7 +17,7 @@ return new class extends Migration
                 $table->unsignedBigInteger('template_id')->nullable()->after('id');
             }
             if (!Schema::hasColumn('tugas', 'is_template')) {
-                $table->boolean('is_template')->default(false)->after('bobot_nilai');
+                $table->boolean('is_template')->default(false)->after('id');
             }
             if (!Schema::hasColumn('tugas', 'schedule_type')) {
                 $table->enum('schedule_type', ['immediate', 'scheduled', 'recurring'])->default('immediate')->after('is_template');

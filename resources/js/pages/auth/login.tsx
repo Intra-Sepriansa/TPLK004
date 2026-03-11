@@ -5,7 +5,7 @@ import AppLogoIcon from '@/components/app-logo-icon';
 import Orb from '@/components/auth/Orb';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
     Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, ChevronRight, Moon, Sun
 } from 'lucide-react';
 
@@ -89,7 +89,7 @@ export default function Login({ status }: LoginProps) {
     return (
         <>
             <Head title="Login" />
-            
+
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative overflow-hidden">
                 {/* Orb Background Animation - Larger, Brighter, More Interactive */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-60 dark:opacity-50">
@@ -145,29 +145,29 @@ export default function Login({ status }: LoginProps) {
                     className="w-full max-w-md space-y-6"
                 >
                     {/* Header with animated circles */}
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900/15 to-black/15 dark:from-white/15 dark:to-gray-100/15 backdrop-blur-2xl p-6 text-white dark:text-gray-900 shadow-lg border border-white/10 dark:border-black/10"
                     >
-                        <motion.div 
+                        <motion.div
                             className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                            animate={{ 
+                            animate={{
                                 scale: [1, 1.2, 1],
                                 rotate: [0, 90, 0]
                             }}
-                            transition={{ 
+                            transition={{
                                 duration: 8,
                                 repeat: Infinity,
                                 ease: "easeInOut"
                             }}
                         />
-                        <motion.div 
+                        <motion.div
                             className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                            animate={{ 
+                            animate={{
                                 scale: [1, 1.3, 1],
                                 rotate: [0, -90, 0]
                             }}
-                            transition={{ 
+                            transition={{
                                 duration: 6,
                                 repeat: Infinity,
                                 ease: "easeInOut"
@@ -193,7 +193,7 @@ export default function Login({ status }: LoginProps) {
                     </motion.div>
 
                     {/* Mode Tabs */}
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="flex gap-2 p-1.5 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl rounded-2xl border border-white/10 dark:border-white/10 shadow-lg"
                     >
@@ -247,7 +247,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Status Message */}
                     <AnimatePresence>
                         {status && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
@@ -259,7 +259,7 @@ export default function Login({ status }: LoginProps) {
                     </AnimatePresence>
 
                     {/* Login Form */}
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="rounded-2xl border border-white/10 dark:border-white/10 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl p-6 shadow-lg"
                     >
@@ -267,7 +267,7 @@ export default function Login({ status }: LoginProps) {
                             {/* ID Field with AnimatePresence for smooth transition */}
                             <div>
                                 <AnimatePresence mode="wait">
-                                    <motion.label 
+                                    <motion.label
                                         key={`label-${mode}`}
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -300,9 +300,9 @@ export default function Login({ status }: LoginProps) {
                                         />
                                     </AnimatePresence>
                                 </div>
-                                <InputError 
-                                    message={mode === 'admin' ? adminForm.errors.email : mode === 'dosen' ? dosenForm.errors.nidn : mahasiswaForm.errors.nim} 
-                                    className="mt-2" 
+                                <InputError
+                                    message={mode === 'admin' ? adminForm.errors.email : mode === 'dosen' ? dosenForm.errors.nidn : mahasiswaForm.errors.nim}
+                                    className="mt-2"
                                 />
                             </div>
 
@@ -338,7 +338,7 @@ export default function Login({ status }: LoginProps) {
                             {/* Remember Me (for admin and dosen) with smooth transition */}
                             <AnimatePresence>
                                 {mode !== 'mahasiswa' && (
-                                    <motion.label 
+                                    <motion.label
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -388,7 +388,7 @@ export default function Login({ status }: LoginProps) {
                     </motion.div>
 
                     {/* Footer */}
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="text-center text-xs text-slate-600 dark:text-slate-400 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl rounded-xl p-3 border border-white/10 dark:border-white/10"
                     >

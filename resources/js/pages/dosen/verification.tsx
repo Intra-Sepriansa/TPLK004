@@ -181,18 +181,7 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                             </div>
 
                             <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
-                                <div className="flex flex-wrap justify-center gap-3">
-                                    <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
-                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10">
-                                        <div className="p-2 bg-amber-500/20 rounded-lg"><Clock className="h-5 w-5 text-white" /></div>
-                                        <div><p className="text-xs text-indigo-100">Pending</p><p className="text-xl font-bold text-white">{stats.pending}</p></div>
-                                    </motion.div>
-                                    <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }}
-                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10">
-                                        <div className="p-2 bg-emerald-500/20 rounded-lg"><CheckCircle className="h-5 w-5 text-white" /></div>
-                                        <div><p className="text-xs text-indigo-100">Hari Ini</p><p className="text-xl font-bold text-white">{stats.today}</p></div>
-                                    </motion.div>
-                                </div>
+                       
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                                     className="flex flex-wrap justify-center gap-2">
                                     {[
