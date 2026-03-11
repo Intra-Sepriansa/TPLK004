@@ -64,8 +64,10 @@
         <meta name="msapplication-TileColor" content="#10b981">
         <meta name="msapplication-config" content="/browserconfig.xml">
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+        {{-- Fonts Optimization --}}
+        <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+        <link rel="preload" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap" as="style" />
+        <link rel="stylesheet" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap" />
 
         @viteReactRefresh
         @vite(['resources/js/app.tsx'])

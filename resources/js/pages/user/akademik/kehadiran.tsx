@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
 // PNG Icons — matching admin/student dashboard pattern
 import kehadiranIcon from '@/assets/mahasiswa/akademik/kehadiran.png';
@@ -105,11 +105,7 @@ const courseGradients = [
 /* ═══════════════════════════════════════════════════ */
 /*               HELPER FUNCTIONS                      */
 /* ═══════════════════════════════════════════════════ */
-function getAttendanceWarning(rate: number) {
-    if (rate < 75) return { show: true, level: 'danger' as const, message: 'Kehadiran di bawah 75%! Segera tingkatkan untuk memenuhi syarat ujian.' };
-    if (rate < 80) return { show: true, level: 'warning' as const, message: 'Kehadiran mendekati batas minimum. Pastikan hadir di pertemuan selanjutnya.' };
-    return { show: false, level: 'safe' as const, message: '' };
-}
+
 
 function calculateStreak(meetings: Meeting[]) {
     const sorted = meetings.filter(m => m.status !== 'belum-dimulai').sort((a, b) => a.number - b.number);
@@ -403,27 +399,6 @@ export default function MonitoringKehadiran({ courses, stats, isBeforeUTS }: Pro
                 </motion.div>
 
                 {/* ═══════════════════════════════════════════════════ */}
-                {/* 4️⃣ ATTENDANCE WARNINGS                             */}
-                {/* ═══════════════════════════════════════════════════ */}
-                {filteredCourses.map(course => {
-                    const warning = getAttendanceWarning(course.attendanceRate);
-                    if (!warning.show || (course.attendedCount === 0 && course.absentCount === 0)) return null;
-                    return (
-                        <motion.div key={`warn-${course.id}`} variants={itemVariants}
-                            className={`rounded-2xl p-4 border-l-4 ${warning.level === 'danger' ? 'bg-red-50/80 dark:bg-red-900/20 border-red-500 dark:border-red-400' : 'bg-amber-50/80 dark:bg-amber-900/20 border-amber-500 dark:border-amber-400'}`}>
-                            <div className="flex items-start gap-3">
-                                <XCircle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${warning.level === 'danger' ? 'text-red-500' : 'text-amber-500'}`} />
-                                <div className="flex-1 min-w-0">
-                                    <p className={`font-bold text-sm ${warning.level === 'danger' ? 'text-red-800 dark:text-red-300' : 'text-amber-800 dark:text-amber-300'}`}>{course.name}</p>
-                                    <p className={`text-sm mt-1 ${warning.level === 'danger' ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'}`}>{warning.message}</p>
-                                    <p className="text-xs mt-1 text-neutral-500 dark:text-neutral-400">Kehadiran: {course.attendanceRate}% ({course.attendedCount}/{course.totalMeetings})</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    );
-                })}
-
-                {/* ═══════════════════════════════════════════════════ */}
                 {/* 5️⃣ COURSE CARDS                                    */}
                 {/* ═══════════════════════════════════════════════════ */}
                 {filteredCourses.length === 0 ? (
@@ -509,32 +484,63 @@ export default function MonitoringKehadiran({ courses, stats, isBeforeUTS }: Pro
                                             const isAttended = meeting.status === 'hadir';
                                             const isAbsent = meeting.status === 'tidak-hadir';
                                             const isOnline = meeting.mode === 'online';
+                                            const midPoint = course.sks === 2 ? 7 : 10;
+
+                                            const utsDone = !isBeforeUTS;
+                                            const uasDone = course.attendedCount + course.absentCount === course.totalMeetings;
+
                                             return (
-                                                <motion.button key={meeting.number}
-                                                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-                                                    transition={{ delay: meetingIndex * 0.02 }}
-                                                    whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }}
-                                                    onClick={() => router.visit(`/user/akademik/kehadiran/${course.id}`)}
-                                                    className={`relative rounded-xl p-2.5 sm:p-3 border-2 transition-all duration-200 cursor-pointer group ${isAttended ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600 shadow-md shadow-emerald-500/10' :
-                                                        isAbsent ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600 shadow-md shadow-red-500/10' :
-                                                            'bg-neutral-50 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
-                                                        }`}
-                                                >
-                                                    <div className="text-center mb-1.5">
-                                                        <p className="text-[9px] sm:text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">Pertemuan</p>
-                                                        <p className={`text-xl sm:text-2xl font-extrabold tabular-nums ${isAttended ? 'text-emerald-600 dark:text-emerald-400' :
-                                                            isAbsent ? 'text-red-600 dark:text-red-400' :
-                                                                'text-neutral-500 dark:text-neutral-400'
-                                                            }`}>{meeting.number}</p>
-                                                    </div>
-                                                    <div className={`flex items-center justify-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-semibold ${isOnline ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-                                                        }`}>
-                                                        {isOnline ? <><Wifi className="w-2.5 h-2.5" /><span>Online</span></> : <><MapPin className="w-2.5 h-2.5" /><span>Offline</span></>}
-                                                    </div>
-                                                    {isAttended && <div className="absolute -top-1.5 -right-1.5"><div className="bg-emerald-500 rounded-full p-0.5 shadow-lg shadow-emerald-500/30"><CheckCircle2 className="w-3.5 h-3.5 text-white" /></div></div>}
-                                                    {isAbsent && <div className="absolute -top-1.5 -right-1.5"><div className="bg-red-500 rounded-full p-0.5 shadow-lg shadow-red-500/30"><X className="w-3.5 h-3.5 text-white" /></div></div>}
-                                                    {meeting.date && <p className="text-[8px] sm:text-[9px] text-neutral-400 dark:text-neutral-500 text-center mt-1.5 truncate">{meeting.date}</p>}
-                                                </motion.button>
+                                                <React.Fragment key={meeting.number}>
+                                                    <motion.button
+                                                        initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                                                        transition={{ delay: meetingIndex * 0.02 }}
+                                                        whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }}
+                                                        onClick={() => router.visit(`/user/akademik/kehadiran/${course.id}`)}
+                                                        className={`relative rounded-xl p-2.5 sm:p-3 border-2 transition-all duration-200 cursor-pointer group ${isAttended ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600 shadow-md shadow-emerald-500/10' :
+                                                            isAbsent ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600 shadow-md shadow-red-500/10' :
+                                                                'bg-neutral-50 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+                                                            }`}
+                                                    >
+                                                        <div className="text-center mb-1.5">
+                                                            <p className="text-[9px] sm:text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">Pertemuan</p>
+                                                            <p className={`text-xl sm:text-2xl font-extrabold tabular-nums ${isAttended ? 'text-emerald-600 dark:text-emerald-400' :
+                                                                isAbsent ? 'text-red-600 dark:text-red-400' :
+                                                                    'text-neutral-500 dark:text-neutral-400'
+                                                                }`}>{meeting.number}</p>
+                                                        </div>
+                                                        <div className={`flex items-center justify-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-semibold ${isOnline ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                                                            }`}>
+                                                            {isOnline ? <><Wifi className="w-2.5 h-2.5" /><span>Online</span></> : <><MapPin className="w-2.5 h-2.5" /><span>Offline</span></>}
+                                                        </div>
+                                                        {isAttended && <div className="absolute -top-1.5 -right-1.5"><div className="bg-emerald-500 rounded-full p-0.5 shadow-lg shadow-emerald-500/30"><CheckCircle2 className="w-3.5 h-3.5 text-white" /></div></div>}
+                                                        {isAbsent && <div className="absolute -top-1.5 -right-1.5"><div className="bg-red-500 rounded-full p-0.5 shadow-lg shadow-red-500/30"><X className="w-3.5 h-3.5 text-white" /></div></div>}
+                                                        {meeting.date && <p className="text-[8px] sm:text-[9px] text-neutral-400 dark:text-neutral-500 text-center mt-1.5 truncate">{meeting.date}</p>}
+                                                    </motion.button>
+                                                    {meeting.number === midPoint && (
+                                                        <div className="col-span-full my-2 relative">
+                                                            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                                <div className="w-full border-t-2 border-dashed border-neutral-300 dark:border-neutral-700"></div>
+                                                            </div>
+                                                            <div className="relative flex justify-center">
+                                                                <span className={`px-4 py-1 rounded-full border-2 font-bold text-[10px] sm:text-xs shadow-sm flex items-center gap-1.5 tracking-wider ${utsDone ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-neutral-900 border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400'}`}>
+                                                                    <CalendarCheck className="w-3.5 h-3.5" /> JEDA UTS {utsDone ? '(Selesai)' : '(Belum)'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {meeting.number === course.totalMeetings && (
+                                                        <div className="col-span-full my-2 relative">
+                                                            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                                <div className="w-full border-t-2 border-dashed border-neutral-300 dark:border-neutral-700"></div>
+                                                            </div>
+                                                            <div className="relative flex justify-center">
+                                                                <span className={`px-4 py-1 rounded-full border-2 font-bold text-[10px] sm:text-xs shadow-sm flex items-center gap-1.5 tracking-wider ${uasDone ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-neutral-900 border-rose-100 dark:border-rose-900/50 text-rose-600 dark:text-rose-400'}`}>
+                                                                    <GraduationCap className="w-3.5 h-3.5" /> JEDA UAS {uasDone ? '(Selesai)' : '(Belum)'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </React.Fragment>
                                             );
                                         })}
                                     </div>

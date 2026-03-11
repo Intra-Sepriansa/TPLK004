@@ -2,11 +2,11 @@ import { Head, Link, router } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     AlertTriangle, ArrowLeft, Award, BookOpen, Calendar, CheckCircle2,
     ChevronLeft, ChevronRight, Clock, Flame, Grid3X3, Info, List,
-    MapPin, Printer, RefreshCw, Sparkles, TrendingUp, User, Wifi, X, XCircle,
+    MapPin, Printer, RefreshCw, Sparkles, TrendingUp, User, Wifi, X, XCircle, GraduationCap
 } from 'lucide-react';
 
 import kehadiranIcon from '@/assets/mahasiswa/akademik/kehadiran.png';
@@ -67,8 +67,8 @@ function MeetingModal({ meeting, courseName, onClose }: { meeting: Meeting; cour
                     <div className="p-5 space-y-4">
                         <div className="flex justify-center">
                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border ${meeting.status === 'hadir' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' :
-                                    meeting.status === 'tidak-hadir' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' :
-                                        'bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700'}`}>
+                                meeting.status === 'tidak-hadir' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' :
+                                    'bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700'}`}>
                                 {meeting.status === 'hadir' && <><CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /><span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Hadir</span></>}
                                 {meeting.status === 'tidak-hadir' && <><XCircle className="w-5 h-5 text-red-600 dark:text-red-400" /><span className="text-sm font-semibold text-red-700 dark:text-red-300">Tidak Hadir</span></>}
                                 {meeting.status === 'belum-dimulai' && <><Clock className="w-5 h-5 text-neutral-500" /><span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Belum Dimulai</span></>}
@@ -328,21 +328,51 @@ export default function DetailKehadiranMataKuliah({ course, meetings, stats, pre
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2 sm:gap-3">
                             {meetings.map((m, idx) => {
                                 const isH = m.status === 'hadir', isA = m.status === 'tidak-hadir', isOn = m.mode === 'online';
+                                const midPoint = course.sks === 2 ? 7 : 10;
+                                const utsDone = !isBeforeUTS;
+                                const uasDone = stats.hadir + stats.tidakHadir === stats.totalPertemuan;
+
                                 return (
-                                    <motion.button key={m.number} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.02 }}
-                                        whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => setSelectedMeeting(m)}
-                                        className={`relative rounded-xl p-2.5 sm:p-3 border-2 transition-all cursor-pointer group ${isH ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600 shadow-md shadow-emerald-500/10' : isA ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600 shadow-md shadow-red-500/10' : 'bg-neutral-50 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-700'}`}>
-                                        <div className="text-center mb-1.5">
-                                            <p className="text-[9px] sm:text-[10px] text-neutral-400 font-medium">Pertemuan</p>
-                                            <p className={`text-xl sm:text-2xl font-extrabold tabular-nums ${isH ? 'text-emerald-600 dark:text-emerald-400' : isA ? 'text-red-600 dark:text-red-400' : 'text-neutral-500 dark:text-neutral-400'}`}>{m.number}</p>
-                                        </div>
-                                        <div className={`flex items-center justify-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-semibold ${isOn ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'}`}>
-                                            {isOn ? <><Wifi className="w-2.5 h-2.5" /><span>Online</span></> : <><MapPin className="w-2.5 h-2.5" /><span>Offline</span></>}
-                                        </div>
-                                        {isH && <div className="absolute -top-1.5 -right-1.5"><div className="bg-emerald-500 rounded-full p-0.5 shadow-lg"><CheckCircle2 className="w-3.5 h-3.5 text-white" /></div></div>}
-                                        {isA && <div className="absolute -top-1.5 -right-1.5"><div className="bg-red-500 rounded-full p-0.5 shadow-lg"><X className="w-3.5 h-3.5 text-white" /></div></div>}
-                                        {m.date && <p className="text-[8px] sm:text-[9px] text-neutral-400 text-center mt-1.5 truncate">{m.date}</p>}
-                                    </motion.button>
+                                    <React.Fragment key={m.number}>
+                                        <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.02 }}
+                                            whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => setSelectedMeeting(m)}
+                                            className={`relative rounded-xl p-2.5 sm:p-3 border-2 transition-all cursor-pointer group ${isH ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600 shadow-md shadow-emerald-500/10' : isA ? 'bg-red-50 dark:bg-red-900/20 border-red-400 dark:border-red-600 shadow-md shadow-red-500/10' : 'bg-neutral-50 dark:bg-neutral-800/60 border-neutral-200 dark:border-neutral-700'}`}>
+                                            <div className="text-center mb-1.5">
+                                                <p className="text-[9px] sm:text-[10px] text-neutral-400 font-medium">Pertemuan</p>
+                                                <p className={`text-xl sm:text-2xl font-extrabold tabular-nums ${isH ? 'text-emerald-600 dark:text-emerald-400' : isA ? 'text-red-600 dark:text-red-400' : 'text-neutral-500 dark:text-neutral-400'}`}>{m.number}</p>
+                                            </div>
+                                            <div className={`flex items-center justify-center gap-1 px-1.5 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-semibold ${isOn ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'}`}>
+                                                {isOn ? <><Wifi className="w-2.5 h-2.5" /><span>Online</span></> : <><MapPin className="w-2.5 h-2.5" /><span>Offline</span></>}
+                                            </div>
+                                            {isH && <div className="absolute -top-1.5 -right-1.5"><div className="bg-emerald-500 rounded-full p-0.5 shadow-lg"><CheckCircle2 className="w-3.5 h-3.5 text-white" /></div></div>}
+                                            {isA && <div className="absolute -top-1.5 -right-1.5"><div className="bg-red-500 rounded-full p-0.5 shadow-lg"><X className="w-3.5 h-3.5 text-white" /></div></div>}
+                                            {m.date && <p className="text-[8px] sm:text-[9px] text-neutral-400 text-center mt-1.5 truncate">{m.date}</p>}
+                                        </motion.button>
+                                        {m.number === midPoint && (
+                                            <div className="col-span-full my-2 relative">
+                                                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                    <div className="w-full border-t-2 border-dashed border-neutral-300 dark:border-neutral-700"></div>
+                                                </div>
+                                                <div className="relative flex justify-center">
+                                                    <span className={`px-4 py-1 rounded-full border-2 font-bold text-[10px] sm:text-xs shadow-sm flex items-center gap-1.5 tracking-wider ${utsDone ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-neutral-900 border-indigo-100 dark:border-indigo-900/50 text-indigo-600 dark:text-indigo-400'}`}>
+                                                        <Calendar className="w-3.5 h-3.5" /> JEDA UTS {utsDone ? '(Selesai)' : '(Belum)'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {m.number === stats.totalPertemuan && (
+                                            <div className="col-span-full my-2 relative">
+                                                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                                                    <div className="w-full border-t-2 border-dashed border-neutral-300 dark:border-neutral-700"></div>
+                                                </div>
+                                                <div className="relative flex justify-center">
+                                                    <span className={`px-4 py-1 rounded-full border-2 font-bold text-[10px] sm:text-xs shadow-sm flex items-center gap-1.5 tracking-wider ${uasDone ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400' : 'bg-white dark:bg-neutral-900 border-rose-100 dark:border-rose-900/50 text-rose-600 dark:text-rose-400'}`}>
+                                                        <GraduationCap className="w-3.5 h-3.5" /> JEDA UAS {uasDone ? '(Selesai)' : '(Belum)'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </React.Fragment>
                                 );
                             })}
                         </div>

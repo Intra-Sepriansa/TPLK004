@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Html5Qrcode } from 'html5-qrcode'
 import { QrCode, CheckCircle, XCircle, Zap, Focus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import confetti from 'canvas-confetti'
 
 interface SmartQRScannerProps {
     onScanSuccess: (token: string) => void
@@ -19,7 +18,7 @@ export function SmartQRScanner({ onScanSuccess, onScanError, disabled }: SmartQR
     const handleSuccess = useCallback((decodedText: string) => {
         if (navigator.vibrate) navigator.vibrate([100, 50, 100])
         setScanResult('success')
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
+
         stopScanner()
         onScanSuccess(decodedText)
     }, [onScanSuccess])

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import SesiBaruIcon from '@/assets/admin/sesi-absen/sesi-baru-icon.png';
+import { Button } from '@/components/ui/button';
 
 // Interfaces
 interface Course {
@@ -161,13 +162,14 @@ export default function CreateSession({ dosen, courses, request_course_id }: Pag
                     ))}
 
                     <div className="relative z-10">
-                        <motion.button
-                            onClick={() => router.visit('/dosen/sesi-absen')}
-                            whileHover={{ x: -5, backgroundColor: 'rgba(255,255,255,0.15)' }}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium mb-8 hover:bg-white/20 transition-all group"
-                        >
-                            <ArrowLeft className="h-4 w-4" /> Kembali
-                        </motion.button>
+                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="mb-6">
+                            <Button variant="ghost" onClick={() => router.visit('/dosen/sesi-absen')} className="group text-white hover:bg-white/20 transition-all duration-300">
+                                <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                </motion.div>
+                                Kembali
+                            </Button>
+                        </motion.div>
 
                         <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6">
                             <motion.div

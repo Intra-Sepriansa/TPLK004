@@ -21,7 +21,6 @@ import { saveOfflineAttendance } from '@/lib/offline-sync';
 import { type SharedData } from '@/types';
 import { captureDeviceInfo } from '@/utils/deviceCapture';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import confetti from 'canvas-confetti';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Html5Qrcode } from 'html5-qrcode';
 import {
@@ -305,12 +304,7 @@ export default function UserAbsensi() {
     useEffect(() => {
         if (!scanResult) return;
         if (scanResult === 'success') {
-            confetti({
-                particleCount: 120,
-                spread: 70,
-                origin: { y: 0.65 },
-                colors: ['#10b981', '#14b8a6', '#34d399', '#ffffff'],
-            });
+
         }
         const timer = window.setTimeout(
             () => setScanResult(null),
@@ -321,12 +315,7 @@ export default function UserAbsensi() {
 
     useEffect(() => {
         if (!submitSuccess) return;
-        confetti({
-            particleCount: 180,
-            spread: 90,
-            origin: { y: 0.7 },
-            colors: ['#4f46e5', '#9333ea', '#ec4899', '#10b981'],
-        });
+
     }, [submitSuccess]);
 
     async function stopScan() {

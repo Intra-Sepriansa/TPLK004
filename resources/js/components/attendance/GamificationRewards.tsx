@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trophy, Flame, Zap, Award, TrendingUp } from 'lucide-react'
-import confetti from 'canvas-confetti'
 import { cn } from '@/lib/utils'
 
 interface Achievement {
@@ -31,9 +30,6 @@ export function GamificationRewards({
     useEffect(() => {
         if (xpGained > 0) {
             setShowXPAnimation(true)
-            if (xpGained >= 100) {
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } })
-            }
             setTimeout(() => setShowXPAnimation(false), 3000)
         }
     }, [xpGained])
@@ -42,7 +38,6 @@ export function GamificationRewards({
         const newAch = achievements.find(a => a.unlocked && a.progress === a.total)
         if (newAch) {
             setShowAchievement(newAch)
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#FFD700', '#FFA500', '#FF6347'] })
             setTimeout(() => setShowAchievement(null), 5000)
         }
     }, [achievements])
