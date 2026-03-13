@@ -1,12 +1,22 @@
-import { Head, usePage } from '@inertiajs/react';
-import { Calendar } from '@/components/ui/calendar';
+import {
+    AchievementBadge,
+    AchievementList,
+} from '@/components/ui/achievement-badge';
 import { AttendanceStats } from '@/components/ui/attendance-stats';
-import { AchievementBadge, AchievementList } from '@/components/ui/achievement-badge';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import StudentLayout from '@/layouts/student-layout';
-import { Download, Filter, CalendarDays, TrendingUp, History, Award } from 'lucide-react';
-import { useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import {
+    Award,
+    CalendarDays,
+    Download,
+    Filter,
+    History,
+    TrendingUp,
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface AttendanceRecord {
     id: number;
@@ -28,26 +38,37 @@ interface PageProps {
         streak: number;
     };
     achievements: {
-        type: 'streak' | 'perfect' | 'early' | 'consistent' | 'champion' | 'legend';
+        type:
+            | 'streak'
+            | 'perfect'
+            | 'early'
+            | 'consistent'
+            | 'champion'
+            | 'legend';
         value?: number;
         unlocked: boolean;
     }[];
 }
 
 export default function AttendanceHistory() {
-    const { records = [], stats, achievements = [] } = usePage<{ props: PageProps }>().props as unknown as PageProps;
+    const {
+        records = [],
+        stats,
+        achievements = [],
+    } = usePage<{ props: PageProps }>().props as unknown as PageProps;
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const [filterStatus, setFilterStatus] = useState<string>('all');
 
     // Convert records to calendar marked dates
-    const markedDates = records.map(record => ({
+    const markedDates = records.map((record) => ({
         date: new Date(record.date),
         status: record.status,
     }));
 
     // Filter records
-    const filteredRecords = records.filter(record => {
-        if (filterStatus !== 'all' && record.status !== filterStatus) return false;
+    const filteredRecords = records.filter((record) => {
+        if (filterStatus !== 'all' && record.status !== filterStatus)
+            return false;
         if (selectedDate) {
             const recordDate = new Date(record.date);
             return (
@@ -67,7 +88,8 @@ export default function AttendanceHistory() {
     };
 
     const statusColors = {
-        present: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+        present:
+            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
         absent: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
         late: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
         pending: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
@@ -82,7 +104,11 @@ export default function AttendanceHistory() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    transition={{
+                        duration: 0.6,
+                        type: 'spring',
+                        stiffness: 100,
+                    }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 shadow-2xl"
                 >
                     {/* 3 Large Animated Orbs */}
@@ -97,7 +123,7 @@ export default function AttendanceHistory() {
                         transition={{
                             duration: 20,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                         className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
                     />
@@ -112,7 +138,7 @@ export default function AttendanceHistory() {
                         transition={{
                             duration: 25,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                         className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
                     />
@@ -127,22 +153,26 @@ export default function AttendanceHistory() {
                         transition={{
                             duration: 18,
                             repeat: Infinity,
-                            ease: "easeInOut",
+                            ease: 'easeInOut',
                             delay: 2,
                         }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
+                        className="absolute top-1/2 left-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
-                    <div className="relative flex items-center justify-between flex-wrap gap-4">
+                    <div className="relative flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-5">
                             <motion.div
                                 whileHover={{
                                     scale: 1.2,
                                     rotate: [0, -8, 8, 0],
-                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                    boxShadow: '0 0 40px rgba(255,255,255,0.6)',
                                 }}
                                 whileTap={{ scale: 0.92 }}
-                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
-                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 350,
+                                    damping: 15,
+                                }}
+                                className="relative flex h-20 w-20 cursor-pointer items-center justify-center rounded-2xl bg-white/25 shadow-2xl ring-4 ring-white/40 backdrop-blur-xl"
                             >
                                 {/* Glow effect behind icon */}
                                 <motion.div
@@ -153,7 +183,7 @@ export default function AttendanceHistory() {
                                     transition={{
                                         duration: 3,
                                         repeat: Infinity,
-                                        ease: "easeInOut"
+                                        ease: 'easeInOut',
                                     }}
                                     className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
                                 />
@@ -164,7 +194,7 @@ export default function AttendanceHistory() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-[10px] uppercase tracking-[0.2em] text-cyan-100 font-semibold"
+                                    className="text-[10px] font-semibold tracking-[0.2em] text-cyan-100 uppercase"
                                 >
                                     Riwayat Lengkap
                                 </motion.p>
@@ -180,7 +210,7 @@ export default function AttendanceHistory() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4 }}
-                                    className="text-sm text-cyan-100/80 mt-1"
+                                    className="mt-1 text-sm text-cyan-100/80"
                                 >
                                     Pantau dan analisis kehadiran Anda
                                 </motion.p>
@@ -196,9 +226,9 @@ export default function AttendanceHistory() {
                             <Button
                                 variant="outline"
                                 size="lg"
-                                className="bg-white/10 backdrop-blur-xl border-white/20 text-white hover:bg-white/20 hover:border-white/30 shadow-xl"
+                                className="border-white/20 bg-white/10 text-white shadow-xl backdrop-blur-xl hover:border-white/30 hover:bg-white/20"
                             >
-                                <Download className="h-5 w-5 mr-2" />
+                                <Download className="mr-2 h-5 w-5" />
                                 Export PDF
                             </Button>
                         </motion.div>
@@ -210,7 +240,7 @@ export default function AttendanceHistory() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="relative z-10 mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-xl px-4 py-2 border border-white/20"
+                            className="relative z-10 mt-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-xl"
                         >
                             <motion.div
                                 animate={{ scale: [1, 1.2, 1] }}
@@ -232,9 +262,9 @@ export default function AttendanceHistory() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         whileHover={{ y: -4 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-xl transition-shadow"
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur transition-shadow hover:shadow-xl dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="mb-4 flex items-center gap-2">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
                                 className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg"
@@ -260,9 +290,9 @@ export default function AttendanceHistory() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         whileHover={{ y: -4 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-xl transition-shadow"
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur transition-shadow hover:shadow-xl dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: -10 }}
@@ -276,7 +306,11 @@ export default function AttendanceHistory() {
                             </div>
                             {stats?.streak > 0 && (
                                 <div className="flex items-center gap-2">
-                                    <AchievementBadge type="streak" value={stats.streak} size="sm" />
+                                    <AchievementBadge
+                                        type="streak"
+                                        value={stats.streak}
+                                        size="sm"
+                                    />
                                     <span className="text-sm text-slate-600 dark:text-slate-400">
                                         {stats.streak} hari berturut-turut
                                     </span>
@@ -284,14 +318,26 @@ export default function AttendanceHistory() {
                             )}
                         </div>
                         <AchievementList
-                            achievements={achievements.length > 0 ? achievements : [
-                                { type: 'streak', value: stats?.streak || 0, unlocked: (stats?.streak || 0) >= 3 },
-                                { type: 'perfect', unlocked: false },
-                                { type: 'early', unlocked: false },
-                                { type: 'consistent', unlocked: false },
-                                { type: 'champion', unlocked: false },
-                                { type: 'legend', unlocked: false },
-                            ]}
+                            achievements={
+                                achievements.length > 0
+                                    ? achievements
+                                    : [
+                                          {
+                                              type: 'streak',
+                                              value: stats?.streak || 0,
+                                              unlocked:
+                                                  (stats?.streak || 0) >= 3,
+                                          },
+                                          { type: 'perfect', unlocked: false },
+                                          { type: 'early', unlocked: false },
+                                          {
+                                              type: 'consistent',
+                                              unlocked: false,
+                                          },
+                                          { type: 'champion', unlocked: false },
+                                          { type: 'legend', unlocked: false },
+                                      ]
+                            }
                         />
                     </motion.div>
                 </div>
@@ -333,7 +379,7 @@ export default function AttendanceHistory() {
                         transition={{ delay: 0.5 }}
                         className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
@@ -349,8 +395,10 @@ export default function AttendanceHistory() {
                                 <Filter className="h-4 w-4 text-slate-400" />
                                 <select
                                     value={filterStatus}
-                                    onChange={(e) => setFilterStatus(e.target.value)}
-                                    className="text-sm border-none bg-transparent focus:ring-0"
+                                    onChange={(e) =>
+                                        setFilterStatus(e.target.value)
+                                    }
+                                    className="border-none bg-transparent text-sm focus:ring-0"
                                 >
                                     <option value="all">Semua</option>
                                     <option value="present">Hadir</option>
@@ -361,14 +409,14 @@ export default function AttendanceHistory() {
                             </div>
                         </div>
 
-                        <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                        <div className="max-h-[500px] space-y-3 overflow-y-auto">
                             {filteredRecords.length === 0 ? (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    className="text-center py-12"
+                                    className="py-12 text-center"
                                 >
-                                    <CalendarDays className="h-12 w-12 mx-auto text-slate-300" />
+                                    <CalendarDays className="mx-auto h-12 w-12 text-slate-300" />
                                     <p className="mt-2 text-sm text-slate-500">
                                         Tidak ada data kehadiran
                                     </p>
@@ -381,14 +429,16 @@ export default function AttendanceHistory() {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2 }}
                                         whileHover={{ scale: 1.02, x: 4 }}
-                                        className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-black/50 transition-colors cursor-pointer"
+                                        className="flex cursor-pointer items-center justify-between rounded-xl border border-slate-100 p-4 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-black/50"
                                     >
                                         <div className="flex-1">
                                             <p className="font-medium text-slate-900 dark:text-white">
                                                 {record.course}
                                             </p>
                                             <p className="text-sm text-slate-500">
-                                                {new Date(record.date).toLocaleDateString('id-ID', {
+                                                {new Date(
+                                                    record.date,
+                                                ).toLocaleDateString('id-ID', {
                                                     weekday: 'long',
                                                     year: 'numeric',
                                                     month: 'long',
@@ -396,14 +446,15 @@ export default function AttendanceHistory() {
                                                 })}
                                             </p>
                                             {record.checkInTime && (
-                                                <p className="text-xs text-slate-400 mt-1">
-                                                    Check-in: {record.checkInTime}
+                                                <p className="mt-1 text-xs text-slate-400">
+                                                    Check-in:{' '}
+                                                    {record.checkInTime}
                                                 </p>
                                             )}
                                         </div>
                                         <motion.span
                                             whileHover={{ scale: 1.1 }}
-                                            className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[record.status]}`}
+                                            className={`rounded-full px-3 py-1 text-xs font-medium ${statusColors[record.status]}`}
                                         >
                                             {statusLabels[record.status]}
                                         </motion.span>

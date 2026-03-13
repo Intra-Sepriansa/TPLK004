@@ -389,15 +389,15 @@ export default function SesiAbsen({
         if (!initialEditValues) return false;
         return (
             String(nextData.course_id) !==
-            String(initialEditValues.course_id) ||
+                String(initialEditValues.course_id) ||
             Number(nextData.meeting_number) !==
-            Number(initialEditValues.meeting_number) ||
+                Number(initialEditValues.meeting_number) ||
             String(nextData.title || '') !==
-            String(initialEditValues.title || '') ||
+                String(initialEditValues.title || '') ||
             String(nextData.start_at || '') !==
-            String(initialEditValues.start_at || '') ||
+                String(initialEditValues.start_at || '') ||
             String(nextData.end_at || '') !==
-            String(initialEditValues.end_at || '')
+                String(initialEditValues.end_at || '')
         );
     };
 
@@ -537,20 +537,20 @@ export default function SesiAbsen({
     );
     const changedFields = initialEditValues
         ? [
-            initialEditValues.meeting_number !==
-                currentEditValues.meeting_number
-                ? 'Nomor pertemuan diubah'
-                : null,
-            initialEditValues.title !== currentEditValues.title
-                ? 'Judul sesi diubah'
-                : null,
-            initialEditValues.start_at !== currentEditValues.start_at
-                ? 'Waktu mulai diubah'
-                : null,
-            initialEditValues.end_at !== currentEditValues.end_at
-                ? 'Waktu selesai diubah'
-                : null,
-        ].filter((item): item is string => Boolean(item))
+              initialEditValues.meeting_number !==
+              currentEditValues.meeting_number
+                  ? 'Nomor pertemuan diubah'
+                  : null,
+              initialEditValues.title !== currentEditValues.title
+                  ? 'Judul sesi diubah'
+                  : null,
+              initialEditValues.start_at !== currentEditValues.start_at
+                  ? 'Waktu mulai diubah'
+                  : null,
+              initialEditValues.end_at !== currentEditValues.end_at
+                  ? 'Waktu selesai diubah'
+                  : null,
+          ].filter((item): item is string => Boolean(item))
         : [];
 
     const handleActivate = (id: number) =>
@@ -1332,28 +1332,28 @@ export default function SesiAbsen({
                                                         <div className="flex gap-1">
                                                             {s.present_count >
                                                                 0 && (
-                                                                    <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                                                        {
-                                                                            s.present_count
-                                                                        }
-                                                                    </span>
-                                                                )}
+                                                                <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                                                    {
+                                                                        s.present_count
+                                                                    }
+                                                                </span>
+                                                            )}
                                                             {s.late_count >
                                                                 0 && (
-                                                                    <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                                                        {
-                                                                            s.late_count
-                                                                        }
-                                                                    </span>
-                                                                )}
+                                                                <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                                                    {
+                                                                        s.late_count
+                                                                    }
+                                                                </span>
+                                                            )}
                                                             {s.rejected_count >
                                                                 0 && (
-                                                                    <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                                                                        {
-                                                                            s.rejected_count
-                                                                        }
-                                                                    </span>
-                                                                )}
+                                                                <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                                                    {
+                                                                        s.rejected_count
+                                                                    }
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </td>
@@ -1368,7 +1368,7 @@ export default function SesiAbsen({
                                                     <div className="flex items-center justify-end gap-1">
                                                         {!s.is_active &&
                                                             s.status !==
-                                                            'completed' && (
+                                                                'completed' && (
                                                                 <button
                                                                     onClick={() =>
                                                                         handleActivate(
@@ -1649,8 +1649,8 @@ export default function SesiAbsen({
                                                                 rawValue === ''
                                                                     ? 0
                                                                     : Number(
-                                                                        rawValue,
-                                                                    );
+                                                                          rawValue,
+                                                                      );
                                                             updateEditField(
                                                                 'meeting_number',
                                                                 Number.isNaN(
@@ -1893,7 +1893,7 @@ export default function SesiAbsen({
                                                                             editForm
                                                                                 .data
                                                                                 .start_at ||
-                                                                            '',
+                                                                                '',
                                                                         ),
                                                                     );
                                                                 if (
@@ -1921,8 +1921,8 @@ export default function SesiAbsen({
                                                                 const nextEndDate =
                                                                     new Date(
                                                                         startDate.getTime() +
-                                                                        minutes *
-                                                                        60000,
+                                                                            minutes *
+                                                                                60000,
                                                                     );
                                                                 updateEditField(
                                                                     'end_at',
@@ -2278,11 +2278,11 @@ function StatCard({
                         {Icon && <Icon className="h-4 w-4 sm:h-6 sm:w-6" />}
                     </motion.div>
                 )}
-                <div className="flex flex-col items-center w-full sm:w-auto sm:items-start">
+                <div className="flex w-full flex-col items-center sm:w-auto sm:items-start">
                     <p className="text-[10px] leading-tight font-medium text-neutral-500 sm:text-sm dark:text-neutral-400">
                         {label}
                     </p>
-                    <div className="mt-0.5 sm:mt-1 flex justify-center sm:justify-start w-full">
+                    <div className="mt-0.5 flex w-full justify-center sm:mt-1 sm:justify-start">
                         <span className="text-lg font-bold text-neutral-900 sm:text-2xl dark:text-white">
                             {value}
                         </span>

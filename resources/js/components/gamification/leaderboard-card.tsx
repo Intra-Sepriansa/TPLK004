@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { Award, Crown, Medal, TrendingUp, Zap, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { Award, Crown, Flame, Medal, TrendingUp, Zap } from 'lucide-react';
 
 interface LeaderboardEntry {
     rank: number;
@@ -22,7 +22,11 @@ interface LeaderboardCardProps {
     isCurrentUser?: boolean;
 }
 
-export function LeaderboardCard({ entry, index, isCurrentUser = false }: LeaderboardCardProps) {
+export function LeaderboardCard({
+    entry,
+    index,
+    isCurrentUser = false,
+}: LeaderboardCardProps) {
     const getRankIcon = (rank: number) => {
         switch (rank) {
             case 1:
@@ -54,7 +58,7 @@ export function LeaderboardCard({ entry, index, isCurrentUser = false }: Leaderb
         return entry.trend === 'up' ? (
             <TrendingUp className="h-4 w-4 text-emerald-500" />
         ) : (
-            <TrendingUp className="h-4 w-4 text-rose-500 rotate-180" />
+            <TrendingUp className="h-4 w-4 rotate-180 text-rose-500" />
         );
     };
 
@@ -67,13 +71,13 @@ export function LeaderboardCard({ entry, index, isCurrentUser = false }: Leaderb
             className={cn(
                 'relative overflow-hidden rounded-2xl border p-4 backdrop-blur-sm transition-all',
                 isCurrentUser
-                    ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/30 ring-2 ring-blue-500/50'
-                    : `bg-gradient-to-r ${getRankColor(entry.rank)}`
+                    ? 'border-blue-500/30 bg-gradient-to-r from-blue-500/20 to-purple-500/20 ring-2 ring-blue-500/50'
+                    : `bg-gradient-to-r ${getRankColor(entry.rank)}`,
             )}
         >
             {/* Rank Badge */}
-            <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-white/10 to-transparent" />
-            
+            <div className="absolute -top-8 -right-8 h-24 w-24 rounded-full bg-gradient-to-br from-white/10 to-transparent" />
+
             <div className="relative flex items-center gap-4">
                 {/* Rank Number */}
                 <div className="flex flex-col items-center">
@@ -91,10 +95,14 @@ export function LeaderboardCard({ entry, index, isCurrentUser = false }: Leaderb
                             className="mt-1 flex items-center gap-1 text-xs"
                         >
                             {getTrendIcon()}
-                            <span className={cn(
-                                'font-semibold',
-                                entry.trend === 'up' ? 'text-emerald-500' : 'text-rose-500'
-                            )}>
+                            <span
+                                className={cn(
+                                    'font-semibold',
+                                    entry.trend === 'up'
+                                        ? 'text-emerald-500'
+                                        : 'text-rose-500',
+                                )}
+                            >
                                 {Math.abs(entry.rank_change)}
                             </span>
                         </motion.div>
@@ -120,7 +128,7 @@ export function LeaderboardCard({ entry, index, isCurrentUser = false }: Leaderb
                         <motion.div
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white shadow-lg"
+                            className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white shadow-lg"
                         >
                             <Flame className="h-3 w-3" />
                         </motion.div>
@@ -145,9 +153,11 @@ export function LeaderboardCard({ entry, index, isCurrentUser = false }: Leaderb
                         </p>
                     )}
                     <div className="mt-2 flex flex-wrap gap-2">
-                        <div className="flex items-center gap-1 rounded-full bg-white/50 dark:bg-slate-800/50 px-2 py-1 text-xs">
+                        <div className="flex items-center gap-1 rounded-full bg-white/50 px-2 py-1 text-xs dark:bg-slate-800/50">
                             <Zap className="h-3 w-3 text-yellow-500" />
-                            <span className="font-semibold">{entry.points}</span>
+                            <span className="font-semibold">
+                                {entry.points}
+                            </span>
                             <span className="text-slate-500">pts</span>
                         </div>
                         {entry.streak > 0 && (

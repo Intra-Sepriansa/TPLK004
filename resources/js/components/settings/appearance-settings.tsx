@@ -3,13 +3,13 @@
  * Requirements: 1.4
  */
 
-import { Type, Layout } from 'lucide-react';
+import type { Theme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import type { AppearanceSettings as AppearanceSettingsType } from '@/types/settings';
+import { Layout, Type } from 'lucide-react';
+import { AnimatedToggle } from './AnimatedToggle';
 import { SettingsCard } from './SettingsCard';
 import { ThemeToggle } from './ThemeToggle';
-import { AnimatedToggle } from './AnimatedToggle';
-import type { Theme } from '@/hooks/useTheme';
 
 interface AppearanceSettingsProps {
     settings: AppearanceSettingsType;
@@ -47,16 +47,22 @@ export function AppearanceSettings({
                     {fontSizes.map((fontSize) => (
                         <button
                             key={fontSize.value}
-                            onClick={() => onUpdate({ fontSize: fontSize.value })}
+                            onClick={() =>
+                                onUpdate({ fontSize: fontSize.value })
+                            }
                             className={cn(
                                 'flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-300 hover:scale-105',
                                 settings.fontSize === fontSize.value
-                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 shadow-md shadow-purple-200 dark:shadow-purple-900/20'
-                                    : 'border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700'
+                                    ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-md shadow-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:shadow-purple-900/20'
+                                    : 'border-gray-200 hover:border-purple-300 dark:border-gray-800 dark:hover:border-purple-700',
                             )}
                         >
-                            <span className={cn('font-medium', fontSize.size)}>Aa</span>
-                            <span className="text-sm font-semibold">{fontSize.label}</span>
+                            <span className={cn('font-medium', fontSize.size)}>
+                                Aa
+                            </span>
+                            <span className="text-sm font-semibold">
+                                {fontSize.label}
+                            </span>
                         </button>
                     ))}
                 </div>
@@ -67,7 +73,9 @@ export function AppearanceSettings({
                 <div className="space-y-6">
                     <AnimatedToggle
                         checked={settings.compactMode}
-                        onChange={() => onUpdate({ compactMode: !settings.compactMode })}
+                        onChange={() =>
+                            onUpdate({ compactMode: !settings.compactMode })
+                        }
                         label="Kepadatan Tampilan"
                         description="Tampilkan lebih banyak data di layar dengan padding yang lebih kecil"
                     />
@@ -76,7 +84,9 @@ export function AppearanceSettings({
 
                     <AnimatedToggle
                         checked={settings.animations}
-                        onChange={() => onUpdate({ animations: !settings.animations })}
+                        onChange={() =>
+                            onUpdate({ animations: !settings.animations })
+                        }
                         label="Animasi Interface"
                         description="Aktifkan pergerakan visual, efek bayangan, dan transisi halus."
                     />
@@ -85,7 +95,11 @@ export function AppearanceSettings({
 
                     <AnimatedToggle
                         checked={settings.sidebarCollapsed}
-                        onChange={() => onUpdate({ sidebarCollapsed: !settings.sidebarCollapsed })}
+                        onChange={() =>
+                            onUpdate({
+                                sidebarCollapsed: !settings.sidebarCollapsed,
+                            })
+                        }
                         label="Minimize Sidebar Default"
                         description="Tutup navigasi samping saat masuk secara otomatis"
                     />

@@ -1,28 +1,28 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'sonner';
-import { saveOfflineAttendance } from '@/lib/offline-sync';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useGeolocation } from '@/hooks/use-geolocation';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { useCamera } from '@/hooks/use-camera';
+import { useGeolocation } from '@/hooks/use-geolocation';
+import { saveOfflineAttendance } from '@/lib/offline-sync';
+import { cn } from '@/lib/utils';
+import { useForm } from '@inertiajs/react';
 import {
-    QrCode,
-    MapPin,
+    AlertCircle,
     Camera,
     CheckCircle,
-    ChevronRight,
     ChevronLeft,
+    ChevronRight,
     Loader2,
-    AlertCircle,
+    MapPin,
+    Navigation,
+    QrCode,
     RefreshCcw,
     Scan,
-    Navigation,
     Shield,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface GeofenceInfo {
     lat: number;
@@ -96,14 +96,16 @@ export function AttendanceWizard({
         capture: captureSelfie,
     } = useCamera({ facingMode: 'user' });
 
-    const distance = latitude && longitude
-        ? calculateDistance(geofence.lat, geofence.lng)
-        : null;
-    const isInRange = latitude && longitude
-        ? isWithinRadius(geofence.lat, geofence.lng, geofence.radius_m)
-        : false;
+    const distance =
+        latitude && longitude
+            ? calculateDistance(geofence.lat, geofence.lng)
+            : null;
+    const isInRange =
+        latitude && longitude
+            ? isWithinRadius(geofence.lat, geofence.lng, geofence.radius_m)
+            : false;
 
-    const stepIndex = STEPS.findIndex(s => s.key === currentStep);
+    const stepIndex = STEPS.findIndex((s) => s.key === currentStep);
     const progress = ((stepIndex + 1) / STEPS.length) * 100;
 
     useEffect(() => {
@@ -131,7 +133,9 @@ export function AttendanceWizard({
                 await videoRef.current.play();
             }
 
-            const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+            const detector = new (window as any).BarcodeDetector({
+                formats: ['qr_code'],
+            });
 
             scanIntervalRef.current = window.setInterval(async () => {
                 if (!videoRef.current) return;
@@ -153,7 +157,7 @@ export function AttendanceWizard({
             scanIntervalRef.current = null;
         }
         if (scanStreamRef.current) {
-            scanStreamRef.current.getTracks().forEach(t => t.stop());
+            scanStreamRef.current.getTracks().forEach((t) => t.stop());
             scanStreamRef.current = null;
         }
         if (videoRef.current) {
@@ -168,13 +172,19 @@ export function AttendanceWizard({
 
         for (let i = 0; i < locationSampleCount; i++) {
             try {
-                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0,
-                    });
-                });
+                const position = await new Promise<GeolocationPosition>(
+                    (resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(
+                            resolve,
+                            reject,
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 0,
+                            },
+                        );
+                    },
+                );
 
                 samples.push({
                     latitude: position.coords.latitude,
@@ -186,7 +196,7 @@ export function AttendanceWizard({
                 setLocationSamples([...samples]);
 
                 if (i < locationSampleCount - 1) {
-                    await new Promise(r => setTimeout(r, 800));
+                    await new Promise((r) => setTimeout(r, 800));
                 }
             } catch (err) {
                 break;
@@ -194,7 +204,9 @@ export function AttendanceWizard({
         }
 
         if (samples.length >= locationSampleCount) {
-            const best = samples.reduce((a, b) => a.accuracy_m < b.accuracy_m ? a : b);
+            const best = samples.reduce((a, b) =>
+                a.accuracy_m < b.accuracy_m ? a : b,
+            );
             form.setData('location_samples', samples as any[]);
             form.setData('latitude', best.latitude.toString());
             form.setData('longitude', best.longitude.toString());
@@ -211,9 +223,11 @@ export function AttendanceWizard({
 
             // Convert to File
             fetch(imageData)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], `selfie-${Date.now()}.jpg`, { type: 'image/jpeg' });
+                .then((res) => res.blob())
+                .then((blob) => {
+                    const file = new File([blob], `selfie-${Date.now()}.jpg`, {
+                        type: 'image/jpeg',
+                    });
                     form.setData('selfie', file);
                 });
         }
@@ -237,12 +251,15 @@ export function AttendanceWizard({
             try {
                 await saveOfflineAttendance(offlineData);
                 toast.success('Penyimpanan Offline', {
-                    description: 'Kamu sedang offline. Absen disimpan di HP dan akan otomatis dikirim saat sinyal sudah stabil.'
+                    description:
+                        'Kamu sedang offline. Absen disimpan di HP dan akan otomatis dikirim saat sinyal sudah stabil.',
                 });
                 setCurrentStep('success');
                 onSuccess?.();
             } catch (err) {
-                toast.error('Gagal menyimpan absen offline. Pastikan penyimpanan browser tidak penuh.');
+                toast.error(
+                    'Gagal menyimpan absen offline. Pastikan penyimpanan browser tidak penuh.',
+                );
             }
             return;
         }
@@ -255,7 +272,8 @@ export function AttendanceWizard({
                     try {
                         await saveOfflineAttendance(offlineData);
                         toast.success('Koneksi Gagal', {
-                            description: 'Sinyal terputus saat mengirim. Absen disimpan offline dan akan otomatis dikirim nanti.'
+                            description:
+                                'Sinyal terputus saat mengirim. Absen disimpan offline dan akan otomatis dikirim nanti.',
                         });
                         setCurrentStep('success');
                         onSuccess?.();
@@ -274,24 +292,32 @@ export function AttendanceWizard({
     // Navigation
     const canProceed = () => {
         switch (currentStep) {
-            case 'consent': return consentAccepted;
-            case 'token': return form.data.token.trim().length > 0;
-            case 'location': return locationSamples.length >= locationSampleCount && isInRange;
-            case 'selfie': return !selfieRequired || form.data.selfie !== null;
-            case 'confirm': return true;
-            default: return false;
+            case 'consent':
+                return consentAccepted;
+            case 'token':
+                return form.data.token.trim().length > 0;
+            case 'location':
+                return (
+                    locationSamples.length >= locationSampleCount && isInRange
+                );
+            case 'selfie':
+                return !selfieRequired || form.data.selfie !== null;
+            case 'confirm':
+                return true;
+            default:
+                return false;
         }
     };
 
     const nextStep = () => {
-        const idx = STEPS.findIndex(s => s.key === currentStep);
+        const idx = STEPS.findIndex((s) => s.key === currentStep);
         if (idx < STEPS.length - 1) {
             setCurrentStep(STEPS[idx + 1].key);
         }
     };
 
     const prevStep = () => {
-        const idx = STEPS.findIndex(s => s.key === currentStep);
+        const idx = STEPS.findIndex((s) => s.key === currentStep);
         if (idx > 0) {
             setCurrentStep(STEPS[idx - 1].key);
         }
@@ -312,7 +338,7 @@ export function AttendanceWizard({
         <div className="space-y-6">
             {/* Progress Header */}
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                <div className="flex items-center justify-between mb-3">
+                <div className="mb-3 flex items-center justify-between">
                     {STEPS.map((step, idx) => {
                         const Icon = step.icon;
                         const isActive = step.key === currentStep;
@@ -320,32 +346,50 @@ export function AttendanceWizard({
 
                         return (
                             <div key={step.key} className="flex items-center">
-                                <div className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-full transition-all',
-                                    isCompleted && 'bg-emerald-500 text-white',
-                                    isActive && 'bg-emerald-100 text-emerald-600 ring-2 ring-emerald-500 dark:bg-emerald-900/30',
-                                    !isActive && !isCompleted && 'bg-slate-100 text-slate-400 dark:bg-slate-800'
-                                )}>
-                                    {isCompleted ? <CheckCircle className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                                <div
+                                    className={cn(
+                                        'flex h-10 w-10 items-center justify-center rounded-full transition-all',
+                                        isCompleted &&
+                                            'bg-emerald-500 text-white',
+                                        isActive &&
+                                            'bg-emerald-100 text-emerald-600 ring-2 ring-emerald-500 dark:bg-emerald-900/30',
+                                        !isActive &&
+                                            !isCompleted &&
+                                            'bg-slate-100 text-slate-400 dark:bg-slate-800',
+                                    )}
+                                >
+                                    {isCompleted ? (
+                                        <CheckCircle className="h-5 w-5" />
+                                    ) : (
+                                        <Icon className="h-5 w-5" />
+                                    )}
                                 </div>
                                 {idx < STEPS.length - 1 && (
-                                    <div className={cn(
-                                        'h-1 w-8 mx-1 rounded-full transition-all hidden sm:block',
-                                        isCompleted ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
-                                    )} />
+                                    <div
+                                        className={cn(
+                                            'mx-1 hidden h-1 w-8 rounded-full transition-all sm:block',
+                                            isCompleted
+                                                ? 'bg-emerald-500'
+                                                : 'bg-slate-200 dark:bg-slate-700',
+                                        )}
+                                    />
                                 )}
                             </div>
                         );
                     })}
                 </div>
-                <Progress value={progress} className="h-1.5" indicatorClassName="bg-emerald-500" />
-                <p className="text-center text-sm text-slate-500 mt-2">
+                <Progress
+                    value={progress}
+                    className="h-1.5"
+                    indicatorClassName="bg-emerald-500"
+                />
+                <p className="mt-2 text-center text-sm text-slate-500">
                     {STEPS[stepIndex]?.label}
                 </p>
             </div>
 
             {/* Step Content */}
-            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 min-h-[400px]">
+            <div className="min-h-[400px] rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 {currentStep === 'consent' && (
                     <ConsentStep
                         accepted={consentAccepted}
@@ -404,7 +448,10 @@ export function AttendanceWizard({
                 {currentStep === 'confirm' && (
                     <ConfirmStep
                         token={form.data.token}
-                        location={{ lat: form.data.latitude, lng: form.data.longitude }}
+                        location={{
+                            lat: form.data.latitude,
+                            lng: form.data.longitude,
+                        }}
                         accuracy={form.data.location_accuracy_m}
                         selfiePreview={selfiePreview}
                         processing={form.processing}
@@ -420,17 +467,14 @@ export function AttendanceWizard({
                     onClick={prevStep}
                     disabled={stepIndex === 0}
                 >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <ChevronLeft className="mr-1 h-4 w-4" />
                     Kembali
                 </Button>
 
                 {currentStep !== 'confirm' ? (
-                    <Button
-                        onClick={nextStep}
-                        disabled={!canProceed()}
-                    >
+                    <Button onClick={nextStep} disabled={!canProceed()}>
                         Lanjut
-                        <ChevronRight className="h-4 w-4 ml-1" />
+                        <ChevronRight className="ml-1 h-4 w-4" />
                     </Button>
                 ) : (
                     <Button
@@ -439,9 +483,9 @@ export function AttendanceWizard({
                         className="bg-emerald-600 hover:bg-emerald-700"
                     >
                         {form.processing ? (
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                            <CheckCircle className="h-4 w-4 mr-2" />
+                            <CheckCircle className="mr-2 h-4 w-4" />
                         )}
                         Kirim Absensi
                     </Button>
@@ -452,7 +496,13 @@ export function AttendanceWizard({
 }
 
 // Step Components
-function ConsentStep({ accepted, onAccept }: { accepted: boolean; onAccept: (v: boolean) => void }) {
+function ConsentStep({
+    accepted,
+    onAccept,
+}: {
+    accepted: boolean;
+    onAccept: (v: boolean) => void;
+}) {
     return (
         <div className="space-y-6">
             <div className="text-center">
@@ -463,31 +513,34 @@ function ConsentStep({ accepted, onAccept }: { accepted: boolean; onAccept: (v: 
                     Persetujuan Privasi
                 </h2>
                 <p className="mt-2 text-sm text-slate-500">
-                    Untuk melakukan absensi, kami memerlukan akses ke kamera dan lokasi Anda.
+                    Untuk melakukan absensi, kami memerlukan akses ke kamera dan
+                    lokasi Anda.
                 </p>
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-                <h3 className="font-medium text-slate-900 dark:text-white mb-2">
+                <h3 className="mb-2 font-medium text-slate-900 dark:text-white">
                     Data yang dikumpulkan:
                 </h3>
                 <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                     <li className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 mt-0.5 text-emerald-600" />
-                        <span>Lokasi GPS untuk verifikasi kehadiran di area kampus</span>
+                        <MapPin className="mt-0.5 h-4 w-4 text-emerald-600" />
+                        <span>
+                            Lokasi GPS untuk verifikasi kehadiran di area kampus
+                        </span>
                     </li>
                     <li className="flex items-start gap-2">
-                        <Camera className="h-4 w-4 mt-0.5 text-emerald-600" />
+                        <Camera className="mt-0.5 h-4 w-4 text-emerald-600" />
                         <span>Foto selfie untuk verifikasi identitas</span>
                     </li>
                     <li className="flex items-start gap-2">
-                        <QrCode className="h-4 w-4 mt-0.5 text-emerald-600" />
+                        <QrCode className="mt-0.5 h-4 w-4 text-emerald-600" />
                         <span>Scan QR code untuk token absensi</span>
                     </li>
                 </ul>
             </div>
 
-            <label className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer dark:border-slate-700 dark:hover:bg-slate-900">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-4 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900">
                 <Checkbox
                     checked={accepted}
                     onCheckedChange={(v) => onAccept(Boolean(v))}
@@ -497,9 +550,12 @@ function ConsentStep({ accepted, onAccept }: { accepted: boolean; onAccept: (v: 
                     <p className="font-medium text-slate-900 dark:text-white">
                         Saya menyetujui penggunaan kamera dan lokasi
                     </p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="mt-1 text-xs text-slate-500">
                         Dengan mencentang ini, Anda menyetujui{' '}
-                        <a href="/privacy" className="text-emerald-600 underline">
+                        <a
+                            href="/privacy"
+                            className="text-emerald-600 underline"
+                        >
                             kebijakan privasi
                         </a>{' '}
                         kami.
@@ -542,28 +598,33 @@ function TokenStep({
             </div>
 
             {/* QR Scanner */}
-            <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900">
+            <div className="relative aspect-video overflow-hidden rounded-2xl bg-slate-900">
                 <video
                     ref={videoRef}
-                    className={cn('h-full w-full object-cover', !scanning && 'hidden')}
+                    className={cn(
+                        'h-full w-full object-cover',
+                        !scanning && 'hidden',
+                    )}
                     playsInline
                     muted
                 />
                 {!scanning && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <Scan className="h-12 w-12 text-slate-600 mb-3" />
-                        <p className="text-slate-400 text-sm">Kamera siap digunakan</p>
+                        <Scan className="mb-3 h-12 w-12 text-slate-600" />
+                        <p className="text-sm text-slate-400">
+                            Kamera siap digunakan
+                        </p>
                     </div>
                 )}
                 {scanning && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-48 h-48 border-2 border-emerald-400 rounded-lg animate-pulse" />
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div className="h-48 w-48 animate-pulse rounded-lg border-2 border-emerald-400" />
                     </div>
                 )}
             </div>
 
             {scanError && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-50 text-rose-700 text-sm dark:bg-rose-900/30 dark:text-rose-400">
+                <div className="flex items-center gap-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
                     <AlertCircle className="h-4 w-4" />
                     {scanError}
                 </div>
@@ -572,11 +633,15 @@ function TokenStep({
             <div className="flex gap-2">
                 {!scanning ? (
                     <Button onClick={onStartScan} className="flex-1">
-                        <Camera className="h-4 w-4 mr-2" />
+                        <Camera className="mr-2 h-4 w-4" />
                         Mulai Scan
                     </Button>
                 ) : (
-                    <Button onClick={onStopScan} variant="outline" className="flex-1">
+                    <Button
+                        onClick={onStopScan}
+                        variant="outline"
+                        className="flex-1"
+                    >
                         Berhenti
                     </Button>
                 )}
@@ -587,7 +652,9 @@ function TokenStep({
                     <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-slate-500 dark:bg-slate-950">atau</span>
+                    <span className="bg-white px-2 text-slate-500 dark:bg-slate-950">
+                        atau
+                    </span>
                 </div>
             </div>
 
@@ -604,7 +671,7 @@ function TokenStep({
             </div>
 
             {token && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 text-emerald-700 text-sm dark:bg-emerald-900/30 dark:text-emerald-400">
+                <div className="flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                     <CheckCircle className="h-4 w-4" />
                     Token terisi: {token.substring(0, 20)}...
                 </div>
@@ -651,31 +718,52 @@ function LocationStep({
     return (
         <div className="space-y-6">
             <div className="text-center">
-                <div className={cn(
-                    'mx-auto flex h-16 w-16 items-center justify-center rounded-full',
-                    isInRange ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
-                )}>
-                    <MapPin className={cn('h-8 w-8', isInRange ? 'text-emerald-600' : 'text-amber-600')} />
+                <div
+                    className={cn(
+                        'mx-auto flex h-16 w-16 items-center justify-center rounded-full',
+                        isInRange
+                            ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                            : 'bg-amber-100 dark:bg-amber-900/30',
+                    )}
+                >
+                    <MapPin
+                        className={cn(
+                            'h-8 w-8',
+                            isInRange ? 'text-emerald-600' : 'text-amber-600',
+                        )}
+                    />
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
                     Verifikasi Lokasi
                 </h2>
                 <p className="mt-2 text-sm text-slate-500">
-                    Pastikan Anda berada dalam radius {geofence.radius_m}m dari titik absensi
+                    Pastikan Anda berada dalam radius {geofence.radius_m}m dari
+                    titik absensi
                 </p>
             </div>
 
             {/* Location Status */}
-            <div className={cn(
-                'p-4 rounded-xl border',
-                isInRange
-                    ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
-                    : 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30'
-            )}>
+            <div
+                className={cn(
+                    'rounded-xl border p-4',
+                    isInRange
+                        ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30'
+                        : 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30',
+                )}
+            >
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className={cn('font-medium', isInRange ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>
-                            {isInRange ? '✓ Dalam jangkauan' : '⚠ Di luar jangkauan'}
+                        <p
+                            className={cn(
+                                'font-medium',
+                                isInRange
+                                    ? 'text-emerald-700 dark:text-emerald-400'
+                                    : 'text-amber-700 dark:text-amber-400',
+                            )}
+                        >
+                            {isInRange
+                                ? '✓ Dalam jangkauan'
+                                : '⚠ Di luar jangkauan'}
                         </p>
                         {distance !== null && (
                             <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -683,31 +771,33 @@ function LocationStep({
                             </p>
                         )}
                     </div>
-                    {loading && <Loader2 className="h-5 w-5 animate-spin text-slate-400" />}
+                    {loading && (
+                        <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                    )}
                 </div>
             </div>
 
             {/* Location Details */}
             <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+                <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
                     <p className="text-xs text-slate-500">Latitude</p>
                     <p className="font-mono text-sm text-slate-900 dark:text-white">
                         {latitude?.toFixed(6) || '-'}
                     </p>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+                <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
                     <p className="text-xs text-slate-500">Longitude</p>
                     <p className="font-mono text-sm text-slate-900 dark:text-white">
                         {longitude?.toFixed(6) || '-'}
                     </p>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+                <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
                     <p className="text-xs text-slate-500">Akurasi</p>
                     <p className="font-mono text-sm text-slate-900 dark:text-white">
                         ±{accuracy ? Math.round(accuracy) : '-'}m
                     </p>
                 </div>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
+                <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-900">
                     <p className="text-xs text-slate-500">Sampel</p>
                     <p className="font-mono text-sm text-slate-900 dark:text-white">
                         {samples.length}/{requiredSamples}
@@ -717,15 +807,20 @@ function LocationStep({
 
             {/* Sample Progress */}
             <div>
-                <div className="flex justify-between text-xs text-slate-500 mb-1">
+                <div className="mb-1 flex justify-between text-xs text-slate-500">
                     <span>Pengumpulan sampel lokasi</span>
-                    <span>{samples.length}/{requiredSamples}</span>
+                    <span>
+                        {samples.length}/{requiredSamples}
+                    </span>
                 </div>
-                <Progress value={(samples.length / requiredSamples) * 100} className="h-2" />
+                <Progress
+                    value={(samples.length / requiredSamples) * 100}
+                    className="h-2"
+                />
             </div>
 
             {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-50 text-rose-700 text-sm dark:bg-rose-900/30 dark:text-rose-400">
+                <div className="flex items-center gap-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
                     <AlertCircle className="h-4 w-4" />
                     {error.message}
                 </div>
@@ -738,9 +833,9 @@ function LocationStep({
                     className="flex-1"
                 >
                     {collecting ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                        <Navigation className="h-4 w-4 mr-2" />
+                        <Navigation className="mr-2 h-4 w-4" />
                     )}
                     {collecting ? 'Mengumpulkan...' : 'Kumpulkan Lokasi'}
                 </Button>
@@ -777,7 +872,7 @@ function SelfieStep({
 }) {
     if (!required) {
         return (
-            <div className="text-center py-12">
+            <div className="py-12 text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
                     <Camera className="h-8 w-8 text-slate-400" />
                 </div>
@@ -785,7 +880,8 @@ function SelfieStep({
                     Selfie Tidak Diperlukan
                 </h2>
                 <p className="mt-2 text-sm text-slate-500">
-                    Admin tidak mewajibkan selfie untuk sesi ini. Anda bisa langsung lanjut.
+                    Admin tidak mewajibkan selfie untuk sesi ini. Anda bisa
+                    langsung lanjut.
                 </p>
             </div>
         );
@@ -806,22 +902,31 @@ function SelfieStep({
             </div>
 
             {/* Camera/Preview */}
-            <div className="relative aspect-[3/4] max-w-xs mx-auto rounded-2xl overflow-hidden bg-slate-900">
+            <div className="relative mx-auto aspect-[3/4] max-w-xs overflow-hidden rounded-2xl bg-slate-900">
                 {preview ? (
-                    <img src={preview} alt="Selfie preview" className="h-full w-full object-cover" />
+                    <img
+                        src={preview}
+                        alt="Selfie preview"
+                        className="h-full w-full object-cover"
+                    />
                 ) : (
                     <>
                         <video
                             ref={videoRef}
-                            className={cn('h-full w-full object-cover scale-x-[-1]', !active && 'hidden')}
+                            className={cn(
+                                'h-full w-full scale-x-[-1] object-cover',
+                                !active && 'hidden',
+                            )}
                             playsInline
                             muted
                         />
                         <canvas ref={canvasRef} className="hidden" />
                         {!active && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <Camera className="h-12 w-12 text-slate-600 mb-3" />
-                                <p className="text-slate-400 text-sm">Kamera belum aktif</p>
+                                <Camera className="mb-3 h-12 w-12 text-slate-600" />
+                                <p className="text-sm text-slate-400">
+                                    Kamera belum aktif
+                                </p>
                             </div>
                         )}
                     </>
@@ -829,43 +934,46 @@ function SelfieStep({
 
                 {/* Face Guide */}
                 {active && !preview && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-40 h-52 border-2 border-white/50 rounded-[50%]" />
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                        <div className="h-52 w-40 rounded-[50%] border-2 border-white/50" />
                     </div>
                 )}
             </div>
 
             {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-50 text-rose-700 text-sm dark:bg-rose-900/30 dark:text-rose-400">
+                <div className="flex items-center gap-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
                     <AlertCircle className="h-4 w-4" />
                     {error}
                 </div>
             )}
 
-            <div className="flex gap-2 justify-center">
+            <div className="flex justify-center gap-2">
                 {!active && !preview && (
                     <Button onClick={onStart} disabled={loading}>
                         {loading ? (
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                            <Camera className="h-4 w-4 mr-2" />
+                            <Camera className="mr-2 h-4 w-4" />
                         )}
                         Nyalakan Kamera
                     </Button>
                 )}
                 {active && !preview && (
-                    <Button onClick={onCapture} className="bg-sky-600 hover:bg-sky-700">
-                        <Camera className="h-4 w-4 mr-2" />
+                    <Button
+                        onClick={onCapture}
+                        className="bg-sky-600 hover:bg-sky-700"
+                    >
+                        <Camera className="mr-2 h-4 w-4" />
                         Ambil Foto
                     </Button>
                 )}
                 {preview && (
                     <>
                         <Button variant="outline" onClick={onRetake}>
-                            <RefreshCcw className="h-4 w-4 mr-2" />
+                            <RefreshCcw className="mr-2 h-4 w-4" />
                             Foto Ulang
                         </Button>
-                        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-50 text-emerald-700 text-sm dark:bg-emerald-900/30 dark:text-emerald-400">
+                        <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-sm text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                             <CheckCircle className="h-4 w-4" />
                             Foto tersimpan
                         </div>
@@ -907,7 +1015,7 @@ function ConfirmStep({
 
             <div className="space-y-4">
                 {/* Token */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30">
                             <QrCode className="h-5 w-5 text-violet-600" />
@@ -922,7 +1030,7 @@ function ConfirmStep({
                 </div>
 
                 {/* Location */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
                     <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
                             <MapPin className="h-5 w-5 text-emerald-600" />
@@ -941,7 +1049,7 @@ function ConfirmStep({
 
                 {/* Selfie */}
                 {selfiePreview && (
-                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
                         <div className="flex items-center gap-3">
                             <img
                                 src={selfiePreview}
@@ -959,9 +1067,10 @@ function ConfirmStep({
                 )}
             </div>
 
-            <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
                 <p className="text-sm text-amber-700 dark:text-amber-400">
-                    ⚠️ Pastikan semua data sudah benar. Absensi tidak dapat diubah setelah dikirim.
+                    ⚠️ Pastikan semua data sudah benar. Absensi tidak dapat
+                    diubah setelah dikirim.
                 </p>
             </div>
         </div>
@@ -970,8 +1079,8 @@ function ConfirmStep({
 
 function SuccessScreen({ onReset }: { onReset: () => void }) {
     return (
-        <div className="text-center py-12">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 animate-bounce">
+        <div className="py-12 text-center">
+            <div className="mx-auto flex h-24 w-24 animate-bounce items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <CheckCircle className="h-12 w-12 text-emerald-600" />
             </div>
             <h2 className="mt-6 text-2xl font-bold text-slate-900 dark:text-white">

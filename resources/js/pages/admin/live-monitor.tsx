@@ -397,7 +397,6 @@ export default function LiveMonitor({
                         <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
                         <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
 
-                        
                         <div className="relative">
                             <div className="flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-start sm:gap-4">
                                 <div className="text-center sm:text-left">

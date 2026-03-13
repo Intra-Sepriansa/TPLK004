@@ -52,18 +52,37 @@ export function useOnlineStatus() {
                 setIsConnected(true);
             })
             .joining((user: OnlineUser) => {
-                setOnlineUsers(prev => [...prev, user]);
+                setOnlineUsers((prev) => [...prev, user]);
             })
             .leaving((user: OnlineUser) => {
-                setOnlineUsers(prev => prev.filter(u => !(u.id === user.id && u.type === user.type)));
+                setOnlineUsers((prev) =>
+                    prev.filter(
+                        (u) => !(u.id === user.id && u.type === user.type),
+                    ),
+                );
             })
-            .listen('.user.status', (data: { user_id: number; user_type: string; is_online: boolean }) => {
-                if (data.is_online) {
-                    // User came online - they should be added via joining
-                } else {
-                    setOnlineUsers(prev => prev.filter(u => !(u.id === data.user_id && u.type === data.user_type)));
-                }
-            });
+            .listen(
+                '.user.status',
+                (data: {
+                    user_id: number;
+                    user_type: string;
+                    is_online: boolean;
+                }) => {
+                    if (data.is_online) {
+                        // User came online - they should be added via joining
+                    } else {
+                        setOnlineUsers((prev) =>
+                            prev.filter(
+                                (u) =>
+                                    !(
+                                        u.id === data.user_id &&
+                                        u.type === data.user_type
+                                    ),
+                            ),
+                        );
+                    }
+                },
+            );
 
         return () => {
             echo.leave('online');
@@ -72,7 +91,7 @@ export function useOnlineStatus() {
     }, []);
 
     const isUserOnline = (userId: number, userType: string): boolean => {
-        return onlineUsers.some(u => u.id === userId && u.type === userType);
+        return onlineUsers.some((u) => u.id === userId && u.type === userType);
     };
 
     return {

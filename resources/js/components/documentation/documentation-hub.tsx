@@ -3,21 +3,21 @@
  * Requirements: 2.1
  */
 
-import { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, BookOpen, Filter } from 'lucide-react';
 import {
     DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuCheckboxItem,
+    DropdownMenuContent,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import type { GuideCategory, GuideSummary } from '@/types/documentation';
+import { BookOpen, Filter, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { GuideCard } from './guide-card';
-import type { GuideSummary, GuideCategory } from '@/types/documentation';
 
 interface DocumentationHubProps {
     guides: GuideSummary[];
@@ -45,9 +45,9 @@ export function DocumentationHub({
     overallProgress,
 }: DocumentationHubProps) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategories, setSelectedCategories] = useState<Set<GuideCategory | 'all'>>(
-        new Set(['all'])
-    );
+    const [selectedCategories, setSelectedCategories] = useState<
+        Set<GuideCategory | 'all'>
+    >(new Set(['all']));
 
     const filteredGuides = useMemo(() => {
         return guides.filter((guide) => {
@@ -55,11 +55,14 @@ export function DocumentationHub({
             const matchesSearch =
                 searchQuery === '' ||
                 guide.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                guide.description.toLowerCase().includes(searchQuery.toLowerCase());
+                guide.description
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase());
 
             // Category filter
             const matchesCategory =
-                selectedCategories.has('all') || selectedCategories.has(guide.category);
+                selectedCategories.has('all') ||
+                selectedCategories.has(guide.category);
 
             return matchesSearch && matchesCategory;
         });
@@ -103,9 +106,9 @@ export function DocumentationHub({
     return (
         <div className="space-y-6">
             {/* Header with Progress */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                    <h1 className="flex items-center gap-2 text-2xl font-bold">
                         <BookOpen className="h-6 w-6" />
                         Pusat Dokumentasi
                     </h1>
@@ -117,16 +120,23 @@ export function DocumentationHub({
                 {overallProgress && (
                     <Card className="w-full md:w-auto md:min-w-[280px]">
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium">Progress Anda</CardTitle>
+                            <CardTitle className="text-sm font-medium">
+                                Progress Anda
+                            </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
-                                <Progress value={overallProgress.overallProgress} />
+                                <Progress
+                                    value={overallProgress.overallProgress}
+                                />
                                 <div className="flex justify-between text-xs text-muted-foreground">
                                     <span>
-                                        {overallProgress.completedGuides} dari {overallProgress.totalGuides} selesai
+                                        {overallProgress.completedGuides} dari{' '}
+                                        {overallProgress.totalGuides} selesai
                                     </span>
-                                    <span>{overallProgress.overallProgress}%</span>
+                                    <span>
+                                        {overallProgress.overallProgress}%
+                                    </span>
                                 </div>
                             </div>
                         </CardContent>
@@ -135,9 +145,9 @@ export function DocumentationHub({
             </div>
 
             {/* Search and Filter */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder="Cari panduan..."
                         value={searchQuery}
@@ -163,7 +173,9 @@ export function DocumentationHub({
                             <DropdownMenuCheckboxItem
                                 key={category.key}
                                 checked={selectedCategories.has(category.key)}
-                                onCheckedChange={() => handleCategoryToggle(category.key)}
+                                onCheckedChange={() =>
+                                    handleCategoryToggle(category.key)
+                                }
                             >
                                 {category.label}
                             </DropdownMenuCheckboxItem>
@@ -173,11 +185,15 @@ export function DocumentationHub({
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <Card>
                     <CardContent className="pt-4">
-                        <div className="text-2xl font-bold">{guides.length}</div>
-                        <div className="text-xs text-muted-foreground">Total Panduan</div>
+                        <div className="text-2xl font-bold">
+                            {guides.length}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                            Total Panduan
+                        </div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -185,15 +201,23 @@ export function DocumentationHub({
                         <div className="text-2xl font-bold text-green-600">
                             {guides.filter((g) => g.isRead).length}
                         </div>
-                        <div className="text-xs text-muted-foreground">Selesai Dibaca</div>
+                        <div className="text-xs text-muted-foreground">
+                            Selesai Dibaca
+                        </div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardContent className="pt-4">
                         <div className="text-2xl font-bold text-blue-600">
-                            {guides.filter((g) => g.progress > 0 && !g.isRead).length}
+                            {
+                                guides.filter(
+                                    (g) => g.progress > 0 && !g.isRead,
+                                ).length
+                            }
                         </div>
-                        <div className="text-xs text-muted-foreground">Sedang Dibaca</div>
+                        <div className="text-xs text-muted-foreground">
+                            Sedang Dibaca
+                        </div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -201,16 +225,20 @@ export function DocumentationHub({
                         <div className="text-2xl font-bold text-gray-400">
                             {guides.filter((g) => g.progress === 0).length}
                         </div>
-                        <div className="text-xs text-muted-foreground">Belum Dibaca</div>
+                        <div className="text-xs text-muted-foreground">
+                            Belum Dibaca
+                        </div>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Guides Grid */}
             {filteredGuides.length === 0 ? (
-                <div className="text-center py-12">
-                    <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium">Tidak ada panduan ditemukan</h3>
+                <div className="py-12 text-center">
+                    <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                    <h3 className="text-lg font-medium">
+                        Tidak ada panduan ditemukan
+                    </h3>
                     <p className="text-muted-foreground">
                         Coba ubah kata kunci pencarian atau filter
                     </p>
@@ -222,25 +250,29 @@ export function DocumentationHub({
                         ([category, categoryGuides]) =>
                             categoryGuides.length > 0 && (
                                 <div key={category}>
-                                    <h2 className="text-lg font-semibold mb-4 capitalize">
-                                        {categories.find((c) => c.key === category)?.label || category}
+                                    <h2 className="mb-4 text-lg font-semibold capitalize">
+                                        {categories.find(
+                                            (c) => c.key === category,
+                                        )?.label || category}
                                     </h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                         {categoryGuides.map((guide) => (
                                             <GuideCard
                                                 key={guide.id}
                                                 guide={guide}
-                                                onClick={() => onGuideSelect(guide.id)}
+                                                onClick={() =>
+                                                    onGuideSelect(guide.id)
+                                                }
                                             />
                                         ))}
                                     </div>
                                 </div>
-                            )
+                            ),
                     )}
                 </div>
             ) : (
                 // Show flat list when filtered
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {filteredGuides.map((guide) => (
                         <GuideCard
                             key={guide.id}

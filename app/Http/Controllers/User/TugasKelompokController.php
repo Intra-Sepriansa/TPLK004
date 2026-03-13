@@ -364,6 +364,22 @@ class TugasKelompokController extends Controller
                 'created_at' => $inv->created_at->diffForHumans(),
             ]);
 
+        $sentInvitations = collect();
+        if ($myGroup && (int) $myGroup->leader_id === (int) $mahasiswa->id && $assignment->formation_mode === 'self-form') {
+            $sentInvitations = GaInvitation::where('group_id', $myGroup->id)
+                ->where('status', 'pending')
+                ->with('invitee')
+                ->latest('created_at')
+                ->get()
+                ->map(fn ($inv) => [
+                    'id' => $inv->id,
+                    'invitee_id' => $inv->invitee_id,
+                    'invitee_name' => $inv->invitee->nama ?? 'Unknown',
+                    'invitee_nim' => $inv->invitee->nim ?? null,
+                    'created_at' => $inv->created_at->diffForHumans(),
+                ]);
+        }
+
         // ═══ STATS ═══
         $totalStudents = count($leaderTools['unassigned_students']);
         $studentsWithGroup = GaGroupMember::whereHas('group', fn ($q) => $q->where('assignment_id', $assignment->id))->distinct('student_id')->count('student_id');
@@ -479,6 +495,7 @@ class TugasKelompokController extends Controller
             'peerEvalCompleted' => $peerEvalCompleted,
             'myGrade' => $myGrade,
             'pendingInvitations' => $pendingInvitations->values(),
+            'sentInvitations' => $sentInvitations->values(),
             'stats' => [
                 'total_students' => $totalStudents,
                 'students_with_group' => $studentsWithGroup,
@@ -928,18 +945,25 @@ class TugasKelompokController extends Controller
     public function invite(Request $request, int $id)
     {
         $mahasiswa = $this->getMahasiswa();
-        $assignment = GroupAssignment::findOrFail($id);
+        $assignment = GroupAssignment::with('course')->findOrFail($id);
         $group = $this->getMyGroup($id, $mahasiswa);
 
         if ($assignment->is_locked) {
             return back()->with('error', 'Formasi kelompok sudah dikunci.');
         }
 
+        $this->assertSelfFormLeader($assignment, $group, $mahasiswa);
+
         $validated = $request->validate([
             'student_id' => 'required|integer|exists:mahasiswa,id',
         ]);
 
         $inviteeId = (int) $validated['student_id'];
+
+        // Eligibility check (Course enrollment or class-wide fallback)
+        if (!$this->isStudentEligibleForAssignmentCourse($assignment, $inviteeId)) {
+            return back()->with('error', 'Mahasiswa tidak terdaftar pada mata kuliah ini.');
+        }
 
         // Cannot invite yourself
         if ($inviteeId === (int) $mahasiswa->id) {
@@ -1231,14 +1255,27 @@ class TugasKelompokController extends Controller
 
     private function isStudentEligibleForAssignmentCourse(GroupAssignment $assignment, int $studentId): bool
     {
-        $courseName = $assignment->course->nama;
-        $enrolledIds = MahasiswaCourse::where('name', $courseName)
-            ->pluck('mahasiswa_id')
-            ->unique()
-            ->values();
+        $courseName = trim((string) ($assignment->course->nama ?? ''));
+        if (empty($courseName)) {
+            return true;
+        }
 
-        // Fallback saat sinkronisasi mahasiswa_courses per matkul belum lengkap.
-        if ($enrolledIds->count() <= 2 && Mahasiswa::count() >= 10) {
+        $enrolledIds = MahasiswaCourse::query()
+            ->where(function ($query) use ($courseName) {
+                $query->where('name', $courseName)
+                    ->orWhere('name', 'like', $courseName);
+            })
+            ->pluck('mahasiswa_id');
+
+        $totalMahasiswa = Mahasiswa::count();
+        $enrolledCount = $enrolledIds->count();
+
+        // ═══════ Leniency Fallback ═══════
+        // If enrolled count is suspiciously low (e.g. < 10) or represents less than 50%
+        // of total students, we allow all students.
+        $isSuspiciouslyLow = ($enrolledCount < 10) || ($totalMahasiswa >= 10 && $enrolledCount < ($totalMahasiswa * 0.5));
+
+        if ($isSuspiciouslyLow && $totalMahasiswa > 0) {
             return Mahasiswa::whereKey($studentId)->exists();
         }
 

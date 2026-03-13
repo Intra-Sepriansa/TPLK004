@@ -9,6 +9,8 @@ use App\Models\AttendanceToken;
 use App\Models\MataKuliah;
 use App\Models\Mahasiswa;
 use App\Models\SelfieVerification;
+use App\Services\AttendanceSessionAutomationService;
+use App\Services\MeetingQuickFillService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,8 +20,10 @@ use Inertia\Response;
 
 class SesiAbsenController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, AttendanceSessionAutomationService $automationService): Response
     {
+        $automationService->syncActiveStates();
+
         $courseId = $request->get('course_id', 'all');
         $status = $request->get('status', 'all');
         $search = $request->get('search', '');
@@ -183,14 +187,31 @@ class SesiAbsenController extends Controller
             'timeline' => $timeline,
         ]);
     }
-    public function create(): Response
+    public function create(MeetingQuickFillService $meetingQuickFillService): Response
     {
-        $courses = MataKuliah::with('dosen')->orderBy('nama')->get()->map(fn($c) => [
-            'id' => $c->id,
-            'nama' => $c->nama,
-            'sks' => $c->sks,
-            'dosen' => $c->dosen?->nama ?? '-',
-        ]);
+        $scheduledMeetingsByCourse = AttendanceSession::query()
+            ->select('course_id', 'meeting_number')
+            ->get()
+            ->groupBy('course_id')
+            ->map(fn ($sessions) => $sessions
+                ->pluck('meeting_number')
+                ->map(fn ($meetingNumber) => (int) $meetingNumber)
+                ->values()
+                ->all());
+
+        $courses = MataKuliah::with(['dosen', 'meetingPlans'])
+            ->orderBy('nama')
+            ->get()
+            ->map(function ($course) use ($meetingQuickFillService, $scheduledMeetingsByCourse) {
+                return [
+                    'id' => $course->id,
+                    'nama' => $course->nama,
+                    'sks' => $course->sks,
+                    'dosen' => $course->dosen?->nama ?? '-',
+                    'scheduled_meetings' => $scheduledMeetingsByCourse->get($course->id, []),
+                    ...$meetingQuickFillService->buildCoursePayload($course),
+                ];
+            });
 
         return Inertia::render('admin/sesi-absen/create', [
             'courses' => $courses,
@@ -229,7 +250,11 @@ class SesiAbsenController extends Controller
             'courses' => $courses,
         ]);
     }
-    public function store(Request $request): RedirectResponse
+    public function store(
+        Request $request,
+        MeetingQuickFillService $meetingQuickFillService,
+        AttendanceSessionAutomationService $automationService,
+    ): RedirectResponse
     {
         $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
@@ -241,32 +266,54 @@ class SesiAbsenController extends Controller
                 \Illuminate\Validation\Rule::unique('attendance_sessions')->where('course_id', $request->course_id)
             ],
             'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
-            'auto_activate' => 'boolean',
         ], [
             'meeting_number.unique' => 'Pertemuan ke-' . $request->meeting_number . ' untuk mata kuliah ini sudah ada.'
         ]);
 
-        // Deactivate other sessions if auto_activate
-        if ($request->boolean('auto_activate')) {
-            AttendanceSession::where('is_active', true)->update(['is_active' => false]);
+        $course = MataKuliah::with('meetingPlans')->findOrFail($request->integer('course_id'));
+        $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
+            $course,
+            $request->integer('meeting_number'),
+        );
+
+        if ($offlineValidationMessage) {
+            return back()->withErrors([
+                'meeting_number' => $offlineValidationMessage,
+            ])->withInput();
         }
+
+        $resolvedContent = $meetingQuickFillService->resolveSessionContent(
+            $course,
+            $request->integer('meeting_number'),
+            $request->string('title')->toString(),
+            $request->string('description')->toString(),
+        );
 
         AttendanceSession::create([
             'course_id' => $request->course_id,
             'meeting_number' => $request->meeting_number,
-            'title' => $request->title,
+            'title' => $resolvedContent['title'],
+            'description' => $resolvedContent['description'],
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
-            'is_active' => $request->boolean('auto_activate'),
+            'is_active' => false,
             'created_by' => auth()->id(),
         ]);
+
+        $automationService->syncActiveStates();
 
         return redirect()->route('admin.sesi-absen')->with('success', 'Sesi absen berhasil dibuat.');
     }
 
-    public function update(Request $request, AttendanceSession $session): RedirectResponse
+    public function update(
+        Request $request,
+        AttendanceSession $session,
+        MeetingQuickFillService $meetingQuickFillService,
+        AttendanceSessionAutomationService $automationService,
+    ): RedirectResponse
     {
         if ((int) $request->input('course_id') !== (int) $session->course_id) {
             return back()->withErrors([
@@ -313,13 +360,42 @@ class SesiAbsenController extends Controller
                 \Illuminate\Validation\Rule::unique('attendance_sessions')->where('course_id', $request->course_id)->ignore($session->id)
             ],
             'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
         ], [
             'meeting_number.unique' => 'Pertemuan ke-' . $request->meeting_number . ' untuk mata kuliah ini sudah ada.'
         ]);
 
-        $session->update($request->only(['course_id', 'meeting_number', 'title', 'start_at', 'end_at']));
+        $course = MataKuliah::with('meetingPlans')->findOrFail($request->integer('course_id'));
+        $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
+            $course,
+            $request->integer('meeting_number'),
+        );
+
+        if ($offlineValidationMessage) {
+            return back()->withErrors([
+                'meeting_number' => $offlineValidationMessage,
+            ])->withInput();
+        }
+
+        $resolvedContent = $meetingQuickFillService->resolveSessionContent(
+            $course,
+            $request->integer('meeting_number'),
+            $request->string('title')->toString(),
+            $request->string('description')->toString(),
+        );
+
+        $session->update([
+            'course_id' => $request->course_id,
+            'meeting_number' => $request->meeting_number,
+            'title' => $resolvedContent['title'],
+            'description' => $resolvedContent['description'],
+            'start_at' => $request->start_at,
+            'end_at' => $request->end_at,
+        ]);
+
+        $automationService->syncActiveStates();
 
         return back()->with('success', 'Sesi absen berhasil diperbarui.');
     }
@@ -336,7 +412,6 @@ class SesiAbsenController extends Controller
 
     public function activate(AttendanceSession $session): RedirectResponse
     {
-        AttendanceSession::where('is_active', true)->update(['is_active' => false]);
         $session->update(['is_active' => true]);
 
         return back()->with('success', 'Sesi berhasil diaktifkan.');
@@ -344,7 +419,12 @@ class SesiAbsenController extends Controller
 
     public function deactivate(AttendanceSession $session): RedirectResponse
     {
-        $session->update(['is_active' => false]);
+        $payload = ['is_active' => false];
+        if ($session->end_at && $session->end_at->isFuture()) {
+            $payload['end_at'] = now();
+        }
+
+        $session->update($payload);
         return back()->with('success', 'Sesi berhasil dinonaktifkan.');
     }
 

@@ -13,10 +13,7 @@ export default function StudentSidebarLayout({
     return (
         <AppShell variant="sidebar">
             <StudentSidebar />
-            <AppContent
-                variant="sidebar"
-                className="overflow-x-hidden"
-            >
+            <AppContent variant="sidebar" className="overflow-x-hidden">
                 <PageTransition>
                     <AppSidebarHeader breadcrumbs={breadcrumbs} />
                     {children}

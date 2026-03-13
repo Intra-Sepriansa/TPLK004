@@ -1,53 +1,59 @@
-import { Head, Link, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { motion, Variants } from 'framer-motion';
-import {
-    Monitor,
-    Smartphone,
-    Cpu,
-    HardDrive,
-    Activity,
-    Clock,
-    Shield,
-    AlertTriangle,
-    CheckCircle,
-    XCircle,
-    Ban,
-    Download,
-    TrendingUp,
-    TrendingDown,
-    MapPin,
-    History,
-    MoreVertical,
-    User,
-    Mail,
-    Phone,
-    Eye,
-    MessageSquare,
-    Code,
-    ChevronRight,
-    AlertCircle,
-    Info,
-    Lightbulb,
-    QrCode,
-    LogIn,
-    ChevronLeft,
-    Loader2
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
 import {
-    Chart as ChartJS,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import {
     CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
+    Chart as ChartJS,
     Filler,
     Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Title,
+    Tooltip,
 } from 'chart.js';
+import { motion, Variants } from 'framer-motion';
+import {
+    Activity,
+    AlertCircle,
+    AlertTriangle,
+    Ban,
+    CheckCircle,
+    ChevronLeft,
+    ChevronRight,
+    Clock,
+    Code,
+    Cpu,
+    Download,
+    Eye,
+    HardDrive,
+    History,
+    Info,
+    Lightbulb,
+    Loader2,
+    LogIn,
+    Mail,
+    MapPin,
+    MessageSquare,
+    Monitor,
+    MoreVertical,
+    Phone,
+    QrCode,
+    Shield,
+    Smartphone,
+    TrendingDown,
+    TrendingUp,
+    User,
+    XCircle,
+} from 'lucide-react';
+import { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { toast } from 'sonner';
 
@@ -61,7 +67,7 @@ ChartJS.register(
     Title,
     Tooltip,
     Filler,
-    Legend
+    Legend,
 );
 
 const containerVariants: Variants = {
@@ -117,8 +123,10 @@ const StatusBadge = ({ status }: { status: string }) => {
     const Icon = config.icon;
 
     return (
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${config.bg} ${config.border} ${config.text} border text-xs font-semibold`}>
-            <Icon className="w-3 h-3" />
+        <div
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 ${config.bg} ${config.border} ${config.text} border text-xs font-semibold`}
+        >
+            <Icon className="h-3 w-3" />
             <span>{config.label}</span>
         </div>
     );
@@ -132,43 +140,59 @@ export default function PerangkatDetail({
     locations,
     security,
     anomalies,
-    activities
+    activities,
 }: any) {
     const [filter, setFilter] = useState('all');
     const [isExporting, setIsExporting] = useState(false);
     const [isOpeningChat, setIsOpeningChat] = useState(false);
     const [showAllLocations, setShowAllLocations] = useState(false);
 
-    const deviceIdentifier = String(deviceInfo?.deviceId || deviceInfo?.id || '-');
+    const deviceIdentifier = String(
+        deviceInfo?.deviceId || deviceInfo?.id || '-',
+    );
     const deviceModel = String(deviceInfo?.model || '-');
     const safeLocations = Array.isArray(locations) ? locations : [];
 
     const handleBlock = () => {
         setIsExporting(true); // Reusing state for button loading temporarily if needed, or better just use toast
         toast.info('Memproses pemblokiran perangkat...');
-        router.post(`/admin/perangkat/${deviceInfo.id}/block`, {}, {
-            preserveScroll: true,
-            onSuccess: (page) => {
-                toast.success((page.props as any).flash?.success || 'Perangkat berhasil diblokir.');
+        router.post(
+            `/admin/perangkat/${deviceInfo.id}/block`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    toast.success(
+                        (page.props as any).flash?.success ||
+                            'Perangkat berhasil diblokir.',
+                    );
+                },
+                onFinish: () => {
+                    setIsExporting(false);
+                },
             },
-            onFinish: () => {
-                setIsExporting(false);
-            }
-        });
+        );
     };
 
     const handleWhitelist = () => {
         setIsExporting(true);
         toast.info('Memproses verifikasi perangkat (Whitelist)...');
-        router.post(`/admin/perangkat/${deviceInfo.id}/whitelist`, {}, {
-            preserveScroll: true,
-            onSuccess: (page) => {
-                toast.success((page.props as any).flash?.success || 'Perangkat berhasil ditandai aman.');
+        router.post(
+            `/admin/perangkat/${deviceInfo.id}/whitelist`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    toast.success(
+                        (page.props as any).flash?.success ||
+                            'Perangkat berhasil ditandai aman.',
+                    );
+                },
+                onFinish: () => {
+                    setIsExporting(false);
+                },
             },
-            onFinish: () => {
-                setIsExporting(false);
-            }
-        });
+        );
     };
 
     const handleExport = () => {
@@ -176,7 +200,10 @@ export default function PerangkatDetail({
         toast.info('Menyiapkan file PDF detail perangkat...');
 
         setTimeout(() => {
-            window.open(`/admin/perangkat/${deviceInfo.id}/export-pdf`, '_blank');
+            window.open(
+                `/admin/perangkat/${deviceInfo.id}/export-pdf`,
+                '_blank',
+            );
             setIsExporting(false);
             toast.success('File PDF berhasil disiapkan dan diunduh.');
         }, 1500);
@@ -193,8 +220,16 @@ export default function PerangkatDetail({
             .split(',')
             .map((part: string) => Number(part.trim()));
 
-        if (coordinates.length === 2 && !Number.isNaN(coordinates[0]) && !Number.isNaN(coordinates[1])) {
-            window.open(`https://www.google.com/maps?q=${coordinates[0]},${coordinates[1]}`, '_blank', 'noopener,noreferrer');
+        if (
+            coordinates.length === 2 &&
+            !Number.isNaN(coordinates[0]) &&
+            !Number.isNaN(coordinates[1])
+        ) {
+            window.open(
+                `https://www.google.com/maps?q=${coordinates[0]},${coordinates[1]}`,
+                '_blank',
+                'noopener,noreferrer',
+            );
             return;
         }
 
@@ -210,43 +245,56 @@ export default function PerangkatDetail({
         setIsOpeningChat(true);
         toast.info('Membuka chat mahasiswa...');
 
-        router.post('/chat', {
-            type: 'personal',
-            participant_id: student.id,
-            participant_type: 'App\\Models\\Mahasiswa',
-        }, {
-            preserveScroll: true,
-            onError: () => {
-                toast.error('Gagal membuka chat mahasiswa.');
+        router.post(
+            '/chat',
+            {
+                type: 'personal',
+                participant_id: student.id,
+                participant_type: 'App\\Models\\Mahasiswa',
             },
-            onFinish: () => {
-                setIsOpeningChat(false);
-            }
-        });
+            {
+                preserveScroll: true,
+                onError: () => {
+                    toast.error('Gagal membuka chat mahasiswa.');
+                },
+                onFinish: () => {
+                    setIsOpeningChat(false);
+                },
+            },
+        );
     };
 
     return (
         <AppLayout>
             <Head title={`Detail Perangkat - ${deviceInfo.model}`} />
 
-            <div className="min-h-screen pb-12 bg-slate-50 dark:bg-black">
+            <div className="min-h-screen bg-slate-50 pb-12 dark:bg-black">
                 <div className="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
-                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="space-y-6"
+                    >
                         {/* ═══════ HEADER — Matching Perangkat Style ═══════ */}
                         <motion.div
                             variants={itemVariants}
-                            className="relative overflow-hidden rounded-3xl p-6 sm:p-8 text-white shadow-2xl"
+                            className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8"
                         >
                             {/* Animated Gradient Background */}
                             <motion.div
                                 className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                                 animate={{
-                                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                                    backgroundPosition: [
+                                        '0% 0%',
+                                        '100% 100%',
+                                        '0% 0%',
+                                    ],
                                 }}
                                 transition={{
                                     duration: 15,
                                     repeat: Infinity,
-                                    ease: "linear"
+                                    ease: 'linear',
                                 }}
                                 style={{
                                     backgroundSize: '200% 200%',
@@ -254,66 +302,98 @@ export default function PerangkatDetail({
                             />
 
                             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                            <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                             {/* Floating Animations (Pulses) */}
-                                                                                    
+
                             <div className="relative z-10">
                                 <Button
                                     type="button"
                                     variant="ghost"
-                                    onClick={() => router.visit('/admin/perangkat')}
-                                    className="mb-4 text-white/80 hover:text-white hover:bg-white/10 -ml-4"
+                                    onClick={() =>
+                                        router.visit('/admin/perangkat')
+                                    }
+                                    className="mb-4 -ml-4 text-white/80 hover:bg-white/10 hover:text-white"
                                 >
-                                    <ChevronLeft className="h-4 w-4 mr-2" />
+                                    <ChevronLeft className="mr-2 h-4 w-4" />
                                     Kembali ke Daftar Perangkat
                                 </Button>
-                                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-                                    <div className="flex min-w-0 flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
+                                <div className="flex flex-col justify-between gap-6 xl:flex-row xl:items-center">
+                                    <div className="flex min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
                                         <motion.div
-                                            className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
-                                            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                            transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-                                            whileHover={{ scale: 1.05, rotate: 5 }}
+                                            className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24"
+                                            initial={{
+                                                opacity: 0,
+                                                scale: 0.5,
+                                                rotate: -10,
+                                            }}
+                                            animate={{
+                                                opacity: 1,
+                                                scale: 1,
+                                                rotate: 0,
+                                            }}
+                                            transition={{
+                                                type: 'spring',
+                                                stiffness: 300,
+                                                delay: 0.2,
+                                            }}
+                                            whileHover={{
+                                                scale: 1.05,
+                                                rotate: 5,
+                                            }}
                                         >
-                                            <img src={iconPerangkat} alt="Perangkat" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                            <img
+                                                src={iconPerangkat}
+                                                alt="Perangkat"
+                                                className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                            />
                                         </motion.div>
-                                        <div className="min-w-0 flex-1 mt-1 sm:mt-0">
-                                            <p className="text-[11px] sm:text-sm font-medium tracking-wide text-indigo-100/90 mb-1">
-                                                <span className="mr-1">ID:</span>
+                                        <div className="mt-1 min-w-0 flex-1 sm:mt-0">
+                                            <p className="mb-1 text-[11px] font-medium tracking-wide text-indigo-100/90 sm:text-sm">
+                                                <span className="mr-1">
+                                                    ID:
+                                                </span>
                                                 <span
-                                                    className="inline-block max-w-full align-middle font-mono text-indigo-50/95 leading-tight break-all"
+                                                    className="inline-block max-w-full align-middle font-mono leading-tight break-all text-indigo-50/95"
                                                     title={deviceIdentifier}
                                                 >
                                                     {deviceIdentifier}
                                                 </span>
                                             </p>
                                             <h1
-                                                className="text-xl sm:text-3xl font-bold text-white mb-2 leading-tight break-words line-clamp-2 sm:line-clamp-1"
+                                                className="mb-2 line-clamp-2 text-xl leading-tight font-bold break-words text-white sm:line-clamp-1 sm:text-3xl"
                                                 title={deviceModel}
                                             >
                                                 {deviceModel}
                                             </h1>
-                                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-xs sm:text-sm text-indigo-100">
+                                            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-indigo-100 sm:justify-start sm:gap-3 sm:text-sm">
                                                 <span>{deviceInfo.os}</span>
-                                                <span className="text-indigo-300 hidden sm:inline">•</span>
-                                                <StatusBadge status={deviceInfo.status} />
-                                                <span className="text-indigo-300 hidden sm:inline">•</span>
+                                                <span className="hidden text-indigo-300 sm:inline">
+                                                    •
+                                                </span>
+                                                <StatusBadge
+                                                    status={deviceInfo.status}
+                                                />
+                                                <span className="hidden text-indigo-300 sm:inline">
+                                                    •
+                                                </span>
                                                 <span className="max-w-full break-words">
-                                                    Digunakan oleh: <span className="font-semibold text-white">{student.nama}</span>
+                                                    Digunakan oleh:{' '}
+                                                    <span className="font-semibold text-white">
+                                                        {student.nama}
+                                                    </span>
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 z-10 shrink-0">
+                                    <div className="z-10 flex shrink-0 flex-wrap items-center justify-center gap-2 sm:gap-3">
                                         <button
                                             onClick={handleExport}
                                             disabled={isExporting}
-                                            className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-2 sm:px-4 text-sm font-medium text-white transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4"
                                         >
                                             {isExporting ? (
                                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -321,24 +401,30 @@ export default function PerangkatDetail({
                                                 <Download className="h-4 w-4" />
                                             )}
                                             <span className="hidden sm:inline">
-                                                {isExporting ? 'Mengekspor...' : 'Export PDF'}
+                                                {isExporting
+                                                    ? 'Mengekspor...'
+                                                    : 'Export PDF'}
                                             </span>
                                         </button>
 
                                         <button
                                             onClick={handleWhitelist}
-                                            className="flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/20 px-3 py-2 sm:px-4 text-sm font-medium text-emerald-50 transition-all duration-300 hover:bg-emerald-500/30 hover:border-emerald-400/50 backdrop-blur-sm"
+                                            className="flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-50 backdrop-blur-sm transition-all duration-300 hover:border-emerald-400/50 hover:bg-emerald-500/30 sm:px-4"
                                         >
                                             <Shield className="h-4 w-4" />
-                                            <span className="hidden sm:inline">Whitelist</span>
+                                            <span className="hidden sm:inline">
+                                                Whitelist
+                                            </span>
                                         </button>
 
                                         <button
                                             onClick={handleBlock}
-                                            className="flex items-center gap-2 rounded-xl border border-rose-400/30 bg-rose-500/20 px-3 py-2 sm:px-4 text-sm font-medium text-rose-50 shadow-lg shadow-rose-500/10 transition-all duration-300 hover:bg-rose-500/30 hover:border-rose-400/50 backdrop-blur-sm"
+                                            className="flex items-center gap-2 rounded-xl border border-rose-400/30 bg-rose-500/20 px-3 py-2 text-sm font-medium text-rose-50 shadow-lg shadow-rose-500/10 backdrop-blur-sm transition-all duration-300 hover:border-rose-400/50 hover:bg-rose-500/30 sm:px-4"
                                         >
                                             <Ban className="h-4 w-4" />
-                                            <span className="hidden sm:inline">Block Device</span>
+                                            <span className="hidden sm:inline">
+                                                Block Device
+                                            </span>
                                         </button>
                                     </div>
                                 </div>
@@ -346,152 +432,240 @@ export default function PerangkatDetail({
                         </motion.div>
 
                         {/* 1. TOP STATS CARDS */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
                             {[
-                                { label: 'Total Scan', value: stats.totalScans, icon: Activity, color: 'violet', trend: '+12%', trendUp: true },
-                                { label: 'Waktu Terakhir', value: stats.lastAccess.split(',')[1] ?? stats.lastAccess, icon: Clock, color: 'blue', subtitle: stats.lastAccess.split(',')[0] },
-                                { label: 'OS System', value: stats.osSystem, icon: Cpu, color: 'emerald', subtitle: stats.osVersion },
-                                { label: 'Status Keamanan', value: stats.securityScore + '%', icon: Shield, color: stats.securityScore > 80 ? 'emerald' : 'amber', subtitle: stats.securityScore > 80 ? 'Aman' : 'Perlu Perhatian', }
+                                {
+                                    label: 'Total Scan',
+                                    value: stats.totalScans,
+                                    icon: Activity,
+                                    color: 'violet',
+                                    trend: '+12%',
+                                    trendUp: true,
+                                },
+                                {
+                                    label: 'Waktu Terakhir',
+                                    value:
+                                        stats.lastAccess.split(',')[1] ??
+                                        stats.lastAccess,
+                                    icon: Clock,
+                                    color: 'blue',
+                                    subtitle: stats.lastAccess.split(',')[0],
+                                },
+                                {
+                                    label: 'OS System',
+                                    value: stats.osSystem,
+                                    icon: Cpu,
+                                    color: 'emerald',
+                                    subtitle: stats.osVersion,
+                                },
+                                {
+                                    label: 'Status Keamanan',
+                                    value: stats.securityScore + '%',
+                                    icon: Shield,
+                                    color:
+                                        stats.securityScore > 80
+                                            ? 'emerald'
+                                            : 'amber',
+                                    subtitle:
+                                        stats.securityScore > 80
+                                            ? 'Aman'
+                                            : 'Perlu Perhatian',
+                                },
                             ].map((card, idx) => (
                                 <motion.div
                                     key={idx}
                                     variants={itemVariants}
                                     whileHover={{ y: -5, scale: 1.02 }}
-                                    className={`bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:border-${card.color}-500/50 group relative overflow-hidden backdrop-blur-md`}
+                                    className={`rounded-2xl border border-slate-800 bg-slate-900/50 p-4 transition-all duration-300 sm:p-6 hover:border-${card.color}-500/50 group relative overflow-hidden backdrop-blur-md`}
                                 >
-                                    <div className={`absolute inset-0 bg-gradient-to-br from-${card.color}-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                                    <div
+                                        className={`absolute inset-0 bg-gradient-to-br from-${card.color}-500/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
+                                    />
                                     <div className="relative z-10">
-                                        <div className={`inline-flex p-3 rounded-xl mb-4 bg-${card.color}-500/10 border border-${card.color}-500/20 group-hover:bg-${card.color}-500/20 transition-all`}>
-                                            <card.icon className={`w-5 h-5 sm:w-6 sm:h-6 text-${card.color}-400`} />
+                                        <div
+                                            className={`mb-4 inline-flex rounded-xl p-3 bg-${card.color}-500/10 border border-${card.color}-500/20 group-hover:bg-${card.color}-500/20 transition-all`}
+                                        >
+                                            <card.icon
+                                                className={`h-5 w-5 sm:h-6 sm:w-6 text-${card.color}-400`}
+                                            />
                                         </div>
-                                        <div className="text-xs sm:text-sm text-slate-400 mb-1 sm:mb-2">{card.label}</div>
+                                        <div className="mb-1 text-xs text-slate-400 sm:mb-2 sm:text-sm">
+                                            {card.label}
+                                        </div>
                                         <div className="flex items-end justify-between">
-                                            <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{card.value}</div>
+                                            <div className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                                                {card.value}
+                                            </div>
                                             {card.trend && (
-                                                <div className={`flex items-center gap-1 text-xs font-semibold ${card.trendUp ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                    {card.trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                                <div
+                                                    className={`flex items-center gap-1 text-xs font-semibold ${card.trendUp ? 'text-emerald-400' : 'text-red-400'}`}
+                                                >
+                                                    {card.trendUp ? (
+                                                        <TrendingUp className="h-3 w-3" />
+                                                    ) : (
+                                                        <TrendingDown className="h-3 w-3" />
+                                                    )}
                                                     <span>{card.trend}</span>
                                                 </div>
                                             )}
                                         </div>
                                         {card.subtitle && (
-                                            <div className="text-xs text-slate-500 mt-2 font-medium">{card.subtitle}</div>
+                                            <div className="mt-2 text-xs font-medium text-slate-500">
+                                                {card.subtitle}
+                                            </div>
                                         )}
                                     </div>
-                                    <div className={`absolute right-[-10%] bottom-[-10%] opacity-5 transform group-hover:scale-110 transition-transform duration-500 pointer-events-none`}>
-                                        <card.icon className={`w-32 h-32 text-${card.color}-600`} />
+                                    <div
+                                        className={`pointer-events-none absolute right-[-10%] bottom-[-10%] transform opacity-5 transition-transform duration-500 group-hover:scale-110`}
+                                    >
+                                        <card.icon
+                                            className={`h-32 w-32 text-${card.color}-600`}
+                                        />
                                     </div>
                                 </motion.div>
                             ))}
                         </div>
 
                         {/* MAIN CONTENT GRID */}
-                        <div className="grid lg:grid-cols-5 gap-6">
+                        <div className="grid gap-6 lg:grid-cols-5">
                             {/* LEFT COLUMN (60%) */}
-                            <div className="lg:col-span-3 space-y-6">
-
+                            <div className="space-y-6 lg:col-span-3">
                                 {/* 2. Device Info Card */}
-                                <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-                                        <Smartphone className="w-48 h-48 text-violet-500" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                                >
+                                    <div className="pointer-events-none absolute top-0 right-0 p-8 opacity-5">
+                                        <Smartphone className="h-48 w-48 text-violet-500" />
                                     </div>
-                                    <div className="flex items-center justify-between mb-6 relative z-10">
-                                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                                            <Smartphone className="w-5 h-5 text-violet-400" />
+                                    <div className="relative z-10 mb-6 flex items-center justify-between">
+                                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                            <Smartphone className="h-5 w-5 text-violet-400" />
                                             Informasi Perangkat
                                         </h3>
-                                        <button className="p-2 hover:bg-slate-800 rounded-lg transition-colors">
-                                            <MoreVertical className="w-4 h-4 text-slate-400" />
+                                        <button className="rounded-lg p-2 transition-colors hover:bg-slate-800">
+                                            <MoreVertical className="h-4 w-4 text-slate-400" />
                                         </button>
                                     </div>
 
                                     {/* Hardware Specs */}
-                                    <div className="space-y-4 mb-6 relative z-10">
-                                        <div className="flex items-center justify-between py-3 border-b border-slate-800/80">
+                                    <div className="relative z-10 mb-6 space-y-4">
+                                        <div className="flex items-center justify-between border-b border-slate-800/80 py-3">
                                             <div className="flex items-center gap-4">
-                                                <div className="p-2.5 bg-violet-500/10 border border-violet-500/20 rounded-xl">
-                                                    <Monitor className="w-4 h-4 text-violet-400" />
+                                                <div className="rounded-xl border border-violet-500/20 bg-violet-500/10 p-2.5">
+                                                    <Monitor className="h-4 w-4 text-violet-400" />
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs font-medium text-slate-400 mb-0.5">Model</div>
-                                                    <div className="text-sm font-semibold text-white">{deviceInfo.model}</div>
+                                                    <div className="mb-0.5 text-xs font-medium text-slate-400">
+                                                        Model
+                                                    </div>
+                                                    <div className="text-sm font-semibold text-white">
+                                                        {deviceInfo.model}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between py-3 border-b border-slate-800/80">
+                                        <div className="flex items-center justify-between border-b border-slate-800/80 py-3">
                                             <div className="flex items-center gap-4">
-                                                <div className="p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                                                    <Cpu className="w-4 h-4 text-blue-400" />
+                                                <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5">
+                                                    <Cpu className="h-4 w-4 text-blue-400" />
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs font-medium text-slate-400 mb-0.5">Processor / Platform</div>
-                                                    <div className="text-sm font-semibold text-white">{deviceInfo.processor}</div>
+                                                    <div className="mb-0.5 text-xs font-medium text-slate-400">
+                                                        Processor / Platform
+                                                    </div>
+                                                    <div className="text-sm font-semibold text-white">
+                                                        {deviceInfo.processor}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center justify-between py-3 border-b border-slate-800/80">
+                                        <div className="flex items-center justify-between border-b border-slate-800/80 py-3">
                                             <div className="flex items-center gap-4">
-                                                <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                                                    <HardDrive className="w-4 h-4 text-emerald-400" />
+                                                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5">
+                                                    <HardDrive className="h-4 w-4 text-emerald-400" />
                                                 </div>
                                                 <div>
-                                                    <div className="text-xs font-medium text-slate-400 mb-0.5">Screen Resolution</div>
-                                                    <div className="text-sm font-semibold text-white">{deviceInfo.resolution}</div>
+                                                    <div className="mb-0.5 text-xs font-medium text-slate-400">
+                                                        Screen Resolution
+                                                    </div>
+                                                    <div className="text-sm font-semibold text-white">
+                                                        {deviceInfo.resolution}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Software Info */}
-                                    <div className="bg-slate-800/40 rounded-2xl p-5 border border-slate-700/50 relative z-10">
-                                        <h4 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                                            <Code className="w-4 h-4 text-slate-400" />
+                                    <div className="relative z-10 rounded-2xl border border-slate-700/50 bg-slate-800/40 p-5">
+                                        <h4 className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-300">
+                                            <Code className="h-4 w-4 text-slate-400" />
                                             Software Information
                                         </h4>
                                         <div className="space-y-3">
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-slate-400">OS Version</span>
-                                                <span className="text-white font-medium bg-slate-800 px-2 py-1 rounded-md">{deviceInfo.osVersion}</span>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-slate-400">
+                                                    OS Version
+                                                </span>
+                                                <span className="rounded-md bg-slate-800 px-2 py-1 font-medium text-white">
+                                                    {deviceInfo.osVersion}
+                                                </span>
                                             </div>
-                                            <div className="flex justify-between items-center text-sm">
-                                                <span className="text-slate-400">Browser</span>
-                                                <span className="text-white font-medium bg-slate-800 px-2 py-1 rounded-md">{deviceInfo.browser}</span>
+                                            <div className="flex items-center justify-between text-sm">
+                                                <span className="text-slate-400">
+                                                    Browser
+                                                </span>
+                                                <span className="rounded-md bg-slate-800 px-2 py-1 font-medium text-white">
+                                                    {deviceInfo.browser}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* User Agent */}
-                                    <div className="mt-5 p-4 bg-slate-950/50 rounded-2xl border border-slate-800/80 relative z-10">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Info className="w-4 h-4 text-slate-500" />
-                                            <div className="text-xs font-medium text-slate-400">User Agent String (Raw)</div>
+                                    <div className="relative z-10 mt-5 rounded-2xl border border-slate-800/80 bg-slate-950/50 p-4">
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <Info className="h-4 w-4 text-slate-500" />
+                                            <div className="text-xs font-medium text-slate-400">
+                                                User Agent String (Raw)
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-slate-500 font-mono break-all leading-relaxed">
+                                        <div className="font-mono text-xs leading-relaxed break-all text-slate-500">
                                             {deviceInfo.userAgent}
                                         </div>
                                     </div>
                                 </motion.div>
 
                                 {/* 3. Usage Timeline Chart */}
-                                <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
-                                    <div className="flex flex-wrap items-center justify-between mb-6 gap-4">
-                                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                                            <Activity className="w-5 h-5 text-violet-400" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                                >
+                                    <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                            <Activity className="h-5 w-5 text-violet-400" />
                                             Timeline Penggunaan
                                         </h3>
                                         <Select defaultValue="7d">
-                                            <SelectTrigger className="w-[160px] bg-slate-800/80 border-slate-700 text-slate-300">
+                                            <SelectTrigger className="w-[160px] border-slate-700 bg-slate-800/80 text-slate-300">
                                                 <SelectValue placeholder="Pilih Rentang" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-slate-800 border-slate-700">
-                                                <SelectItem value="7d">7 Hari Terakhir</SelectItem>
-                                                <SelectItem value="30d">30 Hari Terakhir</SelectItem>
-                                                <SelectItem value="3m">3 Bulan Terakhir</SelectItem>
+                                            <SelectContent className="border-slate-700 bg-slate-800">
+                                                <SelectItem value="7d">
+                                                    7 Hari Terakhir
+                                                </SelectItem>
+                                                <SelectItem value="30d">
+                                                    30 Hari Terakhir
+                                                </SelectItem>
+                                                <SelectItem value="3m">
+                                                    3 Bulan Terakhir
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
 
-                                    <div className="h-64 sm:h-72 w-full mt-4">
+                                    <div className="mt-4 h-64 w-full sm:h-72">
                                         <Line
                                             data={{
                                                 labels: timeline.labels,
@@ -500,14 +674,17 @@ export default function PerangkatDetail({
                                                         label: 'Jumlah Akses',
                                                         data: timeline.values,
                                                         borderColor: '#8b5cf6',
-                                                        backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                                                        backgroundColor:
+                                                            'rgba(139, 92, 246, 0.15)',
                                                         borderWidth: 2,
                                                         fill: true,
                                                         tension: 0.4,
                                                         pointRadius: 4,
                                                         pointHoverRadius: 6,
-                                                        pointBackgroundColor: '#8b5cf6',
-                                                        pointBorderColor: '#fff',
+                                                        pointBackgroundColor:
+                                                            '#8b5cf6',
+                                                        pointBorderColor:
+                                                            '#fff',
                                                         pointBorderWidth: 2,
                                                     },
                                                 ],
@@ -518,7 +695,8 @@ export default function PerangkatDetail({
                                                 plugins: {
                                                     legend: { display: false },
                                                     tooltip: {
-                                                        backgroundColor: '#1e293b',
+                                                        backgroundColor:
+                                                            '#1e293b',
                                                         titleColor: '#f1f5f9',
                                                         bodyColor: '#94a3b8',
                                                         borderColor: '#334155',
@@ -528,89 +706,184 @@ export default function PerangkatDetail({
                                                     },
                                                 },
                                                 scales: {
-                                                    x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } },
-                                                    y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', stepSize: 1 } },
+                                                    x: {
+                                                        grid: {
+                                                            color: '#1e293b',
+                                                        },
+                                                        ticks: {
+                                                            color: '#64748b',
+                                                        },
+                                                    },
+                                                    y: {
+                                                        grid: {
+                                                            color: '#1e293b',
+                                                        },
+                                                        ticks: {
+                                                            color: '#64748b',
+                                                            stepSize: 1,
+                                                        },
+                                                    },
                                                 },
                                             }}
                                         />
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-slate-800/80">
-                                        <div className="text-center p-3 rounded-2xl bg-slate-800/30">
-                                            <div className="text-2xl font-bold text-violet-400">{timeline.avgDaily}</div>
-                                            <div className="text-xs font-medium text-slate-400 mt-1">Rata-rata Harian</div>
+                                    <div className="mt-8 grid grid-cols-3 gap-4 border-t border-slate-800/80 pt-6">
+                                        <div className="rounded-2xl bg-slate-800/30 p-3 text-center">
+                                            <div className="text-2xl font-bold text-violet-400">
+                                                {timeline.avgDaily}
+                                            </div>
+                                            <div className="mt-1 text-xs font-medium text-slate-400">
+                                                Rata-rata Harian
+                                            </div>
                                         </div>
-                                        <div className="text-center p-3 rounded-2xl bg-slate-800/30">
-                                            <div className="text-2xl font-bold text-blue-400">{timeline.peakDay}</div>
-                                            <div className="text-xs font-medium text-slate-400 mt-1">Hari Tersibuk</div>
+                                        <div className="rounded-2xl bg-slate-800/30 p-3 text-center">
+                                            <div className="text-2xl font-bold text-blue-400">
+                                                {timeline.peakDay}
+                                            </div>
+                                            <div className="mt-1 text-xs font-medium text-slate-400">
+                                                Hari Tersibuk
+                                            </div>
                                         </div>
-                                        <div className="text-center p-3 rounded-2xl bg-slate-800/30">
-                                            <div className="text-2xl font-bold text-emerald-400">{timeline.totalWeek}</div>
-                                            <div className="text-xs font-medium text-slate-400 mt-1">Total Minggu Ini</div>
+                                        <div className="rounded-2xl bg-slate-800/30 p-3 text-center">
+                                            <div className="text-2xl font-bold text-emerald-400">
+                                                {timeline.totalWeek}
+                                            </div>
+                                            <div className="mt-1 text-xs font-medium text-slate-400">
+                                                Total Minggu Ini
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>
 
                                 {/* 4. Security Analysis Card */}
-                                <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
-                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-8">
-                                        <Shield className="w-5 h-5 text-violet-400" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                                >
+                                    <h3 className="mb-8 flex items-center gap-2 text-lg font-semibold text-white">
+                                        <Shield className="h-5 w-5 text-violet-400" />
                                         Analisis Keamanan
                                     </h3>
 
-                                    <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
+                                    <div className="flex flex-col items-center justify-center gap-8 md:flex-row">
                                         {/* Score Gauge */}
-                                        <div className="flex flex-col items-center justify-center relative w-48 h-48 flex-shrink-0">
-                                            <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="96" cy="96" r="80" stroke="#1e293b" strokeWidth="12" fill="none" />
+                                        <div className="relative flex h-48 w-48 flex-shrink-0 flex-col items-center justify-center">
+                                            <svg className="h-full w-full -rotate-90 transform">
                                                 <circle
-                                                    cx="96" cy="96" r="80"
-                                                    stroke={security.score >= 80 ? '#10b981' : security.score >= 50 ? '#f59e0b' : '#ef4444'}
-                                                    strokeWidth="12" fill="none"
+                                                    cx="96"
+                                                    cy="96"
+                                                    r="80"
+                                                    stroke="#1e293b"
+                                                    strokeWidth="12"
+                                                    fill="none"
+                                                />
+                                                <circle
+                                                    cx="96"
+                                                    cy="96"
+                                                    r="80"
+                                                    stroke={
+                                                        security.score >= 80
+                                                            ? '#10b981'
+                                                            : security.score >=
+                                                                50
+                                                              ? '#f59e0b'
+                                                              : '#ef4444'
+                                                    }
+                                                    strokeWidth="12"
+                                                    fill="none"
                                                     strokeDasharray={`${(security.score / 100) * 502} 502`}
                                                     strokeLinecap="round"
-                                                    className="transition-all duration-1000 ease-out drop-shadow-lg"
-                                                    style={{ filter: `drop-shadow(0 0 10px ${security.score >= 80 ? 'rgba(16,185,129,0.4)' : security.score >= 50 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'})` }}
+                                                    className="drop-shadow-lg transition-all duration-1000 ease-out"
+                                                    style={{
+                                                        filter: `drop-shadow(0 0 10px ${security.score >= 80 ? 'rgba(16,185,129,0.4)' : security.score >= 50 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'})`,
+                                                    }}
                                                 />
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <div className={`text-5xl font-bold ${security.score >= 80 ? 'text-emerald-400' : security.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                                                <div
+                                                    className={`text-5xl font-bold ${security.score >= 80 ? 'text-emerald-400' : security.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}
+                                                >
                                                     {security.score}
                                                 </div>
-                                                <div className="text-xs font-medium text-slate-400 mt-1">Security Score</div>
+                                                <div className="mt-1 text-xs font-medium text-slate-400">
+                                                    Security Score
+                                                </div>
                                             </div>
                                         </div>
 
                                         {/* Checks & Recs */}
                                         <div className="w-full flex-1 space-y-4">
-                                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-opacity-10 border ${security.score >= 80 ? 'bg-emerald-500/10 border-emerald-500/30' : security.score >= 50 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
-                                                {security.score >= 80 ? <Shield className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
-                                                <span className={`text-sm font-semibold ${security.score >= 80 ? 'text-emerald-400' : security.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
-                                                    Risiko {security.score >= 80 ? 'Rendah' : security.score >= 50 ? 'Sedang' : 'Tinggi'}
+                                            <div
+                                                className={`bg-opacity-10 inline-flex items-center gap-2 rounded-xl border px-4 py-2 ${security.score >= 80 ? 'border-emerald-500/30 bg-emerald-500/10' : security.score >= 50 ? 'border-amber-500/30 bg-amber-500/10' : 'border-red-500/30 bg-red-500/10'}`}
+                                            >
+                                                {security.score >= 80 ? (
+                                                    <Shield className="h-4 w-4 text-emerald-400" />
+                                                ) : (
+                                                    <AlertTriangle className="h-4 w-4 text-amber-400" />
+                                                )}
+                                                <span
+                                                    className={`text-sm font-semibold ${security.score >= 80 ? 'text-emerald-400' : security.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}
+                                                >
+                                                    Risiko{' '}
+                                                    {security.score >= 80
+                                                        ? 'Rendah'
+                                                        : security.score >= 50
+                                                          ? 'Sedang'
+                                                          : 'Tinggi'}
                                                 </span>
                                             </div>
 
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                                                {security.checks.map((check: any, idx: number) => (
-                                                    <div key={idx} className="flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/50 hover:border-slate-600 transition-colors">
-                                                        <div className="flex items-center gap-3">
-                                                            {check.passed ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-red-400" />}
-                                                            <span className="text-sm font-medium text-slate-300">{check.label}</span>
+                                            <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                                {security.checks.map(
+                                                    (
+                                                        check: any,
+                                                        idx: number,
+                                                    ) => (
+                                                        <div
+                                                            key={idx}
+                                                            className="flex items-center justify-between rounded-xl border border-slate-700/50 bg-slate-800/40 p-3.5 transition-colors hover:border-slate-600"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                {check.passed ? (
+                                                                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                                                                ) : (
+                                                                    <XCircle className="h-4 w-4 text-red-400" />
+                                                                )}
+                                                                <span className="text-sm font-medium text-slate-300">
+                                                                    {
+                                                                        check.label
+                                                                    }
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    ),
+                                                )}
                                             </div>
 
-                                            {security.recommendations.length > 0 && (
-                                                <div className="mt-4 p-4 bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 rounded-xl">
-                                                    <div className="flex items-start gap-2 mb-2">
-                                                        <Lightbulb className="w-4 h-4 text-amber-400 mt-0.5 animate-pulse" />
-                                                        <div className="text-sm font-semibold text-amber-400">Rekomendasi</div>
+                                            {security.recommendations.length >
+                                                0 && (
+                                                <div className="mt-4 rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-4">
+                                                    <div className="mb-2 flex items-start gap-2">
+                                                        <Lightbulb className="mt-0.5 h-4 w-4 animate-pulse text-amber-400" />
+                                                        <div className="text-sm font-semibold text-amber-400">
+                                                            Rekomendasi
+                                                        </div>
                                                     </div>
-                                                    <ul className="space-y-1.5 text-xs text-amber-200/80 ml-6 list-disc">
-                                                        {security.recommendations.map((rec: string, idx: number) => (
-                                                            <li key={idx} className="leading-snug">{rec}</li>
-                                                        ))}
+                                                    <ul className="ml-6 list-disc space-y-1.5 text-xs text-amber-200/80">
+                                                        {security.recommendations.map(
+                                                            (
+                                                                rec: string,
+                                                                idx: number,
+                                                            ) => (
+                                                                <li
+                                                                    key={idx}
+                                                                    className="leading-snug"
+                                                                >
+                                                                    {rec}
+                                                                </li>
+                                                            ),
+                                                        )}
                                                     </ul>
                                                 </div>
                                             )}
@@ -620,140 +893,210 @@ export default function PerangkatDetail({
                             </div>
 
                             {/* RIGHT COLUMN (40%) */}
-                            <div className="lg:col-span-2 space-y-6">
-
+                            <div className="space-y-6 lg:col-span-2">
                                 {/* 5. Student Info Card */}
-                                <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
-                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-6">
-                                        <User className="w-5 h-5 text-violet-400" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                                >
+                                    <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold text-white">
+                                        <User className="h-5 w-5 text-violet-400" />
                                         Info Pengguna Dominan
                                     </h3>
 
-                                    <div className="flex items-center gap-5 mb-6 pb-6 border-b border-slate-800/80">
+                                    <div className="mb-6 flex items-center gap-5 border-b border-slate-800/80 pb-6">
                                         <div className="relative">
-                                            <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-violet-500/30 shadow-lg shadow-violet-500/20">
+                                            <div className="h-20 w-20 overflow-hidden rounded-2xl border-2 border-violet-500/30 shadow-lg shadow-violet-500/20">
                                                 {student.foto ? (
-                                                    <img src={student.foto} alt={student.nama} className="w-full h-full object-cover" />
+                                                    <img
+                                                        src={student.foto}
+                                                        alt={student.nama}
+                                                        className="h-full w-full object-cover"
+                                                    />
                                                 ) : (
-                                                    <div className="w-full h-full bg-gradient-to-br from-violet-500/20 to-purple-600/10 flex items-center justify-center">
-                                                        <User className="w-10 h-10 text-violet-400/50" />
+                                                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-500/20 to-purple-600/10">
+                                                        <User className="h-10 w-10 text-violet-400/50" />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-[3px] border-slate-900 flex items-center justify-center shadow-lg">
-                                                <CheckCircle className="w-3 h-3 text-white" />
+                                            <div className="absolute -right-2 -bottom-2 flex h-6 w-6 items-center justify-center rounded-full border-[3px] border-slate-900 bg-emerald-500 shadow-lg">
+                                                <CheckCircle className="h-3 w-3 text-white" />
                                             </div>
                                         </div>
 
                                         <div className="flex-1">
-                                            <div className="text-lg text-white font-bold">{student.nama}</div>
-                                            <div className="text-sm text-violet-400 font-mono font-medium mt-0.5">{student.nim}</div>
-                                            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-slate-800 rounded-md text-xs text-slate-400 mt-2 font-medium">
+                                            <div className="text-lg font-bold text-white">
+                                                {student.nama}
+                                            </div>
+                                            <div className="mt-0.5 font-mono text-sm font-medium text-violet-400">
+                                                {student.nim}
+                                            </div>
+                                            <div className="mt-2 inline-flex items-center gap-2 rounded-md bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">
                                                 <span>{student.prodi}</span>
-                                                <span className="w-1 h-1 rounded-full bg-slate-600" />
-                                                <span>Semester {student.semester}</span>
+                                                <span className="h-1 w-1 rounded-full bg-slate-600" />
+                                                <span>
+                                                    Semester {student.semester}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3 mb-6">
-                                        <div className="bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50 text-center hover:bg-slate-800/60 transition-colors">
-                                            <div className="text-xs font-medium text-slate-400 mb-1.5">Total Absen</div>
-                                            <div className="text-2xl font-bold text-white tracking-tight">{student.totalAbsen}</div>
+                                    <div className="mb-6 grid grid-cols-2 gap-3">
+                                        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/40 p-4 text-center transition-colors hover:bg-slate-800/60">
+                                            <div className="mb-1.5 text-xs font-medium text-slate-400">
+                                                Total Absen
+                                            </div>
+                                            <div className="text-2xl font-bold tracking-tight text-white">
+                                                {student.totalAbsen}
+                                            </div>
                                         </div>
-                                        <div className="bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50 text-center hover:bg-slate-800/60 transition-colors">
-                                            <div className="text-xs font-medium text-slate-400 mb-1.5">Kehadiran</div>
-                                            <div className="text-2xl font-bold text-emerald-400 tracking-tight">{student.kehadiran}%</div>
+                                        <div className="rounded-2xl border border-slate-700/50 bg-slate-800/40 p-4 text-center transition-colors hover:bg-slate-800/60">
+                                            <div className="mb-1.5 text-xs font-medium text-slate-400">
+                                                Kehadiran
+                                            </div>
+                                            <div className="text-2xl font-bold tracking-tight text-emerald-400">
+                                                {student.kehadiran}%
+                                            </div>
                                         </div>
                                     </div>
 
                                     {student.email !== '-' && (
-                                        <div className="space-y-3 mb-6 bg-slate-950/30 p-4 rounded-xl border border-slate-800/50">
+                                        <div className="mb-6 space-y-3 rounded-xl border border-slate-800/50 bg-slate-950/30 p-4">
                                             <div className="flex items-center gap-3 text-sm">
-                                                <div className="p-1.5 bg-slate-800 rounded-lg text-slate-400"><Mail className="w-4 h-4" /></div>
-                                                <span className="text-slate-300 font-medium">{student.email}</span>
+                                                <div className="rounded-lg bg-slate-800 p-1.5 text-slate-400">
+                                                    <Mail className="h-4 w-4" />
+                                                </div>
+                                                <span className="font-medium text-slate-300">
+                                                    {student.email}
+                                                </span>
                                             </div>
                                             <div className="flex items-center gap-3 text-sm">
-                                                <div className="p-1.5 bg-slate-800 rounded-lg text-slate-400"><Phone className="w-4 h-4" /></div>
-                                                <span className="text-slate-300 font-medium">{student.phone}</span>
+                                                <div className="rounded-lg bg-slate-800 p-1.5 text-slate-400">
+                                                    <Phone className="h-4 w-4" />
+                                                </div>
+                                                <span className="font-medium text-slate-300">
+                                                    {student.phone}
+                                                </span>
                                             </div>
                                         </div>
                                     )}
 
-                                    <div className="flex flex-col sm:flex-row gap-3">
-                                        <Link href={`/admin/mahasiswa/${student.id}`} className="w-full">
-                                            <button className="w-full px-4 py-3 bg-violet-600 hover:bg-violet-500 rounded-xl text-white font-medium transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-violet-600/20">
-                                                <Eye className="w-4 h-4" />
+                                    <div className="flex flex-col gap-3 sm:flex-row">
+                                        <Link
+                                            href={`/admin/mahasiswa/${student.id}`}
+                                            className="w-full"
+                                        >
+                                            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 font-medium text-white shadow-lg shadow-violet-600/20 transition-all duration-300 hover:bg-violet-500">
+                                                <Eye className="h-4 w-4" />
                                                 <span>Profile Detail</span>
                                             </button>
                                         </Link>
                                         <button
                                             type="button"
                                             onClick={handleContactStudent}
-                                            disabled={isOpeningChat || !student?.id}
-                                            className="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-white font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                            disabled={
+                                                isOpeningChat || !student?.id
+                                            }
+                                            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 font-medium text-white transition-all duration-300 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
-                                            {isOpeningChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
-                                            <span>{isOpeningChat ? 'Membuka Chat...' : 'Hubungi'}</span>
+                                            {isOpeningChat ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <MessageSquare className="h-4 w-4" />
+                                            )}
+                                            <span>
+                                                {isOpeningChat
+                                                    ? 'Membuka Chat...'
+                                                    : 'Hubungi'}
+                                            </span>
                                         </button>
                                     </div>
                                 </motion.div>
 
                                 {/* 6. Location Map Card */}
-                                <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
-                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-6">
-                                        <MapPin className="w-5 h-5 text-violet-400" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                                >
+                                    <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold text-white">
+                                        <MapPin className="h-5 w-5 text-violet-400" />
                                         Lokasi Akses
                                     </h3>
 
-                                    <div className="relative h-48 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800/80 mb-5 relative group cursor-crosshair">
+                                    <div className="group relative mb-5 h-48 cursor-crosshair overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950">
                                         {/* Stylized Grid pattern as map placeholder */}
-                                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.3 }} />
+                                        <div
+                                            className="absolute inset-0"
+                                            style={{
+                                                backgroundImage:
+                                                    'radial-gradient(#334155 1px, transparent 1px)',
+                                                backgroundSize: '20px 20px',
+                                                opacity: 0.3,
+                                            }}
+                                        />
 
                                         <div className="absolute inset-0 flex items-center justify-center">
                                             <div className="text-center">
-                                                <MapPin className="w-10 h-10 text-violet-500/20 mx-auto mb-2" />
-                                                <div className="text-xs font-medium text-slate-500 uppercase tracking-widest">GPS Tracker Active</div>
+                                                <MapPin className="mx-auto mb-2 h-10 w-10 text-violet-500/20" />
+                                                <div className="text-xs font-medium tracking-widest text-slate-500 uppercase">
+                                                    GPS Tracker Active
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {safeLocations.map((loc: any, index: number) => (
-                                            <button
-                                                key={index}
-                                                type="button"
-                                                onClick={() => openLocationInMaps(loc)}
-                                                className="absolute w-4 h-4 bg-violet-500 rounded-full border-[3px] border-slate-900 shadow-[0_0_15px_rgba(139,92,246,0.8)] -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-125"
-                                                style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
-                                                title={`Buka peta: ${loc.name}`}
-                                            >
-                                                <span className="absolute inset-0 bg-violet-400 rounded-full animate-ping opacity-75"></span>
-                                            </button>
-                                        ))}
+                                        {safeLocations.map(
+                                            (loc: any, index: number) => (
+                                                <button
+                                                    key={index}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        openLocationInMaps(loc)
+                                                    }
+                                                    className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-slate-900 bg-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.8)] transition-transform hover:scale-125"
+                                                    style={{
+                                                        left: `${loc.x}%`,
+                                                        top: `${loc.y}%`,
+                                                    }}
+                                                    title={`Buka peta: ${loc.name}`}
+                                                >
+                                                    <span className="absolute inset-0 animate-ping rounded-full bg-violet-400 opacity-75"></span>
+                                                </button>
+                                            ),
+                                        )}
                                     </div>
 
                                     <div className="space-y-3">
-                                        {(showAllLocations ? safeLocations : safeLocations.slice(0, 3)).map((loc: any, index: number) => (
+                                        {(showAllLocations
+                                            ? safeLocations
+                                            : safeLocations.slice(0, 3)
+                                        ).map((loc: any, index: number) => (
                                             <button
                                                 key={index}
                                                 type="button"
-                                                onClick={() => openLocationInMaps(loc)}
-                                                className="w-full flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/50 hover:bg-slate-800 hover:border-violet-500/50 transition-all cursor-pointer group text-left"
+                                                onClick={() =>
+                                                    openLocationInMaps(loc)
+                                                }
+                                                className="group flex w-full cursor-pointer items-center justify-between rounded-xl border border-slate-700/50 bg-slate-800/40 p-3.5 text-left transition-all hover:border-violet-500/50 hover:bg-slate-800"
                                                 title="Buka lokasi di Google Maps"
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className="p-2.5 bg-violet-500/10 rounded-lg group-hover:bg-violet-500/20 transition-colors">
-                                                        <MapPin className="w-4 h-4 text-violet-400" />
+                                                    <div className="rounded-lg bg-violet-500/10 p-2.5 transition-colors group-hover:bg-violet-500/20">
+                                                        <MapPin className="h-4 w-4 text-violet-400" />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <div className="text-sm text-white font-medium truncate">{loc.name}</div>
-                                                        <div className="text-[11px] text-slate-400 font-mono mt-0.5">{loc.coordinates}</div>
+                                                        <div className="truncate text-sm font-medium text-white">
+                                                            {loc.name}
+                                                        </div>
+                                                        <div className="mt-0.5 font-mono text-[11px] text-slate-400">
+                                                            {loc.coordinates}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <div className="px-2.5 py-1 bg-slate-900 rounded-md text-xs font-semibold text-violet-400 border border-slate-800">
+                                                    <div className="rounded-md border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs font-semibold text-violet-400">
                                                         {loc.count}x
                                                     </div>
-                                                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-violet-400 transition-colors" />
+                                                    <ChevronRight className="h-4 w-4 text-slate-500 transition-colors group-hover:text-violet-400" />
                                                 </div>
                                             </button>
                                         ))}
@@ -763,73 +1106,127 @@ export default function PerangkatDetail({
                                         type="button"
                                         onClick={() => {
                                             if (safeLocations.length === 0) {
-                                                toast.error('Belum ada data lokasi untuk ditampilkan.');
+                                                toast.error(
+                                                    'Belum ada data lokasi untuk ditampilkan.',
+                                                );
                                                 return;
                                             }
                                             if (safeLocations.length > 3) {
-                                                setShowAllLocations((prev) => !prev);
+                                                setShowAllLocations(
+                                                    (prev) => !prev,
+                                                );
                                                 return;
                                             }
-                                            openLocationInMaps(safeLocations[0]);
+                                            openLocationInMaps(
+                                                safeLocations[0],
+                                            );
                                         }}
-                                        className="w-full mt-5 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
+                                        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all duration-300 hover:bg-slate-700 hover:text-white"
                                     >
-                                        <Eye className="w-4 h-4" />
+                                        <Eye className="h-4 w-4" />
                                         <span>
                                             {safeLocations.length > 3
-                                                ? (showAllLocations ? 'Sembunyikan Log Lokasi' : `Log Lokasi Lengkap (${safeLocations.length})`)
+                                                ? showAllLocations
+                                                    ? 'Sembunyikan Log Lokasi'
+                                                    : `Log Lokasi Lengkap (${safeLocations.length})`
                                                 : 'Buka Lokasi di Maps'}
                                         </span>
                                     </button>
                                 </motion.div>
 
                                 {/* 7. Anomaly Detection Card */}
-                                <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                                            <AlertTriangle className="w-5 h-5 text-violet-400" />
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                                >
+                                    <div className="mb-6 flex items-center justify-between">
+                                        <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                            <AlertTriangle className="h-5 w-5 text-violet-400" />
                                             Deteksi Anomali
                                         </h3>
                                         {anomalies.active > 0 && (
-                                            <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-full">
-                                                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(248,113,113,0.8)]" />
-                                                <span className="text-xs text-red-400 font-bold">{anomalies.active} Aktif</span>
+                                            <div className="flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1.5">
+                                                <div className="h-2 w-2 animate-pulse rounded-full bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]" />
+                                                <span className="text-xs font-bold text-red-400">
+                                                    {anomalies.active} Aktif
+                                                </span>
                                             </div>
                                         )}
                                     </div>
 
                                     {anomalies.list.length > 0 ? (
                                         <div className="space-y-3">
-                                            {anomalies.list.map((anomaly: any, index: number) => (
-                                                <motion.div
-                                                    key={index}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: index * 0.05 }}
-                                                    className={`p-4 rounded-xl border transition-all cursor-pointer ${anomaly.severity === 'high' ? 'bg-gradient-to-r from-red-500/10 to-transparent border-red-500/30 hover:border-red-500/50' : anomaly.severity === 'medium' ? 'bg-gradient-to-r from-amber-500/10 to-transparent border-amber-500/30 hover:border-amber-500/50' : 'bg-gradient-to-r from-blue-500/10 to-transparent border-blue-500/30 hover:border-blue-500/50'}`}
-                                                >
-                                                    <div className="flex items-start justify-between mb-2">
-                                                        <div className="flex items-center gap-2.5">
-                                                            {anomaly.severity === 'high' ? <AlertCircle className="w-4 h-4 text-red-400 mt-0.5" /> : anomaly.severity === 'medium' ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <Info className="w-4 h-4 text-blue-400 mt-0.5" />}
-                                                            <span className={`text-sm font-bold ${anomaly.severity === 'high' ? 'text-red-400' : anomaly.severity === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}>{anomaly.type}</span>
+                                            {anomalies.list.map(
+                                                (
+                                                    anomaly: any,
+                                                    index: number,
+                                                ) => (
+                                                    <motion.div
+                                                        key={index}
+                                                        initial={{
+                                                            opacity: 0,
+                                                            x: -20,
+                                                        }}
+                                                        animate={{
+                                                            opacity: 1,
+                                                            x: 0,
+                                                        }}
+                                                        transition={{
+                                                            delay: index * 0.05,
+                                                        }}
+                                                        className={`cursor-pointer rounded-xl border p-4 transition-all ${anomaly.severity === 'high' ? 'border-red-500/30 bg-gradient-to-r from-red-500/10 to-transparent hover:border-red-500/50' : anomaly.severity === 'medium' ? 'border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-transparent hover:border-amber-500/50' : 'border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-transparent hover:border-blue-500/50'}`}
+                                                    >
+                                                        <div className="mb-2 flex items-start justify-between">
+                                                            <div className="flex items-center gap-2.5">
+                                                                {anomaly.severity ===
+                                                                'high' ? (
+                                                                    <AlertCircle className="mt-0.5 h-4 w-4 text-red-400" />
+                                                                ) : anomaly.severity ===
+                                                                  'medium' ? (
+                                                                    <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-400" />
+                                                                ) : (
+                                                                    <Info className="mt-0.5 h-4 w-4 text-blue-400" />
+                                                                )}
+                                                                <span
+                                                                    className={`text-sm font-bold ${anomaly.severity === 'high' ? 'text-red-400' : anomaly.severity === 'medium' ? 'text-amber-400' : 'text-blue-400'}`}
+                                                                >
+                                                                    {
+                                                                        anomaly.type
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            <span className="rounded border border-slate-800 bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+                                                                {
+                                                                    anomaly.timestamp
+                                                                }
+                                                            </span>
                                                         </div>
-                                                        <span className="text-[11px] font-medium text-slate-500 px-2 py-0.5 bg-slate-900 rounded border border-slate-800">{anomaly.timestamp}</span>
-                                                    </div>
-                                                    <p className="text-sm mx-1 text-slate-300 mb-3 leading-relaxed">{anomaly.description}</p>
-                                                    <div className="flex items-center gap-3 mt-3 pt-3 border-t border-slate-800/50">
-                                                        <button className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors">Investigasi</button>
-                                                        <span className="w-1 h-1 rounded-full bg-slate-700" />
-                                                        <button className="text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors">Tandai Aman</button>
-                                                    </div>
-                                                </motion.div>
-                                            ))}
+                                                        <p className="mx-1 mb-3 text-sm leading-relaxed text-slate-300">
+                                                            {
+                                                                anomaly.description
+                                                            }
+                                                        </p>
+                                                        <div className="mt-3 flex items-center gap-3 border-t border-slate-800/50 pt-3">
+                                                            <button className="text-xs font-semibold text-violet-400 transition-colors hover:text-violet-300">
+                                                                Investigasi
+                                                            </button>
+                                                            <span className="h-1 w-1 rounded-full bg-slate-700" />
+                                                            <button className="text-xs font-medium text-slate-400 transition-colors hover:text-slate-300">
+                                                                Tandai Aman
+                                                            </button>
+                                                        </div>
+                                                    </motion.div>
+                                                ),
+                                            )}
                                         </div>
                                     ) : (
-                                        <div className="text-center py-8">
-                                            <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-3">
-                                                <CheckCircle className="w-8 h-8 text-emerald-500/50" />
+                                        <div className="py-8 text-center">
+                                            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-slate-800/50">
+                                                <CheckCircle className="h-8 w-8 text-emerald-500/50" />
                                             </div>
-                                            <p className="text-sm font-medium text-slate-400">Tidak ada anomali terdeteksi</p>
+                                            <p className="text-sm font-medium text-slate-400">
+                                                Tidak ada anomali terdeteksi
+                                            </p>
                                         </div>
                                     )}
                                 </motion.div>
@@ -837,72 +1234,151 @@ export default function PerangkatDetail({
                         </div>
 
                         {/* 8. Bottom Section: Activity History Table */}
-                        <motion.div variants={itemVariants} className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                                    <History className="w-5 h-5 text-violet-400" />
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-md"
+                        >
+                            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                                    <History className="h-5 w-5 text-violet-400" />
                                     Riwayat Aktivitas Session
                                 </h3>
                                 <div className="flex items-center gap-3">
-                                    <Select value={filter} onValueChange={setFilter}>
-                                        <SelectTrigger className="w-[180px] bg-slate-800 focus:ring-violet-500/50 border-slate-700 text-slate-300">
+                                    <Select
+                                        value={filter}
+                                        onValueChange={setFilter}
+                                    >
+                                        <SelectTrigger className="w-[180px] border-slate-700 bg-slate-800 text-slate-300 focus:ring-violet-500/50">
                                             <SelectValue placeholder="Filter Aktivitas" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-slate-800 border-slate-700">
-                                            <SelectItem value="all">Semua Aktivitas</SelectItem>
-                                            <SelectItem value="scan">Scan QR</SelectItem>
-                                            <SelectItem value="anomaly">Anomali</SelectItem>
+                                        <SelectContent className="border-slate-700 bg-slate-800">
+                                            <SelectItem value="all">
+                                                Semua Aktivitas
+                                            </SelectItem>
+                                            <SelectItem value="scan">
+                                                Scan QR
+                                            </SelectItem>
+                                            <SelectItem value="anomaly">
+                                                Anomali
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
 
                             <div className="overflow-x-auto rounded-xl border border-slate-800">
-                                <table className="w-full text-left border-collapse">
+                                <table className="w-full border-collapse text-left">
                                     <thead>
-                                        <tr className="bg-slate-800/50 border-b border-slate-800">
-                                            <th className="py-4 px-5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Waktu</th>
-                                            <th className="py-4 px-5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Aktivitas</th>
-                                            <th className="py-4 px-5 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden md:table-cell">Lokasi</th>
-                                            <th className="py-4 px-5 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden lg:table-cell">IP Address</th>
-                                            <th className="py-4 px-5 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                                        <tr className="border-b border-slate-800 bg-slate-800/50">
+                                            <th className="px-5 py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                                                Waktu
+                                            </th>
+                                            <th className="px-5 py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                                                Aktivitas
+                                            </th>
+                                            <th className="hidden px-5 py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase md:table-cell">
+                                                Lokasi
+                                            </th>
+                                            <th className="hidden px-5 py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase lg:table-cell">
+                                                IP Address
+                                            </th>
+                                            <th className="px-5 py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">
+                                                Status
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {activities.length > 0 ? activities.map((activity: any, index: number) => (
-                                            <tr key={index} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors group">
-                                                <td className="py-4 px-5">
-                                                    <div className="text-sm font-medium text-white">{activity.date}</div>
-                                                    <div className="text-xs text-slate-500 mt-0.5">{activity.time}</div>
-                                                </td>
-                                                <td className="py-4 px-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={`p-2 rounded-lg ${activity.type === 'scan' ? 'bg-violet-500/10 text-violet-400' : activity.type === 'login' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                                                            {activity.type === 'scan' && <QrCode className="w-4 h-4" />}
-                                                            {activity.type === 'login' && <LogIn className="w-4 h-4" />}
-                                                            {activity.type === 'anomaly' && <AlertTriangle className="w-4 h-4" />}
-                                                        </div>
-                                                        <span className="text-sm font-medium text-slate-300">{activity.action}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 px-5 hidden md:table-cell">
-                                                    <div className="text-sm text-slate-400 flex items-center gap-1.5"><MapPin className="w-3 h-3" />{activity.location}</div>
-                                                </td>
-                                                <td className="py-4 px-5 hidden lg:table-cell">
-                                                    <div className="text-xs font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded inline-block border border-slate-800">{activity.ip}</div>
-                                                </td>
-                                                <td className="py-4 px-5">
-                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border ${activity.status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : activity.status === 'warning' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                                                        {activity.status === 'success' && <CheckCircle className="w-3 h-3" />}
-                                                        {activity.status === 'warning' && <AlertTriangle className="w-3 h-3" />}
-                                                        {activity.status === 'failed' && <XCircle className="w-3 h-3" />}
-                                                        <span className="capitalize">{activity.status}</span>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        )) : (
+                                        {activities.length > 0 ? (
+                                            activities.map(
+                                                (
+                                                    activity: any,
+                                                    index: number,
+                                                ) => (
+                                                    <tr
+                                                        key={index}
+                                                        className="group border-b border-slate-800/50 transition-colors hover:bg-slate-800/30"
+                                                    >
+                                                        <td className="px-5 py-4">
+                                                            <div className="text-sm font-medium text-white">
+                                                                {activity.date}
+                                                            </div>
+                                                            <div className="mt-0.5 text-xs text-slate-500">
+                                                                {activity.time}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-5 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div
+                                                                    className={`rounded-lg p-2 ${activity.type === 'scan' ? 'bg-violet-500/10 text-violet-400' : activity.type === 'login' ? 'bg-blue-500/10 text-blue-400' : 'bg-amber-500/10 text-amber-400'}`}
+                                                                >
+                                                                    {activity.type ===
+                                                                        'scan' && (
+                                                                        <QrCode className="h-4 w-4" />
+                                                                    )}
+                                                                    {activity.type ===
+                                                                        'login' && (
+                                                                        <LogIn className="h-4 w-4" />
+                                                                    )}
+                                                                    {activity.type ===
+                                                                        'anomaly' && (
+                                                                        <AlertTriangle className="h-4 w-4" />
+                                                                    )}
+                                                                </div>
+                                                                <span className="text-sm font-medium text-slate-300">
+                                                                    {
+                                                                        activity.action
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="hidden px-5 py-4 md:table-cell">
+                                                            <div className="flex items-center gap-1.5 text-sm text-slate-400">
+                                                                <MapPin className="h-3 w-3" />
+                                                                {
+                                                                    activity.location
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                        <td className="hidden px-5 py-4 lg:table-cell">
+                                                            <div className="inline-block rounded border border-slate-800 bg-slate-900 px-2 py-1 font-mono text-xs text-slate-500">
+                                                                {activity.ip}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-5 py-4">
+                                                            <span
+                                                                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold ${activity.status === 'success' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : activity.status === 'warning' ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' : 'border-red-500/20 bg-red-500/10 text-red-400'}`}
+                                                            >
+                                                                {activity.status ===
+                                                                    'success' && (
+                                                                    <CheckCircle className="h-3 w-3" />
+                                                                )}
+                                                                {activity.status ===
+                                                                    'warning' && (
+                                                                    <AlertTriangle className="h-3 w-3" />
+                                                                )}
+                                                                {activity.status ===
+                                                                    'failed' && (
+                                                                    <XCircle className="h-3 w-3" />
+                                                                )}
+                                                                <span className="capitalize">
+                                                                    {
+                                                                        activity.status
+                                                                    }
+                                                                </span>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ),
+                                            )
+                                        ) : (
                                             <tr>
-                                                <td colSpan={5} className="py-8 text-center text-slate-500 text-sm font-medium">Belaum ada record riwayat aktivitas</td>
+                                                <td
+                                                    colSpan={5}
+                                                    className="py-8 text-center text-sm font-medium text-slate-500"
+                                                >
+                                                    Belaum ada record riwayat
+                                                    aktivitas
+                                                </td>
                                             </tr>
                                         )}
                                     </tbody>

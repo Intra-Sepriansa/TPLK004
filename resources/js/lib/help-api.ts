@@ -3,13 +3,13 @@
  * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5
  */
 
-import { apiGet, apiPost } from './api';
 import type {
     FAQCategory,
     FAQItem,
-    TroubleshootingGuide,
     HelpFeedback,
+    TroubleshootingGuide,
 } from '@/types/documentation';
+import { apiGet, apiPost } from './api';
 
 const BASE_URL = '/api/help';
 
@@ -68,25 +68,27 @@ export type HelpAnalyticsSummary = {
 export async function getFAQCategories(): Promise<FAQCategory[]> {
     const response = await apiGet(`${BASE_URL}/faqs`);
     const data: ApiResponse<FAQCategory[]> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch FAQs');
     }
-    
+
     return data.data!;
 }
 
 /**
  * Get FAQs by category
  */
-export async function getFAQsByCategory(categoryId: string): Promise<FAQItem[]> {
+export async function getFAQsByCategory(
+    categoryId: string,
+): Promise<FAQItem[]> {
     const response = await apiGet(`${BASE_URL}/faqs/${categoryId}`);
     const data: ApiResponse<FAQItem[]> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch FAQs');
     }
-    
+
     return data.data!;
 }
 
@@ -94,41 +96,51 @@ export async function getFAQsByCategory(categoryId: string): Promise<FAQItem[]> 
  * Search FAQs
  */
 export async function searchFAQs(query: string): Promise<FAQItem[]> {
-    const response = await apiGet(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
+    const response = await apiGet(
+        `${BASE_URL}/search?q=${encodeURIComponent(query)}`,
+    );
     const data: ApiResponse<{ faqs: FAQItem[] }> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to search FAQs');
     }
-    
+
     return data.data?.faqs ?? [];
 }
 
 /**
  * Get all troubleshooting guides
  */
-export async function getTroubleshootingGuides(): Promise<TroubleshootingGuide[]> {
+export async function getTroubleshootingGuides(): Promise<
+    TroubleshootingGuide[]
+> {
     const response = await apiGet(`${BASE_URL}/troubleshooting`);
     const data: ApiResponse<TroubleshootingGuide[]> = await response.json();
-    
+
     if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to fetch troubleshooting guides');
+        throw new Error(
+            data.message || 'Failed to fetch troubleshooting guides',
+        );
     }
-    
+
     return data.data!;
 }
 
 /**
  * Get a specific troubleshooting guide
  */
-export async function getTroubleshootingGuide(guideId: string): Promise<TroubleshootingGuide> {
+export async function getTroubleshootingGuide(
+    guideId: string,
+): Promise<TroubleshootingGuide> {
     const response = await apiGet(`${BASE_URL}/troubleshooting/${guideId}`);
     const data: ApiResponse<TroubleshootingGuide> = await response.json();
-    
+
     if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to fetch troubleshooting guide');
+        throw new Error(
+            data.message || 'Failed to fetch troubleshooting guide',
+        );
     }
-    
+
     return data.data!;
 }
 
@@ -139,23 +151,27 @@ export async function searchHelp(query: string): Promise<{
     faqs: FAQItem[];
     troubleshooting: TroubleshootingGuide[];
 }> {
-    const response = await apiGet(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
+    const response = await apiGet(
+        `${BASE_URL}/search?q=${encodeURIComponent(query)}`,
+    );
     const data: ApiResponse<{
         faqs: FAQItem[];
         troubleshooting: TroubleshootingGuide[];
     }> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to search help');
     }
-    
+
     return data.data!;
 }
 
 /**
  * Submit feedback/question
  */
-export async function submitFeedback(feedback: HelpFeedback): Promise<{ ticketId: string }> {
+export async function submitFeedback(
+    feedback: HelpFeedback,
+): Promise<{ ticketId: string }> {
     const formData = new FormData();
     const backendCategory =
         feedback.category === 'feature' ? 'suggestion' : feedback.category;
@@ -163,24 +179,24 @@ export async function submitFeedback(feedback: HelpFeedback): Promise<{ ticketId
     formData.append('subject', feedback.subject);
     formData.append('message', feedback.message);
     if (feedback.email) formData.append('email', feedback.email);
-    
+
     if (feedback.attachments) {
         feedback.attachments.forEach((file, index) => {
             formData.append(`attachments[${index}]`, file);
         });
     }
-    
+
     const response = await apiPost(
         `${BASE_URL}/feedback`,
         formData as unknown as Record<string, unknown>,
     );
     const data: ApiResponse<{ ticketId?: string; ticket_id?: string }> =
         await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to submit feedback');
     }
-    
+
     const ticketId = data.data?.ticketId ?? data.data?.ticket_id;
     if (!ticketId) {
         throw new Error('Failed to resolve support ticket id');
@@ -202,22 +218,27 @@ export async function getContactInfo(): Promise<{
 }> {
     const response = await apiGet(`${BASE_URL}/contact`);
     const data: ApiResponse<Record<string, unknown>> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch contact info');
     }
-    
+
     const payload = data.data ?? {};
     const email = String(payload.email ?? '').trim();
     if (!email) {
         throw new Error('Failed to fetch contact email');
     }
 
-    const phone = String(payload.phone ?? payload.whatsapp ?? '').trim() || undefined;
-    const whatsapp = String(payload.whatsapp ?? payload.phone ?? '').trim() || undefined;
-    const hours = String(payload.hours ?? payload.support_hours ?? '').trim() || undefined;
+    const phone =
+        String(payload.phone ?? payload.whatsapp ?? '').trim() || undefined;
+    const whatsapp =
+        String(payload.whatsapp ?? payload.phone ?? '').trim() || undefined;
+    const hours =
+        String(payload.hours ?? payload.support_hours ?? '').trim() ||
+        undefined;
     const responseTime =
-        String(payload.responseTime ?? payload.response_time ?? '').trim() || undefined;
+        String(payload.responseTime ?? payload.response_time ?? '').trim() ||
+        undefined;
 
     const activeTickets = Number(payload.active_tickets ?? 0);
 
@@ -229,7 +250,7 @@ export async function getContactInfo(): Promise<{
  */
 export async function rateFAQ(
     faqId: string,
-    helpful: boolean
+    helpful: boolean,
 ): Promise<{
     faqId: string;
     helpful: number;
@@ -237,7 +258,9 @@ export async function rateFAQ(
     userVote: 'helpful' | 'notHelpful' | null;
     alreadyVoted: boolean;
 }> {
-    const response = await apiPost(`${BASE_URL}/faqs/${faqId}/rate`, { helpful });
+    const response = await apiPost(`${BASE_URL}/faqs/${faqId}/rate`, {
+        helpful,
+    });
     const data: ApiResponse<{
         faq_id: string;
         helpful: number;
@@ -257,7 +280,7 @@ export async function rateFAQ(
             alreadyVoted: true,
         };
     }
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to rate FAQ');
     }
@@ -277,11 +300,11 @@ export async function rateFAQ(
 export async function getPopularFAQs(limit = 5): Promise<FAQItem[]> {
     const response = await apiGet(`${BASE_URL}/faqs/popular?limit=${limit}`);
     const data: ApiResponse<FAQItem[]> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch popular FAQs');
     }
-    
+
     return data.data!;
 }
 
@@ -305,7 +328,10 @@ export async function getHelpVideos(): Promise<HelpVideoItem[]> {
 export async function trackHelpPageView(
     meta?: Record<string, string | number | boolean>,
 ): Promise<void> {
-    const response = await apiPost(`${BASE_URL}/analytics/page-view`, meta ?? {});
+    const response = await apiPost(
+        `${BASE_URL}/analytics/page-view`,
+        meta ?? {},
+    );
     const data: ApiResponse<{ tracked: boolean }> = await response.json();
 
     if (!response.ok || !data.success) {
@@ -371,7 +397,9 @@ export async function getHelpAnalyticsSummary(): Promise<HelpAnalyticsSummary> {
     const data: ApiResponse<Record<string, unknown>> = await response.json();
 
     if (!response.ok || !data.success || !data.data) {
-        throw new Error(data.message || 'Failed to fetch help analytics summary');
+        throw new Error(
+            data.message || 'Failed to fetch help analytics summary',
+        );
     }
 
     const payload = data.data;
@@ -381,7 +409,9 @@ export async function getHelpAnalyticsSummary(): Promise<HelpAnalyticsSummary> {
         ? payload.top_queries
         : [];
     const topFaqs = Array.isArray(payload.top_faqs) ? payload.top_faqs : [];
-    const topVideos = Array.isArray(payload.top_videos) ? payload.top_videos : [];
+    const topVideos = Array.isArray(payload.top_videos)
+        ? payload.top_videos
+        : [];
 
     return {
         totals: {

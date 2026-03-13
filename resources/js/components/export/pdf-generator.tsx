@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface AttendanceRecord {
     date: string;
@@ -80,12 +80,15 @@ export function PDFGenerator({ student, records, stats }: PDFGeneratorProps) {
                     <div class="student-info">
                         <h2>${studentName}</h2>
                         <p>NIM: ${student.nim}</p>
-                        <p>Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', { 
-                            weekday: 'long', 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                        })}</p>
+                        <p>Tanggal Cetak: ${new Date().toLocaleDateString(
+                            'id-ID',
+                            {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            },
+                        )}</p>
                     </div>
                     
                     <div class="stats">
@@ -118,19 +121,27 @@ export function PDFGenerator({ student, records, stats }: PDFGeneratorProps) {
                             </tr>
                         </thead>
                         <tbody>
-                            ${records.map((record, index) => `
+                            ${records
+                                .map(
+                                    (record, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
                                     <td>${new Date(record.date).toLocaleDateString('id-ID')}</td>
                                     <td>${record.course}</td>
                                     <td>${record.checkInTime || '-'}</td>
                                     <td><span class="status ${record.status}">${
-                                        record.status === 'present' ? 'Hadir' :
-                                        record.status === 'absent' ? 'Tidak Hadir' :
-                                        record.status === 'late' ? 'Terlambat' : record.status
+                                        record.status === 'present'
+                                            ? 'Hadir'
+                                            : record.status === 'absent'
+                                              ? 'Tidak Hadir'
+                                              : record.status === 'late'
+                                                ? 'Terlambat'
+                                                : record.status
                                     }</span></td>
                                 </tr>
-                            `).join('')}
+                            `,
+                                )
+                                .join('')}
                         </tbody>
                     </table>
                     
@@ -148,7 +159,7 @@ export function PDFGenerator({ student, records, stats }: PDFGeneratorProps) {
                 printWindow.document.write(content);
                 printWindow.document.close();
                 printWindow.focus();
-                
+
                 // Wait for content to load then print
                 setTimeout(() => {
                     printWindow.print();
@@ -170,9 +181,9 @@ export function PDFGenerator({ student, records, stats }: PDFGeneratorProps) {
             disabled={isGenerating}
         >
             {isGenerating ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="mr-2 h-4 w-4" />
             )}
             Export PDF
         </Button>

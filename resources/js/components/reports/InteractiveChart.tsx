@@ -1,9 +1,29 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Download, Maximize2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Card } from '@/components/ui/card';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    BarChart3,
+    Download,
+    LineChart as LineChartIcon,
+    Maximize2,
+    PieChart as PieChartIcon,
+} from 'lucide-react';
+import { useState } from 'react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 interface ChartData {
     name: string;
@@ -19,16 +39,25 @@ interface InteractiveChartProps {
     colors?: string[];
 }
 
-const COLORS = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+const COLORS = [
+    '#10B981',
+    '#3B82F6',
+    '#F59E0B',
+    '#EF4444',
+    '#8B5CF6',
+    '#EC4899',
+];
 
-export function InteractiveChart({ 
-    data, 
-    title, 
-    description, 
+export function InteractiveChart({
+    data,
+    title,
+    description,
     defaultType = 'bar',
-    colors = COLORS 
+    colors = COLORS,
 }: InteractiveChartProps) {
-    const [chartType, setChartType] = useState<'bar' | 'line' | 'pie'>(defaultType);
+    const [chartType, setChartType] = useState<'bar' | 'line' | 'pie'>(
+        defaultType,
+    );
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     const handleDownload = () => {
@@ -48,31 +77,41 @@ export function InteractiveChart({
         switch (chartType) {
             case 'bar':
                 return (
-                    <ResponsiveContainer width="100%" height={isFullscreen ? 600 : 300}>
+                    <ResponsiveContainer
+                        width="100%"
+                        height={isFullscreen ? 600 : 300}
+                    >
                         <BarChart {...commonProps}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Bar dataKey="value" fill={colors[0]} animationDuration={1000} />
+                            <Bar
+                                dataKey="value"
+                                fill={colors[0]}
+                                animationDuration={1000}
+                            />
                         </BarChart>
                     </ResponsiveContainer>
                 );
 
             case 'line':
                 return (
-                    <ResponsiveContainer width="100%" height={isFullscreen ? 600 : 300}>
+                    <ResponsiveContainer
+                        width="100%"
+                        height={isFullscreen ? 600 : 300}
+                    >
                         <LineChart {...commonProps}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
                             <Legend />
-                            <Line 
-                                type="monotone" 
-                                dataKey="value" 
-                                stroke={colors[0]} 
+                            <Line
+                                type="monotone"
+                                dataKey="value"
+                                stroke={colors[0]}
                                 strokeWidth={2}
                                 animationDuration={1000}
                             />
@@ -82,21 +121,29 @@ export function InteractiveChart({
 
             case 'pie':
                 return (
-                    <ResponsiveContainer width="100%" height={isFullscreen ? 600 : 300}>
+                    <ResponsiveContainer
+                        width="100%"
+                        height={isFullscreen ? 600 : 300}
+                    >
                         <PieChart>
                             <Pie
                                 data={data}
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
-                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                label={({ name, percent }) =>
+                                    `${name}: ${(percent * 100).toFixed(0)}%`
+                                }
                                 outerRadius={isFullscreen ? 200 : 100}
                                 fill="#8884d8"
                                 dataKey="value"
                                 animationDuration={1000}
                             >
                                 {data.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={colors[index % colors.length]}
+                                    />
                                 ))}
                             </Pie>
                             <Tooltip />
@@ -107,19 +154,23 @@ export function InteractiveChart({
     };
 
     return (
-        <Card className={`p-6 ${isFullscreen ? 'fixed inset-4 z-50 overflow-auto' : ''}`}>
+        <Card
+            className={`p-6 ${isFullscreen ? 'fixed inset-4 z-50 overflow-auto' : ''}`}
+        >
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-semibold">{title}</h3>
                     {description && (
-                        <p className="text-sm text-muted-foreground">{description}</p>
+                        <p className="text-sm text-muted-foreground">
+                            {description}
+                        </p>
                     )}
                 </div>
 
                 <div className="flex items-center gap-2">
                     {/* Chart Type Selector */}
-                    <div className="flex gap-1 p-1 bg-muted rounded-lg">
+                    <div className="flex gap-1 rounded-lg bg-muted p-1">
                         <Button
                             size="sm"
                             variant={chartType === 'bar' ? 'default' : 'ghost'}
@@ -147,10 +198,18 @@ export function InteractiveChart({
                     </div>
 
                     {/* Actions */}
-                    <Button size="sm" variant="outline" onClick={handleDownload}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleDownload}
+                    >
                         <Download className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => setIsFullscreen(!isFullscreen)}>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsFullscreen(!isFullscreen)}
+                    >
                         <Maximize2 className="h-4 w-4" />
                     </Button>
                 </div>
@@ -170,13 +229,17 @@ export function InteractiveChart({
             </AnimatePresence>
 
             {/* Stats Summary */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t">
+            <div className="mt-6 grid grid-cols-2 gap-4 border-t pt-6 md:grid-cols-4">
                 <div>
-                    <div className="text-sm text-muted-foreground">Total Data</div>
+                    <div className="text-sm text-muted-foreground">
+                        Total Data
+                    </div>
                     <div className="text-2xl font-bold">{data.length}</div>
                 </div>
                 <div>
-                    <div className="text-sm text-muted-foreground">Total Value</div>
+                    <div className="text-sm text-muted-foreground">
+                        Total Value
+                    </div>
                     <div className="text-2xl font-bold">
                         {data.reduce((sum, item) => sum + item.value, 0)}
                     </div>
@@ -184,13 +247,18 @@ export function InteractiveChart({
                 <div>
                     <div className="text-sm text-muted-foreground">Average</div>
                     <div className="text-2xl font-bold">
-                        {(data.reduce((sum, item) => sum + item.value, 0) / data.length).toFixed(1)}
+                        {(
+                            data.reduce((sum, item) => sum + item.value, 0) /
+                            data.length
+                        ).toFixed(1)}
                     </div>
                 </div>
                 <div>
-                    <div className="text-sm text-muted-foreground">Max Value</div>
+                    <div className="text-sm text-muted-foreground">
+                        Max Value
+                    </div>
                     <div className="text-2xl font-bold">
-                        {Math.max(...data.map(item => item.value))}
+                        {Math.max(...data.map((item) => item.value))}
                     </div>
                 </div>
             </div>

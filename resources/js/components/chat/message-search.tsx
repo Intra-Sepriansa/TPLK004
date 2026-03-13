@@ -1,8 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
-import { Search, X, Calendar, FileText, Image as ImageIcon } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { FileText, Image as ImageIcon, Search, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface SearchResult {
     id: number;
@@ -20,7 +19,11 @@ interface MessageSearchProps {
     onClose: () => void;
 }
 
-export function MessageSearch({ conversationId, onResultClick, onClose }: MessageSearchProps) {
+export function MessageSearch({
+    conversationId,
+    onResultClick,
+    onClose,
+}: MessageSearchProps) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<SearchResult[]>([]);
     const [loading, setLoading] = useState(false);
@@ -40,15 +43,21 @@ export function MessageSearch({ conversationId, onResultClick, onClose }: Messag
         setLoading(true);
         try {
             const params = new URLSearchParams({ q: query });
-            if (conversationId) params.append('conversation_id', conversationId.toString());
+            if (conversationId)
+                params.append('conversation_id', conversationId.toString());
             if (filters.type) params.append('type', filters.type);
-            if (filters.startDate) params.append('start_date', filters.startDate);
+            if (filters.startDate)
+                params.append('start_date', filters.startDate);
             if (filters.endDate) params.append('end_date', filters.endDate);
-            if (filters.hasAttachments) params.append('has_attachments', 'true');
+            if (filters.hasAttachments)
+                params.append('has_attachments', 'true');
 
             const response = await fetch(`/api/chat/search?${params}`, {
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN':
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content') || '',
                 },
             });
             const data = await response.json();
@@ -81,27 +90,32 @@ export function MessageSearch({ conversationId, onResultClick, onClose }: Messag
         const parts = text.split(regex);
         return parts.map((part, i) =>
             regex.test(part) ? (
-                <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 rounded px-0.5">
+                <mark
+                    key={i}
+                    className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-800"
+                >
                     {part}
                 </mark>
             ) : (
                 part
-            )
+            ),
         );
     };
 
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-slate-950">
+        <div className="flex h-full flex-col bg-white dark:bg-slate-950">
             {/* Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-slate-900 dark:text-white">Cari Pesan</h3>
+            <div className="border-b border-slate-200 p-4 dark:border-slate-800">
+                <div className="mb-4 flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-900 dark:text-white">
+                        Cari Pesan
+                    </h3>
                     <Button variant="ghost" size="icon" onClick={onClose}>
                         <X className="h-5 w-5" />
                     </Button>
                 </div>
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <Input
                         placeholder="Cari pesan..."
                         value={query}
@@ -112,11 +126,13 @@ export function MessageSearch({ conversationId, onResultClick, onClose }: Messag
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-wrap gap-2 mt-3">
+                <div className="mt-3 flex flex-wrap gap-2">
                     <select
                         value={filters.type}
-                        onChange={(e) => setFilters(f => ({ ...f, type: e.target.value }))}
-                        className="text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5"
+                        onChange={(e) =>
+                            setFilters((f) => ({ ...f, type: e.target.value }))
+                        }
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
                     >
                         <option value="">Semua Tipe</option>
                         <option value="text">Teks</option>
@@ -126,15 +142,25 @@ export function MessageSearch({ conversationId, onResultClick, onClose }: Messag
                     <input
                         type="date"
                         value={filters.startDate}
-                        onChange={(e) => setFilters(f => ({ ...f, startDate: e.target.value }))}
-                        className="text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5"
+                        onChange={(e) =>
+                            setFilters((f) => ({
+                                ...f,
+                                startDate: e.target.value,
+                            }))
+                        }
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
                         placeholder="Dari"
                     />
                     <input
                         type="date"
                         value={filters.endDate}
-                        onChange={(e) => setFilters(f => ({ ...f, endDate: e.target.value }))}
-                        className="text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5"
+                        onChange={(e) =>
+                            setFilters((f) => ({
+                                ...f,
+                                endDate: e.target.value,
+                            }))
+                        }
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm dark:border-slate-700 dark:bg-slate-800"
                         placeholder="Sampai"
                     />
                 </div>
@@ -152,30 +178,40 @@ export function MessageSearch({ conversationId, onResultClick, onClose }: Messag
                             <button
                                 key={result.id}
                                 onClick={() => onResultClick(result)}
-                                className="w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                className="w-full p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                             >
-                                <div className="flex items-center gap-2 mb-1">
-                                    {result.type === 'image' && <ImageIcon className="h-4 w-4 text-slate-400" />}
-                                    {result.type === 'file' && <FileText className="h-4 w-4 text-slate-400" />}
+                                <div className="mb-1 flex items-center gap-2">
+                                    {result.type === 'image' && (
+                                        <ImageIcon className="h-4 w-4 text-slate-400" />
+                                    )}
+                                    {result.type === 'file' && (
+                                        <FileText className="h-4 w-4 text-slate-400" />
+                                    )}
                                     <span className="text-sm font-medium text-slate-900 dark:text-white">
                                         {result.sender_name}
                                     </span>
-                                    <span className="text-xs text-slate-400">•</span>
-                                    <span className="text-xs text-slate-500">{result.conversation_name}</span>
+                                    <span className="text-xs text-slate-400">
+                                        •
+                                    </span>
+                                    <span className="text-xs text-slate-500">
+                                        {result.conversation_name}
+                                    </span>
                                 </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                                <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
                                     {highlightText(result.content, query)}
                                 </p>
-                                <p className="text-xs text-slate-400 mt-1">{formatDate(result.created_at)}</p>
+                                <p className="mt-1 text-xs text-slate-400">
+                                    {formatDate(result.created_at)}
+                                </p>
                             </button>
                         ))}
                     </div>
                 ) : query.length >= 2 ? (
-                    <div className="text-center py-8 text-slate-500">
+                    <div className="py-8 text-center text-slate-500">
                         Tidak ada hasil ditemukan
                     </div>
                 ) : (
-                    <div className="text-center py-8 text-slate-500">
+                    <div className="py-8 text-center text-slate-500">
                         Ketik minimal 2 karakter untuk mencari
                     </div>
                 )}

@@ -1,24 +1,12 @@
-import { Head, Link, router } from '@inertiajs/react';
+import progressIcon from '@/assets/admin/dashboard/hadir-icon.png';
+import gradeIcon from '@/assets/admin/dashboard/terlambat-icon.png';
+import totalIcon from '@/assets/admin/dashboard/total-icon.png';
+import mataKuliahIcon from '@/assets/dosen/matakuliah/mata-kuliah.png';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import StudentLayout from '@/layouts/student-layout';
-import Fuse from 'fuse.js';
+import { Head, Link, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-    Area,
-    AreaChart,
-    Bar,
-    BarChart,
-    Cell,
-    Pie,
-    PieChart,
-    PolarAngleAxis,
-    RadialBar,
-    RadialBarChart,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts';
+import Fuse from 'fuse.js';
 import {
     ArrowRight,
     Award,
@@ -43,10 +31,22 @@ import {
     X,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import mataKuliahIcon from '@/assets/dosen/matakuliah/mata-kuliah.png';
-import totalIcon from '@/assets/admin/dashboard/total-icon.png';
-import progressIcon from '@/assets/admin/dashboard/hadir-icon.png';
-import gradeIcon from '@/assets/admin/dashboard/terlambat-icon.png';
+import {
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    Cell,
+    Pie,
+    PieChart,
+    PolarAngleAxis,
+    RadialBar,
+    RadialBarChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 type ViewMode = 'grid' | 'list';
 type CourseMode = 'all' | 'online' | 'offline';
@@ -292,12 +292,17 @@ export default function MataKuliahMahasiswa({
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [presets, setPresets] = useState<Preset[]>([]);
     const [selectedPresetId, setSelectedPresetId] = useState('');
-    const [downloadProgress, setDownloadProgress] = useState<Record<number, number>>({});
+    const [downloadProgress, setDownloadProgress] = useState<
+        Record<number, number>
+    >({});
 
     const semesterOptions = useMemo(() => {
         const set = new Set<string>();
         courses.forEach((course) => set.add(String(course.semester)));
-        return ['all', ...Array.from(set).sort((a, b) => Number(a) - Number(b))];
+        return [
+            'all',
+            ...Array.from(set).sort((a, b) => Number(a) - Number(b)),
+        ];
     }, [courses]);
 
     const dosenOptions = useMemo(() => {
@@ -332,13 +337,21 @@ export default function MataKuliahMahasiswa({
                 course.dosen.toLowerCase().includes(query);
 
             const fuzzyMatch = fuzzyIds ? fuzzyIds.has(course.id) : true;
-            const matchesSearch = !searchQuery.trim() ? true : directMatch || fuzzyMatch;
+            const matchesSearch = !searchQuery.trim()
+                ? true
+                : directMatch || fuzzyMatch;
 
-            const matchesMode = filterMode === 'all' || course.mode === filterMode;
-            const matchesSemester = semesterFilter === 'all' || String(course.semester) === semesterFilter;
-            const matchesDosen = dosenFilter === 'all' || course.dosen === dosenFilter;
+            const matchesMode =
+                filterMode === 'all' || course.mode === filterMode;
+            const matchesSemester =
+                semesterFilter === 'all' ||
+                String(course.semester) === semesterFilter;
+            const matchesDosen =
+                dosenFilter === 'all' || course.dosen === dosenFilter;
 
-            return matchesSearch && matchesMode && matchesSemester && matchesDosen;
+            return (
+                matchesSearch && matchesMode && matchesSemester && matchesDosen
+            );
         });
 
         result = [...result].sort((a, b) => {
@@ -347,14 +360,27 @@ export default function MataKuliahMahasiswa({
             }
 
             if (sortBy === 'progress') {
-                return b.progress.meeting_progress - a.progress.meeting_progress;
+                return (
+                    b.progress.meeting_progress - a.progress.meeting_progress
+                );
             }
 
-            return (b.progress.average_grade ?? -1) - (a.progress.average_grade ?? -1);
+            return (
+                (b.progress.average_grade ?? -1) -
+                (a.progress.average_grade ?? -1)
+            );
         });
 
         return result;
-    }, [courses, searchQuery, fuzzyIds, filterMode, semesterFilter, dosenFilter, sortBy]);
+    }, [
+        courses,
+        searchQuery,
+        fuzzyIds,
+        filterMode,
+        semesterFilter,
+        dosenFilter,
+        sortBy,
+    ]);
 
     const aiInsights = useMemo(() => {
         const normalize = (value: string) => value.trim().toLowerCase();
@@ -362,21 +388,36 @@ export default function MataKuliahMahasiswa({
         return [...courses]
             .map((course) => {
                 const courseDeadlines = upcoming_deadlines.filter(
-                    (deadline) => normalize(deadline.course_name) === normalize(course.name)
+                    (deadline) =>
+                        normalize(deadline.course_name) ===
+                        normalize(course.name),
                 );
 
                 const urgentDeadlines = courseDeadlines.filter(
-                    (deadline) => deadline.days_remaining !== null && deadline.days_remaining <= 2
+                    (deadline) =>
+                        deadline.days_remaining !== null &&
+                        deadline.days_remaining <= 2,
                 ).length;
 
-                const attendanceGap = Math.max(0, 78 - course.progress.attendance_rate);
-                const assignmentGap = Math.max(0, 85 - course.progress.assignment_progress);
-                const meetingGap = Math.max(0, 72 - course.progress.meeting_progress);
+                const attendanceGap = Math.max(
+                    0,
+                    78 - course.progress.attendance_rate,
+                );
+                const assignmentGap = Math.max(
+                    0,
+                    85 - course.progress.assignment_progress,
+                );
+                const meetingGap = Math.max(
+                    0,
+                    72 - course.progress.meeting_progress,
+                );
                 const gradeGap =
                     course.progress.average_grade === null
                         ? 20
                         : Math.max(0, 75 - course.progress.average_grade);
-                const deadlinePressure = urgentDeadlines * 18 + Math.min(courseDeadlines.length * 5, 20);
+                const deadlinePressure =
+                    urgentDeadlines * 18 +
+                    Math.min(courseDeadlines.length * 5, 20);
 
                 const score = Math.min(
                     100,
@@ -385,34 +426,52 @@ export default function MataKuliahMahasiswa({
                             assignmentGap * 0.55 +
                             meetingGap * 0.35 +
                             gradeGap * 0.7 +
-                            deadlinePressure
-                    )
+                            deadlinePressure,
+                    ),
                 );
 
-                const priority: AIInsight['priority'] = score >= 60 ? 'high' : score >= 35 ? 'medium' : 'low';
+                const priority: AIInsight['priority'] =
+                    score >= 60 ? 'high' : score >= 35 ? 'medium' : 'low';
 
                 const focusHours = Math.max(
                     2,
-                    Math.min(14, Math.round(course.sks * 0.8 + score / 12 + urgentDeadlines))
+                    Math.min(
+                        14,
+                        Math.round(
+                            course.sks * 0.8 + score / 12 + urgentDeadlines,
+                        ),
+                    ),
                 );
 
                 const actions: string[] = [];
                 if (urgentDeadlines > 0) {
-                    actions.push(`Tuntaskan ${urgentDeadlines} deadline prioritas maksimal hari ini.`);
+                    actions.push(
+                        `Tuntaskan ${urgentDeadlines} deadline prioritas maksimal hari ini.`,
+                    );
                 }
                 if (course.progress.attendance_rate < 75) {
-                    actions.push('Targetkan hadir penuh untuk 2 pertemuan berikutnya.');
+                    actions.push(
+                        'Targetkan hadir penuh untuk 2 pertemuan berikutnya.',
+                    );
                 }
                 if (course.progress.assignment_progress < 80) {
-                    actions.push('Selesaikan tugas tertunda sebelum H-1 deadline.');
+                    actions.push(
+                        'Selesaikan tugas tertunda sebelum H-1 deadline.',
+                    );
                 }
                 if (course.progress.average_grade === null) {
-                    actions.push('Kumpulkan minimal 1 tugas bernilai minggu ini untuk membuka baseline nilai.');
+                    actions.push(
+                        'Kumpulkan minimal 1 tugas bernilai minggu ini untuk membuka baseline nilai.',
+                    );
                 } else if (course.progress.average_grade < 70) {
-                    actions.push('Tambahkan sesi review konsep inti 30-45 menit per hari.');
+                    actions.push(
+                        'Tambahkan sesi review konsep inti 30-45 menit per hari.',
+                    );
                 }
                 if (actions.length < 3) {
-                    actions.push(`Blok fokus ${focusHours} jam/minggu untuk ${course.code || course.name}.`);
+                    actions.push(
+                        `Blok fokus ${focusHours} jam/minggu untuk ${course.code || course.name}.`,
+                    );
                 }
 
                 const summary =
@@ -435,7 +494,9 @@ export default function MataKuliahMahasiswa({
     }, [courses, upcoming_deadlines]);
 
     const aiInsightMap = useMemo(() => {
-        return new Map(aiInsights.map((insight) => [insight.courseId, insight]));
+        return new Map(
+            aiInsights.map((insight) => [insight.courseId, insight]),
+        );
     }, [aiInsights]);
 
     const courseById = useMemo(() => {
@@ -463,7 +524,10 @@ export default function MataKuliahMahasiswa({
     }, [selectedCourse, aiInsightMap, topRecommendationCourses]);
 
     const gradeTrendData = useMemo(() => {
-        const labels = performance_data.grade_trends[0]?.points.map((point) => point.label) ?? [];
+        const labels =
+            performance_data.grade_trends[0]?.points.map(
+                (point) => point.label,
+            ) ?? [];
 
         return labels.map((label, idx) => {
             const row: Record<string, number | string | null> = { label };
@@ -482,23 +546,26 @@ export default function MataKuliahMahasiswa({
                 ...material,
                 courseId: course.id,
                 courseName: course.name,
-            }))
+            })),
         );
     }, [courses]);
 
     const [plannerBlocks, setPlannerBlocks] = useState<PlannerBlock[]>(() => {
         return courses
-            .filter((course) => course.schedule.time && course.schedule.time !== '-')
+            .filter(
+                (course) =>
+                    course.schedule.time && course.schedule.time !== '-',
+            )
             .slice(0, 14)
             .map((course) => ({
-            id: `schedule-${course.id}`,
-            title: `${course.code || course.name} - ${course.name}`,
-            day: resolvePlannerDay(course.schedule.day),
-            start: course.schedule.time,
-            end: calculateEndTime(course.schedule.time, course.sks),
-            type: 'study' as const,
-            courseId: course.id,
-        }));
+                id: `schedule-${course.id}`,
+                title: `${course.code || course.name} - ${course.name}`,
+                day: resolvePlannerDay(course.schedule.day),
+                start: course.schedule.time,
+                end: calculateEndTime(course.schedule.time, course.sks),
+                type: 'study' as const,
+                courseId: course.id,
+            }));
     });
 
     const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null);
@@ -547,7 +614,11 @@ export default function MataKuliahMahasiswa({
     }, []);
 
     const toggleFavorite = (courseId: number) => {
-        router.post(`/user/akademik/mata-kuliah/${courseId}/favorite`, {}, { preserveScroll: true });
+        router.post(
+            `/user/akademik/mata-kuliah/${courseId}/favorite`,
+            {},
+            { preserveScroll: true },
+        );
     };
 
     const saveCurrentPreset = () => {
@@ -580,7 +651,11 @@ export default function MataKuliahMahasiswa({
     };
 
     const exportCsv = () => {
-        window.open('/user/akademik/mata-kuliah/export', '_blank', 'noopener,noreferrer');
+        window.open(
+            '/user/akademik/mata-kuliah/export',
+            '_blank',
+            'noopener,noreferrer',
+        );
     };
 
     const exportAnalytics = () => {
@@ -597,7 +672,9 @@ export default function MataKuliahMahasiswa({
             })),
         };
 
-        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+            type: 'application/json',
+        });
         const url = URL.createObjectURL(blob);
         const anchor = document.createElement('a');
         anchor.href = url;
@@ -608,8 +685,14 @@ export default function MataKuliahMahasiswa({
 
     const generateStudyPlan = () => {
         const lowCourses = [...courses]
-            .sort((a, b) => a.progress.meeting_progress - b.progress.meeting_progress)
-            .filter((course) => course.schedule.time && course.schedule.time !== '-')
+            .sort(
+                (a, b) =>
+                    a.progress.meeting_progress - b.progress.meeting_progress,
+            )
+            .filter(
+                (course) =>
+                    course.schedule.time && course.schedule.time !== '-',
+            )
             .slice(0, 6);
 
         const generated = lowCourses.map((course, index) => ({
@@ -617,7 +700,10 @@ export default function MataKuliahMahasiswa({
             title: `AI Focus ${course.code || course.name} (${course.progress.meeting_progress.toFixed(0)}%)`,
             day: resolvePlannerDay(course.schedule.day),
             start: course.schedule.time,
-            end: calculateEndTime(course.schedule.time, Math.max(course.sks, 2)),
+            end: calculateEndTime(
+                course.schedule.time,
+                Math.max(course.sks, 2),
+            ),
             type: 'study' as const,
             courseId: course.id,
         }));
@@ -637,8 +723,8 @@ export default function MataKuliahMahasiswa({
                           ...block,
                           day,
                       }
-                    : block
-            )
+                    : block,
+            ),
         );
 
         setDraggingBlockId(null);
@@ -652,7 +738,10 @@ export default function MataKuliahMahasiswa({
 
         const timer = window.setInterval(() => {
             setDownloadProgress((current) => {
-                const nextValue = Math.min((current[materialId] ?? 0) + 15, 100);
+                const nextValue = Math.min(
+                    (current[materialId] ?? 0) + 15,
+                    100,
+                );
 
                 if (nextValue >= 100) {
                     window.clearInterval(timer);
@@ -671,7 +760,9 @@ export default function MataKuliahMahasiswa({
             id: 'consistency',
             title: 'Consistency Keeper',
             subtitle: 'Attendance >= 75% untuk mayoritas mata kuliah',
-            unlocked: stats.on_track_courses >= Math.max(1, Math.floor(stats.total_courses / 2)),
+            unlocked:
+                stats.on_track_courses >=
+                Math.max(1, Math.floor(stats.total_courses / 2)),
         },
         {
             id: 'grade',
@@ -698,16 +789,19 @@ export default function MataKuliahMahasiswa({
             .map((course) => {
                 const points = Math.round(
                     course.progress.meeting_progress * 6 +
-                    course.progress.assignment_progress * 3 +
-                    (course.progress.average_grade ?? 0) * 2 +
-                    course.study_time_hours * 5
+                        course.progress.assignment_progress * 3 +
+                        (course.progress.average_grade ?? 0) * 2 +
+                        course.study_time_hours * 5,
                 );
 
                 return {
                     code: course.code || '—',
                     name: course.name,
                     points,
-                    streak: Math.max(0, Math.round(course.progress.meeting_progress / 10)),
+                    streak: Math.max(
+                        0,
+                        Math.round(course.progress.meeting_progress / 10),
+                    ),
                 };
             })
             .sort((a, b) => b.points - a.points)
@@ -734,12 +828,18 @@ export default function MataKuliahMahasiswa({
                 >
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-40" />
-                    <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative z-10">
@@ -747,9 +847,22 @@ export default function MataKuliahMahasiswa({
                             <div className="flex-1">
                                 <div className="mb-4 flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
                                     <motion.div
-                                        initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                        transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.2 }}
+                                        initial={{
+                                            opacity: 0,
+                                            scale: 0.5,
+                                            rotate: -10,
+                                        }}
+                                        animate={{
+                                            opacity: 1,
+                                            scale: 1,
+                                            rotate: 0,
+                                        }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 300,
+                                            damping: 20,
+                                            delay: 0.2,
+                                        }}
                                         whileHover={{ scale: 1.1, rotate: 4 }}
                                         className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24"
                                     >
@@ -760,21 +873,37 @@ export default function MataKuliahMahasiswa({
                                         />
                                     </motion.div>
                                     <div className="space-y-1">
-                                        <p className="text-xs font-medium text-white/85 sm:text-sm">Semester {courses[0]?.semester ?? 1}</p>
-                                        <h1 className="text-2xl font-bold sm:text-3xl">Mata Kuliah Mahasiswa</h1>
+                                        <p className="text-xs font-medium text-white/85 sm:text-sm">
+                                            Semester {courses[0]?.semester ?? 1}
+                                        </p>
+                                        <h1 className="text-2xl font-bold sm:text-3xl">
+                                            Mata Kuliah Mahasiswa
+                                        </h1>
                                     </div>
                                 </div>
                                 <p className="mx-auto max-w-2xl text-center text-sm text-white/90 sm:mx-0 sm:text-left sm:text-base">
-                                    Pantau progress pertemuan, performa nilai, study planner, dan rekomendasi AI dalam satu dashboard.
+                                    Pantau progress pertemuan, performa nilai,
+                                    study planner, dan rekomendasi AI dalam satu
+                                    dashboard.
                                 </p>
                             </div>
 
                             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:w-auto lg:grid-cols-3 lg:gap-3">
                                 <motion.button
-                                    whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                    whileHover={{
+                                        scale: 1.04,
+                                        y: -4,
+                                        transition: {
+                                            type: 'spring',
+                                            stiffness: 400,
+                                            damping: 15,
+                                        },
+                                    }}
                                     whileTap={{ scale: 0.96 }}
                                     onClick={() => {
-                                        setSelectedCourse(topRecommendationCourses[0] ?? null);
+                                        setSelectedCourse(
+                                            topRecommendationCourses[0] ?? null,
+                                        );
                                         setShowAIPanel(true);
                                     }}
                                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-indigo-600 shadow-lg"
@@ -784,7 +913,15 @@ export default function MataKuliahMahasiswa({
                                     AI Recommendations
                                 </motion.button>
                                 <motion.button
-                                    whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                    whileHover={{
+                                        scale: 1.04,
+                                        y: -4,
+                                        transition: {
+                                            type: 'spring',
+                                            stiffness: 400,
+                                            damping: 15,
+                                        },
+                                    }}
                                     whileTap={{ scale: 0.96 }}
                                     onClick={exportCsv}
                                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/20 px-4 py-3 text-sm font-bold text-white backdrop-blur-md"
@@ -794,7 +931,15 @@ export default function MataKuliahMahasiswa({
                                     Export CSV
                                 </motion.button>
                                 <motion.button
-                                    whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                    whileHover={{
+                                        scale: 1.04,
+                                        y: -4,
+                                        transition: {
+                                            type: 'spring',
+                                            stiffness: 400,
+                                            damping: 15,
+                                        },
+                                    }}
                                     whileTap={{ scale: 0.96 }}
                                     onClick={exportAnalytics}
                                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/20 px-4 py-3 text-sm font-bold text-white backdrop-blur-md"
@@ -808,16 +953,34 @@ export default function MataKuliahMahasiswa({
 
                         <div className="mt-6 inline-flex w-full rounded-2xl border border-white/20 bg-white/10 p-1.5 sm:w-auto sm:bg-transparent sm:p-0">
                             {[
-                                { id: 'grid' as const, icon: Grid3X3, label: 'Grid' },
-                                { id: 'list' as const, icon: List, label: 'List' },
+                                {
+                                    id: 'grid' as const,
+                                    icon: Grid3X3,
+                                    label: 'Grid',
+                                },
+                                {
+                                    id: 'list' as const,
+                                    icon: List,
+                                    label: 'List',
+                                },
                             ].map((view) => (
                                 <motion.button
                                     key={view.id}
-                                    whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                    whileHover={{
+                                        scale: 1.04,
+                                        y: -4,
+                                        transition: {
+                                            type: 'spring',
+                                            stiffness: 400,
+                                            damping: 15,
+                                        },
+                                    }}
                                     whileTap={{ scale: 0.96 }}
                                     onClick={() => setViewMode(view.id)}
                                     className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all sm:flex-none ${
-                                        viewMode === view.id ? 'bg-white text-indigo-600' : 'bg-white/20 text-white'
+                                        viewMode === view.id
+                                            ? 'bg-white text-indigo-600'
+                                            : 'bg-white/20 text-white'
                                     }`}
                                     aria-label={`Tampilkan mode ${view.label}`}
                                 >
@@ -834,12 +997,39 @@ export default function MataKuliahMahasiswa({
                     className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-6"
                 >
                     {[
-                        { icon: totalIcon, label: 'Total MK', value: stats.total_courses },
-                        { icon: progressIcon, label: 'Total SKS', value: stats.total_sks },
-                        { icon: gradeIcon, label: 'Rata-rata', value: stats.average_grade, decimals: 1 },
-                        { icon: mataKuliahIcon, label: 'Progress', value: stats.completion_rate, suffix: '%' },
-                        { icon: progressIcon, label: 'Study Hours', value: stats.study_hours_week, suffix: 'h' },
-                        { icon: totalIcon, label: 'On Track', value: stats.on_track_courses },
+                        {
+                            icon: totalIcon,
+                            label: 'Total MK',
+                            value: stats.total_courses,
+                        },
+                        {
+                            icon: progressIcon,
+                            label: 'Total SKS',
+                            value: stats.total_sks,
+                        },
+                        {
+                            icon: gradeIcon,
+                            label: 'Rata-rata',
+                            value: stats.average_grade,
+                            decimals: 1,
+                        },
+                        {
+                            icon: mataKuliahIcon,
+                            label: 'Progress',
+                            value: stats.completion_rate,
+                            suffix: '%',
+                        },
+                        {
+                            icon: progressIcon,
+                            label: 'Study Hours',
+                            value: stats.study_hours_week,
+                            suffix: 'h',
+                        },
+                        {
+                            icon: totalIcon,
+                            label: 'On Track',
+                            value: stats.on_track_courses,
+                        },
                     ].map((stat) => (
                         <motion.div
                             key={stat.label}
@@ -855,8 +1045,10 @@ export default function MataKuliahMahasiswa({
                                     alt={stat.label}
                                     className="h-10 w-10 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)] sm:h-14 sm:w-14"
                                 />
-                                <p className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 sm:text-sm">{stat.label}</p>
-                                <p className="text-lg font-bold text-neutral-900 dark:text-white sm:text-2xl">
+                                <p className="text-[10px] font-medium text-neutral-500 sm:text-sm dark:text-neutral-400">
+                                    {stat.label}
+                                </p>
+                                <p className="text-lg font-bold text-neutral-900 sm:text-2xl dark:text-white">
                                     <AnimatedCounter
                                         value={Number(stat.value) || 0}
                                         decimals={stat.decimals ?? 0}
@@ -875,25 +1067,37 @@ export default function MataKuliahMahasiswa({
                 >
                     <div className="grid gap-4 lg:grid-cols-12">
                         <div className="relative lg:col-span-4">
-                            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+                            <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-neutral-400" />
                             <input
                                 value={searchQuery}
-                                onChange={(event) => setSearchQuery(event.target.value)}
+                                onChange={(event) =>
+                                    setSearchQuery(event.target.value)
+                                }
                                 placeholder="Cari mata kuliah, kode, atau dosen..."
-                                className="h-12 w-full rounded-xl border border-white/20 bg-white/70 pl-12 pr-4 text-sm text-neutral-900 outline-none backdrop-blur-xl focus:ring-2 focus:ring-indigo-500 dark:border-white/5 dark:bg-neutral-800/70 dark:text-white"
+                                className="h-12 w-full rounded-xl border border-white/20 bg-white/70 pr-4 pl-12 text-sm text-neutral-900 backdrop-blur-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:border-white/5 dark:bg-neutral-800/70 dark:text-white"
                                 aria-label="Cari mata kuliah"
                             />
                         </div>
 
                         <div className="flex flex-wrap gap-2 lg:col-span-3">
-                            {([
-                                { value: 'all', label: 'All' },
-                                { value: 'online', label: 'Online' },
-                                { value: 'offline', label: 'Offline' },
-                            ] as const).map((mode) => (
+                            {(
+                                [
+                                    { value: 'all', label: 'All' },
+                                    { value: 'online', label: 'Online' },
+                                    { value: 'offline', label: 'Offline' },
+                                ] as const
+                            ).map((mode) => (
                                 <motion.button
                                     key={mode.value}
-                                    whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                    whileHover={{
+                                        scale: 1.04,
+                                        y: -4,
+                                        transition: {
+                                            type: 'spring',
+                                            stiffness: 400,
+                                            damping: 15,
+                                        },
+                                    }}
                                     whileTap={{ scale: 0.96 }}
                                     onClick={() => setFilterMode(mode.value)}
                                     className={`h-12 rounded-xl px-4 text-sm font-bold ${
@@ -911,31 +1115,41 @@ export default function MataKuliahMahasiswa({
                         <div className="flex flex-col gap-3 sm:flex-row lg:col-span-5">
                             <select
                                 value={semesterFilter}
-                                onChange={(event) => setSemesterFilter(event.target.value)}
+                                onChange={(event) =>
+                                    setSemesterFilter(event.target.value)
+                                }
                                 className="h-12 rounded-xl border border-white/20 bg-white/70 px-4 text-sm font-semibold text-neutral-700 dark:border-white/5 dark:bg-neutral-800/70 dark:text-neutral-200"
                                 aria-label="Filter semester"
                             >
                                 {semesterOptions.map((value) => (
                                     <option key={value} value={value}>
-                                        {value === 'all' ? 'Semua Semester' : `Semester ${value}`}
+                                        {value === 'all'
+                                            ? 'Semua Semester'
+                                            : `Semester ${value}`}
                                     </option>
                                 ))}
                             </select>
                             <select
                                 value={dosenFilter}
-                                onChange={(event) => setDosenFilter(event.target.value)}
+                                onChange={(event) =>
+                                    setDosenFilter(event.target.value)
+                                }
                                 className="h-12 rounded-xl border border-white/20 bg-white/70 px-4 text-sm font-semibold text-neutral-700 dark:border-white/5 dark:bg-neutral-800/70 dark:text-neutral-200"
                                 aria-label="Filter dosen"
                             >
                                 {dosenOptions.map((value) => (
                                     <option key={value} value={value}>
-                                        {value === 'all' ? 'Semua Dosen' : value}
+                                        {value === 'all'
+                                            ? 'Semua Dosen'
+                                            : value}
                                     </option>
                                 ))}
                             </select>
                             <select
                                 value={sortBy}
-                                onChange={(event) => setSortBy(event.target.value as SortBy)}
+                                onChange={(event) =>
+                                    setSortBy(event.target.value as SortBy)
+                                }
                                 className="h-12 rounded-xl border border-white/20 bg-white/70 px-4 text-sm font-semibold text-neutral-700 dark:border-white/5 dark:bg-neutral-800/70 dark:text-neutral-200"
                                 aria-label="Urutkan mata kuliah"
                             >
@@ -957,7 +1171,9 @@ export default function MataKuliahMahasiswa({
                         </button>
                         <select
                             value={selectedPresetId}
-                            onChange={(event) => applyPreset(event.target.value)}
+                            onChange={(event) =>
+                                applyPreset(event.target.value)
+                            }
                             className="h-10 rounded-xl border border-white/20 bg-white/70 px-4 text-xs font-semibold text-neutral-700 dark:border-white/5 dark:bg-neutral-800/70 dark:text-neutral-200"
                             aria-label="Gunakan preset filter"
                         >
@@ -969,8 +1185,11 @@ export default function MataKuliahMahasiswa({
                             ))}
                         </select>
                         <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                            Shortcut filter: <span className="font-semibold">Alt+1</span> all, <span className="font-semibold">Alt+2</span> online,
-                            <span className="font-semibold"> Alt+3</span> offline
+                            Shortcut filter:{' '}
+                            <span className="font-semibold">Alt+1</span> all,{' '}
+                            <span className="font-semibold">Alt+2</span> online,
+                            <span className="font-semibold"> Alt+3</span>{' '}
+                            offline
                         </p>
                     </div>
                 </motion.section>
@@ -989,7 +1208,10 @@ export default function MataKuliahMahasiswa({
                                     key={course.id}
                                     course={course}
                                     index={index}
-                                    aiSummary={aiInsightMap.get(course.id)?.summary ?? course.ai_recommendation}
+                                    aiSummary={
+                                        aiInsightMap.get(course.id)?.summary ??
+                                        course.ai_recommendation
+                                    }
                                     onToggleFavorite={toggleFavorite}
                                     onOpenAI={() => {
                                         setSelectedCourse(course);
@@ -1011,7 +1233,10 @@ export default function MataKuliahMahasiswa({
                                     key={course.id}
                                     course={course}
                                     index={index}
-                                    aiSummary={aiInsightMap.get(course.id)?.summary ?? course.ai_recommendation}
+                                    aiSummary={
+                                        aiInsightMap.get(course.id)?.summary ??
+                                        course.ai_recommendation
+                                    }
                                     onToggleFavorite={toggleFavorite}
                                     onOpenAI={() => {
                                         setSelectedCourse(course);
@@ -1029,35 +1254,65 @@ export default function MataKuliahMahasiswa({
                 >
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Performance Analytics Dashboard</h2>
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                Performance Analytics Dashboard
+                            </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Tren nilai, pola kehadiran, dan perbandingan performa belajar.
+                                Tren nilai, pola kehadiran, dan perbandingan
+                                performa belajar.
                             </p>
                         </div>
                         <BarChart3 className="h-6 w-6 text-indigo-500" />
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                        <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60 xl:col-span-2">
-                            <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Grade Trends</p>
+                        <div className="rounded-2xl border border-white/20 bg-white/60 p-4 xl:col-span-2 dark:border-white/5 dark:bg-neutral-800/60">
+                            <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                                Grade Trends
+                            </p>
                             <div className="h-60">
                                 <ResponsiveContainer>
                                     <AreaChart data={gradeTrendData}>
-                                        <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                                        <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
+                                        <XAxis
+                                            dataKey="label"
+                                            stroke="#94a3b8"
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
+                                        <YAxis
+                                            stroke="#94a3b8"
+                                            tickLine={false}
+                                            axisLine={false}
+                                        />
                                         <Tooltip />
-                                        {performance_data.grade_trends.map((trend, index) => (
-                                            <Area
-                                                key={trend.course}
-                                                type="monotone"
-                                                dataKey={`trend_${index}`}
-                                                name={trend.course}
-                                                stroke={["#6366f1", "#10b981", "#f59e0b", "#ec4899"][index % 4]}
-                                                fill={["#6366f1", "#10b981", "#f59e0b", "#ec4899"][index % 4]}
-                                                fillOpacity={0.12}
-                                                strokeWidth={2.5}
-                                            />
-                                        ))}
+                                        {performance_data.grade_trends.map(
+                                            (trend, index) => (
+                                                <Area
+                                                    key={trend.course}
+                                                    type="monotone"
+                                                    dataKey={`trend_${index}`}
+                                                    name={trend.course}
+                                                    stroke={
+                                                        [
+                                                            '#6366f1',
+                                                            '#10b981',
+                                                            '#f59e0b',
+                                                            '#ec4899',
+                                                        ][index % 4]
+                                                    }
+                                                    fill={
+                                                        [
+                                                            '#6366f1',
+                                                            '#10b981',
+                                                            '#f59e0b',
+                                                            '#ec4899',
+                                                        ][index % 4]
+                                                    }
+                                                    fillOpacity={0.12}
+                                                    strokeWidth={2.5}
+                                                />
+                                            ),
+                                        )}
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -1065,17 +1320,33 @@ export default function MataKuliahMahasiswa({
 
                         <div className="space-y-4">
                             <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60">
-                                <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Attendance Patterns</p>
+                                <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                                    Attendance Patterns
+                                </p>
                                 <div className="h-44">
                                     <ResponsiveContainer>
                                         <PieChart>
-                                            <Pie data={performance_data.attendance_patterns} dataKey="value" nameKey="name" innerRadius={45} outerRadius={70}>
-                                                {performance_data.attendance_patterns.map((item, index) => (
-                                                    <Cell
-                                                        key={`${item.name}-${index}`}
-                                                        fill={index === 0 ? '#22c55e' : '#ef4444'}
-                                                    />
-                                                ))}
+                                            <Pie
+                                                data={
+                                                    performance_data.attendance_patterns
+                                                }
+                                                dataKey="value"
+                                                nameKey="name"
+                                                innerRadius={45}
+                                                outerRadius={70}
+                                            >
+                                                {performance_data.attendance_patterns.map(
+                                                    (item, index) => (
+                                                        <Cell
+                                                            key={`${item.name}-${index}`}
+                                                            fill={
+                                                                index === 0
+                                                                    ? '#22c55e'
+                                                                    : '#ef4444'
+                                                            }
+                                                        />
+                                                    ),
+                                                )}
                                             </Pie>
                                             <Tooltip />
                                         </PieChart>
@@ -1084,27 +1355,53 @@ export default function MataKuliahMahasiswa({
                             </div>
 
                             <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60">
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">My Avg</p>
-                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">{performance_data.comparative.my_average}</p>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                    My Avg
+                                </p>
+                                <p className="text-2xl font-bold text-neutral-900 dark:text-white">
+                                    {performance_data.comparative.my_average}
+                                </p>
                                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                                    Class Avg: {performance_data.comparative.class_average ?? '-'}
+                                    Class Avg:{' '}
+                                    {performance_data.comparative
+                                        .class_average ?? '-'}
                                 </p>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                    Rank Est.: {performance_data.comparative.rank_estimate ? `#${performance_data.comparative.rank_estimate}` : '-'}
+                                    Rank Est.:{' '}
+                                    {performance_data.comparative.rank_estimate
+                                        ? `#${performance_data.comparative.rank_estimate}`
+                                        : '-'}
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-4 rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60">
-                        <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Study Time Tracking</p>
+                        <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                            Study Time Tracking
+                        </p>
                         <div className="h-52">
                             <ResponsiveContainer>
-                                <BarChart data={performance_data.study_time_tracking}>
-                                    <XAxis dataKey="day" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                                    <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
+                                <BarChart
+                                    data={performance_data.study_time_tracking}
+                                >
+                                    <XAxis
+                                        dataKey="day"
+                                        stroke="#94a3b8"
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="#94a3b8"
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
                                     <Tooltip />
-                                    <Bar dataKey="hours" fill="#6366f1" radius={[8, 8, 0, 0]} />
+                                    <Bar
+                                        dataKey="hours"
+                                        fill="#6366f1"
+                                        radius={[8, 8, 0, 0]}
+                                    />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -1117,9 +1414,12 @@ export default function MataKuliahMahasiswa({
                 >
                     <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Study Planner & Calendar</h2>
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                Study Planner & Calendar
+                            </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Weekly time blocking, deadline reminders, dan sinkronisasi kalender.
+                                Weekly time blocking, deadline reminders, dan
+                                sinkronisasi kalender.
                             </p>
                         </div>
                         <div className="flex gap-2">
@@ -1144,41 +1444,61 @@ export default function MataKuliahMahasiswa({
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
-                        <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60 xl:col-span-3">
-                            <p className="mb-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Time Blocking (Drag & Drop)</p>
+                        <div className="rounded-2xl border border-white/20 bg-white/60 p-4 xl:col-span-3 dark:border-white/5 dark:bg-neutral-800/60">
+                            <p className="mb-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                                Time Blocking (Drag & Drop)
+                            </p>
                             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
                                 {DAYS.map((day) => (
                                     <div
                                         key={day}
-                                        onDragOver={(event) => event.preventDefault()}
+                                        onDragOver={(event) =>
+                                            event.preventDefault()
+                                        }
                                         onDrop={() => dropPlannerBlock(day)}
                                         className="min-h-[160px] rounded-xl border border-white/20 bg-white/70 p-2 dark:border-white/5 dark:bg-neutral-900/70"
                                     >
-                                        <p className="mb-2 text-xs font-bold uppercase text-neutral-500 dark:text-neutral-400">{day}</p>
+                                        <p className="mb-2 text-xs font-bold text-neutral-500 uppercase dark:text-neutral-400">
+                                            {day}
+                                        </p>
                                         <div className="space-y-2">
-                                            {plannerBlocks.filter((block) => block.day === day).length === 0 && (
+                                            {plannerBlocks.filter(
+                                                (block) => block.day === day,
+                                            ).length === 0 && (
                                                 <p className="rounded-lg border border-dashed border-white/20 px-2 py-3 text-center text-[10px] text-neutral-400 dark:border-white/5 dark:text-neutral-500">
                                                     Tidak ada jadwal
                                                 </p>
                                             )}
                                             {plannerBlocks
-                                                .filter((block) => block.day === day)
+                                                .filter(
+                                                    (block) =>
+                                                        block.day === day,
+                                                )
                                                 .map((block) => (
                                                     <div
                                                         key={block.id}
                                                         draggable
-                                                        onDragStart={() => setDraggingBlockId(block.id)}
+                                                        onDragStart={() =>
+                                                            setDraggingBlockId(
+                                                                block.id,
+                                                            )
+                                                        }
                                                         className={`cursor-move rounded-lg border px-2 py-2 text-xs font-semibold ${
-                                                            block.type === 'deadline'
+                                                            block.type ===
+                                                            'deadline'
                                                                 ? 'border-red-300 bg-red-50 text-red-700'
-                                                                : block.type === 'group'
-                                                                ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                                                                : 'border-indigo-300 bg-indigo-50 text-indigo-700'
+                                                                : block.type ===
+                                                                    'group'
+                                                                  ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                                                                  : 'border-indigo-300 bg-indigo-50 text-indigo-700'
                                                         }`}
                                                     >
-                                                        <p className="line-clamp-2">{block.title}</p>
+                                                        <p className="line-clamp-2">
+                                                            {block.title}
+                                                        </p>
                                                         <p className="mt-1 text-[10px] font-bold">
-                                                            {block.start} - {block.end}
+                                                            {block.start} -{' '}
+                                                            {block.end}
                                                         </p>
                                                     </div>
                                                 ))}
@@ -1189,21 +1509,34 @@ export default function MataKuliahMahasiswa({
                         </div>
 
                         <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60">
-                            <p className="mb-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Upcoming Deadlines</p>
+                            <p className="mb-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                                Upcoming Deadlines
+                            </p>
                             <div className="space-y-2">
                                 {upcoming_deadlines.length > 0 ? (
-                                    upcoming_deadlines.slice(0, 6).map((deadline) => (
-                                        <div
-                                            key={deadline.id}
-                                            className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/5 dark:bg-neutral-900/60"
-                                        >
-                                            <p className="text-xs font-bold text-neutral-900 dark:text-white">{deadline.title}</p>
-                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{deadline.course_name}</p>
-                                            <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
-                                                {deadline.deadline_formatted} • H-{deadline.days_remaining ?? '-'}
-                                            </p>
-                                        </div>
-                                    ))
+                                    upcoming_deadlines
+                                        .slice(0, 6)
+                                        .map((deadline) => (
+                                            <div
+                                                key={deadline.id}
+                                                className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/5 dark:bg-neutral-900/60"
+                                            >
+                                                <p className="text-xs font-bold text-neutral-900 dark:text-white">
+                                                    {deadline.title}
+                                                </p>
+                                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                    {deadline.course_name}
+                                                </p>
+                                                <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
+                                                    {
+                                                        deadline.deadline_formatted
+                                                    }{' '}
+                                                    • H-
+                                                    {deadline.days_remaining ??
+                                                        '-'}
+                                                </p>
+                                            </div>
+                                        ))
                                 ) : (
                                     <div className="rounded-xl border border-dashed border-white/20 bg-white/70 p-3 text-xs text-neutral-500 dark:border-white/5 dark:bg-neutral-900/60 dark:text-neutral-400">
                                         Tidak ada deadline aktif.
@@ -1220,9 +1553,12 @@ export default function MataKuliahMahasiswa({
                 >
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Collaborative Study Groups</h2>
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                Collaborative Study Groups
+                            </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Cari partner belajar, koordinasi sesi grup, dan update progress bersama.
+                                Cari partner belajar, koordinasi sesi grup, dan
+                                update progress bersama.
                             </p>
                         </div>
                         <button className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-bold text-white">
@@ -1241,20 +1577,35 @@ export default function MataKuliahMahasiswa({
                                 >
                                     <div className="mb-3 flex items-start justify-between gap-2">
                                         <div>
-                                            <h3 className="font-bold text-neutral-900 dark:text-white">{group.name}</h3>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{group.description}</p>
+                                            <h3 className="font-bold text-neutral-900 dark:text-white">
+                                                {group.name}
+                                            </h3>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                {group.description}
+                                            </p>
                                         </div>
                                         <span className="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-600">
                                             {group.member_count} member
                                         </span>
                                     </div>
                                     <div className="space-y-2">
-                                        {group.members.slice(0, 3).map((member) => (
-                                            <div key={`${group.id}-${member.id}`} className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 text-xs dark:bg-neutral-900/70">
-                                                <p className="font-semibold text-neutral-700 dark:text-neutral-300">{member.name}</p>
-                                                {member.is_admin && <span className="text-[10px] font-bold text-emerald-600">Admin</span>}
-                                            </div>
-                                        ))}
+                                        {group.members
+                                            .slice(0, 3)
+                                            .map((member) => (
+                                                <div
+                                                    key={`${group.id}-${member.id}`}
+                                                    className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 text-xs dark:bg-neutral-900/70"
+                                                >
+                                                    <p className="font-semibold text-neutral-700 dark:text-neutral-300">
+                                                        {member.name}
+                                                    </p>
+                                                    {member.is_admin && (
+                                                        <span className="text-[10px] font-bold text-emerald-600">
+                                                            Admin
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ))}
                                     </div>
                                     <div className="mt-3 flex gap-2">
                                         <button className="flex-1 rounded-lg border border-white/20 bg-white/70 px-3 py-2 text-xs font-bold text-neutral-700 dark:border-white/5 dark:bg-neutral-900/60 dark:text-neutral-200">
@@ -1267,8 +1618,9 @@ export default function MataKuliahMahasiswa({
                                 </motion.div>
                             ))
                         ) : (
-                            <div className="rounded-2xl border border-dashed border-white/20 bg-white/60 p-4 text-sm text-neutral-500 dark:border-white/5 dark:bg-neutral-800/60 dark:text-neutral-400 lg:col-span-3">
-                                Belum ada data study group untuk mata kuliah kamu.
+                            <div className="rounded-2xl border border-dashed border-white/20 bg-white/60 p-4 text-sm text-neutral-500 lg:col-span-3 dark:border-white/5 dark:bg-neutral-800/60 dark:text-neutral-400">
+                                Belum ada data study group untuk mata kuliah
+                                kamu.
                             </div>
                         )}
                     </div>
@@ -1280,8 +1632,13 @@ export default function MataKuliahMahasiswa({
                 >
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Course Materials Hub</h2>
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Akses resource per topik, monitor download, dan unggah materi baru.</p>
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                Course Materials Hub
+                            </h2>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                Akses resource per topik, monitor download, dan
+                                unggah materi baru.
+                            </p>
                         </div>
                         <button className="inline-flex items-center gap-2 rounded-xl bg-indigo-500 px-4 py-2 text-sm font-bold text-white">
                             <Upload className="h-4 w-4" />
@@ -1292,16 +1649,21 @@ export default function MataKuliahMahasiswa({
                     <div className="space-y-3">
                         {materialRows.length > 0 ? (
                             materialRows.slice(0, 10).map((material) => {
-                                const progress = downloadProgress[material.id] ?? 0;
+                                const progress =
+                                    downloadProgress[material.id] ?? 0;
 
                                 return (
                                     <div
                                         key={material.id}
-                                        className="grid grid-cols-1 items-center gap-3 rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60 md:grid-cols-12"
+                                        className="grid grid-cols-1 items-center gap-3 rounded-2xl border border-white/20 bg-white/60 p-4 md:grid-cols-12 dark:border-white/5 dark:bg-neutral-800/60"
                                     >
                                         <div className="md:col-span-5">
-                                            <p className="font-bold text-neutral-900 dark:text-white">{material.title}</p>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{material.courseName}</p>
+                                            <p className="font-bold text-neutral-900 dark:text-white">
+                                                {material.title}
+                                            </p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                {material.courseName}
+                                            </p>
                                         </div>
                                         <div className="md:col-span-2">
                                             <span className="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-600">
@@ -1310,13 +1672,22 @@ export default function MataKuliahMahasiswa({
                                         </div>
                                         <div className="md:col-span-3">
                                             <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                                                <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600" style={{ width: `${progress}%` }} />
+                                                <div
+                                                    className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
+                                                    style={{
+                                                        width: `${progress}%`,
+                                                    }}
+                                                />
                                             </div>
-                                            <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{progress}%</p>
+                                            <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                {progress}%
+                                            </p>
                                         </div>
                                         <div className="md:col-span-2">
                                             <button
-                                                onClick={() => startDownload(material.id)}
+                                                onClick={() =>
+                                                    startDownload(material.id)
+                                                }
                                                 className="w-full rounded-xl bg-white px-3 py-2 text-xs font-bold text-indigo-600 dark:bg-neutral-900"
                                             >
                                                 Download
@@ -1339,14 +1710,21 @@ export default function MataKuliahMahasiswa({
                 >
                     <div className="mb-6 flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Gamification & Achievements</h2>
+                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                Gamification & Achievements
+                            </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Badge progress, streak belajar, dan leaderboard per mata kuliah.
+                                Badge progress, streak belajar, dan leaderboard
+                                per mata kuliah.
                             </p>
                         </div>
                         <div className="inline-flex items-center gap-2 rounded-xl bg-orange-100 px-4 py-2 text-sm font-bold text-orange-700">
                             <Flame className="h-4 w-4" />
-                            Streak {Math.max(4, stats.on_track_courses + 3)} hari
+                            Streak {Math.max(
+                                4,
+                                stats.on_track_courses + 3,
+                            )}{' '}
+                            hari
                         </div>
                     </div>
 
@@ -1365,29 +1743,49 @@ export default function MataKuliahMahasiswa({
                                     >
                                         <div className="mb-2 flex items-center justify-between">
                                             <Award className="h-5 w-5" />
-                                            <span className="text-xs font-bold">{badge.unlocked ? 'Unlocked' : 'Locked'}</span>
+                                            <span className="text-xs font-bold">
+                                                {badge.unlocked
+                                                    ? 'Unlocked'
+                                                    : 'Locked'}
+                                            </span>
                                         </div>
-                                        <p className="font-bold">{badge.title}</p>
-                                        <p className="mt-1 text-xs">{badge.subtitle}</p>
+                                        <p className="font-bold">
+                                            {badge.title}
+                                        </p>
+                                        <p className="mt-1 text-xs">
+                                            {badge.subtitle}
+                                        </p>
                                     </motion.div>
                                 ))}
                             </div>
 
                             <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60">
-                                <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Progress Milestones</p>
+                                <p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                                    Progress Milestones
+                                </p>
                                 <div className="space-y-2">
                                     {courses.slice(0, 5).map((course) => (
-                                        <div key={course.id} className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/5 dark:bg-neutral-900/60">
+                                        <div
+                                            key={course.id}
+                                            className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/5 dark:bg-neutral-900/60"
+                                        >
                                             <div className="mb-1 flex items-center justify-between text-xs">
-                                                <p className="font-bold text-neutral-700 dark:text-neutral-200">{course.code || '—'}</p>
+                                                <p className="font-bold text-neutral-700 dark:text-neutral-200">
+                                                    {course.code || '—'}
+                                                </p>
                                                 <p className="font-semibold text-neutral-500 dark:text-neutral-400">
-                                                    {course.progress.meeting_progress.toFixed(0)}%
+                                                    {course.progress.meeting_progress.toFixed(
+                                                        0,
+                                                    )}
+                                                    %
                                                 </p>
                                             </div>
                                             <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                                                 <div
                                                     className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                                                    style={{ width: `${course.progress.meeting_progress}%` }}
+                                                    style={{
+                                                        width: `${course.progress.meeting_progress}%`,
+                                                    }}
                                                 />
                                             </div>
                                         </div>
@@ -1397,7 +1795,9 @@ export default function MataKuliahMahasiswa({
                         </div>
 
                         <div className="rounded-2xl border border-white/20 bg-white/60 p-4 dark:border-white/5 dark:bg-neutral-800/60">
-                            <p className="mb-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Leaderboard</p>
+                            <p className="mb-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                                Leaderboard
+                            </p>
                             <div className="space-y-2">
                                 {leaderboardRows.length > 0 ? (
                                     leaderboardRows.map((row) => (
@@ -1406,10 +1806,16 @@ export default function MataKuliahMahasiswa({
                                             className="rounded-xl border border-white/20 bg-white/70 px-3 py-2 text-sm dark:border-white/5 dark:bg-neutral-900/60"
                                         >
                                             <div className="flex items-center justify-between">
-                                                <p className="font-bold text-neutral-700 dark:text-neutral-200">#{row.rank} {row.code}</p>
-                                                <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{row.points} XP</p>
+                                                <p className="font-bold text-neutral-700 dark:text-neutral-200">
+                                                    #{row.rank} {row.code}
+                                                </p>
+                                                <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                                                    {row.points} XP
+                                                </p>
                                             </div>
-                                            <p className="line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">{row.name}</p>
+                                            <p className="line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                {row.name}
+                                            </p>
                                             <div className="mt-1 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
                                                 <Target className="h-3.5 w-3.5" />
                                                 Streak {row.streak} sesi
@@ -1443,8 +1849,12 @@ export default function MataKuliahMahasiswa({
                             initial={{ x: 420, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: 420, opacity: 0 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                            className="fixed right-0 top-0 z-50 h-screen w-full max-w-md overflow-y-auto border-l border-white/20 bg-white/80 p-6 shadow-2xl backdrop-blur-2xl dark:border-white/5 dark:bg-neutral-900/85"
+                            transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 20,
+                            }}
+                            className="fixed top-0 right-0 z-50 h-screen w-full max-w-md overflow-y-auto border-l border-white/20 bg-white/80 p-6 shadow-2xl backdrop-blur-2xl dark:border-white/5 dark:bg-neutral-900/85"
                         >
                             <div className="mb-5 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -1452,8 +1862,13 @@ export default function MataKuliahMahasiswa({
                                         <Brain className="h-6 w-6" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">AI Study Recommendations</h3>
-                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Personalized plan untuk performa akademik</p>
+                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                            AI Study Recommendations
+                                        </h3>
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                            Personalized plan untuk performa
+                                            akademik
+                                        </p>
                                     </div>
                                 </div>
                                 <button
@@ -1467,16 +1882,22 @@ export default function MataKuliahMahasiswa({
 
                             {selectedCourse && selectedInsight && (
                                 <div className="mb-4 rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/5 dark:bg-neutral-800/70">
-                                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Course Focus</p>
-                                    <h4 className="text-base font-bold text-neutral-900 dark:text-white">{selectedCourse.name}</h4>
+                                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                                        Course Focus
+                                    </p>
+                                    <h4 className="text-base font-bold text-neutral-900 dark:text-white">
+                                        {selectedCourse.name}
+                                    </h4>
                                     <div className="mt-2 flex items-center gap-2 text-xs">
                                         <span
                                             className={`rounded-lg px-2 py-1 font-bold ${
-                                                selectedInsight.priority === 'high'
+                                                selectedInsight.priority ===
+                                                'high'
                                                     ? 'bg-rose-100 text-rose-600'
-                                                    : selectedInsight.priority === 'medium'
-                                                    ? 'bg-amber-100 text-amber-600'
-                                                    : 'bg-emerald-100 text-emerald-600'
+                                                    : selectedInsight.priority ===
+                                                        'medium'
+                                                      ? 'bg-amber-100 text-amber-600'
+                                                      : 'bg-emerald-100 text-emerald-600'
                                             }`}
                                         >
                                             {selectedInsight.priority.toUpperCase()}
@@ -1488,64 +1909,89 @@ export default function MataKuliahMahasiswa({
                                             Focus {selectedInsight.focusHours}h
                                         </span>
                                     </div>
-                                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{selectedInsight.summary}</p>
+                                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                                        {selectedInsight.summary}
+                                    </p>
                                     <div className="mt-3 space-y-2">
-                                        {selectedInsight.actions.map((action, index) => (
-                                            <p key={`${selectedInsight.courseId}-${index}`} className="text-xs text-neutral-600 dark:text-neutral-300">
-                                                {index + 1}. {action}
-                                            </p>
-                                        ))}
+                                        {selectedInsight.actions.map(
+                                            (action, index) => (
+                                                <p
+                                                    key={`${selectedInsight.courseId}-${index}`}
+                                                    className="text-xs text-neutral-600 dark:text-neutral-300"
+                                                >
+                                                    {index + 1}. {action}
+                                                </p>
+                                            ),
+                                        )}
                                     </div>
                                 </div>
                             )}
 
                             <div className="space-y-3">
-                                {topRecommendationCourses.map((course, index) => {
-                                    const insight = aiInsightMap.get(course.id);
+                                {topRecommendationCourses.map(
+                                    (course, index) => {
+                                        const insight = aiInsightMap.get(
+                                            course.id,
+                                        );
 
-                                    if (!insight) {
-                                        return null;
-                                    }
+                                        if (!insight) {
+                                            return null;
+                                        }
 
-                                    return (
-                                        <motion.div
-                                            key={course.id}
-                                            initial={{ opacity: 0, x: 15 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.08 }}
-                                            className="rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/5 dark:bg-neutral-800/70"
-                                        >
-                                            <div className="mb-2 flex items-center justify-between">
-                                                <h4 className="text-sm font-bold text-neutral-900 dark:text-white">
-                                                    {course.code || '—'} • {course.name}
-                                                </h4>
-                                                <span
-                                                    className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
-                                                        insight.priority === 'high'
-                                                            ? 'bg-rose-100 text-rose-600'
-                                                            : insight.priority === 'medium'
-                                                            ? 'bg-amber-100 text-amber-600'
-                                                            : 'bg-emerald-100 text-emerald-600'
-                                                    }`}
-                                                >
-                                                    {insight.priority}
-                                                </span>
-                                            </div>
-                                            <p className="text-xs text-neutral-600 dark:text-neutral-300">{insight.summary}</p>
-                                            <div className="mt-3 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
-                                                <span>
-                                                    Risk {insight.score}/100 • Focus {insight.focusHours}h
-                                                </span>
-                                                <button
-                                                    onClick={() => setSelectedCourse(course)}
-                                                    className="inline-flex items-center gap-1 font-bold text-indigo-600"
-                                                >
-                                                    Prioritize <ArrowRight className="h-3.5 w-3.5" />
-                                                </button>
-                                            </div>
-                                        </motion.div>
-                                    );
-                                })}
+                                        return (
+                                            <motion.div
+                                                key={course.id}
+                                                initial={{ opacity: 0, x: 15 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{
+                                                    delay: index * 0.08,
+                                                }}
+                                                className="rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/5 dark:bg-neutral-800/70"
+                                            >
+                                                <div className="mb-2 flex items-center justify-between">
+                                                    <h4 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                                        {course.code || '—'} •{' '}
+                                                        {course.name}
+                                                    </h4>
+                                                    <span
+                                                        className={`rounded-lg px-2 py-1 text-[10px] font-bold ${
+                                                            insight.priority ===
+                                                            'high'
+                                                                ? 'bg-rose-100 text-rose-600'
+                                                                : insight.priority ===
+                                                                    'medium'
+                                                                  ? 'bg-amber-100 text-amber-600'
+                                                                  : 'bg-emerald-100 text-emerald-600'
+                                                        }`}
+                                                    >
+                                                        {insight.priority}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-neutral-600 dark:text-neutral-300">
+                                                    {insight.summary}
+                                                </p>
+                                                <div className="mt-3 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+                                                    <span>
+                                                        Risk {insight.score}/100
+                                                        • Focus{' '}
+                                                        {insight.focusHours}h
+                                                    </span>
+                                                    <button
+                                                        onClick={() =>
+                                                            setSelectedCourse(
+                                                                course,
+                                                            )
+                                                        }
+                                                        className="inline-flex items-center gap-1 font-bold text-indigo-600"
+                                                    >
+                                                        Prioritize{' '}
+                                                        <ArrowRight className="h-3.5 w-3.5" />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    },
+                                )}
                             </div>
                         </motion.aside>
                     </>
@@ -1590,14 +2036,19 @@ function CourseCard3D({
         course.progress.meeting_progress >= 75
             ? 'from-emerald-500 to-teal-600'
             : course.progress.meeting_progress >= 45
-            ? 'from-amber-500 to-orange-600'
-            : 'from-rose-500 to-red-600';
+              ? 'from-amber-500 to-orange-600'
+              : 'from-rose-500 to-red-600';
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.04, type: 'spring', stiffness: 300, damping: 20 }}
+            transition={{
+                delay: index * 0.04,
+                type: 'spring',
+                stiffness: 300,
+                damping: 20,
+            }}
             style={{ perspective: '1300px' }}
             onMouseMove={handleMouseMove}
             onMouseLeave={resetTilt}
@@ -1623,7 +2074,9 @@ function CourseCard3D({
                         <div className="mb-4 flex items-start justify-between gap-2">
                             <div>
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                                    <span className="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-600">{course.code || '—'}</span>
+                                    <span className="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-600">
+                                        {course.code || '—'}
+                                    </span>
                                     <span
                                         className={`rounded-lg px-2 py-1 text-xs font-bold ${
                                             course.mode === 'online'
@@ -1634,15 +2087,21 @@ function CourseCard3D({
                                         {course.mode}
                                     </span>
                                 </div>
-                                <h3 className="line-clamp-2 text-lg font-bold text-neutral-900 dark:text-white">{course.name}</h3>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400">{course.dosen}</p>
+                                <h3 className="line-clamp-2 text-lg font-bold text-neutral-900 dark:text-white">
+                                    {course.name}
+                                </h3>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                    {course.dosen}
+                                </p>
                             </div>
                             <button
                                 onClick={() => onToggleFavorite(course.id)}
                                 className="rounded-lg p-2 hover:bg-white/40"
                                 aria-label="Toggle favorite mata kuliah"
                             >
-                                <Star className={`h-5 w-5 ${course.is_favorite ? 'fill-amber-400 text-amber-400' : 'text-neutral-400'}`} />
+                                <Star
+                                    className={`h-5 w-5 ${course.is_favorite ? 'fill-amber-400 text-amber-400' : 'text-neutral-400'}`}
+                                />
                             </button>
                         </div>
 
@@ -1663,7 +2122,9 @@ function CourseCard3D({
                                 color="#f59e0b"
                                 displayValue={
                                     course.progress.average_grade !== null
-                                        ? course.progress.average_grade.toFixed(1)
+                                        ? course.progress.average_grade.toFixed(
+                                              1,
+                                          )
                                         : '-'
                                 }
                             />
@@ -1671,20 +2132,37 @@ function CourseCard3D({
 
                         <div className="mb-4 rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/5 dark:bg-neutral-800/70">
                             <div className="mb-1 flex items-center justify-between text-xs">
-                                <span className="text-neutral-500 dark:text-neutral-400">Progress Pertemuan</span>
-                                <span className="font-bold text-neutral-900 dark:text-white">{course.progress.meeting_progress.toFixed(0)}%</span>
+                                <span className="text-neutral-500 dark:text-neutral-400">
+                                    Progress Pertemuan
+                                </span>
+                                <span className="font-bold text-neutral-900 dark:text-white">
+                                    {course.progress.meeting_progress.toFixed(
+                                        0,
+                                    )}
+                                    %
+                                </span>
                             </div>
                             <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                                <div className={`h-full rounded-full bg-gradient-to-r ${statusTheme}`} style={{ width: `${course.progress.meeting_progress}%` }} />
+                                <div
+                                    className={`h-full rounded-full bg-gradient-to-r ${statusTheme}`}
+                                    style={{
+                                        width: `${course.progress.meeting_progress}%`,
+                                    }}
+                                />
                             </div>
                         </div>
 
                         {course.next_session && (
                             <div className="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-950/25">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Next Session</p>
-                                <p className="text-sm font-bold text-neutral-900 dark:text-white">{course.next_session.topic}</p>
+                                <p className="text-[10px] font-bold tracking-wider text-indigo-600 uppercase dark:text-indigo-400">
+                                    Next Session
+                                </p>
+                                <p className="text-sm font-bold text-neutral-900 dark:text-white">
+                                    {course.next_session.topic}
+                                </p>
                                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                    {course.next_session.date} • {course.next_session.time}
+                                    {course.next_session.date} •{' '}
+                                    {course.next_session.time}
                                 </p>
                             </div>
                         )}
@@ -1706,16 +2184,37 @@ function CourseCard3D({
                     </div>
 
                     <div
-                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                        style={{
+                            backfaceVisibility: 'hidden',
+                            transform: 'rotateY(180deg)',
+                        }}
                         className="absolute inset-0 overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-4 text-white shadow-xl sm:p-5"
                     >
-                        <h3 className="mb-2 text-base font-bold sm:mb-3 sm:text-lg">Quick Actions</h3>
+                        <h3 className="mb-2 text-base font-bold sm:mb-3 sm:text-lg">
+                            Quick Actions
+                        </h3>
                         <div className="space-y-2">
                             {[
-                                { label: 'Lihat Jadwal', href: `/user/akademik/jadwal?course=${course.id}`, icon: Calendar },
-                                { label: 'Tugas & Materi', href: `/user/tugas?course=${course.id}`, icon: FileText },
-                                { label: 'Analytics', href: `/user/rekapan?course=${course.id}`, icon: TrendingUp },
-                                { label: 'Catatan', href: `/user/akademik/catatan?course=${course.id}`, icon: BookOpen },
+                                {
+                                    label: 'Lihat Jadwal',
+                                    href: `/user/akademik/jadwal?course=${course.id}`,
+                                    icon: Calendar,
+                                },
+                                {
+                                    label: 'Tugas & Materi',
+                                    href: `/user/tugas?course=${course.id}`,
+                                    icon: FileText,
+                                },
+                                {
+                                    label: 'Analytics',
+                                    href: `/user/rekapan?course=${course.id}`,
+                                    icon: TrendingUp,
+                                },
+                                {
+                                    label: 'Catatan',
+                                    href: `/user/akademik/catatan?course=${course.id}`,
+                                    icon: BookOpen,
+                                },
                             ].map((action) => (
                                 <Link
                                     key={action.label}
@@ -1731,15 +2230,21 @@ function CourseCard3D({
 
                         <div className="mt-3 rounded-2xl border border-white/30 bg-black/10 p-2.5 backdrop-blur-md sm:mt-4 sm:p-3">
                             <div className="mb-2 flex items-center justify-between">
-                                <p className="text-[11px] font-bold uppercase tracking-wide text-white/85">Completion Prediction</p>
-                                <span className="rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">AI</span>
+                                <p className="text-[11px] font-bold tracking-wide text-white/85 uppercase">
+                                    Completion Prediction
+                                </p>
+                                <span className="rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">
+                                    AI
+                                </span>
                             </div>
                             <div className="rounded-xl border border-white/25 bg-white/15 p-3">
                                 <div className="flex items-center gap-2 text-sm font-semibold text-white">
                                     <Calendar className="h-4 w-4 text-white/90" />
-                                    <span>{course.predicted_completion_date}</span>
+                                    <span>
+                                        {course.predicted_completion_date}
+                                    </span>
                                 </div>
-                                <p className="mt-2 overflow-hidden text-xs leading-relaxed text-white/90 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                                <p className="mt-2 [display:-webkit-box] overflow-hidden text-xs leading-relaxed text-white/90 [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
                                     {aiSummary}
                                 </p>
                             </div>
@@ -1768,7 +2273,12 @@ function CourseCardList({
         <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.03, type: 'spring', stiffness: 300, damping: 20 }}
+            transition={{
+                delay: index * 0.03,
+                type: 'spring',
+                stiffness: 300,
+                damping: 20,
+            }}
             whileHover={cardHover}
             className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
         >
@@ -1779,21 +2289,38 @@ function CourseCardList({
                     </div>
                     <div>
                         <div className="mb-1 flex flex-wrap gap-2">
-                            <span className="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-600">{course.code || '—'}</span>
-                            <span className="rounded-lg bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-600">{course.mode}</span>
+                            <span className="rounded-lg bg-indigo-100 px-2 py-1 text-xs font-bold text-indigo-600">
+                                {course.code || '—'}
+                            </span>
+                            <span className="rounded-lg bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-600">
+                                {course.mode}
+                            </span>
                         </div>
-                        <h3 className="font-bold text-neutral-900 dark:text-white">{course.name}</h3>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{course.dosen}</p>
+                        <h3 className="font-bold text-neutral-900 dark:text-white">
+                            {course.name}
+                        </h3>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                            {course.dosen}
+                        </p>
                     </div>
                 </div>
 
                 <div className="lg:col-span-4">
                     <div className="mb-1 flex items-center justify-between text-xs">
-                        <span className="text-neutral-500 dark:text-neutral-400">Progress Pertemuan</span>
-                        <span className="font-bold text-neutral-900 dark:text-white">{course.progress.meeting_progress.toFixed(0)}%</span>
+                        <span className="text-neutral-500 dark:text-neutral-400">
+                            Progress Pertemuan
+                        </span>
+                        <span className="font-bold text-neutral-900 dark:text-white">
+                            {course.progress.meeting_progress.toFixed(0)}%
+                        </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                        <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600" style={{ width: `${course.progress.meeting_progress}%` }} />
+                        <div
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
+                            style={{
+                                width: `${course.progress.meeting_progress}%`,
+                            }}
+                        />
                     </div>
                     <div className="mt-2 flex gap-3 text-xs text-neutral-500 dark:text-neutral-400">
                         <span className="inline-flex items-center gap-1">
@@ -1802,7 +2329,10 @@ function CourseCardList({
                         </span>
                         <span className="inline-flex items-center gap-1">
                             <Award className="h-3.5 w-3.5 text-amber-500" />
-                            Nilai {course.progress.average_grade !== null ? course.progress.average_grade.toFixed(1) : '-'}
+                            Nilai{' '}
+                            {course.progress.average_grade !== null
+                                ? course.progress.average_grade.toFixed(1)
+                                : '-'}
                         </span>
                     </div>
                 </div>
@@ -1813,7 +2343,9 @@ function CourseCardList({
                         className="rounded-xl border border-white/20 bg-white/70 p-2 dark:border-white/5 dark:bg-neutral-800/70"
                         aria-label="Toggle favorite"
                     >
-                        <Star className={`h-4 w-4 ${course.is_favorite ? 'fill-amber-400 text-amber-400' : 'text-neutral-400'}`} />
+                        <Star
+                            className={`h-4 w-4 ${course.is_favorite ? 'fill-amber-400 text-amber-400' : 'text-neutral-400'}`}
+                        />
                     </button>
                     <button
                         onClick={onOpenAI}
@@ -1868,15 +2400,26 @@ function ProgressRadial({
                         startAngle={90}
                         endAngle={-270}
                     >
-                        <PolarAngleAxis type="number" domain={[0, 100]} dataKey="value" tick={false} />
-                        <RadialBar dataKey="value" cornerRadius={10} fill={color} />
+                        <PolarAngleAxis
+                            type="number"
+                            domain={[0, 100]}
+                            dataKey="value"
+                            tick={false}
+                        />
+                        <RadialBar
+                            dataKey="value"
+                            cornerRadius={10}
+                            fill={color}
+                        />
                     </RadialBarChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-neutral-700 dark:text-neutral-200">
                     {textValue}
                 </div>
             </div>
-            <p className="mt-1 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400">{label}</p>
+            <p className="mt-1 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400">
+                {label}
+            </p>
         </div>
     );
 }

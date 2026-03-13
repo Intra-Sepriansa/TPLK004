@@ -8,6 +8,7 @@ use App\Models\GaGroup;
 use App\Models\GaGroupMember;
 use App\Models\GaSubmission;
 use App\Models\GaConflictReport;
+use App\Models\ForceAssignLog;
 use App\Models\Mahasiswa;
 use App\Models\MahasiswaCourse;
 use App\Models\MataKuliah;
@@ -399,6 +400,29 @@ class TugasKelompokController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // Group monitoring data
+        $totalStudentsInCourse = $this->formationService->getTotalCourseStudents($assignment);
+        $calculatedMaxGroups = $this->formationService->calculateMaxGroups(
+            $totalStudentsInCourse,
+            max(2, (int) $assignment->min_members)
+        );
+
+        $forceAssignLogs = ForceAssignLog::where('assignment_id', $assignment->id)
+            ->with(['student', 'group'])
+            ->orderByDesc('created_at')
+            ->take(50)
+            ->get()
+            ->map(fn ($log) => [
+                'id' => $log->id,
+                'student_name' => $log->student->nama ?? 'Unknown',
+                'student_nim' => $log->student->nim ?? '',
+                'group_name' => $log->group->name ?? 'Deleted',
+                'action' => $log->action,
+                'reason' => $log->reason,
+                'admin_type' => $log->admin_type,
+                'created_at' => $log->created_at?->format('d M Y H:i'),
+            ]);
+
         return Inertia::render('admin/tugas-kelompok-detail', [
             'assignment' => [
                 'id' => $assignment->id,
@@ -415,6 +439,7 @@ class TugasKelompokController extends Controller
                 'formation_deadline_display' => $assignment->formation_deadline?->format('d M Y H:i'),
                 'submission_deadline_display' => $assignment->submission_deadline?->format('d M Y H:i'),
                 'is_locked' => $assignment->is_locked,
+                'allow_force_assign' => $assignment->allow_force_assign ?? true,
                 'course' => ['id' => $assignment->course->id, 'nama' => $assignment->course->nama],
                 'dosen' => $assignment->dosen ? ['id' => $assignment->dosen->id, 'nama' => $assignment->dosen->nama] : null,
                 'features' => $assignment->features ?? [],
@@ -426,6 +451,9 @@ class TugasKelompokController extends Controller
             'unassignedStudents' => $unassigned->map(fn ($s) => ['id' => $s->id, 'nama' => $s->nama, 'nim' => $s->nim ?? '']),
             'peerEvalSummary' => $peerEvalSummary,
             'conflictReports' => $conflictReports,
+            'totalStudentsInCourse' => $totalStudentsInCourse,
+            'calculatedMaxGroups' => $calculatedMaxGroups,
+            'forceAssignLogs' => $forceAssignLogs,
         ]);
     }
 
@@ -552,6 +580,108 @@ class TugasKelompokController extends Controller
     }
 
     /**
+     * Update group configuration (allow_force_assign)
+     */
+    public function updateGroupConfig(Request $request, int $id)
+    {
+        $assignment = GroupAssignment::findOrFail($id);
+        $validated = $request->validate([
+            'allow_force_assign' => 'required|boolean',
+        ]);
+
+        $assignment->update($validated);
+
+        return back()->with('success', 'Konfigurasi kelompok berhasil diperbarui.');
+    }
+
+    /**
+     * Force assign a student to a group
+     */
+    public function forceAssign(Request $request, int $id)
+    {
+        $assignment = GroupAssignment::findOrFail($id);
+        $validated = $request->validate([
+            'group_id' => 'required|exists:ga_groups,id',
+            'student_id' => 'required|exists:mahasiswa,id',
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $group = GaGroup::where('assignment_id', '=', $assignment->id)->findOrFail($validated['group_id']);
+
+        try {
+            $this->formationService->forceAssignStudent(
+                $group,
+                $validated['student_id'],
+                auth()->id(),
+                'admin',
+                $validated['reason'] ?? null
+            );
+            return back()->with('success', 'Mahasiswa berhasil dipaksa masuk kelompok.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Auto-assign all unassigned students
+     */
+    public function autoAssignRemaining(int $id)
+    {
+        $assignment = GroupAssignment::findOrFail($id);
+
+        try {
+            $result = $this->formationService->autoAssignRemaining(
+                $assignment,
+                auth()->id(),
+                'admin'
+            );
+            return back()->with('success', "Berhasil menempatkan {$result['assigned_count']} mahasiswa. Sisa: {$result['remaining']}.");
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove a student from a group
+     */
+    public function removeGroupMember(int $id, int $groupId, int $studentId)
+    {
+        $assignment = GroupAssignment::findOrFail($id);
+        $group = GaGroup::where('assignment_id', '=', $assignment->id)->findOrFail($groupId);
+
+        try {
+            $this->formationService->removeStudentFromGroup($group, $studentId);
+
+            ForceAssignLog::create([
+                'assignment_id' => $assignment->id,
+                'group_id' => $group->id,
+                'student_id' => $studentId,
+                'admin_id' => auth()->id(),
+                'admin_type' => 'admin',
+                'action' => 'remove',
+                'reason' => 'Removed by admin',
+            ]);
+
+            return back()->with('success', 'Mahasiswa berhasil dikeluarkan dari kelompok.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a group entirely
+     */
+    public function deleteGroupAction(int $id, int $groupId)
+    {
+        $assignment = GroupAssignment::findOrFail($id);
+        $group = GaGroup::where('assignment_id', '=', $assignment->id)->findOrFail($groupId);
+
+        $this->formationService->deleteGroup($group);
+
+        return back()->with('success', 'Kelompok berhasil dihapus.');
+    }
+
+    /**
      * Export advanced PDF report for admin group assignment detail
      */
     public function exportPdf(int $id)
@@ -665,20 +795,22 @@ class TugasKelompokController extends Controller
         $conflictList = $allConflicts->sortByDesc('created_at')->values();
 
         // Weekly activity timeline
+        // Weekly activity timeline
         $allActivityLogs = $groups->flatMap(fn ($g) => $g->activityLogs);
-        $weeklyActivity = collect();
+        $weeklyActivityArr = [];
         for ($i = 6; $i >= 0; $i--) {
             $day = now()->subDays($i);
             $dateStr = $day->format('Y-m-d');
             $count = $allActivityLogs->filter(fn ($log) => $log->created_at && $log->created_at->format('Y-m-d') === $dateStr)->count();
-            $weeklyActivity->push([
+            $weeklyActivityArr[] = [
                 'label' => $day->translatedFormat('D'),
                 'date' => $day->format('d/m'),
                 'count' => $count,
-            ]);
+            ];
         }
-        $maxWeeklyCount = max(1, $weeklyActivity->max('count'));
-        $weeklyActivity = $weeklyActivity->map(fn ($d) => array_merge($d, [
+        $weeklyActivityColl = collect($weeklyActivityArr);
+        $maxWeeklyCount = max(1, $weeklyActivityColl->max('count'));
+        $weeklyActivity = $weeklyActivityColl->map(fn ($d) => array_merge($d, [
             'percent' => (int) round(($d['count'] / $maxWeeklyCount) * 100),
         ]))->all();
 

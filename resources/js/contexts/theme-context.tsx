@@ -3,7 +3,13 @@
  * Manages theme state and applies theme to document
  */
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    type ReactNode,
+} from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -29,7 +35,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const root = window.document.documentElement;
-        
+
         // Remove existing theme classes
         root.classList.remove('light', 'dark');
 
@@ -37,7 +43,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
         if (theme === 'system') {
             // Check system preference
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+            const systemTheme = window.matchMedia(
+                '(prefers-color-scheme: dark)',
+            ).matches
                 ? 'dark'
                 : 'light';
             resolvedTheme = systemTheme;
@@ -58,7 +66,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         if (theme !== 'system') return;
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        
+
         const handleChange = (e: MediaQueryListEvent) => {
             const root = window.document.documentElement;
             root.classList.remove('light', 'dark');

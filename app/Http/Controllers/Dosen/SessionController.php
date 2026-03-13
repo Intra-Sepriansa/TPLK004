@@ -7,6 +7,8 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\MataKuliah;
 use App\Models\SelfieVerification;
+use App\Services\AttendanceSessionAutomationService;
+use App\Services\MeetingQuickFillService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -15,8 +17,10 @@ use Inertia\Response;
 
 class SessionController extends Controller
 {
-    public function show(AttendanceSession $session): Response
+    public function show(AttendanceSession $session, AttendanceSessionAutomationService $automationService): Response
     {
+        $automationService->syncActiveStates();
+
         $dosen = Auth::guard('dosen')->user();
         
         // Check if dosen teaches this course
@@ -68,21 +72,25 @@ class SessionController extends Controller
         ]);
     }
 
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(
+        Request $request,
+        MeetingQuickFillService $meetingQuickFillService,
+        AttendanceSessionAutomationService $automationService,
+    ): \Illuminate\Http\RedirectResponse
     {
         $dosen = Auth::guard('dosen')->user();
         
         $validated = $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
             'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'meeting_number' => 'required|integer|min:1',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
-            'auto_activate' => 'nullable|boolean',
         ]);
 
         // Check if dosen teaches this course
-        $course = MataKuliah::find($validated['course_id']);
+        $course = MataKuliah::with('meetingPlans')->find($validated['course_id']);
         if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403, 'Anda tidak memiliki akses ke mata kuliah ini.');
         }
@@ -101,16 +109,36 @@ class SessionController extends Controller
             $message = "Pertemuan {$validated['meeting_number']} sudah ada. Sistem otomatis membuat Pertemuan {$meetingNumber}.";
         }
 
+        $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
+            $course,
+            $meetingNumber,
+        );
+        if ($offlineValidationMessage) {
+            return back()->withErrors([
+                'meeting_number' => $offlineValidationMessage,
+            ])->withInput();
+        }
+
+        $resolvedContent = $meetingQuickFillService->resolveSessionContent(
+            $course,
+            $meetingNumber,
+            $validated['title'] ?? null,
+            $validated['description'] ?? null,
+        );
+
         $session = AttendanceSession::create([
             'course_id' => $validated['course_id'],
             'meeting_number' => $meetingNumber,
-            'title' => $validated['title'] ?? null,
+            'title' => $resolvedContent['title'],
+            'description' => $resolvedContent['description'],
             'start_at' => $validated['start_at'],
             'end_at' => $validated['end_at'],
             'qr_token' => Str::random(32),
-            'is_active' => $validated['auto_activate'] ?? false,
+            'is_active' => false,
             'created_by_dosen_id' => $dosen->id,
         ]);
+
+        $automationService->syncActiveStates();
 
         return redirect()->route('dosen.sesi-absen')->with('success', $message);
     }
@@ -137,7 +165,12 @@ class SessionController extends Controller
             abort(403);
         }
 
-        $session->update(['is_active' => false]);
+        $payload = ['is_active' => false];
+        if ($session->end_at && $session->end_at->isFuture()) {
+            $payload['end_at'] = now();
+        }
+
+        $session->update($payload);
         return back()->with('success', 'Sesi ditutup.');
     }
 

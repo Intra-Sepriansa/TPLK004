@@ -1,11 +1,11 @@
 import HelpIcon from '@/assets/admin/help-center/help.png';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,16 +25,16 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import StudentLayout from '@/layouts/student-layout';
 import {
-    getHelpAnalyticsSummary,
-    getHelpVideos,
     getContactInfo,
     getFAQCategories,
+    getHelpAnalyticsSummary,
+    getHelpVideos,
+    getTroubleshootingGuides,
+    rateFAQ,
+    submitFeedback,
     trackHelpContentView,
     trackHelpPageView,
     trackHelpSearch,
-    rateFAQ,
-    getTroubleshootingGuides,
-    submitFeedback,
     type HelpAnalyticsSummary,
 } from '@/lib/help-api';
 import { cn } from '@/lib/utils';
@@ -67,7 +67,14 @@ import {
     Wrench,
     X,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    type FormEvent,
+} from 'react';
 
 type PageProps = {
     auth?: {
@@ -198,7 +205,10 @@ const sectionCards = [
         icon: BookOpen,
         description:
             'Blueprint operasional end-to-end untuk alur presensi, tugas, validasi, dan tata kelola penggunaan fitur inti mahasiswa secara terstruktur.',
-        highlights: ['Checklist harian per fitur', 'Alur validasi dan SLA layanan'],
+        highlights: [
+            'Checklist harian per fitur',
+            'Alur validasi dan SLA layanan',
+        ],
     },
     {
         id: 'tips',
@@ -255,10 +265,7 @@ const sectionCards = [
 const toLower = (value: string): string => value.toLowerCase();
 
 const wordCount = (text: string): number =>
-    text
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean).length;
+    text.trim().split(/\s+/).filter(Boolean).length;
 
 const excerpt = (text: string, max = 180): string => {
     const trimmed = text.replace(/\s+/g, ' ').trim();
@@ -304,7 +311,8 @@ const normalizeFaqCategories = (payload: unknown): NormalizedFAQCategory[] => {
 
     return payload
         .map((rawCategory): NormalizedFAQCategory | null => {
-            if (typeof rawCategory !== 'object' || rawCategory === null) return null;
+            if (typeof rawCategory !== 'object' || rawCategory === null)
+                return null;
 
             const category = rawCategory as Record<string, unknown>;
             const categoryId = String(category.id ?? '').trim();
@@ -313,10 +321,13 @@ const normalizeFaqCategories = (payload: unknown): NormalizedFAQCategory[] => {
 
             if (!categoryId || !categoryName) return null;
 
-            const faqsPayload = Array.isArray(category.faqs) ? category.faqs : [];
+            const faqsPayload = Array.isArray(category.faqs)
+                ? category.faqs
+                : [];
             const faqs = faqsPayload
                 .map((rawFaq): NormalizedFAQ | null => {
-                    if (typeof rawFaq !== 'object' || rawFaq === null) return null;
+                    if (typeof rawFaq !== 'object' || rawFaq === null)
+                        return null;
 
                     const faq = rawFaq as Record<string, unknown>;
                     const faqId = String(faq.id ?? '').trim();
@@ -335,7 +346,8 @@ const normalizeFaqCategories = (payload: unknown): NormalizedFAQCategory[] => {
                         notHelpful: Number(faq.notHelpful ?? 0),
                         views: Number(faq.views ?? 0),
                         userVote:
-                            faq.userVote === 'helpful' || faq.userVote === 'notHelpful'
+                            faq.userVote === 'helpful' ||
+                            faq.userVote === 'notHelpful'
                                 ? faq.userVote
                                 : null,
                     };
@@ -350,10 +362,14 @@ const normalizeFaqCategories = (payload: unknown): NormalizedFAQCategory[] => {
                 faqs,
             };
         })
-        .filter((category): category is NormalizedFAQCategory => category !== null);
+        .filter(
+            (category): category is NormalizedFAQCategory => category !== null,
+        );
 };
 
-const normalizeTroubleshooting = (payload: unknown): NormalizedTroubleshooting[] => {
+const normalizeTroubleshooting = (
+    payload: unknown,
+): NormalizedTroubleshooting[] => {
     if (!Array.isArray(payload)) return [];
 
     return payload
@@ -379,8 +395,13 @@ const normalizeTroubleshooting = (payload: unknown): NormalizedTroubleshooting[]
                         if (typeof item === 'object' && item !== null) {
                             const mapped = item as Record<string, unknown>;
                             const titlePart = String(mapped.title ?? '').trim();
-                            const descriptionPart = String(mapped.description ?? '').trim();
-                            return [titlePart, descriptionPart].filter(Boolean).join(' - ').trim();
+                            const descriptionPart = String(
+                                mapped.description ?? '',
+                            ).trim();
+                            return [titlePart, descriptionPart]
+                                .filter(Boolean)
+                                .join(' - ')
+                                .trim();
                         }
                         return '';
                     })
@@ -399,7 +420,9 @@ const normalizeTroubleshooting = (payload: unknown): NormalizedTroubleshooting[]
                     guide.severity === 'high'
                         ? guide.severity
                         : 'medium',
-                estimatedTime: String(guide.estimatedTime ?? guide.estimated_time ?? '5-10 menit'),
+                estimatedTime: String(
+                    guide.estimatedTime ?? guide.estimated_time ?? '5-10 menit',
+                ),
                 views: Number(guide.views ?? 0),
             };
         })
@@ -417,12 +440,17 @@ const normalizeContact = (payload: unknown): ContactInfo | undefined => {
     return {
         email,
         phone: String(mapped.phone ?? '').trim() || undefined,
-        whatsapp: String(mapped.whatsapp ?? mapped.phone ?? '').trim() || undefined,
+        whatsapp:
+            String(mapped.whatsapp ?? mapped.phone ?? '').trim() || undefined,
         hours:
-            String(mapped.hours ?? mapped.support_hours ?? '').trim() || undefined,
+            String(mapped.hours ?? mapped.support_hours ?? '').trim() ||
+            undefined,
         responseTime:
-            String(mapped.responseTime ?? mapped.response_time ?? '').trim() || undefined,
-        activeTickets: Number(mapped.activeTickets ?? mapped.active_tickets ?? 0),
+            String(mapped.responseTime ?? mapped.response_time ?? '').trim() ||
+            undefined,
+        activeTickets: Number(
+            mapped.activeTickets ?? mapped.active_tickets ?? 0,
+        ),
     };
 };
 
@@ -478,7 +506,8 @@ const trackHelpEvent = (
 ) => {
     if (typeof window === 'undefined') return;
 
-    const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+    const gtag = (window as Window & { gtag?: (...args: unknown[]) => void })
+        .gtag;
     if (typeof gtag !== 'function') return;
 
     gtag('event', eventName, params);
@@ -490,8 +519,12 @@ export default function StudentHelp() {
 
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const [faqCategories, setFaqCategories] = useState<NormalizedFAQCategory[]>([]);
-    const [troubleshootingGuides, setTroubleshootingGuides] = useState<NormalizedTroubleshooting[]>([]);
+    const [faqCategories, setFaqCategories] = useState<NormalizedFAQCategory[]>(
+        [],
+    );
+    const [troubleshootingGuides, setTroubleshootingGuides] = useState<
+        NormalizedTroubleshooting[]
+    >([]);
     const [helpVideos, setHelpVideos] = useState<VideoTutorial[]>([]);
     const [contactInfo, setContactInfo] = useState<ContactInfo>();
 
@@ -502,8 +535,12 @@ export default function StudentHelp() {
     const [searchQuery, setSearchQuery] = useState('');
     const [faqFilter, setFaqFilter] = useState('Semua');
 
-    const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null);
-    const [selectedVideo, setSelectedVideo] = useState<VideoTutorial | null>(null);
+    const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(
+        null,
+    );
+    const [selectedVideo, setSelectedVideo] = useState<VideoTutorial | null>(
+        null,
+    );
     const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
     const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
 
@@ -522,7 +559,8 @@ export default function StudentHelp() {
     const [faqUserVotes, setFaqUserVotes] = useState<
         Record<string, 'helpful' | 'notHelpful' | null>
     >({});
-    const [analyticsSummary, setAnalyticsSummary] = useState<HelpAnalyticsSummary | null>(null);
+    const [analyticsSummary, setAnalyticsSummary] =
+        useState<HelpAnalyticsSummary | null>(null);
     const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
 
     const showToast = (type: 'success' | 'error', message: string) => {
@@ -554,19 +592,28 @@ export default function StudentHelp() {
         setErrorMessage(null);
 
         try {
-            const [faqsPayload, troubleshootingPayload, videosPayload, contactPayload] = await Promise.all([
+            const [
+                faqsPayload,
+                troubleshootingPayload,
+                videosPayload,
+                contactPayload,
+            ] = await Promise.all([
                 getFAQCategories(),
                 getTroubleshootingGuides(),
                 getHelpVideos(),
                 getContactInfo(),
             ]);
 
-            const normalizedCategories = normalizeFaqCategories(faqsPayload as unknown);
+            const normalizedCategories = normalizeFaqCategories(
+                faqsPayload as unknown,
+            );
             const normalizedTroubleshooting = normalizeTroubleshooting(
                 troubleshootingPayload as unknown,
             );
             const normalizedVideos = normalizeVideos(videosPayload as unknown);
-            const normalizedContact = normalizeContact(contactPayload as unknown);
+            const normalizedContact = normalizeContact(
+                contactPayload as unknown,
+            );
 
             setFaqCategories(normalizedCategories);
             setTroubleshootingGuides(normalizedTroubleshooting);
@@ -606,7 +653,9 @@ export default function StudentHelp() {
             setContactInfo(undefined);
             setAnalyticsSummary(null);
             setIsAnalyticsLoading(false);
-            setErrorMessage('Gagal memuat data bantuan. Coba muat ulang halaman.');
+            setErrorMessage(
+                'Gagal memuat data bantuan. Coba muat ulang halaman.',
+            );
         } finally {
             setIsLoading(false);
         }
@@ -622,7 +671,10 @@ export default function StudentHelp() {
 
     useEffect(() => {
         const handleKeyboardShortcuts = (event: KeyboardEvent) => {
-            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+            if (
+                (event.metaKey || event.ctrlKey) &&
+                event.key.toLowerCase() === 'k'
+            ) {
                 event.preventDefault();
                 searchInputRef.current?.focus();
             }
@@ -635,7 +687,8 @@ export default function StudentHelp() {
         };
 
         window.addEventListener('keydown', handleKeyboardShortcuts);
-        return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
+        return () =>
+            window.removeEventListener('keydown', handleKeyboardShortcuts);
     }, []);
 
     const allFaqs = useMemo(
@@ -684,32 +737,39 @@ export default function StudentHelp() {
             };
         });
 
-        const troubleshootingArticles: HelpArticle[] = troubleshootingGuides.map((guide) => {
-            const troubleshootingContent = [guide.problem, ...guide.steps].join('\n\n');
-            return {
-                id: guide.id,
-                source: 'troubleshooting',
-                title: guide.title,
-                description: excerpt(guide.problem, 130),
-                content: troubleshootingContent,
-                category: 'Troubleshooting',
-                difficulty: guide.severity === 'high' ? 'Pro' : 'Menengah',
-                views: guide.views,
-                helpful: 0,
-                notHelpful: 0,
-                readTime: `${Math.max(1, Math.ceil(wordCount(troubleshootingContent) / 180))} min`,
-            };
-        });
+        const troubleshootingArticles: HelpArticle[] =
+            troubleshootingGuides.map((guide) => {
+                const troubleshootingContent = [
+                    guide.problem,
+                    ...guide.steps,
+                ].join('\n\n');
+                return {
+                    id: guide.id,
+                    source: 'troubleshooting',
+                    title: guide.title,
+                    description: excerpt(guide.problem, 130),
+                    content: troubleshootingContent,
+                    category: 'Troubleshooting',
+                    difficulty: guide.severity === 'high' ? 'Pro' : 'Menengah',
+                    views: guide.views,
+                    helpful: 0,
+                    notHelpful: 0,
+                    readTime: `${Math.max(1, Math.ceil(wordCount(troubleshootingContent) / 180))} min`,
+                };
+            });
 
         return [...faqArticles, ...troubleshootingArticles]
             .filter((article) => {
                 if (!query) return true;
-                const searchable = `${article.title} ${article.description} ${article.content} ${article.category}`.toLowerCase();
+                const searchable =
+                    `${article.title} ${article.description} ${article.content} ${article.category}`.toLowerCase();
                 return searchable.includes(query);
             })
             .sort((left, right) => {
-                const leftScore = left.views + left.helpful * 4 - left.notHelpful;
-                const rightScore = right.views + right.helpful * 4 - right.notHelpful;
+                const leftScore =
+                    left.views + left.helpful * 4 - left.notHelpful;
+                const rightScore =
+                    right.views + right.helpful * 4 - right.notHelpful;
                 return rightScore - leftScore;
             })
             .slice(0, 5);
@@ -719,7 +779,8 @@ export default function StudentHelp() {
         return helpVideos
             .filter((video) => {
                 if (!query) return true;
-                const searchable = `${video.title} ${video.description} ${video.category}`.toLowerCase();
+                const searchable =
+                    `${video.title} ${video.description} ${video.category}`.toLowerCase();
                 return searchable.includes(query);
             })
             .slice(0, 3);
@@ -733,7 +794,8 @@ export default function StudentHelp() {
 
     const filteredFaqItems = useMemo(() => {
         return allFaqs.filter((faq) => {
-            const searchable = `${faq.question} ${faq.answer} ${faq.categoryName}`.toLowerCase();
+            const searchable =
+                `${faq.question} ${faq.answer} ${faq.categoryName}`.toLowerCase();
             const matchesQuery = !query || searchable.includes(query);
 
             const matchesFilter =
@@ -751,7 +813,11 @@ export default function StudentHelp() {
     const categoryCardMetrics = useMemo(() => {
         const securityFaqs = allFaqs.filter((faq) => {
             const key = `${faq.categoryId} ${faq.categoryName}`.toLowerCase();
-            return key.includes('akun') || key.includes('teknis') || key.includes('keamanan');
+            return (
+                key.includes('akun') ||
+                key.includes('teknis') ||
+                key.includes('keamanan')
+            );
         });
 
         const academicFaqs = allFaqs.filter((faq) => {
@@ -766,7 +832,11 @@ export default function StudentHelp() {
 
         const tipsCount = troubleshootingGuides.filter((guide) => {
             const key = `${guide.title} ${guide.problem}`.toLowerCase();
-            return key.includes('tips') || key.includes('cara') || key.includes('solusi');
+            return (
+                key.includes('tips') ||
+                key.includes('cara') ||
+                key.includes('solusi')
+            );
         }).length;
 
         return {
@@ -821,7 +891,10 @@ export default function StudentHelp() {
         );
     };
 
-    const updateTroubleshootingViewCount = (guideId: string, viewCount: number) => {
+    const updateTroubleshootingViewCount = (
+        guideId: string,
+        viewCount: number,
+    ) => {
         setTroubleshootingGuides((prev) =>
             prev.map((guide) =>
                 guide.id === guideId ? { ...guide, views: viewCount } : guide,
@@ -844,7 +917,8 @@ export default function StudentHelp() {
     };
 
     const handleTrackArticleView = async (article: HelpArticle) => {
-        const contentType = article.source === 'faq' ? 'faq' : 'troubleshooting';
+        const contentType =
+            article.source === 'faq' ? 'faq' : 'troubleshooting';
 
         try {
             const tracked = await trackHelpContentView(contentType, article.id);
@@ -852,7 +926,10 @@ export default function StudentHelp() {
             if (tracked.contentType === 'faq') {
                 updateFaqViewCount(tracked.contentId, tracked.viewCount);
             } else if (tracked.contentType === 'troubleshooting') {
-                updateTroubleshootingViewCount(tracked.contentId, tracked.viewCount);
+                updateTroubleshootingViewCount(
+                    tracked.contentId,
+                    tracked.viewCount,
+                );
             }
 
             await loadAnalyticsSummary();
@@ -885,22 +962,35 @@ export default function StudentHelp() {
     };
 
     const handleFaqVote = async (faqId: string, helpful: boolean) => {
-        const normalizedFaqId = faqId.startsWith('faq-') ? faqId : `faq-${faqId}`;
-        const previousCounts = faqVotes[normalizedFaqId] ?? { helpful: 0, notHelpful: 0 };
+        const normalizedFaqId = faqId.startsWith('faq-')
+            ? faqId
+            : `faq-${faqId}`;
+        const previousCounts = faqVotes[normalizedFaqId] ?? {
+            helpful: 0,
+            notHelpful: 0,
+        };
         const previousUserVote = faqUserVotes[normalizedFaqId] ?? null;
 
         if (previousUserVote) {
-            showToast('error', 'Anda sudah memberikan vote untuk pertanyaan ini.');
+            showToast(
+                'error',
+                'Anda sudah memberikan vote untuk pertanyaan ini.',
+            );
             return;
         }
 
         setFaqVotes((prev) => {
-            const current = prev[normalizedFaqId] ?? { helpful: 0, notHelpful: 0 };
+            const current = prev[normalizedFaqId] ?? {
+                helpful: 0,
+                notHelpful: 0,
+            };
             return {
                 ...prev,
                 [normalizedFaqId]: {
                     helpful: helpful ? current.helpful + 1 : current.helpful,
-                    notHelpful: helpful ? current.notHelpful : current.notHelpful + 1,
+                    notHelpful: helpful
+                        ? current.notHelpful
+                        : current.notHelpful + 1,
                 },
             };
         });
@@ -920,7 +1010,8 @@ export default function StudentHelp() {
             }));
             setFaqUserVotes((prev) => ({
                 ...prev,
-                [voteResult.faqId]: voteResult.userVote ?? (helpful ? 'helpful' : 'notHelpful'),
+                [voteResult.faqId]:
+                    voteResult.userVote ?? (helpful ? 'helpful' : 'notHelpful'),
             }));
 
             trackHelpEvent('help_faq_vote', {
@@ -929,9 +1020,7 @@ export default function StudentHelp() {
             });
             await loadAnalyticsSummary();
             showToast(
-                voteResult.alreadyVoted
-                    ? 'error'
-                    : 'success',
+                voteResult.alreadyVoted ? 'error' : 'success',
                 voteResult.alreadyVoted
                     ? 'Anda sudah memberikan vote untuk pertanyaan ini.'
                     : helpful
@@ -947,7 +1036,10 @@ export default function StudentHelp() {
                 ...prev,
                 [normalizedFaqId]: previousUserVote,
             }));
-            showToast('error', 'Gagal menyimpan feedback FAQ. Silakan coba lagi.');
+            showToast(
+                'error',
+                'Gagal menyimpan feedback FAQ. Silakan coba lagi.',
+            );
         }
     };
 
@@ -960,7 +1052,10 @@ export default function StudentHelp() {
         }
 
         if (ticketForm.message.trim().length < 20) {
-            showToast('error', 'Deskripsi minimal 20 karakter agar tim support mudah membantu.');
+            showToast(
+                'error',
+                'Deskripsi minimal 20 karakter agar tim support mudah membantu.',
+            );
             return;
         }
 
@@ -1007,7 +1102,10 @@ export default function StudentHelp() {
                 category: ticketForm.category,
                 priority: ticketForm.priority,
             });
-            showToast('error', 'Gagal mengirim tiket dukungan. Silakan coba lagi.');
+            showToast(
+                'error',
+                'Gagal mengirim tiket dukungan. Silakan coba lagi.',
+            );
         } finally {
             setIsSubmittingTicket(false);
         }
@@ -1032,7 +1130,7 @@ export default function StudentHelp() {
                 <Head title="Bantuan Mahasiswa" />
                 <div className="space-y-6 p-4 md:p-6 lg:p-8">
                     <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white shadow-2xl">
-                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                        <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                         <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                         <div className="relative flex items-center gap-4">
                             <div className="relative flex h-16 w-16 shrink-0">
@@ -1043,8 +1141,12 @@ export default function StudentHelp() {
                                 />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-indigo-100">Pusat Informasi Mahasiswa</p>
-                                <p className="text-2xl font-bold">Memuat Bantuan...</p>
+                                <p className="text-sm font-medium text-indigo-100">
+                                    Pusat Informasi Mahasiswa
+                                </p>
+                                <p className="text-2xl font-bold">
+                                    Memuat Bantuan...
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -1134,7 +1236,8 @@ export default function StudentHelp() {
                                 onClick={() => void loadHelpData()}
                                 className="border-rose-300 bg-white/70 text-rose-700 hover:bg-white"
                             >
-                                <RefreshCw className="mr-2 h-4 w-4" /> Muat Ulang
+                                <RefreshCw className="mr-2 h-4 w-4" /> Muat
+                                Ulang
                             </Button>
                         </div>
                     </motion.div>
@@ -1146,21 +1249,41 @@ export default function StudentHelp() {
                 >
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <motion.div
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-                        animate={{ scale: [1, 1.18, 1], opacity: [0.22, 0.4, 0.22] }}
-                        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                        className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                        animate={{
+                            scale: [1, 1.18, 1],
+                            opacity: [0.22, 0.4, 0.22],
+                        }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                        }}
                     />
                     <motion.div
                         className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-                        animate={{ scale: [1.08, 1, 1.08], opacity: [0.35, 0.2, 0.35] }}
-                        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+                        animate={{
+                            scale: [1.08, 1, 1.08],
+                            opacity: [0.35, 0.2, 0.35],
+                        }}
+                        transition={{
+                            duration: 7,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                        }}
                     />
 
                     <div className="relative">
@@ -1168,9 +1291,21 @@ export default function StudentHelp() {
                             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                                 <motion.div
                                     className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
-                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 0.5,
+                                        rotate: -10,
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        scale: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        delay: 0.2,
+                                    }}
                                     whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
                                     <img
@@ -1203,8 +1338,10 @@ export default function StudentHelp() {
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.5 }}
                                     >
-                                        Temukan panduan, video tutorial, FAQ interaktif, dan jalur dukungan
-                                        teknis dalam satu pusat bantuan yang rapi dan mudah dipakai.
+                                        Temukan panduan, video tutorial, FAQ
+                                        interaktif, dan jalur dukungan teknis
+                                        dalam satu pusat bantuan yang rapi dan
+                                        mudah dipakai.
                                     </motion.p>
                                 </div>
                             </div>
@@ -1214,11 +1351,13 @@ export default function StudentHelp() {
                                     className="relative overflow-hidden rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur"
                                     whileHover={{ scale: 1.01 }}
                                 >
-                                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-purple-500/70" />
+                                    <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-purple-500/70" />
                                     <Input
                                         ref={searchInputRef}
                                         value={searchQuery}
-                                        onChange={(event) => setSearchQuery(event.target.value)}
+                                        onChange={(event) =>
+                                            setSearchQuery(event.target.value)
+                                        }
                                         onKeyDown={(event) => {
                                             if (event.key === 'Enter') {
                                                 event.preventDefault();
@@ -1226,12 +1365,14 @@ export default function StudentHelp() {
                                             }
                                         }}
                                         placeholder="Cari bantuan, panduan, atau ketik pertanyaan Anda..."
-                                        className="h-14 border-0 bg-transparent pl-14 pr-28 text-sm font-medium text-neutral-900 placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-purple-300"
+                                        className="h-14 border-0 bg-transparent pr-28 pl-14 text-sm font-medium text-neutral-900 placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-purple-300"
                                     />
-                                    <div className="absolute right-2 top-2 bottom-2 flex items-center gap-2">
+                                    <div className="absolute top-2 right-2 bottom-2 flex items-center gap-2">
                                         {searchQuery ? (
                                             <button
-                                                onClick={() => setSearchQuery('')}
+                                                onClick={() =>
+                                                    setSearchQuery('')
+                                                }
                                                 className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-700"
                                             >
                                                 <X className="h-4 w-4" />
@@ -1257,18 +1398,19 @@ export default function StudentHelp() {
 
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-6"
+                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40"
                 >
                     <div className="mb-5 flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
                             <BarChart3 className="h-5 w-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                            <h2 className="text-lg font-semibold text-neutral-900 sm:text-xl dark:text-white">
                                 Mini Analytics Bantuan
                             </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Top query, FAQ paling membantu, dan CTR video real-time dari backend
+                                Top query, FAQ paling membantu, dan CTR video
+                                real-time dari backend
                             </p>
                         </div>
                     </div>
@@ -1286,27 +1428,56 @@ export default function StudentHelp() {
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                                 <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
-                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">Page Views</p>
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                                        Page Views
+                                    </p>
                                     <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
-                                        <AnimatedCounter value={analyticsSummary.totals.pageViews} />
+                                        <AnimatedCounter
+                                            value={
+                                                analyticsSummary.totals
+                                                    .pageViews
+                                            }
+                                        />
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
-                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">Top Query Count</p>
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                                        Top Query Count
+                                    </p>
                                     <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
-                                        <AnimatedCounter value={analyticsSummary.topQueries[0]?.count ?? 0} />
+                                        <AnimatedCounter
+                                            value={
+                                                analyticsSummary.topQueries[0]
+                                                    ?.count ?? 0
+                                            }
+                                        />
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
-                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">Pencarian</p>
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                                        Pencarian
+                                    </p>
                                     <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
-                                        <AnimatedCounter value={analyticsSummary.totals.searches} />
+                                        <AnimatedCounter
+                                            value={
+                                                analyticsSummary.totals.searches
+                                            }
+                                        />
                                     </p>
                                 </div>
                                 <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
-                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">CTR Video</p>
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                                        CTR Video
+                                    </p>
                                     <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
-                                        <AnimatedCounter value={analyticsSummary.videoCtr.ctrPercent} decimals={2} suffix="%" />
+                                        <AnimatedCounter
+                                            value={
+                                                analyticsSummary.videoCtr
+                                                    .ctrPercent
+                                            }
+                                            decimals={2}
+                                            suffix="%"
+                                        />
                                     </p>
                                 </div>
                             </div>
@@ -1318,22 +1489,27 @@ export default function StudentHelp() {
                                         Top Query
                                     </div>
                                     <div className="space-y-2">
-                                        {analyticsSummary.topQueries.length === 0 ? (
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Belum ada data query.</p>
+                                        {analyticsSummary.topQueries.length ===
+                                        0 ? (
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                Belum ada data query.
+                                            </p>
                                         ) : (
-                                            analyticsSummary.topQueries.slice(0, 5).map((item, index) => (
-                                                <div
-                                                    key={`${item.query}-${index}`}
-                                                    className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
-                                                >
-                                                    <p className="line-clamp-1 max-w-[70%] font-medium text-neutral-700 dark:text-neutral-200">
-                                                        {item.query}
-                                                    </p>
-                                                    <p className="font-semibold text-indigo-600 dark:text-indigo-300">
-                                                        {item.count}x
-                                                    </p>
-                                                </div>
-                                            ))
+                                            analyticsSummary.topQueries
+                                                .slice(0, 5)
+                                                .map((item, index) => (
+                                                    <div
+                                                        key={`${item.query}-${index}`}
+                                                        className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
+                                                    >
+                                                        <p className="line-clamp-1 max-w-[70%] font-medium text-neutral-700 dark:text-neutral-200">
+                                                            {item.query}
+                                                        </p>
+                                                        <p className="font-semibold text-indigo-600 dark:text-indigo-300">
+                                                            {item.count}x
+                                                        </p>
+                                                    </div>
+                                                ))
                                         )}
                                     </div>
                                 </div>
@@ -1344,22 +1520,29 @@ export default function StudentHelp() {
                                         FAQ Paling Membantu
                                     </div>
                                     <div className="space-y-2">
-                                        {analyticsSummary.topFaqs.length === 0 ? (
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Belum ada metrik FAQ.</p>
+                                        {analyticsSummary.topFaqs.length ===
+                                        0 ? (
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                Belum ada metrik FAQ.
+                                            </p>
                                         ) : (
-                                            analyticsSummary.topFaqs.slice(0, 3).map((faq) => (
-                                                <div
-                                                    key={faq.id}
-                                                    className="rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
-                                                >
-                                                    <p className="line-clamp-2 font-medium text-neutral-700 dark:text-neutral-200">
-                                                        {faq.question}
-                                                    </p>
-                                                    <p className="mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-300">
-                                                        Helpful {faq.helpful} • Score {faq.score}
-                                                    </p>
-                                                </div>
-                                            ))
+                                            analyticsSummary.topFaqs
+                                                .slice(0, 3)
+                                                .map((faq) => (
+                                                    <div
+                                                        key={faq.id}
+                                                        className="rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
+                                                    >
+                                                        <p className="line-clamp-2 font-medium text-neutral-700 dark:text-neutral-200">
+                                                            {faq.question}
+                                                        </p>
+                                                        <p className="mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-300">
+                                                            Helpful{' '}
+                                                            {faq.helpful} •
+                                                            Score {faq.score}
+                                                        </p>
+                                                    </div>
+                                                ))
                                         )}
                                     </div>
                                 </div>
@@ -1371,33 +1554,46 @@ export default function StudentHelp() {
                                     </div>
                                     <div className="rounded-xl bg-white/70 p-3 text-xs dark:bg-neutral-800/70">
                                         <p className="text-neutral-500 dark:text-neutral-400">
-                                            {analyticsSummary.videoCtr.clicks} klik dari {analyticsSummary.videoCtr.pageViews} page view.
+                                            {analyticsSummary.videoCtr.clicks}{' '}
+                                            klik dari{' '}
+                                            {
+                                                analyticsSummary.videoCtr
+                                                    .pageViews
+                                            }{' '}
+                                            page view.
                                         </p>
                                         <p className="mt-1 text-sm font-semibold text-purple-600 dark:text-purple-300">
-                                            CTR {analyticsSummary.videoCtr.ctrPercent.toFixed(2)}%
+                                            CTR{' '}
+                                            {analyticsSummary.videoCtr.ctrPercent.toFixed(
+                                                2,
+                                            )}
+                                            %
                                         </p>
                                     </div>
                                     <div className="mt-2 space-y-2">
-                                        {analyticsSummary.topVideos.slice(0, 3).map((video) => (
-                                            <div
-                                                key={video.id}
-                                                className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
-                                            >
-                                                <p className="line-clamp-1 max-w-[72%] font-medium text-neutral-700 dark:text-neutral-200">
-                                                    {video.title}
-                                                </p>
-                                                <p className="font-semibold text-purple-600 dark:text-purple-300">
-                                                    {video.views}
-                                                </p>
-                                            </div>
-                                        ))}
+                                        {analyticsSummary.topVideos
+                                            .slice(0, 3)
+                                            .map((video) => (
+                                                <div
+                                                    key={video.id}
+                                                    className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
+                                                >
+                                                    <p className="line-clamp-1 max-w-[72%] font-medium text-neutral-700 dark:text-neutral-200">
+                                                        {video.title}
+                                                    </p>
+                                                    <p className="font-semibold text-purple-600 dark:text-purple-300">
+                                                        {video.views}
+                                                    </p>
+                                                </div>
+                                            ))}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     ) : (
                         <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
-                            Metrik analytics belum tersedia. Jalankan migrasi analytics lalu muat ulang halaman.
+                            Metrik analytics belum tersedia. Jalankan migrasi
+                            analytics lalu muat ulang halaman.
                         </div>
                     )}
                 </motion.div>
@@ -1408,7 +1604,7 @@ export default function StudentHelp() {
                             <BookOpen className="h-5 w-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                            <h2 className="text-lg font-semibold text-neutral-900 sm:text-xl dark:text-white">
                                 Kategori Bantuan
                             </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
@@ -1425,14 +1621,26 @@ export default function StudentHelp() {
                                 whileHover="hover"
                                 className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
                             >
-                                <div className={cn('absolute inset-0 bg-gradient-to-br opacity-[0.06]', card.color)} />
-                                <motion.div
+                                <div
                                     className={cn(
-                                        'absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br blur-3xl',
+                                        'absolute inset-0 bg-gradient-to-br opacity-[0.06]',
                                         card.color,
                                     )}
-                                    animate={{ opacity: [0.12, 0.3, 0.12], scale: [1, 1.25, 1] }}
-                                    transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+                                />
+                                <motion.div
+                                    className={cn(
+                                        'absolute -top-12 -right-12 h-32 w-32 rounded-full bg-gradient-to-br blur-3xl',
+                                        card.color,
+                                    )}
+                                    animate={{
+                                        opacity: [0.12, 0.3, 0.12],
+                                        scale: [1, 1.25, 1],
+                                    }}
+                                    transition={{
+                                        duration: 4.5,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                    }}
                                 />
 
                                 <div className="relative z-10">
@@ -1450,7 +1658,7 @@ export default function StudentHelp() {
                                         </Badge>
                                     </div>
 
-                                    <h3 className="text-lg font-bold text-neutral-900 transition-colors dark:text-white sm:text-xl">
+                                    <h3 className="text-lg font-bold text-neutral-900 transition-colors sm:text-xl dark:text-white">
                                         {card.title}
                                     </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -1475,11 +1683,16 @@ export default function StudentHelp() {
 
                                     <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 dark:border-white/10">
                                         <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                                            <AnimatedCounter value={card.articleCount} /> artikel
+                                            <AnimatedCounter
+                                                value={card.articleCount}
+                                            />{' '}
+                                            artikel
                                         </span>
                                         <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-500">
                                             <Star className="h-4 w-4 fill-amber-500" />
-                                            {card.rating ? card.rating.toFixed(1) : 'N/A'}
+                                            {card.rating
+                                                ? card.rating.toFixed(1)
+                                                : 'N/A'}
                                         </span>
                                     </div>
                                 </div>
@@ -1492,7 +1705,7 @@ export default function StudentHelp() {
                     variants={itemVariants}
                     className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12"
                 >
-                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8">
+                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40">
                         <div className="mb-5 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
@@ -1503,7 +1716,8 @@ export default function StudentHelp() {
                                         Artikel Terpopuler
                                     </h2>
                                     <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                        Rekomendasi panduan paling sering diakses
+                                        Rekomendasi panduan paling sering
+                                        diakses
                                     </p>
                                 </div>
                             </div>
@@ -1512,14 +1726,18 @@ export default function StudentHelp() {
                         <div className="space-y-3">
                             {popularArticles.length === 0 ? (
                                 <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
-                                    Data artikel belum tersedia untuk ditampilkan.
+                                    Data artikel belum tersedia untuk
+                                    ditampilkan.
                                 </div>
                             ) : (
                                 popularArticles.map((article, index) => {
-                                    const ratingDenominator = article.helpful + article.notHelpful;
+                                    const ratingDenominator =
+                                        article.helpful + article.notHelpful;
                                     const rating =
                                         ratingDenominator > 0
-                                            ? (article.helpful / ratingDenominator) * 5
+                                            ? (article.helpful /
+                                                  ratingDenominator) *
+                                              5
                                             : null;
 
                                     return (
@@ -1527,25 +1745,32 @@ export default function StudentHelp() {
                                             key={article.id}
                                             whileHover={{ x: 8, scale: 1.01 }}
                                             onClick={() => {
-                                                trackHelpEvent('help_article_open', {
-                                                    article_id: article.id,
-                                                    article_title: article.title,
-                                                    article_source: article.source,
-                                                });
-                                                void handleTrackArticleView(article);
+                                                trackHelpEvent(
+                                                    'help_article_open',
+                                                    {
+                                                        article_id: article.id,
+                                                        article_title:
+                                                            article.title,
+                                                        article_source:
+                                                            article.source,
+                                                    },
+                                                );
+                                                void handleTrackArticleView(
+                                                    article,
+                                                );
                                                 setSelectedArticle(article);
                                             }}
                                             className="group flex w-full items-start gap-4 rounded-2xl border border-white/20 bg-white/50 p-4 text-left shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-neutral-900/50"
                                         >
                                             <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
                                                 <BookOpen className="h-6 w-6" />
-                                                <span className="absolute -left-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-white dark:bg-white dark:text-neutral-900">
+                                                <span className="absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-white dark:bg-white dark:text-neutral-900">
                                                     #{index + 1}
                                                 </span>
                                             </div>
 
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="line-clamp-1 text-sm font-semibold text-neutral-900 transition-colors group-hover:text-emerald-600 dark:text-white sm:text-base">
+                                                <h3 className="line-clamp-1 text-sm font-semibold text-neutral-900 transition-colors group-hover:text-emerald-600 sm:text-base dark:text-white">
                                                     {article.title}
                                                 </h3>
                                                 <p className="mt-1 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
@@ -1553,14 +1778,18 @@ export default function StudentHelp() {
                                                 </p>
                                                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
                                                     <span className="inline-flex items-center gap-1">
-                                                        <Eye className="h-3.5 w-3.5" /> {article.views}
+                                                        <Eye className="h-3.5 w-3.5" />{' '}
+                                                        {article.views}
                                                     </span>
                                                     <span className="inline-flex items-center gap-1 text-amber-500">
                                                         <Star className="h-3.5 w-3.5 fill-amber-500" />
-                                                        {rating ? rating.toFixed(1) : 'N/A'}
+                                                        {rating
+                                                            ? rating.toFixed(1)
+                                                            : 'N/A'}
                                                     </span>
                                                     <span className="inline-flex items-center gap-1">
-                                                        <Clock3 className="h-3.5 w-3.5" /> {article.readTime}
+                                                        <Clock3 className="h-3.5 w-3.5" />{' '}
+                                                        {article.readTime}
                                                     </span>
                                                 </div>
                                             </div>
@@ -1575,7 +1804,7 @@ export default function StudentHelp() {
                         </div>
                     </div>
 
-                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8">
+                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40">
                         <div className="mb-5 flex items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-pink-600 text-white shadow-lg shadow-purple-500/30">
@@ -1595,7 +1824,8 @@ export default function StudentHelp() {
                         <div className="space-y-4">
                             {displayedVideos.length === 0 ? (
                                 <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
-                                    Tidak ada video yang sesuai kata kunci pencarian.
+                                    Tidak ada video yang sesuai kata kunci
+                                    pencarian.
                                 </div>
                             ) : (
                                 displayedVideos.map((video) => (
@@ -1613,7 +1843,12 @@ export default function StudentHelp() {
                                         }}
                                         className="group w-full rounded-2xl border border-white/20 bg-white/50 p-4 text-left shadow-sm transition-all hover:shadow-lg dark:border-white/10 dark:bg-neutral-900/50"
                                     >
-                                        <div className={cn('relative mb-3 h-36 overflow-hidden rounded-xl bg-gradient-to-br', video.accent)}>
+                                        <div
+                                            className={cn(
+                                                'relative mb-3 h-36 overflow-hidden rounded-xl bg-gradient-to-br',
+                                                video.accent,
+                                            )}
+                                        >
                                             {video.thumbnail ? (
                                                 <img
                                                     src={video.thumbnail}
@@ -1623,10 +1858,10 @@ export default function StudentHelp() {
                                                 />
                                             ) : null}
                                             <div className="absolute inset-0 bg-black/30" />
-                                            <div className="absolute left-3 top-3 rounded-lg bg-black/25 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                                            <div className="absolute top-3 left-3 rounded-lg bg-black/25 px-2 py-1 text-[10px] font-semibold tracking-wide text-white uppercase">
                                                 {video.category}
                                             </div>
-                                            <div className="absolute bottom-3 right-3 rounded-lg bg-black/35 px-2 py-1 text-[10px] font-semibold text-white">
+                                            <div className="absolute right-3 bottom-3 rounded-lg bg-black/35 px-2 py-1 text-[10px] font-semibold text-white">
                                                 {video.duration}
                                             </div>
                                             <div className="absolute inset-0 flex items-center justify-center">
@@ -1636,7 +1871,7 @@ export default function StudentHelp() {
                                             </div>
                                         </div>
 
-                                        <h3 className="line-clamp-2 text-sm font-semibold text-neutral-900 dark:text-white sm:text-base">
+                                        <h3 className="line-clamp-2 text-sm font-semibold text-neutral-900 sm:text-base dark:text-white">
                                             {video.title}
                                         </h3>
                                         <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
@@ -1656,7 +1891,7 @@ export default function StudentHelp() {
                 <motion.div
                     id="help-faq-section"
                     variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8"
+                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40"
                 >
                     <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex items-start gap-3">
@@ -1664,11 +1899,12 @@ export default function StudentHelp() {
                                 <MessageSquare className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                                <h2 className="text-lg font-semibold text-neutral-900 sm:text-xl dark:text-white">
                                     Pertanyaan Umum (FAQ)
                                 </h2>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                    Jawaban cepat untuk masalah yang sering ditemui
+                                    Jawaban cepat untuk masalah yang sering
+                                    ditemui
                                 </p>
                             </div>
                         </div>
@@ -1693,7 +1929,8 @@ export default function StudentHelp() {
 
                     {filteredFaqItems.length === 0 ? (
                         <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-10 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
-                            Tidak ada FAQ yang cocok dengan pencarian atau filter saat ini.
+                            Tidak ada FAQ yang cocok dengan pencarian atau
+                            filter saat ini.
                         </div>
                     ) : (
                         <Accordion
@@ -1707,7 +1944,10 @@ export default function StudentHelp() {
                                     helpful: faq.helpful,
                                     notHelpful: faq.notHelpful,
                                 };
-                                const userVote = faqUserVotes[faq.id] ?? faq.userVote ?? null;
+                                const userVote =
+                                    faqUserVotes[faq.id] ??
+                                    faq.userVote ??
+                                    null;
                                 const hasVoted = Boolean(userVote);
 
                                 return (
@@ -1716,9 +1956,11 @@ export default function StudentHelp() {
                                         value={faq.id}
                                         className="overflow-hidden rounded-2xl border border-white/20 bg-white/50 px-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-neutral-900/50"
                                     >
-                                        <AccordionTrigger className="py-4 text-left text-sm font-semibold text-neutral-900 hover:no-underline dark:text-white sm:text-base">
+                                        <AccordionTrigger className="py-4 text-left text-sm font-semibold text-neutral-900 hover:no-underline sm:text-base dark:text-white">
                                             <span>
-                                                <span className="mr-1 text-emerald-600">Q.</span>
+                                                <span className="mr-1 text-emerald-600">
+                                                    Q.
+                                                </span>
                                                 {faq.question}
                                             </span>
                                         </AccordionTrigger>
@@ -1729,30 +1971,46 @@ export default function StudentHelp() {
                                                     <span className="mr-1 font-semibold text-emerald-600 dark:text-emerald-400">
                                                         A.
                                                     </span>
-                                                    <span className="whitespace-pre-line">{faq.answer}</span>
+                                                    <span className="whitespace-pre-line">
+                                                        {faq.answer}
+                                                    </span>
                                                 </div>
 
                                                 <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-500 dark:text-neutral-400">
                                                     <span>
-                                                        Kategori: <span className="font-medium">{faq.categoryName}</span>
+                                                        Kategori:{' '}
+                                                        <span className="font-medium">
+                                                            {faq.categoryName}
+                                                        </span>
                                                     </span>
                                                     <span>
-                                                        Dilihat <span className="font-medium">{faq.views}</span> kali
+                                                        Dilihat{' '}
+                                                        <span className="font-medium">
+                                                            {faq.views}
+                                                        </span>{' '}
+                                                        kali
                                                     </span>
                                                 </div>
 
                                                 <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 dark:border-white/10">
                                                     <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                                                        Apakah jawaban ini membantu?
+                                                        Apakah jawaban ini
+                                                        membantu?
                                                     </span>
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
-                                                        onClick={() => void handleFaqVote(faq.id, true)}
+                                                        onClick={() =>
+                                                            void handleFaqVote(
+                                                                faq.id,
+                                                                true,
+                                                            )
+                                                        }
                                                         disabled={hasVoted}
                                                         className={cn(
                                                             'h-8 rounded-full px-3 text-xs',
-                                                            userVote === 'helpful'
+                                                            userVote ===
+                                                                'helpful'
                                                                 ? 'border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-500'
                                                                 : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300',
                                                         )}
@@ -1763,21 +2021,32 @@ export default function StudentHelp() {
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
-                                                        onClick={() => void handleFaqVote(faq.id, false)}
+                                                        onClick={() =>
+                                                            void handleFaqVote(
+                                                                faq.id,
+                                                                false,
+                                                            )
+                                                        }
                                                         disabled={hasVoted}
                                                         className={cn(
                                                             'h-8 rounded-full px-3 text-xs',
-                                                            userVote === 'notHelpful'
+                                                            userVote ===
+                                                                'notHelpful'
                                                                 ? 'border-rose-500 bg-rose-500 text-white hover:bg-rose-500'
                                                                 : 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300',
                                                         )}
                                                     >
                                                         <ThumbsDown className="mr-1 h-3.5 w-3.5" />
-                                                        Tidak ({votes.notHelpful})
+                                                        Tidak (
+                                                        {votes.notHelpful})
                                                     </Button>
                                                     {hasVoted ? (
                                                         <span className="rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                                                            Vote Anda: {userVote === 'helpful' ? 'Ya' : 'Tidak'}
+                                                            Vote Anda:{' '}
+                                                            {userVote ===
+                                                            'helpful'
+                                                                ? 'Ya'
+                                                                : 'Tidak'}
                                                         </span>
                                                     ) : null}
                                                 </div>
@@ -1794,13 +2063,15 @@ export default function StudentHelp() {
                             Masih belum menemukan jawaban yang dicari?
                         </p>
                         <p className="mt-1 text-xs text-neutral-200 sm:text-sm">
-                            Tim support siap membantu via tiket dukungan dengan penanganan terstruktur.
+                            Tim support siap membantu via tiket dukungan dengan
+                            penanganan terstruktur.
                         </p>
                         <Button
                             onClick={() => setIsTicketModalOpen(true)}
                             className="mt-4 rounded-xl bg-white text-neutral-900 hover:bg-white/90"
                         >
-                            <Headphones className="mr-2 h-4 w-4" /> Buat Tiket Dukungan
+                            <Headphones className="mr-2 h-4 w-4" /> Buat Tiket
+                            Dukungan
                         </Button>
                     </div>
                 </motion.div>
@@ -1811,11 +2082,12 @@ export default function StudentHelp() {
                             <Headphones className="h-5 w-5" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                            <h2 className="text-lg font-semibold text-neutral-900 sm:text-xl dark:text-white">
                                 Contact Support
                             </h2>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                                Pilih kanal bantuan yang paling nyaman untuk Anda
+                                Pilih kanal bantuan yang paling nyaman untuk
+                                Anda
                             </p>
                         </div>
                     </div>
@@ -1829,7 +2101,9 @@ export default function StudentHelp() {
                             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
                                 <Mail className="h-7 w-7" />
                             </div>
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Email Support</h3>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                Email Support
+                            </h3>
                             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                                 Tanya detail teknis via email
                             </p>
@@ -1849,9 +2123,14 @@ export default function StudentHelp() {
                             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300">
                                 <MessageCircle className="h-7 w-7" />
                             </div>
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">WhatsApp CS</h3>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                WhatsApp CS
+                            </h3>
                             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                                Respon cepat ({contactInfo?.hours ?? 'Jam layanan belum tersedia'})
+                                Respon cepat (
+                                {contactInfo?.hours ??
+                                    'Jam layanan belum tersedia'}
+                                )
                             </p>
                             <a
                                 href={
@@ -1877,13 +2156,15 @@ export default function StudentHelp() {
                             whileHover={{ y: -8 }}
                             className="relative rounded-3xl border border-white/20 bg-white/40 p-8 text-center shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                         >
-                            <span className="absolute right-4 top-4 rounded-full bg-rose-500 px-2 py-1 text-[10px] font-bold tracking-wide text-white">
+                            <span className="absolute top-4 right-4 rounded-full bg-rose-500 px-2 py-1 text-[10px] font-bold tracking-wide text-white">
                                 HOTLINE
                             </span>
                             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-300">
                                 <Phone className="h-7 w-7" />
                             </div>
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Telepon Darurat</h3>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                Telepon Darurat
+                            </h3>
                             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                                 24/7 untuk masalah kritikal
                             </p>
@@ -1891,14 +2172,19 @@ export default function StudentHelp() {
                                 href={`tel:${contactInfo?.phone ?? contactInfo?.whatsapp ?? ''}`}
                                 className="mt-4 inline-block text-2xl font-black tracking-tight text-rose-600 hover:underline dark:text-rose-300"
                             >
-                                {contactInfo?.phone ?? contactInfo?.whatsapp ?? 'Belum tersedia'}
+                                {contactInfo?.phone ??
+                                    contactInfo?.whatsapp ??
+                                    'Belum tersedia'}
                             </a>
                         </motion.div>
                     </div>
                 </motion.div>
             </motion.div>
 
-            <Dialog open={Boolean(selectedArticle)} onOpenChange={(open) => !open && setSelectedArticle(null)}>
+            <Dialog
+                open={Boolean(selectedArticle)}
+                onOpenChange={(open) => !open && setSelectedArticle(null)}
+            >
                 <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto rounded-3xl border border-white/20 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/95">
                     {selectedArticle ? (
                         <>
@@ -1908,10 +2194,12 @@ export default function StudentHelp() {
                                 </DialogTitle>
                                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
                                     <span className="inline-flex items-center gap-1">
-                                        <Eye className="h-3.5 w-3.5" /> {selectedArticle.views}
+                                        <Eye className="h-3.5 w-3.5" />{' '}
+                                        {selectedArticle.views}
                                     </span>
                                     <span className="inline-flex items-center gap-1">
-                                        <Clock3 className="h-3.5 w-3.5" /> {selectedArticle.readTime}
+                                        <Clock3 className="h-3.5 w-3.5" />{' '}
+                                        {selectedArticle.readTime}
                                     </span>
                                     <Badge className="rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-900/30 dark:text-indigo-300">
                                         {selectedArticle.difficulty}
@@ -1924,7 +2212,9 @@ export default function StudentHelp() {
                                     {selectedArticle.description}
                                 </p>
                                 <div className="rounded-2xl bg-white/70 p-4 text-sm leading-relaxed text-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-200">
-                                    <p className="whitespace-pre-line">{selectedArticle.content}</p>
+                                    <p className="whitespace-pre-line">
+                                        {selectedArticle.content}
+                                    </p>
                                 </div>
                             </div>
 
@@ -1934,28 +2224,54 @@ export default function StudentHelp() {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            onClick={() => void handleFaqVote(selectedArticle.id, true)}
-                                            disabled={Boolean(faqUserVotes[selectedArticle.id])}
+                                            onClick={() =>
+                                                void handleFaqVote(
+                                                    selectedArticle.id,
+                                                    true,
+                                                )
+                                            }
+                                            disabled={Boolean(
+                                                faqUserVotes[
+                                                    selectedArticle.id
+                                                ],
+                                            )}
                                         >
-                                            <ThumbsUp className="mr-2 h-4 w-4" /> Helpful
+                                            <ThumbsUp className="mr-2 h-4 w-4" />{' '}
+                                            Helpful
                                         </Button>
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            onClick={() => void handleFaqVote(selectedArticle.id, false)}
-                                            disabled={Boolean(faqUserVotes[selectedArticle.id])}
+                                            onClick={() =>
+                                                void handleFaqVote(
+                                                    selectedArticle.id,
+                                                    false,
+                                                )
+                                            }
+                                            disabled={Boolean(
+                                                faqUserVotes[
+                                                    selectedArticle.id
+                                                ],
+                                            )}
                                         >
-                                            <ThumbsDown className="mr-2 h-4 w-4" /> Not Helpful
+                                            <ThumbsDown className="mr-2 h-4 w-4" />{' '}
+                                            Not Helpful
                                         </Button>
                                         {faqUserVotes[selectedArticle.id] ? (
                                             <span className="rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                                                Vote Anda: {faqUserVotes[selectedArticle.id] === 'helpful' ? 'Ya' : 'Tidak'}
+                                                Vote Anda:{' '}
+                                                {faqUserVotes[
+                                                    selectedArticle.id
+                                                ] === 'helpful'
+                                                    ? 'Ya'
+                                                    : 'Tidak'}
                                             </span>
                                         ) : null}
                                     </div>
                                 ) : (
                                     <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                        Feedback vote tersedia untuk artikel FAQ.
+                                        Feedback vote tersedia untuk artikel
+                                        FAQ.
                                     </p>
                                 )}
 
@@ -1963,7 +2279,9 @@ export default function StudentHelp() {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => handleShareArticle(selectedArticle)}
+                                        onClick={() =>
+                                            handleShareArticle(selectedArticle)
+                                        }
                                     >
                                         <Send className="mr-2 h-4 w-4" /> Share
                                     </Button>
@@ -1974,7 +2292,10 @@ export default function StudentHelp() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={Boolean(selectedVideo)} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+            <Dialog
+                open={Boolean(selectedVideo)}
+                onOpenChange={(open) => !open && setSelectedVideo(null)}
+            >
                 <DialogContent className="max-w-5xl rounded-3xl border border-white/20 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/95">
                     {selectedVideo ? (
                         <>
@@ -1988,7 +2309,12 @@ export default function StudentHelp() {
                             </DialogHeader>
 
                             <div className="px-6 py-5">
-                                <div className={cn('aspect-video overflow-hidden rounded-2xl bg-gradient-to-br', selectedVideo.accent)}>
+                                <div
+                                    className={cn(
+                                        'aspect-video overflow-hidden rounded-2xl bg-gradient-to-br',
+                                        selectedVideo.accent,
+                                    )}
+                                >
                                     {selectedVideo.url ? (
                                         <iframe
                                             title={selectedVideo.title}
@@ -2001,7 +2327,9 @@ export default function StudentHelp() {
                                         <div className="flex h-full items-center justify-center text-center text-white">
                                             <div>
                                                 <PlayCircle className="mx-auto h-16 w-16" />
-                                                <p className="mt-2 text-sm font-semibold">{selectedVideo.duration}</p>
+                                                <p className="mt-2 text-sm font-semibold">
+                                                    {selectedVideo.duration}
+                                                </p>
                                             </div>
                                         </div>
                                     )}
@@ -2013,10 +2341,12 @@ export default function StudentHelp() {
                                     </p>
                                     <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
                                         <span className="inline-flex items-center gap-1">
-                                            <Eye className="h-3.5 w-3.5" /> {selectedVideo.views} views
+                                            <Eye className="h-3.5 w-3.5" />{' '}
+                                            {selectedVideo.views} views
                                         </span>
                                         <span className="inline-flex items-center gap-1">
-                                            <Clock3 className="h-3.5 w-3.5" /> {selectedVideo.duration}
+                                            <Clock3 className="h-3.5 w-3.5" />{' '}
+                                            {selectedVideo.duration}
                                         </span>
                                     </div>
                                 </div>
@@ -2026,14 +2356,18 @@ export default function StudentHelp() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+            <Dialog
+                open={isTicketModalOpen}
+                onOpenChange={setIsTicketModalOpen}
+            >
                 <DialogContent className="max-w-2xl rounded-3xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/95">
                     <DialogHeader>
                         <DialogTitle className="text-xl text-neutral-900 dark:text-white">
                             Buat Tiket Dukungan
                         </DialogTitle>
                         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Isi detail kendala Anda, tim support akan membantu secepatnya.
+                            Isi detail kendala Anda, tim support akan membantu
+                            secepatnya.
                         </p>
                     </DialogHeader>
 
@@ -2045,18 +2379,31 @@ export default function StudentHelp() {
                                 </label>
                                 <Select
                                     value={ticketForm.category}
-                                    onValueChange={(value: TicketForm['category']) =>
-                                        setTicketForm((prev) => ({ ...prev, category: value }))
+                                    onValueChange={(
+                                        value: TicketForm['category'],
+                                    ) =>
+                                        setTicketForm((prev) => ({
+                                            ...prev,
+                                            category: value,
+                                        }))
                                     }
                                 >
                                     <SelectTrigger className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="question">Pertanyaan</SelectItem>
-                                        <SelectItem value="bug">Masalah Teknis</SelectItem>
-                                        <SelectItem value="suggestion">Saran Pengembangan</SelectItem>
-                                        <SelectItem value="other">Lainnya</SelectItem>
+                                        <SelectItem value="question">
+                                            Pertanyaan
+                                        </SelectItem>
+                                        <SelectItem value="bug">
+                                            Masalah Teknis
+                                        </SelectItem>
+                                        <SelectItem value="suggestion">
+                                            Saran Pengembangan
+                                        </SelectItem>
+                                        <SelectItem value="other">
+                                            Lainnya
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -2067,18 +2414,31 @@ export default function StudentHelp() {
                                 </label>
                                 <Select
                                     value={ticketForm.priority}
-                                    onValueChange={(value: TicketForm['priority']) =>
-                                        setTicketForm((prev) => ({ ...prev, priority: value }))
+                                    onValueChange={(
+                                        value: TicketForm['priority'],
+                                    ) =>
+                                        setTicketForm((prev) => ({
+                                            ...prev,
+                                            priority: value,
+                                        }))
                                     }
                                 >
                                     <SelectTrigger className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
                                         <SelectValue placeholder="Pilih prioritas" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="low">Rendah</SelectItem>
-                                        <SelectItem value="medium">Sedang</SelectItem>
-                                        <SelectItem value="high">Tinggi</SelectItem>
-                                        <SelectItem value="urgent">Mendesak</SelectItem>
+                                        <SelectItem value="low">
+                                            Rendah
+                                        </SelectItem>
+                                        <SelectItem value="medium">
+                                            Sedang
+                                        </SelectItem>
+                                        <SelectItem value="high">
+                                            Tinggi
+                                        </SelectItem>
+                                        <SelectItem value="urgent">
+                                            Mendesak
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -2091,7 +2451,10 @@ export default function StudentHelp() {
                             <Input
                                 value={ticketForm.subject}
                                 onChange={(event) =>
-                                    setTicketForm((prev) => ({ ...prev, subject: event.target.value }))
+                                    setTicketForm((prev) => ({
+                                        ...prev,
+                                        subject: event.target.value,
+                                    }))
                                 }
                                 placeholder="Ringkas masalah utama Anda"
                                 className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60"
@@ -2105,7 +2468,10 @@ export default function StudentHelp() {
                             <Textarea
                                 value={ticketForm.message}
                                 onChange={(event) =>
-                                    setTicketForm((prev) => ({ ...prev, message: event.target.value }))
+                                    setTicketForm((prev) => ({
+                                        ...prev,
+                                        message: event.target.value,
+                                    }))
                                 }
                                 placeholder="Jelaskan kronologi masalah, langkah yang sudah dicoba, dan hasil yang diharapkan"
                                 rows={6}
@@ -2121,11 +2487,13 @@ export default function StudentHelp() {
                             >
                                 {isSubmittingTicket ? (
                                     <>
-                                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Mengirim...
+                                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />{' '}
+                                        Mengirim...
                                     </>
                                 ) : (
                                     <>
-                                        <Send className="mr-2 h-4 w-4" /> Kirim Tiket
+                                        <Send className="mr-2 h-4 w-4" /> Kirim
+                                        Tiket
                                     </>
                                 )}
                             </Button>
@@ -2148,8 +2516,12 @@ export default function StudentHelp() {
                         initial={{ opacity: 0, y: 20, scale: 0.96 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.96 }}
-                        transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-                        className="fixed bottom-6 right-6 z-50"
+                        transition={{
+                            type: 'spring',
+                            stiffness: 320,
+                            damping: 24,
+                        }}
+                        className="fixed right-6 bottom-6 z-50"
                     >
                         <div
                             className={cn(

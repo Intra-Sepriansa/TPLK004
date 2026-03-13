@@ -1,22 +1,47 @@
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import StudentLayout from '@/layouts/student-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
-    BookOpen, Plus, ArrowLeft, Monitor, Building2, Clock, Calendar,
-    Trash2, Edit, CheckCircle2, GraduationCap, CheckCircle, XCircle, Sparkles,
-    TrendingUp, Target, BookA
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import StudentLayout from '@/layouts/student-layout';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    ArrowLeft,
+    BookA,
+    BookOpen,
+    Building2,
+    Calendar,
+    CheckCircle,
+    CheckCircle2,
+    Clock,
+    Edit,
+    GraduationCap,
+    Monitor,
+    Plus,
+    Trash2,
+    TrendingUp,
+    XCircle,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, FormEvent, useEffect, useRef } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 
 interface Course {
     id: number;
@@ -48,13 +73,21 @@ const dayNames: Record<string, string> = {
 };
 
 export default function AcademicCourses({ courses }: Props) {
-    const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
+    const { props } = usePage<{
+        flash?: { success?: string; error?: string };
+    }>();
     const flash = props.flash;
 
     const [showForm, setShowForm] = useState(false);
     const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-    const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+    const [toast, setToast] = useState<{
+        type: 'success' | 'error';
+        message: string;
+    } | null>(null);
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        id: number | null;
+    }>({ open: false, id: null });
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
     // Animation variants
@@ -93,11 +126,15 @@ export default function AcademicCourses({ courses }: Props) {
     // Calculate stats
     const stats = {
         total: courses.length,
-        online: courses.filter(c => c.mode === 'online').length,
-        offline: courses.filter(c => c.mode === 'offline').length,
-        avgProgress: courses.length > 0
-            ? Math.round(courses.reduce((sum, c) => sum + c.progress, 0) / courses.length)
-            : 0,
+        online: courses.filter((c) => c.mode === 'online').length,
+        offline: courses.filter((c) => c.mode === 'offline').length,
+        avgProgress:
+            courses.length > 0
+                ? Math.round(
+                      courses.reduce((sum, c) => sum + c.progress, 0) /
+                          courses.length,
+                  )
+                : 0,
     };
 
     // Show flash message as toast
@@ -133,7 +170,10 @@ export default function AcademicCourses({ courses }: Props) {
                     setEditingCourse(null);
                 },
                 onError: () => {
-                    setToast({ type: 'error', message: 'Gagal memperbarui mata kuliah' });
+                    setToast({
+                        type: 'error',
+                        message: 'Gagal memperbarui mata kuliah',
+                    });
                     setTimeout(() => setToast(null), 3000);
                 },
             });
@@ -144,7 +184,10 @@ export default function AcademicCourses({ courses }: Props) {
                     setShowForm(false);
                 },
                 onError: () => {
-                    setToast({ type: 'error', message: 'Gagal menambahkan mata kuliah' });
+                    setToast({
+                        type: 'error',
+                        message: 'Gagal menambahkan mata kuliah',
+                    });
                     setTimeout(() => setToast(null), 3000);
                 },
             });
@@ -164,7 +207,8 @@ export default function AcademicCourses({ courses }: Props) {
         setShowForm(true);
     };
 
-    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    const openDeleteDialog = (id: number) =>
+        setDeleteDialog({ open: true, id });
 
     const handleDelete = () => {
         if (deleteDialog.id) {
@@ -174,9 +218,13 @@ export default function AcademicCourses({ courses }: Props) {
     };
 
     const handleMarkMeeting = (courseId: number, meetingNumber: number) => {
-        router.post(`/user/akademik/matkul/${courseId}/meeting/${meetingNumber}/complete`, {}, {
-            preserveScroll: true,
-        });
+        router.post(
+            `/user/akademik/matkul/${courseId}/meeting/${meetingNumber}/complete`,
+            {},
+            {
+                preserveScroll: true,
+            },
+        );
     };
 
     const closeForm = () => {
@@ -201,13 +249,20 @@ export default function AcademicCourses({ courses }: Props) {
                             initial={{ opacity: 0, y: -50, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${toast.type === 'success'
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800'
-                                : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
-                                }`}
+                            className={`fixed top-6 right-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${
+                                toast.type === 'success'
+                                    ? 'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    : 'border border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            }`}
                         >
-                            {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-                            <span className="text-sm font-medium">{toast.message}</span>
+                            {toast.type === 'success' ? (
+                                <CheckCircle className="h-5 w-5" />
+                            ) : (
+                                <XCircle className="h-5 w-5" />
+                            )}
+                            <span className="text-sm font-medium">
+                                {toast.message}
+                            </span>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -228,9 +283,9 @@ export default function AcademicCourses({ courses }: Props) {
                             transition={{
                                 duration: 20,
                                 repeat: Infinity,
-                                ease: "linear"
+                                ease: 'linear',
                             }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                            className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
                         />
                         <motion.div
                             animate={{
@@ -240,7 +295,7 @@ export default function AcademicCourses({ courses }: Props) {
                             transition={{
                                 duration: 15,
                                 repeat: Infinity,
-                                ease: "linear"
+                                ease: 'linear',
                             }}
                             className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
                         />
@@ -259,7 +314,7 @@ export default function AcademicCourses({ courses }: Props) {
                                     duration: 3,
                                     repeat: Infinity,
                                     delay: i * 0.15,
-                                    ease: "easeOut"
+                                    ease: 'easeOut',
                                 }}
                                 className="absolute"
                                 style={{
@@ -273,13 +328,13 @@ export default function AcademicCourses({ courses }: Props) {
                     </div>
 
                     <div className="relative z-10">
-                        <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
                                 <Link href="/user/akademik">
                                     <motion.div
                                         whileHover={{ scale: 1.1, x: -5 }}
                                         whileTap={{ scale: 0.9 }}
-                                        className="p-2 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm"
+                                        className="rounded-lg p-2 backdrop-blur-sm transition-colors hover:bg-white/20"
                                     >
                                         <ArrowLeft className="h-5 w-5" />
                                     </motion.div>
@@ -287,9 +342,13 @@ export default function AcademicCourses({ courses }: Props) {
                                 <motion.div
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 200,
+                                        damping: 15,
+                                    }}
                                     whileHover={{ scale: 1.15, y: -3 }}
-                                    className="p-4 bg-white/20 rounded-2xl backdrop-blur-md shadow-xl"
+                                    className="rounded-2xl bg-white/20 p-4 shadow-xl backdrop-blur-md"
                                 >
                                     <BookA className="h-16 w-16 text-white" />
                                 </motion.div>
@@ -298,7 +357,7 @@ export default function AcademicCourses({ courses }: Props) {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-white/90 font-medium"
+                                        className="text-sm font-medium text-white/90"
                                     >
                                         Manajemen Akademik
                                     </motion.p>
@@ -312,61 +371,108 @@ export default function AcademicCourses({ courses }: Props) {
                                     </motion.h1>
                                 </div>
                             </div>
-                            <Dialog open={showForm} onOpenChange={(open) => !open && closeForm()}>
+                            <Dialog
+                                open={showForm}
+                                onOpenChange={(open) => !open && closeForm()}
+                            >
                                 <DialogTrigger asChild>
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                        transition={{
+                                            delay: 0.4,
+                                            type: 'spring',
+                                            stiffness: 200,
+                                        }}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        <Button className="bg-white/20 hover:bg-white/30 backdrop-blur border-0 shadow-lg">
-                                            <Plus className="h-4 w-4 mr-2" />
+                                        <Button className="border-0 bg-white/20 shadow-lg backdrop-blur hover:bg-white/30">
+                                            <Plus className="mr-2 h-4 w-4" />
                                             Tambah Matkul
                                         </Button>
                                     </motion.div>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>{editingCourse ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah'}</DialogTitle>
+                                        <DialogTitle>
+                                            {editingCourse
+                                                ? 'Edit Mata Kuliah'
+                                                : 'Tambah Mata Kuliah'}
+                                        </DialogTitle>
                                         <DialogDescription>
-                                            {editingCourse ? 'Perbarui informasi mata kuliah' : 'Tambah mata kuliah baru untuk semester ini'}
+                                            {editingCourse
+                                                ? 'Perbarui informasi mata kuliah'
+                                                : 'Tambah mata kuliah baru untuk semester ini'}
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="space-y-4"
+                                    >
                                         <div className="space-y-2">
                                             <Label>Nama Mata Kuliah</Label>
                                             <Input
                                                 value={data.name}
-                                                onChange={(e) => setData('name', e.target.value)}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'name',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 placeholder="Contoh: Kecerdasan Buatan"
                                             />
-                                            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                                            {errors.name && (
+                                                <p className="text-sm text-red-500">
+                                                    {errors.name}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <Label>SKS</Label>
-                                                <Select value={data.sks} onValueChange={(v) => setData('sks', v)}>
+                                                <Select
+                                                    value={data.sks}
+                                                    onValueChange={(v) =>
+                                                        setData('sks', v)
+                                                    }
+                                                >
                                                     <SelectTrigger>
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="2">2 SKS (14 pertemuan)</SelectItem>
-                                                        <SelectItem value="3">3 SKS (21 pertemuan)</SelectItem>
+                                                        <SelectItem value="2">
+                                                            2 SKS (14 pertemuan)
+                                                        </SelectItem>
+                                                        <SelectItem value="3">
+                                                            3 SKS (21 pertemuan)
+                                                        </SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                {errors.sks && <p className="text-sm text-red-500">{errors.sks}</p>}
+                                                {errors.sks && (
+                                                    <p className="text-sm text-red-500">
+                                                        {errors.sks}
+                                                    </p>
+                                                )}
                                             </div>
                                             <div className="space-y-2">
                                                 <Label>Mode</Label>
-                                                <Select value={data.mode} onValueChange={(v: 'online' | 'offline') => setData('mode', v)}>
+                                                <Select
+                                                    value={data.mode}
+                                                    onValueChange={(
+                                                        v: 'online' | 'offline',
+                                                    ) => setData('mode', v)}
+                                                >
                                                     <SelectTrigger>
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="online">Online</SelectItem>
-                                                        <SelectItem value="offline">Offline</SelectItem>
+                                                        <SelectItem value="online">
+                                                            Online
+                                                        </SelectItem>
+                                                        <SelectItem value="offline">
+                                                            Offline
+                                                        </SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </div>
@@ -374,17 +480,37 @@ export default function AcademicCourses({ courses }: Props) {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <Label>Hari</Label>
-                                                <Select value={data.schedule_day} onValueChange={(v) => setData('schedule_day', v)}>
+                                                <Select
+                                                    value={data.schedule_day}
+                                                    onValueChange={(v) =>
+                                                        setData(
+                                                            'schedule_day',
+                                                            v,
+                                                        )
+                                                    }
+                                                >
                                                     <SelectTrigger>
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="monday">Senin</SelectItem>
-                                                        <SelectItem value="tuesday">Selasa</SelectItem>
-                                                        <SelectItem value="wednesday">Rabu</SelectItem>
-                                                        <SelectItem value="thursday">Kamis</SelectItem>
-                                                        <SelectItem value="friday">Jumat</SelectItem>
-                                                        <SelectItem value="saturday">Sabtu</SelectItem>
+                                                        <SelectItem value="monday">
+                                                            Senin
+                                                        </SelectItem>
+                                                        <SelectItem value="tuesday">
+                                                            Selasa
+                                                        </SelectItem>
+                                                        <SelectItem value="wednesday">
+                                                            Rabu
+                                                        </SelectItem>
+                                                        <SelectItem value="thursday">
+                                                            Kamis
+                                                        </SelectItem>
+                                                        <SelectItem value="friday">
+                                                            Jumat
+                                                        </SelectItem>
+                                                        <SelectItem value="saturday">
+                                                            Sabtu
+                                                        </SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </div>
@@ -393,25 +519,53 @@ export default function AcademicCourses({ courses }: Props) {
                                                 <Input
                                                     type="time"
                                                     value={data.schedule_time}
-                                                    onChange={(e) => setData('schedule_time', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'schedule_time',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                 />
                                             </div>
                                         </div>
                                         {!editingCourse && (
                                             <div className="space-y-2">
-                                                <Label>Tanggal Mulai (Opsional)</Label>
+                                                <Label>
+                                                    Tanggal Mulai (Opsional)
+                                                </Label>
                                                 <Input
                                                     type="date"
                                                     value={data.start_date}
-                                                    onChange={(e) => setData('start_date', e.target.value)}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            'start_date',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                 />
-                                                <p className="text-xs text-muted-foreground">Untuk menghitung jadwal pertemuan</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Untuk menghitung jadwal
+                                                    pertemuan
+                                                </p>
                                             </div>
                                         )}
                                         <DialogFooter>
-                                            <Button type="button" variant="outline" onClick={closeForm}>Batal</Button>
-                                            <Button type="submit" disabled={processing}>
-                                                {processing ? 'Menyimpan...' : editingCourse ? 'Perbarui' : 'Simpan'}
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={closeForm}
+                                            >
+                                                Batal
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                disabled={processing}
+                                            >
+                                                {processing
+                                                    ? 'Menyimpan...'
+                                                    : editingCourse
+                                                      ? 'Perbarui'
+                                                      : 'Simpan'}
                                             </Button>
                                         </DialogFooter>
                                     </form>
@@ -422,7 +576,7 @@ export default function AcademicCourses({ courses }: Props) {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="mt-4 text-white/90 text-lg"
+                            className="mt-4 text-lg text-white/90"
                         >
                             Kelola mata kuliah semester ini
                         </motion.p>
@@ -432,37 +586,73 @@ export default function AcademicCourses({ courses }: Props) {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
+                            className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4"
                         >
                             {[
-                                { icon: BookOpen, label: 'Total Matkul', value: stats.total, color: 'emerald' },
-                                { icon: Monitor, label: 'Online', value: stats.online, color: 'blue' },
-                                { icon: Building2, label: 'Offline', value: stats.offline, color: 'teal' },
-                                { icon: TrendingUp, label: 'Avg Progress', value: stats.avgProgress, suffix: '%', color: 'cyan' },
+                                {
+                                    icon: BookOpen,
+                                    label: 'Total Matkul',
+                                    value: stats.total,
+                                    color: 'emerald',
+                                },
+                                {
+                                    icon: Monitor,
+                                    label: 'Online',
+                                    value: stats.online,
+                                    color: 'blue',
+                                },
+                                {
+                                    icon: Building2,
+                                    label: 'Offline',
+                                    value: stats.offline,
+                                    color: 'teal',
+                                },
+                                {
+                                    icon: TrendingUp,
+                                    label: 'Avg Progress',
+                                    value: stats.avgProgress,
+                                    suffix: '%',
+                                    color: 'cyan',
+                                },
                             ].map((stat, index) => (
                                 <motion.div
                                     key={stat.label}
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
+                                    transition={{
+                                        delay: 0.7 + index * 0.1,
+                                        type: 'spring',
+                                        stiffness: 200,
+                                    }}
                                     whileHover={{
                                         scale: 1.05,
                                         y: -5,
-                                        boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
+                                        boxShadow:
+                                            '0 10px 30px rgba(255,255,255,0.2)',
                                     }}
-                                    className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
+                                    className="cursor-pointer rounded-xl bg-white/10 p-4 backdrop-blur"
                                 >
-                                    <div className="flex items-center gap-2 mb-2">
+                                    <div className="mb-2 flex items-center gap-2">
                                         <motion.div
                                             whileHover={{ scale: 1.2, y: -2 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                            transition={{
+                                                type: 'spring',
+                                                stiffness: 300,
+                                                damping: 15,
+                                            }}
                                         >
                                             <stat.icon className="h-5 w-5 text-white/80" />
                                         </motion.div>
-                                        <p className="text-white/80 text-xs font-medium">{stat.label}</p>
+                                        <p className="text-xs font-medium text-white/80">
+                                            {stat.label}
+                                        </p>
                                     </div>
                                     <p className="text-3xl font-bold">
-                                        <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
+                                        <AnimatedCounter
+                                            value={stat.value}
+                                            suffix={stat.suffix}
+                                            duration={1500}
+                                        />
                                     </p>
                                 </motion.div>
                             ))}
@@ -474,22 +664,28 @@ export default function AcademicCourses({ courses }: Props) {
                 <motion.div
                     variants={itemVariants}
                     whileHover={{ scale: 1.01, y: -2 }}
-                    className="rounded-2xl border border-emerald-200/70 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 dark:border-emerald-800/70 shadow-sm backdrop-blur overflow-hidden"
+                    className="overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-r from-emerald-50 to-teal-50 shadow-sm backdrop-blur dark:border-emerald-800/70 dark:from-emerald-950/30 dark:to-teal-950/30"
                 >
                     <div className="p-4">
                         <div className="flex items-start gap-3">
                             <motion.div
                                 whileHover={{ scale: 1.2, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg"
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    damping: 15,
+                                }}
+                                className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/50"
                             >
                                 <GraduationCap className="h-5 w-5 text-emerald-600" />
                             </motion.div>
                             <div>
                                 <p className="font-medium">Aturan SKS</p>
-                                <p className="text-sm text-muted-foreground mt-1">
-                                    2 SKS = 14 pertemuan (UTS setelah P7, UAS setelah P14)<br />
-                                    3 SKS = 21 pertemuan (UTS setelah P14, UAS setelah P21)
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    2 SKS = 14 pertemuan (UTS setelah P7, UAS
+                                    setelah P14)
+                                    <br />3 SKS = 21 pertemuan (UTS setelah P14,
+                                    UAS setelah P21)
                                 </p>
                             </div>
                         </div>
@@ -514,7 +710,7 @@ export default function AcademicCourses({ courses }: Props) {
                 ) : (
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                        className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
                     >
                         <div className="py-12">
                             <div className="text-center">
@@ -526,17 +722,29 @@ export default function AcademicCourses({ courses }: Props) {
                                     transition={{
                                         duration: 3,
                                         repeat: Infinity,
-                                        ease: "easeInOut"
+                                        ease: 'easeInOut',
                                     }}
                                     className="inline-block"
                                 >
-                                    <BookA className="h-24 w-24 mx-auto mb-3 text-slate-300 dark:text-slate-700 opacity-50 drop-shadow-sm" />
+                                    <BookA className="mx-auto mb-3 h-24 w-24 text-slate-300 opacity-50 drop-shadow-sm dark:text-slate-700" />
                                 </motion.div>
-                                <p className="text-muted-foreground font-medium mb-2">Belum ada mata kuliah</p>
-                                <p className="text-sm text-muted-foreground mb-4">Tambahkan mata kuliah untuk mulai tracking</p>
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <Button variant="outline" onClick={() => setShowForm(true)} className="rounded-xl">
-                                        <Plus className="h-4 w-4 mr-2" /> Tambah Mata Kuliah
+                                <p className="mb-2 font-medium text-muted-foreground">
+                                    Belum ada mata kuliah
+                                </p>
+                                <p className="mb-4 text-sm text-muted-foreground">
+                                    Tambahkan mata kuliah untuk mulai tracking
+                                </p>
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setShowForm(true)}
+                                        className="rounded-xl"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" /> Tambah
+                                        Mata Kuliah
                                     </Button>
                                 </motion.div>
                             </div>
@@ -547,7 +755,12 @@ export default function AcademicCourses({ courses }: Props) {
                 {/* Delete Confirmation Dialog */}
                 <ConfirmDialog
                     open={deleteDialog.open}
-                    onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                    onOpenChange={(open) =>
+                        setDeleteDialog({
+                            open,
+                            id: open ? deleteDialog.id : null,
+                        })
+                    }
                     onConfirm={handleDelete}
                     title="Hapus Mata Kuliah"
                     message="Yakin ingin menghapus mata kuliah ini? Semua tugas dan catatan terkait juga akan dihapus."
@@ -561,7 +774,14 @@ export default function AcademicCourses({ courses }: Props) {
 }
 
 // Magnetic Course Card Component with 3D Effects
-function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDialog, handleMarkMeeting }: {
+function MagneticCourseCard({
+    course,
+    index,
+    dayNames,
+    handleEdit,
+    openDeleteDialog,
+    handleMarkMeeting,
+}: {
     course: Course;
     index: number;
     dayNames: Record<string, string>;
@@ -596,49 +816,86 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
                 transform: `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${mousePosition.x * 10}deg)`,
                 transition: 'transform 0.1s ease-out',
             }}
-            whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-            className="relative rounded-2xl border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/50 overflow-hidden group"
+            whileHover={{
+                scale: 1.02,
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+            }}
+            className="group relative overflow-hidden rounded-2xl border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/50"
         >
             {/* Top Color Bar */}
-            <div className={`h-2 ${course.mode === 'offline' ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-blue-400 to-blue-600'}`} />
+            <div
+                className={`h-2 ${course.mode === 'offline' ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-blue-400 to-blue-600'}`}
+            />
 
             {/* Glow Effect */}
             <motion.div
-                className={`absolute inset-0 ${course.mode === 'offline' ? 'bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10' : 'bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-indigo-500/10'} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                className={`absolute inset-0 ${course.mode === 'offline' ? 'bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10' : 'bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-indigo-500/10'} opacity-0 transition-opacity duration-300 group-hover:opacity-100`}
                 animate={{
                     scale: [1, 1.2, 1],
                 }}
                 transition={{
                     duration: 2,
                     repeat: Infinity,
-                    ease: "easeInOut"
+                    ease: 'easeInOut',
                 }}
             />
 
             <div className="relative z-10 p-5">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <motion.div whileHover={{ scale: 1.2, y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}>
+                <div className="mb-3 flex items-start justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <motion.div
+                            whileHover={{ scale: 1.2, y: -2 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 15,
+                            }}
+                        >
                             {course.mode === 'offline' ? (
                                 <Building2 className="h-5 w-5 text-emerald-600" />
                             ) : (
                                 <Monitor className="h-5 w-5 text-blue-600" />
                             )}
                         </motion.div>
-                        <Badge variant={course.mode === 'offline' ? 'default' : 'secondary'} className={`text-xs ${course.mode === 'offline' ? 'bg-emerald-500' : ''}`}>
+                        <Badge
+                            variant={
+                                course.mode === 'offline'
+                                    ? 'default'
+                                    : 'secondary'
+                            }
+                            className={`text-xs ${course.mode === 'offline' ? 'bg-emerald-500' : ''}`}
+                        >
                             {course.mode === 'offline' ? 'Offline' : 'Online'}
                         </Badge>
-                        <Badge variant="outline" className="text-xs border-2">{course.sks} SKS</Badge>
+                        <Badge variant="outline" className="border-2 text-xs">
+                            {course.sks} SKS
+                        </Badge>
                     </div>
                     <div className="flex items-center gap-1">
-                        <motion.div whileHover={{ scale: 1.2, rotate: 15 }} whileTap={{ scale: 0.9 }}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-emerald-100 dark:hover:bg-emerald-900/30" onClick={() => handleEdit(course)}>
+                        <motion.div
+                            whileHover={{ scale: 1.2, rotate: 15 }}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                                onClick={() => handleEdit(course)}
+                            >
                                 <Edit className="h-4 w-4 text-emerald-600" />
                             </Button>
                         </motion.div>
-                        <motion.div whileHover={{ scale: 1.2, rotate: -15 }} whileTap={{ scale: 0.9 }}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30" onClick={() => openDeleteDialog(course.id)}>
+                        <motion.div
+                            whileHover={{ scale: 1.2, rotate: -15 }}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-red-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30"
+                                onClick={() => openDeleteDialog(course.id)}
+                            >
                                 <Trash2 className="h-4 w-4" />
                             </Button>
                         </motion.div>
@@ -647,18 +904,24 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
 
                 <motion.h3
                     whileHover={{ x: 5 }}
-                    className="font-bold text-lg text-slate-900 dark:text-white mb-4"
+                    className="mb-4 text-lg font-bold text-slate-900 dark:text-white"
                 >
                     {course.name}
                 </motion.h3>
 
                 {/* Schedule */}
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                    <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-1">
+                <div className="mb-4 flex items-center gap-4 text-sm text-muted-foreground">
+                    <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className="flex items-center gap-1"
+                    >
                         <Calendar className="h-4 w-4" />
                         <span>{dayNames[course.schedule_day]}</span>
                     </motion.div>
-                    <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-1">
+                    <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className="flex items-center gap-1"
+                    >
                         <Clock className="h-4 w-4" />
                         <span>{course.schedule_time}</span>
                     </motion.div>
@@ -666,42 +929,52 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
 
                 {/* Progress */}
                 <div className="mb-4">
-                    <div className="flex items-center justify-between text-sm mb-2">
+                    <div className="mb-2 flex items-center justify-between text-sm">
                         <span className="font-medium">Progress</span>
-                        <span className="font-bold text-emerald-600">{course.current_meeting}/{course.total_meetings}</span>
+                        <span className="font-bold text-emerald-600">
+                            {course.current_meeting}/{course.total_meetings}
+                        </span>
                     </div>
                     <Progress value={course.progress} className="h-2.5" />
                 </div>
 
                 {/* Milestones */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="mb-4 grid grid-cols-2 gap-3">
                     <motion.div
                         whileHover={{ scale: 1.05, y: -2 }}
-                        className={`p-3 rounded-xl text-center ${course.current_meeting >= course.uts_meeting ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-300 dark:border-emerald-700' : 'bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800'}`}
+                        className={`rounded-xl p-3 text-center ${course.current_meeting >= course.uts_meeting ? 'border-2 border-emerald-300 bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/30' : 'border-2 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20'}`}
                     >
-                        <p className="text-xs text-muted-foreground font-medium mb-1">UTS</p>
-                        <p className="font-bold text-sm">
+                        <p className="mb-1 text-xs font-medium text-muted-foreground">
+                            UTS
+                        </p>
+                        <p className="text-sm font-bold">
                             {course.current_meeting >= course.uts_meeting ? (
-                                <span className="text-emerald-600 flex items-center justify-center gap-1">
+                                <span className="flex items-center justify-center gap-1 text-emerald-600">
                                     <CheckCircle2 className="h-4 w-4" /> Selesai
                                 </span>
                             ) : (
-                                <span className="text-amber-600">P{course.uts_meeting}</span>
+                                <span className="text-amber-600">
+                                    P{course.uts_meeting}
+                                </span>
                             )}
                         </p>
                     </motion.div>
                     <motion.div
                         whileHover={{ scale: 1.05, y: -2 }}
-                        className={`p-3 rounded-xl text-center ${course.current_meeting >= course.uas_meeting ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-300 dark:border-emerald-700' : 'bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800'}`}
+                        className={`rounded-xl p-3 text-center ${course.current_meeting >= course.uas_meeting ? 'border-2 border-emerald-300 bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/30' : 'border-2 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'}`}
                     >
-                        <p className="text-xs text-muted-foreground font-medium mb-1">UAS</p>
-                        <p className="font-bold text-sm">
+                        <p className="mb-1 text-xs font-medium text-muted-foreground">
+                            UAS
+                        </p>
+                        <p className="text-sm font-bold">
                             {course.current_meeting >= course.uas_meeting ? (
-                                <span className="text-emerald-600 flex items-center justify-center gap-1">
+                                <span className="flex items-center justify-center gap-1 text-emerald-600">
                                     <CheckCircle2 className="h-4 w-4" /> Selesai
                                 </span>
                             ) : (
-                                <span className="text-red-600">P{course.uas_meeting}</span>
+                                <span className="text-red-600">
+                                    P{course.uas_meeting}
+                                </span>
                             )}
                         </p>
                     </motion.div>
@@ -709,13 +982,21 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
 
                 {/* Mark Meeting Complete */}
                 {course.current_meeting < course.total_meetings && (
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
                         <Button
                             variant="outline"
-                            className="w-full rounded-xl border-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:border-emerald-500"
-                            onClick={() => handleMarkMeeting(course.id, course.current_meeting + 1)}
+                            className="w-full rounded-xl border-2 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                            onClick={() =>
+                                handleMarkMeeting(
+                                    course.id,
+                                    course.current_meeting + 1,
+                                )
+                            }
                         >
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
                             Tandai P{course.current_meeting + 1} Selesai
                         </Button>
                     </motion.div>

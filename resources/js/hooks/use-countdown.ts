@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseCountdownOptions {
     targetDate?: Date;
@@ -29,7 +29,10 @@ export function useCountdown({
 }: UseCountdownOptions): CountdownResult {
     const calculateTimeLeft = useCallback(() => {
         if (targetDate) {
-            return Math.max(0, Math.floor((targetDate.getTime() - Date.now()) / 1000));
+            return Math.max(
+                0,
+                Math.floor((targetDate.getTime() - Date.now()) / 1000),
+            );
         }
         return initialSeconds || 0;
     }, [targetDate, initialSeconds]);

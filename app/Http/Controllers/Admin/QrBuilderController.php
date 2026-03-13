@@ -7,16 +7,20 @@ use App\Models\AttendanceSession;
 use App\Models\AttendanceToken;
 use App\Models\Course;
 use App\Models\Setting;
+use App\Services\AttendanceSessionAutomationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class QrBuilderController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, AttendanceSessionAutomationService $automationService): Response
     {
+        $automationService->syncActiveStates();
+
         $activeSession = AttendanceSession::with('course')
             ->where('is_active', true)
+            ->orderBy('start_at')
             ->first();
 
         $tokenTtlSeconds = Setting::getValue('token_ttl_seconds', 180);

@@ -1,16 +1,33 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-    X, Send, Users, User, AlertCircle, Info, Megaphone, 
-    Clock, AlertTriangle, Sparkles, Eye, Zap, CheckCircle2
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useForm } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    AlertCircle,
+    AlertTriangle,
+    CheckCircle2,
+    Clock,
+    Eye,
+    Info,
+    Megaphone,
+    Send,
+    Sparkles,
+    User,
+    Users,
+    X,
+    Zap,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from '@inertiajs/react';
 
 interface Mahasiswa {
     id: number;
@@ -33,8 +50,18 @@ interface Props {
 const NOTIFICATION_TYPES = [
     { value: 'info', label: 'Informasi', icon: Info, color: 'blue' },
     { value: 'reminder', label: 'Pengingat', icon: Clock, color: 'indigo' },
-    { value: 'announcement', label: 'Pengumuman', icon: Megaphone, color: 'purple' },
-    { value: 'warning', label: 'Peringatan', icon: AlertTriangle, color: 'orange' },
+    {
+        value: 'announcement',
+        label: 'Pengumuman',
+        icon: Megaphone,
+        color: 'purple',
+    },
+    {
+        value: 'warning',
+        label: 'Peringatan',
+        icon: AlertTriangle,
+        color: 'orange',
+    },
     { value: 'alert', label: 'Alert', icon: AlertCircle, color: 'red' },
 ] as const;
 
@@ -48,27 +75,35 @@ const TEMPLATES = [
     {
         name: 'Pengingat Tugas',
         title: 'Pengingat: Deadline Tugas',
-        message: 'Halo mahasiswa,\n\nIni adalah pengingat bahwa tugas [NAMA TUGAS] akan segera berakhir pada [TANGGAL].\n\nPastikan untuk mengumpulkan tepat waktu.\n\nTerima kasih.',
+        message:
+            'Halo mahasiswa,\n\nIni adalah pengingat bahwa tugas [NAMA TUGAS] akan segera berakhir pada [TANGGAL].\n\nPastikan untuk mengumpulkan tepat waktu.\n\nTerima kasih.',
         type: 'reminder',
         priority: 'high',
     },
     {
         name: 'Pengumuman Kelas',
         title: 'Pengumuman: Perubahan Jadwal',
-        message: 'Kepada seluruh mahasiswa,\n\nDiberitahukan bahwa jadwal perkuliahan [TANGGAL] akan [PERUBAHAN].\n\nMohon perhatiannya.\n\nTerima kasih.',
+        message:
+            'Kepada seluruh mahasiswa,\n\nDiberitahukan bahwa jadwal perkuliahan [TANGGAL] akan [PERUBAHAN].\n\nMohon perhatiannya.\n\nTerima kasih.',
         type: 'announcement',
         priority: 'normal',
     },
     {
         name: 'Peringatan Kehadiran',
         title: 'Peringatan: Kehadiran Rendah',
-        message: 'Kepada mahasiswa yang bersangkutan,\n\nPersentase kehadiran Anda saat ini di bawah batas minimum.\n\nMohon untuk meningkatkan kehadiran di pertemuan selanjutnya.\n\nTerima kasih.',
+        message:
+            'Kepada mahasiswa yang bersangkutan,\n\nPersentase kehadiran Anda saat ini di bawah batas minimum.\n\nMohon untuk meningkatkan kehadiran di pertemuan selanjutnya.\n\nTerima kasih.',
         type: 'warning',
         priority: 'high',
     },
 ] as const;
 
-export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClose }: Props) {
+export function NotificationComposerEnhanced({
+    isOpen,
+    course,
+    mahasiswa,
+    onClose,
+}: Props) {
     const [step, setStep] = useState(1);
     const [selectedMahasiswa, setSelectedMahasiswa] = useState<number[]>([]);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -98,7 +133,7 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
         });
     };
 
-    const applyTemplate = (template: typeof TEMPLATES[0]) => {
+    const applyTemplate = (template: (typeof TEMPLATES)[0]) => {
         form.setData({
             ...form.data,
             title: template.title,
@@ -110,14 +145,14 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
 
     const toggleMahasiswa = (id: number) => {
         const newSelected = selectedMahasiswa.includes(id)
-            ? selectedMahasiswa.filter(m => m !== id)
+            ? selectedMahasiswa.filter((m) => m !== id)
             : [...selectedMahasiswa, id];
         setSelectedMahasiswa(newSelected);
         form.setData('target_mahasiswa', newSelected);
     };
 
     const selectAllMahasiswa = () => {
-        const allIds = mahasiswa.map(m => m.id);
+        const allIds = mahasiswa.map((m) => m.id);
         setSelectedMahasiswa(allIds);
         form.setData('target_mahasiswa', allIds);
     };
@@ -128,12 +163,12 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
     };
 
     const getTypeIcon = (type: string) => {
-        const typeConfig = NOTIFICATION_TYPES.find(t => t.value === type);
+        const typeConfig = NOTIFICATION_TYPES.find((t) => t.value === type);
         return typeConfig ? typeConfig.icon : Info;
     };
 
     const getTypeColor = (type: string) => {
-        const typeConfig = NOTIFICATION_TYPES.find(t => t.value === type);
+        const typeConfig = NOTIFICATION_TYPES.find((t) => t.value === type);
         return typeConfig ? typeConfig.color : 'gray';
     };
 
@@ -146,13 +181,13 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
             >
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1, rotate: 360 }}
                     transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                    className="bg-white dark:bg-black rounded-full p-12 shadow-2xl"
+                    className="rounded-full bg-white p-12 shadow-2xl dark:bg-black"
                 >
                     <motion.div
                         initial={{ scale: 0 }}
@@ -184,28 +219,48 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                 />
 
                 {/* Floating Particles */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
                     {[...Array(30)].map((_, i) => (
                         <motion.div
                             key={i}
-                            initial={{ 
-                                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-                                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000),
-                                scale: 0
+                            initial={{
+                                x:
+                                    Math.random() *
+                                    (typeof window !== 'undefined'
+                                        ? window.innerWidth
+                                        : 1000),
+                                y:
+                                    Math.random() *
+                                    (typeof window !== 'undefined'
+                                        ? window.innerHeight
+                                        : 1000),
+                                scale: 0,
                             }}
-                            animate={{ 
-                                y: [null, Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1000)],
-                                x: [null, Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000)],
+                            animate={{
+                                y: [
+                                    null,
+                                    Math.random() *
+                                        (typeof window !== 'undefined'
+                                            ? window.innerHeight
+                                            : 1000),
+                                ],
+                                x: [
+                                    null,
+                                    Math.random() *
+                                        (typeof window !== 'undefined'
+                                            ? window.innerWidth
+                                            : 1000),
+                                ],
                                 scale: [0, Math.random() * 1.5 + 0.5, 0],
-                                opacity: [0, 0.6, 0]
+                                opacity: [0, 0.6, 0],
                             }}
-                            transition={{ 
+                            transition={{
                                 duration: 4 + Math.random() * 3,
                                 repeat: Infinity,
                                 delay: Math.random() * 3,
-                                ease: "easeInOut"
+                                ease: 'easeInOut',
                             }}
-                            className="absolute w-3 h-3 rounded-full bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 blur-sm"
+                            className="absolute h-3 w-3 rounded-full bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 blur-sm"
                         />
                     ))}
                 </div>
@@ -214,44 +269,62 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                     initial={{ scale: 0.85, opacity: 0, y: 60, rotateX: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
                     exit={{ scale: 0.85, opacity: 0, y: 60, rotateX: 20 }}
-                    transition={{ 
-                        type: 'spring', 
-                        stiffness: 260, 
+                    transition={{
+                        type: 'spring',
+                        stiffness: 260,
                         damping: 20,
-                        mass: 0.8
+                        mass: 0.8,
                     }}
                     onClick={(e) => e.stopPropagation()}
-                    className="relative w-full max-w-4xl rounded-3xl bg-white/98 shadow-2xl dark:bg-black/98 border border-gray-200/50 dark:border-gray-800/50 overflow-hidden max-h-[90vh] flex flex-col backdrop-blur-2xl"
-                    style={{ 
+                    className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-gray-200/50 bg-white/98 shadow-2xl backdrop-blur-2xl dark:border-gray-800/50 dark:bg-black/98"
+                    style={{
                         perspective: '1500px',
-                        transformStyle: 'preserve-3d'
+                        transformStyle: 'preserve-3d',
                     }}
                 >
                     {/* Enhanced Header */}
                     <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-700 to-pink-600 p-6 text-white">
                         <motion.div
-                            animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                opacity: [0.3, 0.6, 0.3],
+                            }}
                             transition={{ duration: 5, repeat: Infinity }}
-                            className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/20 blur-3xl"
+                            className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-white/20 blur-3xl"
                         />
                         <motion.div
-                            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
-                            transition={{ duration: 6, repeat: Infinity, delay: 1 }}
-                            className="absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-white/20 blur-3xl"
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.2, 0.5, 0.2],
+                            }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                delay: 1,
+                            }}
+                            className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/20 blur-3xl"
                         />
                         <div className="relative flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <motion.div
                                     animate={{ rotate: [0, 360] }}
-                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
+                                    transition={{
+                                        duration: 20,
+                                        repeat: Infinity,
+                                        ease: 'linear',
+                                    }}
+                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur"
                                 >
                                     <Send className="h-7 w-7" />
                                 </motion.div>
                                 <div>
-                                    <h3 className="text-2xl font-bold">Buat Notifikasi</h3>
+                                    <h3 className="text-2xl font-bold">
+                                        Buat Notifikasi
+                                    </h3>
                                     <p className="text-sm text-white/90">
-                                        {course ? `Untuk mahasiswa ${course.nama}` : 'Kirim notifikasi ke mahasiswa'}
+                                        {course
+                                            ? `Untuk mahasiswa ${course.nama}`
+                                            : 'Kirim notifikasi ke mahasiswa'}
                                     </p>
                                 </div>
                             </div>
@@ -259,7 +332,7 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                 whileHover={{ scale: 1.15, rotate: 90 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={onClose}
-                                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur hover:bg-white/30 transition-colors shadow-lg"
+                                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 shadow-lg backdrop-blur transition-colors hover:bg-white/30"
                             >
                                 <X className="h-6 w-6" />
                             </motion.button>
@@ -268,26 +341,33 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                         {/* Enhanced Progress Steps */}
                         <div className="mt-6 flex items-center gap-2">
                             {[1, 2, 3].map((s) => (
-                                <motion.div 
-                                    key={s} 
-                                    className="flex-1 relative"
-                                >
+                                <motion.div key={s} className="relative flex-1">
                                     <motion.div
                                         initial={{ scaleX: 0 }}
                                         animate={{ scaleX: step >= s ? 1 : 0 }}
-                                        transition={{ duration: 0.4, type: 'spring', stiffness: 200 }}
-                                        className="h-2.5 rounded-full origin-left shadow-lg"
-                                        style={{ 
-                                            backgroundColor: step > s ? 'rgba(255,255,255,0.95)' : 
-                                                            step === s ? 'rgba(255,255,255,0.75)' : 
-                                                            'rgba(255,255,255,0.25)' 
+                                        transition={{
+                                            duration: 0.4,
+                                            type: 'spring',
+                                            stiffness: 200,
+                                        }}
+                                        className="h-2.5 origin-left rounded-full shadow-lg"
+                                        style={{
+                                            backgroundColor:
+                                                step > s
+                                                    ? 'rgba(255,255,255,0.95)'
+                                                    : step === s
+                                                      ? 'rgba(255,255,255,0.75)'
+                                                      : 'rgba(255,255,255,0.25)',
                                         }}
                                     />
                                     {step === s && (
                                         <motion.div
                                             animate={{ x: [0, 10, 0] }}
-                                            transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="absolute right-0 top-0 h-2.5 w-8 bg-gradient-to-r from-transparent to-white/50 rounded-full"
+                                            transition={{
+                                                duration: 1.5,
+                                                repeat: Infinity,
+                                            }}
+                                            className="absolute top-0 right-0 h-2.5 w-8 rounded-full bg-gradient-to-r from-transparent to-white/50"
                                         />
                                     )}
                                 </motion.div>
@@ -302,59 +382,96 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                             {step === 1 && (
                                 <motion.div
                                     key="step1"
-                                    initial={{ opacity: 0, x: 30, rotateY: -10 }}
+                                    initial={{
+                                        opacity: 0,
+                                        x: 30,
+                                        rotateY: -10,
+                                    }}
                                     animate={{ opacity: 1, x: 0, rotateY: 0 }}
                                     exit={{ opacity: 0, x: -30, rotateY: 10 }}
-                                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 200,
+                                        damping: 20,
+                                    }}
                                     className="space-y-5"
                                 >
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
-                                        className="flex items-center gap-3 mb-6"
+                                        className="mb-6 flex items-center gap-3"
                                     >
                                         <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 10 }}
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 10,
+                                            }}
                                             className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30"
                                         >
                                             <Sparkles className="h-6 w-6" />
                                         </motion.div>
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Konten Notifikasi</h4>
-                                            <p className="text-sm text-gray-500">Tulis pesan untuk mahasiswa</p>
+                                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Konten Notifikasi
+                                            </h4>
+                                            <p className="text-sm text-gray-500">
+                                                Tulis pesan untuk mahasiswa
+                                            </p>
                                         </div>
                                     </motion.div>
 
                                     {/* Templates */}
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800 shadow-lg"
+                                        className="rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 shadow-lg dark:border-blue-800 dark:from-blue-900/20 dark:to-cyan-900/20"
                                     >
-                                        <div className="flex items-center gap-2 mb-4">
+                                        <div className="mb-4 flex items-center gap-2">
                                             <motion.div
                                                 animate={{ rotate: [0, 360] }}
-                                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    ease: 'linear',
+                                                }}
                                             >
                                                 <Zap className="h-5 w-5 text-blue-600" />
                                             </motion.div>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-white">Template Cepat</p>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                Template Cepat
+                                            </p>
                                         </div>
                                         <div className="grid grid-cols-3 gap-3">
                                             {TEMPLATES.map((template, idx) => (
                                                 <motion.button
                                                     key={idx}
-                                                    initial={{ opacity: 0, scale: 0.8 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    transition={{ delay: 0.3 + idx * 0.1 }}
-                                                    whileHover={{ scale: 1.05, y: -3, rotateZ: 2 }}
+                                                    initial={{
+                                                        opacity: 0,
+                                                        scale: 0.8,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        scale: 1,
+                                                    }}
+                                                    transition={{
+                                                        delay: 0.3 + idx * 0.1,
+                                                    }}
+                                                    whileHover={{
+                                                        scale: 1.05,
+                                                        y: -3,
+                                                        rotateZ: 2,
+                                                    }}
                                                     whileTap={{ scale: 0.95 }}
-                                                    onClick={() => applyTemplate(template)}
-                                                    className="p-3 text-left rounded-xl bg-white dark:bg-gray-800 border-2 border-blue-200 dark:border-blue-700 hover:border-blue-400 transition-all shadow-md hover:shadow-lg"
+                                                    onClick={() =>
+                                                        applyTemplate(template)
+                                                    }
+                                                    className="rounded-xl border-2 border-blue-200 bg-white p-3 text-left shadow-md transition-all hover:border-blue-400 hover:shadow-lg dark:border-blue-700 dark:bg-gray-800"
                                                 >
-                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">{template.name}</p>
+                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                        {template.name}
+                                                    </p>
                                                 </motion.button>
                                             ))}
                                         </div>
@@ -366,12 +483,20 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         transition={{ delay: 0.4 }}
                                     >
                                         <Label className="mb-2 block font-medium">
-                                            Judul <span className="text-red-500">*</span>
+                                            Judul{' '}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
-                                        <Input 
-                                            value={form.data.title} 
-                                            onChange={(e) => form.setData('title', e.target.value)}
-                                            placeholder="Contoh: Pengumuman Penting" 
+                                        <Input
+                                            value={form.data.title}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'title',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="Contoh: Pengumuman Penting"
                                             className="border-2 focus:ring-4 focus:ring-indigo-500/20"
                                         />
                                     </motion.div>
@@ -382,17 +507,30 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         transition={{ delay: 0.5 }}
                                     >
                                         <Label className="mb-2 block font-medium">
-                                            Pesan <span className="text-red-500">*</span>
+                                            Pesan{' '}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
-                                        <Textarea 
-                                            value={form.data.message} 
-                                            onChange={(e) => form.setData('message', e.target.value)}
+                                        <Textarea
+                                            value={form.data.message}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'message',
+                                                    e.target.value,
+                                                )
+                                            }
                                             placeholder="Tulis pesan notifikasi..."
                                             rows={8}
-                                            className="border-2 resize-none focus:ring-4 focus:ring-indigo-500/20"
+                                            className="resize-none border-2 focus:ring-4 focus:ring-indigo-500/20"
                                         />
-                                        <motion.p 
-                                            animate={{ scale: form.data.message.length > 0 ? [1, 1.05, 1] : 1 }}
+                                        <motion.p
+                                            animate={{
+                                                scale:
+                                                    form.data.message.length > 0
+                                                        ? [1, 1.05, 1]
+                                                        : 1,
+                                            }}
                                             className="mt-1 text-xs text-gray-500"
                                         >
                                             {form.data.message.length} karakter
@@ -406,32 +544,62 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         className="grid grid-cols-2 gap-4"
                                     >
                                         <div>
-                                            <Label className="mb-2 block font-medium">Tipe</Label>
-                                            <Select value={form.data.type} onValueChange={(v) => form.setData('type', v)}>
+                                            <Label className="mb-2 block font-medium">
+                                                Tipe
+                                            </Label>
+                                            <Select
+                                                value={form.data.type}
+                                                onValueChange={(v) =>
+                                                    form.setData('type', v)
+                                                }
+                                            >
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {NOTIFICATION_TYPES.map(type => (
-                                                        <SelectItem key={type.value} value={type.value}>
-                                                            {type.label}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {NOTIFICATION_TYPES.map(
+                                                        (type) => (
+                                                            <SelectItem
+                                                                key={type.value}
+                                                                value={
+                                                                    type.value
+                                                                }
+                                                            >
+                                                                {type.label}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         <div>
-                                            <Label className="mb-2 block font-medium">Prioritas</Label>
-                                            <Select value={form.data.priority} onValueChange={(v) => form.setData('priority', v)}>
+                                            <Label className="mb-2 block font-medium">
+                                                Prioritas
+                                            </Label>
+                                            <Select
+                                                value={form.data.priority}
+                                                onValueChange={(v) =>
+                                                    form.setData('priority', v)
+                                                }
+                                            >
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {PRIORITY_LEVELS.map(priority => (
-                                                        <SelectItem key={priority.value} value={priority.value}>
-                                                            {priority.label}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {PRIORITY_LEVELS.map(
+                                                        (priority) => (
+                                                            <SelectItem
+                                                                key={
+                                                                    priority.value
+                                                                }
+                                                                value={
+                                                                    priority.value
+                                                                }
+                                                            >
+                                                                {priority.label}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -442,11 +610,18 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.7 }}
                                     >
-                                        <Label className="mb-2 block font-medium">Link Terkait (opsional)</Label>
-                                        <Input 
-                                            value={form.data.action_url} 
-                                            onChange={(e) => form.setData('action_url', e.target.value)}
-                                            placeholder="https://..." 
+                                        <Label className="mb-2 block font-medium">
+                                            Link Terkait (opsional)
+                                        </Label>
+                                        <Input
+                                            value={form.data.action_url}
+                                            onChange={(e) =>
+                                                form.setData(
+                                                    'action_url',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder="https://..."
                                             className="border-2 focus:ring-4 focus:ring-indigo-500/20"
                                         />
                                     </motion.div>
@@ -457,27 +632,43 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                             {step === 2 && (
                                 <motion.div
                                     key="step2"
-                                    initial={{ opacity: 0, x: 30, rotateY: -10 }}
+                                    initial={{
+                                        opacity: 0,
+                                        x: 30,
+                                        rotateY: -10,
+                                    }}
                                     animate={{ opacity: 1, x: 0, rotateY: 0 }}
                                     exit={{ opacity: 0, x: -30, rotateY: 10 }}
-                                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 200,
+                                        damping: 20,
+                                    }}
                                     className="space-y-5"
                                 >
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
-                                        className="flex items-center gap-3 mb-6"
+                                        className="mb-6 flex items-center gap-3"
                                     >
                                         <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 10 }}
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 10,
+                                            }}
                                             className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg shadow-blue-500/30"
                                         >
                                             <Users className="h-6 w-6" />
                                         </motion.div>
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Target Penerima</h4>
-                                            <p className="text-sm text-gray-500">Pilih mahasiswa yang akan menerima notifikasi</p>
+                                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Target Penerima
+                                            </h4>
+                                            <p className="text-sm text-gray-500">
+                                                Pilih mahasiswa yang akan
+                                                menerima notifikasi
+                                            </p>
                                         </div>
                                     </motion.div>
 
@@ -487,30 +678,43 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.2 }}
                                             whileHover={{ scale: 1.02, x: 5 }}
-                                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all shadow-md ${
+                                            className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-5 shadow-md transition-all ${
                                                 form.data.target_type === 'all'
-                                                    ? 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-500 dark:from-indigo-900/20 dark:to-purple-900/20 shadow-indigo-500/20'
-                                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-indigo-300'
+                                                    ? 'border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 shadow-indigo-500/20 dark:from-indigo-900/20 dark:to-purple-900/20'
+                                                    : 'border-gray-200 bg-white hover:border-indigo-300 dark:border-gray-700 dark:bg-gray-800'
                                             }`}
                                         >
                                             <input
                                                 type="radio"
                                                 name="target_type"
                                                 value="all"
-                                                checked={form.data.target_type === 'all'}
-                                                onChange={(e) => form.setData('target_type', e.target.value)}
+                                                checked={
+                                                    form.data.target_type ===
+                                                    'all'
+                                                }
+                                                onChange={(e) =>
+                                                    form.setData(
+                                                        'target_type',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 className="hidden"
                                             />
-                                            <motion.div 
+                                            <motion.div
                                                 whileHover={{ rotate: 360 }}
                                                 transition={{ duration: 0.6 }}
-                                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 shadow-lg"
+                                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 shadow-lg dark:bg-indigo-900/30"
                                             >
                                                 <Users className="h-6 w-6" />
                                             </motion.div>
                                             <div className="flex-1">
-                                                <p className="font-medium text-gray-900 dark:text-white">Semua Mahasiswa</p>
-                                                <p className="text-sm text-gray-500">Kirim ke seluruh mahasiswa ({mahasiswa.length} orang)</p>
+                                                <p className="font-medium text-gray-900 dark:text-white">
+                                                    Semua Mahasiswa
+                                                </p>
+                                                <p className="text-sm text-gray-500">
+                                                    Kirim ke seluruh mahasiswa (
+                                                    {mahasiswa.length} orang)
+                                                </p>
                                             </div>
                                         </motion.label>
 
@@ -519,30 +723,44 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.3 }}
                                             whileHover={{ scale: 1.02, x: 5 }}
-                                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 cursor-pointer transition-all shadow-md ${
-                                                form.data.target_type === 'specific'
-                                                    ? 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-500 dark:from-blue-900/20 dark:to-cyan-900/20 shadow-blue-500/20'
-                                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                                            className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 p-5 shadow-md transition-all ${
+                                                form.data.target_type ===
+                                                'specific'
+                                                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-blue-500/20 dark:from-blue-900/20 dark:to-cyan-900/20'
+                                                    : 'border-gray-200 bg-white hover:border-blue-300 dark:border-gray-700 dark:bg-gray-800'
                                             }`}
                                         >
                                             <input
                                                 type="radio"
                                                 name="target_type"
                                                 value="specific"
-                                                checked={form.data.target_type === 'specific'}
-                                                onChange={(e) => form.setData('target_type', e.target.value)}
+                                                checked={
+                                                    form.data.target_type ===
+                                                    'specific'
+                                                }
+                                                onChange={(e) =>
+                                                    form.setData(
+                                                        'target_type',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 className="hidden"
                                             />
-                                            <motion.div 
+                                            <motion.div
                                                 whileHover={{ rotate: 360 }}
                                                 transition={{ duration: 0.6 }}
-                                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 shadow-lg"
+                                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-600 shadow-lg dark:bg-blue-900/30"
                                             >
                                                 <User className="h-6 w-6" />
                                             </motion.div>
                                             <div className="flex-1">
-                                                <p className="font-medium text-gray-900 dark:text-white">Mahasiswa Tertentu</p>
-                                                <p className="text-sm text-gray-500">Pilih mahasiswa secara manual</p>
+                                                <p className="font-medium text-gray-900 dark:text-white">
+                                                    Mahasiswa Tertentu
+                                                </p>
+                                                <p className="text-sm text-gray-500">
+                                                    Pilih mahasiswa secara
+                                                    manual
+                                                </p>
                                             </div>
                                         </motion.label>
                                     </div>
@@ -550,50 +768,108 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                     {form.data.target_type === 'specific' && (
                                         <motion.div
                                             initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
+                                            animate={{
+                                                opacity: 1,
+                                                height: 'auto',
+                                            }}
                                             exit={{ opacity: 0, height: 0 }}
-                                            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                                            transition={{
+                                                type: 'spring',
+                                                stiffness: 200,
+                                                damping: 25,
+                                            }}
                                             className="space-y-3"
                                         >
                                             <div className="flex items-center justify-between">
                                                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    {selectedMahasiswa.length} dari {mahasiswa.length} dipilih
+                                                    {selectedMahasiswa.length}{' '}
+                                                    dari {mahasiswa.length}{' '}
+                                                    dipilih
                                                 </p>
                                                 <div className="flex gap-2">
-                                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                        <Button size="sm" variant="outline" onClick={selectAllMahasiswa}>
+                                                    <motion.div
+                                                        whileHover={{
+                                                            scale: 1.05,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.95,
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={
+                                                                selectAllMahasiswa
+                                                            }
+                                                        >
                                                             Pilih Semua
                                                         </Button>
                                                     </motion.div>
-                                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                        <Button size="sm" variant="outline" onClick={clearSelection}>
+                                                    <motion.div
+                                                        whileHover={{
+                                                            scale: 1.05,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.95,
+                                                        }}
+                                                    >
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={
+                                                                clearSelection
+                                                            }
+                                                        >
                                                             Hapus Pilihan
                                                         </Button>
                                                     </motion.div>
                                                 </div>
                                             </div>
 
-                                            <div className="max-h-64 overflow-y-auto border-2 border-gray-200 dark:border-gray-700 rounded-2xl p-3 space-y-2 bg-gray-50/50 dark:bg-gray-900/50">
+                                            <div className="max-h-64 space-y-2 overflow-y-auto rounded-2xl border-2 border-gray-200 bg-gray-50/50 p-3 dark:border-gray-700 dark:bg-gray-900/50">
                                                 {mahasiswa.map((mhs, idx) => (
                                                     <motion.label
                                                         key={mhs.id}
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: idx * 0.05 }}
-                                                        whileHover={{ x: 8, scale: 1.02 }}
-                                                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
-                                                            selectedMahasiswa.includes(mhs.id)
-                                                                ? 'bg-blue-50 dark:bg-blue-900/20 shadow-md'
+                                                        initial={{
+                                                            opacity: 0,
+                                                            x: -10,
+                                                        }}
+                                                        animate={{
+                                                            opacity: 1,
+                                                            x: 0,
+                                                        }}
+                                                        transition={{
+                                                            delay: idx * 0.05,
+                                                        }}
+                                                        whileHover={{
+                                                            x: 8,
+                                                            scale: 1.02,
+                                                        }}
+                                                        className={`flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all ${
+                                                            selectedMahasiswa.includes(
+                                                                mhs.id,
+                                                            )
+                                                                ? 'bg-blue-50 shadow-md dark:bg-blue-900/20'
                                                                 : 'hover:bg-gray-100 dark:hover:bg-gray-800'
                                                         }`}
                                                     >
                                                         <Checkbox
-                                                            checked={selectedMahasiswa.includes(mhs.id)}
-                                                            onCheckedChange={() => toggleMahasiswa(mhs.id)}
+                                                            checked={selectedMahasiswa.includes(
+                                                                mhs.id,
+                                                            )}
+                                                            onCheckedChange={() =>
+                                                                toggleMahasiswa(
+                                                                    mhs.id,
+                                                                )
+                                                            }
                                                         />
                                                         <div className="flex-1">
-                                                            <p className="text-sm font-medium text-gray-900 dark:text-white">{mhs.nama}</p>
-                                                            <p className="text-xs text-gray-500">{mhs.nim}</p>
+                                                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                {mhs.nama}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500">
+                                                                {mhs.nim}
+                                                            </p>
                                                         </div>
                                                     </motion.label>
                                                 ))}
@@ -607,73 +883,128 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                             {step === 3 && (
                                 <motion.div
                                     key="step3"
-                                    initial={{ opacity: 0, x: 30, rotateY: -10 }}
+                                    initial={{
+                                        opacity: 0,
+                                        x: 30,
+                                        rotateY: -10,
+                                    }}
                                     animate={{ opacity: 1, x: 0, rotateY: 0 }}
                                     exit={{ opacity: 0, x: -30, rotateY: 10 }}
-                                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 200,
+                                        damping: 20,
+                                    }}
                                     className="space-y-5"
                                 >
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
-                                        className="flex items-center gap-3 mb-6"
+                                        className="mb-6 flex items-center gap-3"
                                     >
                                         <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 10 }}
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 10,
+                                            }}
                                             className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
                                         >
                                             <Eye className="h-6 w-6" />
                                         </motion.div>
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 dark:text-white text-lg">Preview & Kirim</h4>
-                                            <p className="text-sm text-gray-500">Periksa notifikasi sebelum dikirim</p>
+                                            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                Preview & Kirim
+                                            </h4>
+                                            <p className="text-sm text-gray-500">
+                                                Periksa notifikasi sebelum
+                                                dikirim
+                                            </p>
                                         </div>
                                     </motion.div>
 
                                     {/* Preview Card with 3D Effect */}
-                                    <motion.div 
-                                        initial={{ opacity: 0, scale: 0.9, rotateX: -20 }}
-                                        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-                                        transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                                        whileHover={{ scale: 1.02, rotateX: 5, rotateY: 5 }}
-                                        className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black rounded-2xl border-2 border-gray-200 dark:border-gray-800 shadow-2xl"
-                                        style={{ transformStyle: 'preserve-3d' }}
+                                    <motion.div
+                                        initial={{
+                                            opacity: 0,
+                                            scale: 0.9,
+                                            rotateX: -20,
+                                        }}
+                                        animate={{
+                                            opacity: 1,
+                                            scale: 1,
+                                            rotateX: 0,
+                                        }}
+                                        transition={{
+                                            delay: 0.2,
+                                            type: 'spring',
+                                            stiffness: 200,
+                                        }}
+                                        whileHover={{
+                                            scale: 1.02,
+                                            rotateX: 5,
+                                            rotateY: 5,
+                                        }}
+                                        className="rounded-2xl border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 p-6 shadow-2xl dark:border-gray-800 dark:from-gray-900 dark:to-black"
+                                        style={{
+                                            transformStyle: 'preserve-3d',
+                                        }}
                                     >
                                         <div className="flex items-start gap-4">
-                                            <motion.div 
-                                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                            <motion.div
+                                                whileHover={{
+                                                    rotate: 360,
+                                                    scale: 1.2,
+                                                }}
                                                 transition={{ duration: 0.6 }}
                                                 className={`flex h-14 w-14 items-center justify-center rounded-xl bg-${getTypeColor(form.data.type)}-100 text-${getTypeColor(form.data.type)}-600 shadow-lg`}
                                             >
                                                 {(() => {
-                                                    const Icon = getTypeIcon(form.data.type);
-                                                    return <Icon className="h-7 w-7" />;
+                                                    const Icon = getTypeIcon(
+                                                        form.data.type,
+                                                    );
+                                                    return (
+                                                        <Icon className="h-7 w-7" />
+                                                    );
                                                 })()}
                                             </motion.div>
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <h5 className="font-semibold text-gray-900 dark:text-white text-lg">{form.data.title || 'Judul notifikasi'}</h5>
-                                                    {form.data.priority !== 'normal' && (
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <h5 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                        {form.data.title ||
+                                                            'Judul notifikasi'}
+                                                    </h5>
+                                                    {form.data.priority !==
+                                                        'normal' && (
                                                         <motion.span
-                                                            initial={{ scale: 0 }}
-                                                            animate={{ scale: 1 }}
-                                                            className={`px-2 py-0.5 rounded-full text-xs font-medium bg-${form.data.priority === 'urgent' ? 'red' : 'orange'}-100 text-${form.data.priority === 'urgent' ? 'red' : 'orange'}-700`}
+                                                            initial={{
+                                                                scale: 0,
+                                                            }}
+                                                            animate={{
+                                                                scale: 1,
+                                                            }}
+                                                            className={`rounded-full px-2 py-0.5 text-xs font-medium bg-${form.data.priority === 'urgent' ? 'red' : 'orange'}-100 text-${form.data.priority === 'urgent' ? 'red' : 'orange'}-700`}
                                                         >
-                                                            {form.data.priority === 'urgent' ? 'Urgent' : 'Penting'}
+                                                            {form.data
+                                                                .priority ===
+                                                            'urgent'
+                                                                ? 'Urgent'
+                                                                : 'Penting'}
                                                         </motion.span>
                                                     )}
                                                 </div>
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap leading-relaxed">
-                                                    {form.data.message || 'Pesan notifikasi akan muncul di sini'}
+                                                <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-600 dark:text-gray-400">
+                                                    {form.data.message ||
+                                                        'Pesan notifikasi akan muncul di sini'}
                                                 </p>
                                                 {form.data.action_url && (
-                                                    <motion.p 
+                                                    <motion.p
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
-                                                        className="text-sm text-blue-600 mt-3 flex items-center gap-1"
+                                                        className="mt-3 flex items-center gap-1 text-sm text-blue-600"
                                                     >
-                                                        🔗 {form.data.action_url}
+                                                        🔗{' '}
+                                                        {form.data.action_url}
                                                     </motion.p>
                                                 )}
                                             </div>
@@ -681,29 +1012,69 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                     </motion.div>
 
                                     {/* Summary */}
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800 shadow-lg"
+                                        className="rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 shadow-lg dark:border-blue-800 dark:from-blue-900/20 dark:to-cyan-900/20"
                                     >
-                                        <h6 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                        <h6 className="mb-3 flex items-center gap-2 font-medium text-gray-900 dark:text-white">
                                             <Info className="h-5 w-5 text-blue-600" />
                                             Ringkasan
                                         </h6>
                                         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                                            <motion.p whileHover={{ x: 5 }} className="flex items-center gap-2">
-                                                • Tipe: <span className="font-medium">{NOTIFICATION_TYPES.find(t => t.value === form.data.type)?.label}</span>
+                                            <motion.p
+                                                whileHover={{ x: 5 }}
+                                                className="flex items-center gap-2"
+                                            >
+                                                • Tipe:{' '}
+                                                <span className="font-medium">
+                                                    {
+                                                        NOTIFICATION_TYPES.find(
+                                                            (t) =>
+                                                                t.value ===
+                                                                form.data.type,
+                                                        )?.label
+                                                    }
+                                                </span>
                                             </motion.p>
-                                            <motion.p whileHover={{ x: 5 }} className="flex items-center gap-2">
-                                                • Prioritas: <span className="font-medium">{PRIORITY_LEVELS.find(p => p.value === form.data.priority)?.label}</span>
+                                            <motion.p
+                                                whileHover={{ x: 5 }}
+                                                className="flex items-center gap-2"
+                                            >
+                                                • Prioritas:{' '}
+                                                <span className="font-medium">
+                                                    {
+                                                        PRIORITY_LEVELS.find(
+                                                            (p) =>
+                                                                p.value ===
+                                                                form.data
+                                                                    .priority,
+                                                        )?.label
+                                                    }
+                                                </span>
                                             </motion.p>
-                                            <motion.p whileHover={{ x: 5 }} className="flex items-center gap-2">
-                                                • Penerima: <span className="font-medium">{form.data.target_type === 'all' ? `Semua mahasiswa (${mahasiswa.length})` : `${selectedMahasiswa.length} mahasiswa`}</span>
+                                            <motion.p
+                                                whileHover={{ x: 5 }}
+                                                className="flex items-center gap-2"
+                                            >
+                                                • Penerima:{' '}
+                                                <span className="font-medium">
+                                                    {form.data.target_type ===
+                                                    'all'
+                                                        ? `Semua mahasiswa (${mahasiswa.length})`
+                                                        : `${selectedMahasiswa.length} mahasiswa`}
+                                                </span>
                                             </motion.p>
                                             {course && (
-                                                <motion.p whileHover={{ x: 5 }} className="flex items-center gap-2">
-                                                    • Mata Kuliah: <span className="font-medium">{course.nama}</span>
+                                                <motion.p
+                                                    whileHover={{ x: 5 }}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    • Mata Kuliah:{' '}
+                                                    <span className="font-medium">
+                                                        {course.nama}
+                                                    </span>
                                                 </motion.p>
                                             )}
                                         </div>
@@ -714,16 +1085,19 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                     </div>
 
                     {/* Enhanced Footer */}
-                    <div className="border-t-2 border-gray-200 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-black/50 p-6 backdrop-blur">
+                    <div className="border-t-2 border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 p-6 backdrop-blur dark:border-gray-800 dark:from-gray-900/50 dark:to-black/50">
                         <div className="flex items-center justify-between">
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="text-sm text-gray-500 flex items-center gap-2"
+                                className="flex items-center gap-2 text-sm text-gray-500"
                             >
                                 <motion.div
                                     animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                    }}
                                     className="h-2 w-2 rounded-full bg-indigo-500"
                                 />
                                 Step {step} dari 3
@@ -736,7 +1110,10 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         whileHover={{ scale: 1.05, x: -3 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        <Button variant="outline" onClick={() => setStep(step - 1)}>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setStep(step - 1)}
+                                        >
                                             Kembali
                                         </Button>
                                     </motion.div>
@@ -748,13 +1125,19 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         whileHover={{ scale: 1.05, x: 3 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        <Button 
+                                        <Button
                                             onClick={() => setStep(step + 1)}
                                             disabled={
-                                                (step === 1 && (!form.data.title || !form.data.message)) ||
-                                                (step === 2 && form.data.target_type === 'specific' && selectedMahasiswa.length === 0)
+                                                (step === 1 &&
+                                                    (!form.data.title ||
+                                                        !form.data.message)) ||
+                                                (step === 2 &&
+                                                    form.data.target_type ===
+                                                        'specific' &&
+                                                    selectedMahasiswa.length ===
+                                                        0)
                                             }
-                                            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-indigo-500/30"
+                                            className="border-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:from-indigo-600 hover:to-purple-700"
                                         >
                                             Lanjut
                                         </Button>
@@ -766,22 +1149,26 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                         whileHover={{ scale: 1.05, x: 3 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        <Button 
+                                        <Button
                                             onClick={handleSubmit}
                                             disabled={form.processing}
-                                            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 shadow-lg shadow-emerald-500/30"
+                                            className="border-0 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 hover:from-emerald-600 hover:to-teal-700"
                                         >
                                             {form.processing ? (
                                                 <motion.span
                                                     animate={{ rotate: 360 }}
-                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                    transition={{
+                                                        duration: 1,
+                                                        repeat: Infinity,
+                                                        ease: 'linear',
+                                                    }}
                                                     className="inline-block"
                                                 >
                                                     ⏳
                                                 </motion.span>
                                             ) : (
                                                 <>
-                                                    <Send className="h-4 w-4 mr-2" />
+                                                    <Send className="mr-2 h-4 w-4" />
                                                     Kirim Notifikasi
                                                 </>
                                             )}

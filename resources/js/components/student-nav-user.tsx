@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,7 +14,6 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
@@ -55,8 +55,12 @@ export function StudentNavUser({ mahasiswa }: { mahasiswa?: MahasiswaInfo }) {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-medium">{mahasiswa.nama}</span>
-                                <span className="truncate text-xs text-muted-foreground">NIM {mahasiswa.nim}</span>
+                                <span className="truncate font-medium">
+                                    {mahasiswa.nama}
+                                </span>
+                                <span className="truncate text-xs text-muted-foreground">
+                                    NIM {mahasiswa.nim}
+                                </span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
@@ -64,7 +68,13 @@ export function StudentNavUser({ mahasiswa }: { mahasiswa?: MahasiswaInfo }) {
                     <DropdownMenuContent
                         className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
                         align="end"
-                        side={isMobile ? 'bottom' : state === 'collapsed' ? 'left' : 'bottom'}
+                        side={
+                            isMobile
+                                ? 'bottom'
+                                : state === 'collapsed'
+                                  ? 'left'
+                                  : 'bottom'
+                        }
                     >
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
@@ -74,8 +84,12 @@ export function StudentNavUser({ mahasiswa }: { mahasiswa?: MahasiswaInfo }) {
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-medium">{mahasiswa.nama}</span>
-                                    <span className="truncate text-xs text-muted-foreground">NIM {mahasiswa.nim}</span>
+                                    <span className="truncate font-medium">
+                                        {mahasiswa.nama}
+                                    </span>
+                                    <span className="truncate text-xs text-muted-foreground">
+                                        NIM {mahasiswa.nim}
+                                    </span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>

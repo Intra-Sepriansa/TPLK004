@@ -3,17 +3,23 @@
  * Requirements: 5.1, 5.4
  */
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
-import { TutorialOverlay } from './tutorial-overlay';
-import type { InteractiveTutorial, TutorialStatus } from '@/types/documentation';
 import {
-    getTutorial,
-    startTutorial as apiStartTutorial,
     completeTutorial as apiCompleteTutorial,
     skipTutorial as apiSkipTutorial,
+    startTutorial as apiStartTutorial,
+    getTutorial,
     shouldShowFirstTimeTutorial,
-    dismissFirstTimeTutorial,
 } from '@/lib/tutorial-api';
+import type { InteractiveTutorial } from '@/types/documentation';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+    type ReactNode,
+} from 'react';
+import { TutorialOverlay } from './tutorial-overlay';
 
 interface TutorialContextValue {
     activeTutorial: InteractiveTutorial | null;
@@ -39,8 +45,11 @@ interface TutorialProviderProps {
 }
 
 export function TutorialProvider({ children }: TutorialProviderProps) {
-    const [activeTutorial, setActiveTutorial] = useState<InteractiveTutorial | null>(null);
-    const [currentTutorialId, setCurrentTutorialId] = useState<string | null>(null);
+    const [activeTutorial, setActiveTutorial] =
+        useState<InteractiveTutorial | null>(null);
+    const [currentTutorialId, setCurrentTutorialId] = useState<string | null>(
+        null,
+    );
 
     const startTutorial = useCallback(async (tutorialId: string) => {
         try {
@@ -79,19 +88,22 @@ export function TutorialProvider({ children }: TutorialProviderProps) {
         }
     }, [currentTutorialId]);
 
-    const checkFirstTimeTutorial = useCallback(async (page: string) => {
-        try {
-            const shouldShow = await shouldShowFirstTimeTutorial(page);
-            if (shouldShow) {
-                // Map page to tutorial ID
-                const tutorialId = `${page}-intro`;
-                await startTutorial(tutorialId);
+    const checkFirstTimeTutorial = useCallback(
+        async (page: string) => {
+            try {
+                const shouldShow = await shouldShowFirstTimeTutorial(page);
+                if (shouldShow) {
+                    // Map page to tutorial ID
+                    const tutorialId = `${page}-intro`;
+                    await startTutorial(tutorialId);
+                }
+            } catch (error) {
+                // Silently fail - first time tutorials are optional
+                console.error('Failed to check first time tutorial:', error);
             }
-        } catch (error) {
-            // Silently fail - first time tutorials are optional
-            console.error('Failed to check first time tutorial:', error);
-        }
-    }, [startTutorial]);
+        },
+        [startTutorial],
+    );
 
     // Handle escape key to skip tutorial
     useEffect(() => {

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
 import { usePage } from '@inertiajs/react';
+import { useCallback, useEffect, useState } from 'react';
 
 export type Theme = 'light' | 'dark' | 'system';
 

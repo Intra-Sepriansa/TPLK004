@@ -1,9 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useCamera } from '@/hooks/use-camera';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Camera, RefreshCcw, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { useCamera } from '@/hooks/use-camera';
 import { cn } from '@/lib/utils';
+import {
+    AlertTriangle,
+    Camera,
+    CheckCircle,
+    RefreshCcw,
+    XCircle,
+} from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Challenge = 'blink' | 'smile' | 'turn_left' | 'turn_right' | 'nod';
 
@@ -28,7 +34,16 @@ export function LivenessDetection({
     challenges = ['blink', 'smile'],
     maxAttempts = 3,
 }: LivenessDetectionProps) {
-    const { videoRef, canvasRef, isActive, isLoading, error, start, stop, capture } = useCamera({
+    const {
+        videoRef,
+        canvasRef,
+        isActive,
+        isLoading,
+        error,
+        start,
+        stop,
+        capture,
+    } = useCamera({
         facingMode: 'user',
         width: 640,
         height: 480,
@@ -36,7 +51,9 @@ export function LivenessDetection({
 
     const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
     const [attempts, setAttempts] = useState(0);
-    const [status, setStatus] = useState<'idle' | 'detecting' | 'success' | 'failed'>('idle');
+    const [status, setStatus] = useState<
+        'idle' | 'detecting' | 'success' | 'failed'
+    >('idle');
     const [progress, setProgress] = useState(0);
     const [countdown, setCountdown] = useState(3);
     const [showCountdown, setShowCountdown] = useState(false);
@@ -73,7 +90,7 @@ export function LivenessDetection({
 
             if (progressValue >= 100) {
                 clearInterval(detectionRef.current!);
-                
+
                 // Simulate success/failure (80% success rate)
                 const isSuccess = Math.random() > 0.2;
 
@@ -101,7 +118,16 @@ export function LivenessDetection({
                 }
             }
         }, 100);
-    }, [currentChallengeIndex, challenges.length, attempts, maxAttempts, capture, onSuccess, onFailure, startDetection]);
+    }, [
+        currentChallengeIndex,
+        challenges.length,
+        attempts,
+        maxAttempts,
+        capture,
+        onSuccess,
+        onFailure,
+        startDetection,
+    ]);
 
     const reset = useCallback(() => {
         if (detectionRef.current) {
@@ -133,8 +159,8 @@ export function LivenessDetection({
                     playsInline
                     muted
                     className={cn(
-                        'h-full w-full object-cover scale-x-[-1]',
-                        !isActive && 'hidden'
+                        'h-full w-full scale-x-[-1] object-cover',
+                        !isActive && 'hidden',
                     )}
                 />
                 <canvas ref={canvasRef} className="hidden" />
@@ -143,18 +169,21 @@ export function LivenessDetection({
                 {isActive && (
                     <div className="absolute inset-0 flex items-center justify-center">
                         {/* Face Guide */}
-                        <div className={cn(
-                            'w-48 h-64 border-4 rounded-[50%] transition-colors duration-300',
-                            status === 'detecting' && 'border-amber-400 animate-pulse',
-                            status === 'success' && 'border-emerald-400',
-                            status === 'failed' && 'border-rose-400',
-                            status === 'idle' && 'border-white/50'
-                        )} />
+                        <div
+                            className={cn(
+                                'h-64 w-48 rounded-[50%] border-4 transition-colors duration-300',
+                                status === 'detecting' &&
+                                    'animate-pulse border-amber-400',
+                                status === 'success' && 'border-emerald-400',
+                                status === 'failed' && 'border-rose-400',
+                                status === 'idle' && 'border-white/50',
+                            )}
+                        />
 
                         {/* Countdown */}
                         {showCountdown && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                                <span className="text-6xl font-bold text-white animate-ping">
+                                <span className="animate-ping text-6xl font-bold text-white">
                                     {countdown}
                                 </span>
                             </div>
@@ -188,7 +217,7 @@ export function LivenessDetection({
                             <div className="text-white">Memuat kamera...</div>
                         ) : error ? (
                             <div className="text-center text-rose-400">
-                                <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+                                <AlertTriangle className="mx-auto mb-2 h-8 w-8" />
                                 <p className="text-sm">{error}</p>
                             </div>
                         ) : (
@@ -201,15 +230,16 @@ export function LivenessDetection({
             {/* Challenge Info */}
             {isActive && status !== 'success' && status !== 'failed' && (
                 <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="mb-2 flex items-center justify-between">
                         <span className="text-xs text-slate-500">
-                            Tantangan {currentChallengeIndex + 1} dari {challenges.length}
+                            Tantangan {currentChallengeIndex + 1} dari{' '}
+                            {challenges.length}
                         </span>
                         <span className="text-xs text-slate-500">
                             Percobaan: {attempts}/{maxAttempts}
                         </span>
                     </div>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+                    <p className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">
                         {challengeInstructions[currentChallenge]}
                     </p>
                     {status === 'detecting' && (
@@ -221,8 +251,12 @@ export function LivenessDetection({
             {/* Actions */}
             <div className="flex gap-3">
                 {!isActive ? (
-                    <Button onClick={start} className="flex-1" disabled={isLoading}>
-                        <Camera className="h-4 w-4 mr-2" />
+                    <Button
+                        onClick={start}
+                        className="flex-1"
+                        disabled={isLoading}
+                    >
+                        <Camera className="mr-2 h-4 w-4" />
                         Mulai Kamera
                     </Button>
                 ) : status === 'idle' ? (
@@ -230,8 +264,12 @@ export function LivenessDetection({
                         Mulai Verifikasi
                     </Button>
                 ) : status === 'success' || status === 'failed' ? (
-                    <Button onClick={reset} variant="outline" className="flex-1">
-                        <RefreshCcw className="h-4 w-4 mr-2" />
+                    <Button
+                        onClick={reset}
+                        variant="outline"
+                        className="flex-1"
+                    >
+                        <RefreshCcw className="mr-2 h-4 w-4" />
                         Ulangi
                     </Button>
                 ) : null}

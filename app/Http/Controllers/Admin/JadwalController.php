@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\MataKuliah;
+use App\Services\AttendanceSessionAutomationService;
+use App\Services\MeetingQuickFillService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +15,10 @@ use Inertia\Inertia;
 
 class JadwalController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, AttendanceSessionAutomationService $automationService)
     {
+        $automationService->syncActiveStates();
+
         $courseId = $request->get('course_id', 'all');
         $status = $request->get('status', 'all');
         $dateFrom = $request->get('date_from', now()->startOfMonth()->toDateString());
@@ -81,9 +85,31 @@ class JadwalController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(MeetingQuickFillService $meetingQuickFillService)
     {
-        $courses = MataKuliah::with('dosen')->orderBy('nama')->get();
+        $scheduledMeetingsByCourse = AttendanceSession::query()
+            ->select('course_id', 'meeting_number')
+            ->get()
+            ->groupBy('course_id')
+            ->map(fn ($sessions) => $sessions
+                ->pluck('meeting_number')
+                ->map(fn ($meetingNumber) => (int) $meetingNumber)
+                ->values()
+                ->all());
+
+        $courses = MataKuliah::with(['dosen', 'meetingPlans'])
+            ->orderBy('nama')
+            ->get()
+            ->map(function ($course) use ($meetingQuickFillService, $scheduledMeetingsByCourse) {
+                return [
+                    'id' => $course->id,
+                    'nama' => $course->nama,
+                    'sks' => $course->sks,
+                    'dosen' => $course->dosen,
+                    'scheduled_meetings' => $scheduledMeetingsByCourse->get($course->id, []),
+                    ...$meetingQuickFillService->buildCoursePayload($course),
+                ];
+            });
         $stats = ['total' => AttendanceSession::count()];
 
         // Pass existing sessions for meeting progress & conflict checking
@@ -121,40 +147,101 @@ class JadwalController extends Controller
         ]);
     }
     
-    public function store(Request $request)
+    public function store(
+        Request $request,
+        MeetingQuickFillService $meetingQuickFillService,
+        AttendanceSessionAutomationService $automationService,
+    )
     {
         $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
             'meeting_number' => 'required|integer|min:1|max:21',
             'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
         ]);
+
+        $course = MataKuliah::with('meetingPlans')->findOrFail($request->integer('course_id'));
+        $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
+            $course,
+            $request->integer('meeting_number'),
+        );
+
+        if ($offlineValidationMessage) {
+            return back()->withErrors([
+                'meeting_number' => $offlineValidationMessage,
+            ])->withInput();
+        }
+
+        $resolvedContent = $meetingQuickFillService->resolveSessionContent(
+            $course,
+            $request->integer('meeting_number'),
+            $request->string('title')->toString(),
+            $request->string('description')->toString(),
+        );
         
         AttendanceSession::create([
             'course_id' => $request->course_id,
             'meeting_number' => $request->meeting_number,
-            'title' => $request->title,
+            'title' => $resolvedContent['title'],
+            'description' => $resolvedContent['description'],
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
             'is_active' => false,
             'created_by' => auth()->id(),
         ]);
+
+        $automationService->syncActiveStates();
         
         return redirect()->route('admin.jadwal')->with('success', 'Jadwal berhasil ditambahkan.');
     }
     
-    public function update(Request $request, AttendanceSession $session)
+    public function update(
+        Request $request,
+        AttendanceSession $session,
+        MeetingQuickFillService $meetingQuickFillService,
+        AttendanceSessionAutomationService $automationService,
+    )
     {
         $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
             'meeting_number' => 'required|integer|min:1|max:21',
             'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
         ]);
-        
-        $session->update($request->only(['course_id', 'meeting_number', 'title', 'start_at', 'end_at']));
+
+        $course = MataKuliah::with('meetingPlans')->findOrFail($request->integer('course_id'));
+        $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
+            $course,
+            $request->integer('meeting_number'),
+        );
+
+        if ($offlineValidationMessage) {
+            return back()->withErrors([
+                'meeting_number' => $offlineValidationMessage,
+            ])->withInput();
+        }
+
+        $resolvedContent = $meetingQuickFillService->resolveSessionContent(
+            $course,
+            $request->integer('meeting_number'),
+            $request->string('title')->toString(),
+            $request->string('description')->toString(),
+        );
+
+        $session->update([
+            'course_id' => $request->course_id,
+            'meeting_number' => $request->meeting_number,
+            'title' => $resolvedContent['title'],
+            'description' => $resolvedContent['description'],
+            'start_at' => $request->start_at,
+            'end_at' => $request->end_at,
+        ]);
+
+        $automationService->syncActiveStates();
         
         return redirect()->route('admin.jadwal')->with('success', 'Jadwal berhasil diperbarui.');
     }
@@ -167,9 +254,6 @@ class JadwalController extends Controller
     
     public function activate(AttendanceSession $session)
     {
-        // Deactivate all other sessions
-        AttendanceSession::where('is_active', true)->update(['is_active' => false]);
-        
         $session->update(['is_active' => true]);
         
         return back()->with('success', 'Sesi berhasil diaktifkan.');
@@ -177,7 +261,12 @@ class JadwalController extends Controller
     
     public function deactivate(AttendanceSession $session)
     {
-        $session->update(['is_active' => false]);
+        $payload = ['is_active' => false];
+        if ($session->end_at && $session->end_at->isFuture()) {
+            $payload['end_at'] = now();
+        }
+
+        $session->update($payload);
         
         return back()->with('success', 'Sesi berhasil dinonaktifkan.');
     }

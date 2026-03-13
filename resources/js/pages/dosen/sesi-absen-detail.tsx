@@ -1,20 +1,37 @@
-import { Head, Link, router } from '@inertiajs/react';
-import DosenLayout from '@/layouts/dosen-layout';
-import { motion } from 'framer-motion';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { useState, useEffect, useCallback } from 'react';
-import {
-    Calendar, Users, CheckCircle, Clock, XCircle, Timer, Shield, AlertTriangle,
-    MapPin, Scan, RefreshCw, Download, Bell, Sparkles, Bot, ArrowLeft,
-    TrendingUp, Send, Search, ChevronDown, Eye, Fingerprint, Zap,
-    Smartphone, Globe, BrainCircuit, Activity, Target, Award
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
 import TotalIcon from '@/assets/admin/dashboard/total-icon.png';
 import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
-import TerlambatDetailIcon from '@/assets/dosen/sesi-absen/terlambat.png';
 import DitolakIcon from '@/assets/admin/voting-kas/ditolak.png';
+import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
+import TerlambatDetailIcon from '@/assets/dosen/sesi-absen/terlambat.png';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import DosenLayout from '@/layouts/dosen-layout';
+import { cn } from '@/lib/utils';
+import { Head, Link, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import {
+    Activity,
+    AlertTriangle,
+    ArrowLeft,
+    Award,
+    Bell,
+    BrainCircuit,
+    Calendar,
+    Clock,
+    Download,
+    Eye,
+    Fingerprint,
+    MapPin,
+    RefreshCw,
+    Scan,
+    Search,
+    Shield,
+    Smartphone,
+    Sparkles,
+    Target,
+    TrendingUp,
+    Users,
+} from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 interface Log {
@@ -106,32 +123,82 @@ interface PageProps {
 /* ── Animation Variants ────────────────────────────────────────────── */
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.04, delayChildren: 0.1 },
+    },
 } as const;
 
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
+    },
 } as const;
 
 const cardVariants = {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 20 } },
-    hover: { scale: 1.03, y: -8, transition: { type: 'spring' as const, stiffness: 400, damping: 10 } },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
+    },
+    hover: {
+        scale: 1.03,
+        y: -8,
+        transition: { type: 'spring' as const, stiffness: 400, damping: 10 },
+    },
 } as const;
 
 /* ── Status helpers ────────────────────────────────────────────────── */
-const statusConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
-    present: { label: 'Hadir', color: 'text-emerald-700 dark:text-emerald-300', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-    late: { label: 'Terlambat', color: 'text-amber-700 dark:text-amber-300', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-    rejected: { label: 'Ditolak', color: 'text-red-700 dark:text-red-300', bg: 'bg-red-500/10', border: 'border-red-500/20' },
-    pending: { label: 'Pending', color: 'text-purple-700 dark:text-purple-300', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-    waiting: { label: 'Menunggu', color: 'text-blue-700 dark:text-blue-300', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
+const statusConfig: Record<
+    string,
+    { label: string; color: string; bg: string; border: string }
+> = {
+    present: {
+        label: 'Hadir',
+        color: 'text-emerald-700 dark:text-emerald-300',
+        bg: 'bg-emerald-500/10',
+        border: 'border-emerald-500/20',
+    },
+    late: {
+        label: 'Terlambat',
+        color: 'text-amber-700 dark:text-amber-300',
+        bg: 'bg-amber-500/10',
+        border: 'border-amber-500/20',
+    },
+    rejected: {
+        label: 'Ditolak',
+        color: 'text-red-700 dark:text-red-300',
+        bg: 'bg-red-500/10',
+        border: 'border-red-500/20',
+    },
+    pending: {
+        label: 'Pending',
+        color: 'text-purple-700 dark:text-purple-300',
+        bg: 'bg-purple-500/10',
+        border: 'border-purple-500/20',
+    },
+    waiting: {
+        label: 'Menunggu',
+        color: 'text-blue-700 dark:text-blue-300',
+        bg: 'bg-blue-500/10',
+        border: 'border-blue-500/20',
+    },
 };
 
 /* ════════════════════════════════════════════════════════════════════ */
-export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions }: PageProps) {
-    const [activeTab, setActiveTab] = useState<'attendance' | 'insights'>('attendance');
+export default function SesiAbsenDetail({
+    session: s,
+    logs,
+    stats,
+    aiPredictions,
+}: PageProps) {
+    const [activeTab, setActiveTab] = useState<'attendance' | 'insights'>(
+        'attendance',
+    );
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -139,7 +206,14 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
     const [isRefreshing, setIsRefreshing] = useState(false);
     const storageKey = `ai_analyzed_${s.id}`;
     const [aiAnalyzed, setAiAnalyzed] = useState(() => {
-        try { const stored = localStorage.getItem(storageKey); if (stored) { const parsed = JSON.parse(stored); return parsed.logsCount === logs.length; } } catch { } return false;
+        try {
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                return parsed.logsCount === logs.length;
+            }
+        } catch {}
+        return false;
     });
     const [aiAnalyzing, setAiAnalyzing] = useState(false);
     const [analyzeStep, setAnalyzeStep] = useState(0);
@@ -158,29 +232,53 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
         setSendingReminder(true);
         fetch(`/dosen/sesi-absen/${s.id}/send-reminder`, {
             method: 'POST',
-            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        }).then(r => r.json()).then(d => { alert(d.message); }).catch(() => alert('Gagal mengirim reminder')).finally(() => setSendingReminder(false));
+            headers: {
+                'X-CSRF-TOKEN':
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || '',
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        })
+            .then((r) => r.json())
+            .then((d) => {
+                alert(d.message);
+            })
+            .catch(() => alert('Gagal mengirim reminder'))
+            .finally(() => setSendingReminder(false));
     }, [s.id]);
 
     const startAnalysis = useCallback(() => {
-        setAiAnalyzing(true); setAnalyzeStep(0);
+        setAiAnalyzing(true);
+        setAnalyzeStep(0);
         const steps = [0, 1, 2, 3, 4, 5, 6];
         steps.forEach((step, i) => {
             setTimeout(() => {
                 setAnalyzeStep(step + 1);
                 if (step === 6) {
                     setTimeout(() => {
-                        setAiAnalyzing(false); setAiAnalyzed(true);
-                        try { localStorage.setItem(storageKey, JSON.stringify({ logsCount: logs.length })); } catch { }
+                        setAiAnalyzing(false);
+                        setAiAnalyzed(true);
+                        try {
+                            localStorage.setItem(
+                                storageKey,
+                                JSON.stringify({ logsCount: logs.length }),
+                            );
+                        } catch {}
                     }, 400);
                 }
             }, i * 500);
         });
     }, [storageKey, logs.length]);
 
-    const filteredLogs = logs.filter(l => {
-        const matchesSearch = !search || l.nama.toLowerCase().includes(search.toLowerCase()) || l.nim.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || l.status === statusFilter;
+    const filteredLogs = logs.filter((l) => {
+        const matchesSearch =
+            !search ||
+            l.nama.toLowerCase().includes(search.toLowerCase()) ||
+            l.nim.toLowerCase().includes(search.toLowerCase());
+        const matchesStatus =
+            statusFilter === 'all' || l.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
@@ -192,133 +290,309 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
     };
 
     const cards = [
-        { key: 'total', label: 'Total', value: stats.total, sub: 'mahasiswa', imgSrc: TotalIcon, from: 'from-blue-400', to: 'to-indigo-600', shadow: 'shadow-blue-500/30', glow: 'bg-blue-500', hoverShadow: 'hover:shadow-blue-500/10', gradient: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
-        { key: 'present', label: 'Hadir', value: stats.present, sub: `${stats.present_pct}%`, imgSrc: HadirIcon, from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', glow: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradient: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
-        { key: 'late', label: 'Terlambat', value: stats.late, sub: `${stats.late_pct}%`, imgSrc: TerlambatDetailIcon, from: 'from-rose-400', to: 'to-red-600', shadow: 'shadow-rose-500/30', glow: 'bg-rose-500', hoverShadow: 'hover:shadow-rose-500/10', gradient: 'from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10' },
-        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'fraud detected', imgSrc: DitolakIcon, from: 'from-red-400', to: 'to-rose-600', shadow: 'shadow-red-500/30', glow: 'bg-red-500', hoverShadow: 'hover:shadow-red-500/10', gradient: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
+        {
+            key: 'total',
+            label: 'Total',
+            value: stats.total,
+            sub: 'mahasiswa',
+            imgSrc: TotalIcon,
+            from: 'from-blue-400',
+            to: 'to-indigo-600',
+            shadow: 'shadow-blue-500/30',
+            glow: 'bg-blue-500',
+            hoverShadow: 'hover:shadow-blue-500/10',
+            gradient:
+                'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10',
+        },
+        {
+            key: 'present',
+            label: 'Hadir',
+            value: stats.present,
+            sub: `${stats.present_pct}%`,
+            imgSrc: HadirIcon,
+            from: 'from-emerald-400',
+            to: 'to-teal-600',
+            shadow: 'shadow-emerald-500/30',
+            glow: 'bg-emerald-500',
+            hoverShadow: 'hover:shadow-emerald-500/10',
+            gradient:
+                'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
+        },
+        {
+            key: 'late',
+            label: 'Terlambat',
+            value: stats.late,
+            sub: `${stats.late_pct}%`,
+            imgSrc: TerlambatDetailIcon,
+            from: 'from-rose-400',
+            to: 'to-red-600',
+            shadow: 'shadow-rose-500/30',
+            glow: 'bg-rose-500',
+            hoverShadow: 'hover:shadow-rose-500/10',
+            gradient:
+                'from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10',
+        },
+        {
+            key: 'rejected',
+            label: 'Ditolak',
+            value: stats.rejected,
+            sub: 'fraud detected',
+            imgSrc: DitolakIcon,
+            from: 'from-red-400',
+            to: 'to-rose-600',
+            shadow: 'shadow-red-500/30',
+            glow: 'bg-red-500',
+            hoverShadow: 'hover:shadow-red-500/10',
+            gradient:
+                'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10',
+        },
     ];
 
     return (
         <DosenLayout>
             <Head title={`Sesi: ${s.title}`} />
 
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-6 p-4 md:p-6">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-6 p-4 md:p-6"
+            >
                 {/* ═══════ HEADER ═══════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8">
+                <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
+                >
                     {/* Animated Gradient Background */}
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
                         {/* Back link */}
-                        <Link href="/dosen/sesi-absen" className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors mb-4">
-                            <ArrowLeft className="h-4 w-4" /> Kembali ke Sesi Absensi
+                        <Link
+                            href="/dosen/sesi-absen"
+                            className="mb-4 inline-flex items-center gap-1.5 text-sm text-white/70 transition-colors hover:text-white"
+                        >
+                            <ArrowLeft className="h-4 w-4" /> Kembali ke Sesi
+                            Absensi
                         </Link>
 
                         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                             <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
-                                <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={SesiAbsenIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                <motion.div className="relative flex h-20 w-20 shrink-0 items-center justify-center sm:h-24 sm:w-24">
+                                    <img
+                                        src={SesiAbsenIcon}
+                                        alt="Header Icon"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl"
+                                    />
                                 </motion.div>
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-3">
-                                        <p className="text-sm text-indigo-100 font-medium tracking-wide">Sesi Absensi</p>
+                                        <p className="text-sm font-medium tracking-wide text-indigo-100">
+                                            Sesi Absensi
+                                        </p>
                                         <motion.span
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
-                                            className={`px-3 py-1 rounded-full text-xs font-bold ${s.is_active ? 'bg-emerald-500/20 border border-emerald-400/30 text-emerald-100' : 'bg-neutral-500/20 border border-neutral-400/30 text-neutral-200'}`}
+                                            className={`rounded-full px-3 py-1 text-xs font-bold ${s.is_active ? 'border border-emerald-400/30 bg-emerald-500/20 text-emerald-100' : 'border border-neutral-400/30 bg-neutral-500/20 text-neutral-200'}`}
                                         >
                                             {s.is_active ? 'AKTIF' : 'SELESAI'}
                                         </motion.span>
                                     </div>
-                                    <h1 className="text-3xl font-bold text-white">{s.title}</h1>
+                                    <h1 className="text-3xl font-bold text-white">
+                                        {s.title}
+                                    </h1>
                                     <p className="mt-1 text-sm text-indigo-100 sm:text-base">
-                                        {s.course_name} • Pertemuan {s.meeting_number} • {s.day_display}, {s.date_display} • {s.time_range}
+                                        {s.course_name} • Pertemuan{' '}
+                                        {s.meeting_number} • {s.day_display},{' '}
+                                        {s.date_display} • {s.time_range}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
                             className="mt-6 grid grid-cols-1 gap-2 border-t border-white/10 pt-5 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3 sm:pt-6"
                         >
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleRefresh}
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleRefresh}
                                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto sm:justify-start sm:px-5"
                             >
-                                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} /> Refresh QR
+                                <RefreshCw
+                                    className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                                />{' '}
+                                Refresh QR
                             </motion.button>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setActiveTab('insights')}
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setActiveTab('insights')}
                                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto sm:justify-start sm:px-5"
                             >
                                 <BrainCircuit className="h-4 w-4" /> AI Insight
                             </motion.button>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleExport}
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleExport}
                                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto sm:justify-start sm:px-5"
                             >
                                 <Download className="h-4 w-4" /> Export
                             </motion.button>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSendReminder} disabled={sendingReminder}
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleSendReminder}
+                                disabled={sendingReminder}
                                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 disabled:opacity-50 sm:w-auto sm:justify-start sm:px-5"
                             >
-                                <Bell className={`h-4 w-4 ${sendingReminder ? 'animate-bounce' : ''}`} /> {sendingReminder ? 'Mengirim...' : 'Send Reminder'}
+                                <Bell
+                                    className={`h-4 w-4 ${sendingReminder ? 'animate-bounce' : ''}`}
+                                />{' '}
+                                {sendingReminder
+                                    ? 'Mengirim...'
+                                    : 'Send Reminder'}
                             </motion.button>
                         </motion.div>
                     </div>
                 </motion.div>
 
                 {/* ═══════ 4 STAT CARDS ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4"
+                >
                     {cards.map((card, i) => {
                         const colorMap: Record<string, any> = {
-                            'bg-blue-500': { from: 'from-sky-400', to: 'to-indigo-600', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', hoverShadow: 'hover:shadow-sky-500/10' },
-                            'bg-emerald-500': { from: 'from-emerald-400', to: 'to-teal-600', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', hoverShadow: 'hover:shadow-emerald-500/10' },
-                            'bg-rose-500': { from: 'from-rose-400', to: 'to-red-600', gradientBg: 'from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10', hoverShadow: 'hover:shadow-rose-500/10' },
-                            'bg-red-500': { from: 'from-red-400', to: 'to-rose-600', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', hoverShadow: 'hover:shadow-red-500/10' },
+                            'bg-blue-500': {
+                                from: 'from-sky-400',
+                                to: 'to-indigo-600',
+                                gradientBg:
+                                    'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
+                                hoverShadow: 'hover:shadow-sky-500/10',
+                            },
+                            'bg-emerald-500': {
+                                from: 'from-emerald-400',
+                                to: 'to-teal-600',
+                                gradientBg:
+                                    'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
+                                hoverShadow: 'hover:shadow-emerald-500/10',
+                            },
+                            'bg-rose-500': {
+                                from: 'from-rose-400',
+                                to: 'to-red-600',
+                                gradientBg:
+                                    'from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10',
+                                hoverShadow: 'hover:shadow-rose-500/10',
+                            },
+                            'bg-red-500': {
+                                from: 'from-red-400',
+                                to: 'to-rose-600',
+                                gradientBg:
+                                    'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10',
+                                hoverShadow: 'hover:shadow-red-500/10',
+                            },
                         };
-                        const cc = colorMap[card.glow] || colorMap['bg-blue-500'];
+                        const cc =
+                            colorMap[card.glow] || colorMap['bg-blue-500'];
                         return (
                             <motion.div
                                 key={card.key}
                                 variants={{
                                     hidden: { opacity: 0, y: 30, scale: 0.95 },
-                                    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+                                    visible: {
+                                        opacity: 1,
+                                        y: 0,
+                                        scale: 1,
+                                        transition: {
+                                            type: 'spring',
+                                            stiffness: 100,
+                                            damping: 15,
+                                        },
+                                    },
                                 }}
-                                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
-                                onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                                className={cn(`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5`, cc.hoverShadow)}
+                                whileHover={{
+                                    y: -5,
+                                    scale: 1.02,
+                                    transition: {
+                                        type: 'spring',
+                                        stiffness: 400,
+                                        damping: 25,
+                                    },
+                                }}
+                                onHoverStart={() => setHoveredCard(card.key)}
+                                onHoverEnd={() => setHoveredCard(null)}
+                                className={cn(
+                                    `group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40`,
+                                    cc.hoverShadow,
+                                )}
                             >
-                                <div className={`absolute inset-0 bg-gradient-to-br ${cc.gradientBg} opacity-50 dark:opacity-100`} />
-                                <motion.div
-                                    className={cn(`absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all`, card.glow)}
-                                    animate={{ opacity: hoveredCard === card.key ? 0.4 : 0.15 }}
+                                <div
+                                    className={`absolute inset-0 bg-gradient-to-br ${cc.gradientBg} opacity-50 dark:opacity-100`}
                                 />
-                                <div className="relative z-10 flex flex-col items-center sm:items-start gap-3 sm:gap-4 h-full justify-between">
-                                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
-                                        <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                            className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                <motion.div
+                                    className={cn(
+                                        `absolute -top-8 -right-8 h-28 w-28 rounded-full blur-3xl transition-all`,
+                                        card.glow,
+                                    )}
+                                    animate={{
+                                        opacity:
+                                            hoveredCard === card.key
+                                                ? 0.4
+                                                : 0.15,
+                                    }}
+                                />
+                                <div className="relative z-10 flex h-full flex-col items-center justify-between gap-3 sm:items-start sm:gap-4">
+                                    <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
+                                        <motion.div
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 10,
+                                            }}
+                                            className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-14 sm:w-14"
                                         >
-                                            <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                            <img
+                                                src={card.imgSrc}
+                                                alt={card.label}
+                                                className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]"
+                                            />
                                         </motion.div>
                                         <div className="flex flex-col">
-                                            <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{card.label}</p>
-                                            <div className="flex items-baseline gap-2 justify-center sm:justify-start">
-                                                <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
-                                                    <AnimatedCounter value={card.value} duration={1500} />
+                                            <p className="mb-0.5 text-[10px] leading-tight font-medium text-neutral-500 sm:mb-1 sm:text-sm dark:text-neutral-400">
+                                                {card.label}
+                                            </p>
+                                            <div className="flex items-baseline justify-center gap-2 sm:justify-start">
+                                                <span className="text-xl leading-none font-extrabold tracking-tight text-neutral-900 sm:text-3xl dark:text-white">
+                                                    <AnimatedCounter
+                                                        value={card.value}
+                                                        duration={1500}
+                                                    />
                                                 </span>
                                             </div>
-                                            <p className="text-[10px] text-neutral-400 mt-0.5 sm:mt-1">{card.sub}</p>
+                                            <p className="mt-0.5 text-[10px] text-neutral-400 sm:mt-1">
+                                                {card.sub}
+                                            </p>
                                         </div>
                                     </div>
-
                                 </div>
                             </motion.div>
                         );
@@ -326,21 +600,40 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                 </motion.div>
 
                 {/* ═══════ TABS ═══════ */}
-                <motion.div variants={itemVariants}
-                    className="flex p-1 gap-1 bg-neutral-100/50 dark:bg-neutral-900/50 rounded-2xl backdrop-blur-md w-fit border border-white/10"
+                <motion.div
+                    variants={itemVariants}
+                    className="flex w-fit gap-1 rounded-2xl border border-white/10 bg-neutral-100/50 p-1 backdrop-blur-md dark:bg-neutral-900/50"
                 >
-                    {(['attendance', 'insights'] as const).map(tab => (
-                        <motion.button key={tab} layout onClick={() => setActiveTab(tab)}
-                            className={`relative px-6 py-2.5 text-sm font-bold rounded-xl transition-all ${activeTab === tab ? 'text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'}`}
+                    {(['attendance', 'insights'] as const).map((tab) => (
+                        <motion.button
+                            key={tab}
+                            layout
+                            onClick={() => setActiveTab(tab)}
+                            className={`relative rounded-xl px-6 py-2.5 text-sm font-bold transition-all ${activeTab === tab ? 'text-indigo-700 shadow-sm dark:text-indigo-300' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'}`}
                         >
                             {activeTab === tab && (
-                                <motion.div layoutId="sessionTab"
-                                    className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm"
-                                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                                <motion.div
+                                    layoutId="sessionTab"
+                                    className="absolute inset-0 rounded-xl bg-white shadow-sm dark:bg-neutral-800"
+                                    transition={{
+                                        type: 'spring',
+                                        bounce: 0.2,
+                                        duration: 0.6,
+                                    }}
                                 />
                             )}
                             <span className="relative z-10 flex items-center gap-2">
-                                {tab === 'attendance' ? <><Users className="h-4 w-4" /> Daftar Kehadiran</> : <><BrainCircuit className="h-4 w-4" /> AI Insights</>}
+                                {tab === 'attendance' ? (
+                                    <>
+                                        <Users className="h-4 w-4" /> Daftar
+                                        Kehadiran
+                                    </>
+                                ) : (
+                                    <>
+                                        <BrainCircuit className="h-4 w-4" /> AI
+                                        Insights
+                                    </>
+                                )}
                             </span>
                         </motion.button>
                     ))}
@@ -349,39 +642,60 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                 {/* ═══════ TAB CONTENT ═══════ */}
                 <div className="min-h-[400px]">
                     {activeTab === 'attendance' && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="animate-in space-y-4 duration-500 fade-in slide-in-from-bottom-4">
                             {/* Filters */}
-                            <div className="rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50 space-y-4">
+                            <div className="space-y-4 rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
                                 <div className="flex flex-wrap items-center gap-4">
-                                    <div className="flex-1 min-w-[200px]">
+                                    <div className="min-w-[200px] flex-1">
                                         <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                                            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                            <input
+                                                type="text"
+                                                value={search}
+                                                onChange={(e) =>
+                                                    setSearch(e.target.value)
+                                                }
                                                 placeholder="Cari mahasiswa..."
-                                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                                className="w-full rounded-xl border border-neutral-300 bg-white py-2.5 pr-4 pl-10 text-sm transition-all focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-black dark:text-white"
                                             />
                                         </div>
                                     </div>
-                                    <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-                                        className="rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:ring-2 focus:ring-indigo-500"
+                                    <select
+                                        value={statusFilter}
+                                        onChange={(e) =>
+                                            setStatusFilter(e.target.value)
+                                        }
+                                        className="rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-black dark:text-white"
                                     >
-                                        <option value="all">Semua Status</option>
+                                        <option value="all">
+                                            Semua Status
+                                        </option>
                                         <option value="present">Hadir</option>
                                         <option value="late">Terlambat</option>
-                                        <option value="rejected">Ditolak</option>
+                                        <option value="rejected">
+                                            Ditolak
+                                        </option>
                                         <option value="pending">Pending</option>
                                     </select>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
+                                <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800">
                                     <div className="flex items-center gap-2 text-sm">
                                         <Calendar className="h-4 w-4 text-indigo-500" />
-                                        <span className="font-semibold text-neutral-900 dark:text-white">{s.date_display}</span>
+                                        <span className="font-semibold text-neutral-900 dark:text-white">
+                                            {s.date_display}
+                                        </span>
                                     </div>
                                     <div className="h-4 w-px bg-neutral-300 dark:bg-neutral-700" />
                                     <div className="flex items-center gap-1.5 text-sm">
-                                        <span className="text-neutral-500">Ditampilkan:</span>
-                                        <span className="font-bold text-indigo-600">{filteredLogs.length}</span>
-                                        <span className="text-neutral-400">dari {logs.length}</span>
+                                        <span className="text-neutral-500">
+                                            Ditampilkan:
+                                        </span>
+                                        <span className="font-bold text-indigo-600">
+                                            {filteredLogs.length}
+                                        </span>
+                                        <span className="text-neutral-400">
+                                            dari {logs.length}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -389,89 +703,164 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                             {/* Attendance Table */}
                             {filteredLogs.length === 0 ? (
                                 <div className="rounded-3xl border border-dashed border-neutral-300 bg-neutral-50/50 p-16 text-center dark:border-neutral-800 dark:bg-neutral-900/50">
-                                    <div className="mx-auto h-24 w-24 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center mb-6">
+                                    <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
                                         <Users className="h-10 w-10 text-neutral-400" />
                                     </div>
-                                    <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">Belum ada data kehadiran</h3>
-                                    <p className="text-neutral-500 dark:text-neutral-400 max-w-sm mx-auto">
-                                        Mahasiswa belum ada yang melakukan scan absensi untuk sesi ini.
+                                    <h3 className="mb-2 text-lg font-bold text-neutral-900 dark:text-white">
+                                        Belum ada data kehadiran
+                                    </h3>
+                                    <p className="mx-auto max-w-sm text-neutral-500 dark:text-neutral-400">
+                                        Mahasiswa belum ada yang melakukan scan
+                                        absensi untuk sesi ini.
                                     </p>
                                 </div>
                             ) : (
-                                <div className="rounded-3xl border border-white/20 bg-white/40 shadow-2xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/40 overflow-hidden">
+                                <div className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-2xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/40">
                                     <div className="overflow-x-auto">
-                                        <table className="w-full border-collapse min-w-[900px]">
+                                        <table className="w-full min-w-[900px] border-collapse">
                                             <thead>
                                                 <tr className="bg-gradient-to-r from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-black">
-                                                    <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase w-10">No</th>
-                                                    <th className="px-4 py-3.5 text-left text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase min-w-[200px]">Mahasiswa</th>
-                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase">Status</th>
-                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase">Waktu Scan</th>
-                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase">Jarak</th>
-                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase">AI Score</th>
-                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase">Device</th>
+                                                    <th className="w-10 px-4 py-3.5 text-left text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        No
+                                                    </th>
+                                                    <th className="min-w-[200px] px-4 py-3.5 text-left text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        Mahasiswa
+                                                    </th>
+                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        Status
+                                                    </th>
+                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        Waktu Scan
+                                                    </th>
+                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        Jarak
+                                                    </th>
+                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        AI Score
+                                                    </th>
+                                                    <th className="px-4 py-3.5 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:text-neutral-400">
+                                                        Device
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800/50">
-                                                {filteredLogs.map((log, idx) => {
-                                                    const sc = statusConfig[log.status] || statusConfig.pending;
-                                                    const isExpanded = expandedLog === log.id;
-                                                    return (
-                                                        <tr key={log.id}
-                                                            className="hover:bg-indigo-50/50 dark:hover:bg-indigo-500/[0.03] transition-colors group cursor-pointer"
-                                                            onClick={() => setExpandedLog(isExpanded ? null : log.id)}
-                                                        >
-                                                            <td className="px-4 py-3 text-xs text-neutral-400 font-medium">{idx + 1}</td>
-                                                            <td className="px-4 py-3">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0">
-                                                                        {log.nama.substring(0, 2).toUpperCase()}
-                                                                    </div>
-                                                                    <div className="min-w-0">
-                                                                        <p className="font-bold text-sm text-neutral-900 dark:text-white truncate">{log.nama}</p>
-                                                                        <p className="text-[10px] text-neutral-400 font-mono">{log.nim}</p>
-                                                                    </div>
-                                                                    {log.is_suspicious && (
-                                                                        <div className="px-1.5 py-0.5 rounded-md bg-red-500/10 border border-red-500/20 animate-pulse">
-                                                                            <AlertTriangle className="h-3 w-3 text-red-500" />
+                                                {filteredLogs.map(
+                                                    (log, idx) => {
+                                                        const sc =
+                                                            statusConfig[
+                                                                log.status
+                                                            ] ||
+                                                            statusConfig.pending;
+                                                        const isExpanded =
+                                                            expandedLog ===
+                                                            log.id;
+                                                        return (
+                                                            <tr
+                                                                key={log.id}
+                                                                className="group cursor-pointer transition-colors hover:bg-indigo-50/50 dark:hover:bg-indigo-500/[0.03]"
+                                                                onClick={() =>
+                                                                    setExpandedLog(
+                                                                        isExpanded
+                                                                            ? null
+                                                                            : log.id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <td className="px-4 py-3 text-xs font-medium text-neutral-400">
+                                                                    {idx + 1}
+                                                                </td>
+                                                                <td className="px-4 py-3">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 text-[11px] font-bold text-white">
+                                                                            {log.nama
+                                                                                .substring(
+                                                                                    0,
+                                                                                    2,
+                                                                                )
+                                                                                .toUpperCase()}
                                                                         </div>
-                                                                    )}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center">
-                                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${sc.bg} ${sc.border} ${sc.color} border`}>
-                                                                    {sc.label}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                                                {log.scanned_at || '-'}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center">
-                                                                {log.distance_m !== null ? (
-                                                                    <span className={`text-sm font-semibold ${log.distance_m <= 100 ? 'text-emerald-600' : log.distance_m <= 500 ? 'text-amber-600' : 'text-red-600'}`}>
-                                                                        {log.distance_m}m
-                                                                    </span>
-                                                                ) : <span className="text-xs text-neutral-400">-</span>}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center">
-                                                                {log.ai_scanned ? (
-                                                                    <div className="flex flex-col items-center">
-                                                                        <span className={`text-sm font-bold ${(log.ai_confidence ?? 0) >= 80 ? 'text-emerald-600' : (log.ai_confidence ?? 0) >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
-                                                                            {log.ai_confidence ?? 0}%
-                                                                        </span>
-                                                                        <span className="text-[9px] text-neutral-400">confidence</span>
+                                                                        <div className="min-w-0">
+                                                                            <p className="truncate text-sm font-bold text-neutral-900 dark:text-white">
+                                                                                {
+                                                                                    log.nama
+                                                                                }
+                                                                            </p>
+                                                                            <p className="font-mono text-[10px] text-neutral-400">
+                                                                                {
+                                                                                    log.nim
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                        {log.is_suspicious && (
+                                                                            <div className="animate-pulse rounded-md border border-red-500/20 bg-red-500/10 px-1.5 py-0.5">
+                                                                                <AlertTriangle className="h-3 w-3 text-red-500" />
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                ) : <span className="text-xs text-neutral-400">—</span>}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center">
-                                                                <div className="flex items-center justify-center gap-1.5">
-                                                                    <Smartphone className="h-3.5 w-3.5 text-neutral-400" />
-                                                                    <span className="text-xs text-neutral-600 dark:text-neutral-400 truncate max-w-[80px]">{log.device_model || '-'}</span>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center">
+                                                                    <span
+                                                                        className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold ${sc.bg} ${sc.border} ${sc.color} border`}
+                                                                    >
+                                                                        {
+                                                                            sc.label
+                                                                        }
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                                    {log.scanned_at ||
+                                                                        '-'}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center">
+                                                                    {log.distance_m !==
+                                                                    null ? (
+                                                                        <span
+                                                                            className={`text-sm font-semibold ${log.distance_m <= 100 ? 'text-emerald-600' : log.distance_m <= 500 ? 'text-amber-600' : 'text-red-600'}`}
+                                                                        >
+                                                                            {
+                                                                                log.distance_m
+                                                                            }
+                                                                            m
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-xs text-neutral-400">
+                                                                            -
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center">
+                                                                    {log.ai_scanned ? (
+                                                                        <div className="flex flex-col items-center">
+                                                                            <span
+                                                                                className={`text-sm font-bold ${(log.ai_confidence ?? 0) >= 80 ? 'text-emerald-600' : (log.ai_confidence ?? 0) >= 50 ? 'text-amber-600' : 'text-red-600'}`}
+                                                                            >
+                                                                                {log.ai_confidence ??
+                                                                                    0}
+                                                                                %
+                                                                            </span>
+                                                                            <span className="text-[9px] text-neutral-400">
+                                                                                confidence
+                                                                            </span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="text-xs text-neutral-400">
+                                                                            —
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center">
+                                                                    <div className="flex items-center justify-center gap-1.5">
+                                                                        <Smartphone className="h-3.5 w-3.5 text-neutral-400" />
+                                                                        <span className="max-w-[80px] truncate text-xs text-neutral-600 dark:text-neutral-400">
+                                                                            {log.device_model ||
+                                                                                '-'}
+                                                                        </span>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    },
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
@@ -482,31 +871,72 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
 
                     {activeTab === 'insights' && (
                         <div className="space-y-6">
-
                             {/* AI Engine Header — always visible */}
                             <div className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 p-8 shadow-2xl">
-                                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.3) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl" />
+                                <div
+                                    className="absolute inset-0 opacity-10"
+                                    style={{
+                                        backgroundImage:
+                                            'radial-gradient(circle, rgba(99,102,241,0.3) 1px, transparent 1px)',
+                                        backgroundSize: '24px 24px',
+                                    }}
+                                />
+                                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl" />
                                 <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/10 blur-3xl" />
                                 <div className="relative z-10 flex flex-wrap items-center gap-6">
-                                    <div className={`flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 backdrop-blur-xl border border-indigo-400/30 ${aiAnalyzing ? 'animate-pulse' : ''}`}>
-                                        <BrainCircuit className={`h-10 w-10 text-indigo-300 ${aiAnalyzing ? 'animate-spin' : ''}`} />
+                                    <div
+                                        className={`flex h-20 w-20 items-center justify-center rounded-2xl border border-indigo-400/30 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 backdrop-blur-xl ${aiAnalyzing ? 'animate-pulse' : ''}`}
+                                    >
+                                        <BrainCircuit
+                                            className={`h-10 w-10 text-indigo-300 ${aiAnalyzing ? 'animate-spin' : ''}`}
+                                        />
                                     </div>
-                                    <div className="flex-1 min-w-[200px]">
-                                        <div className="flex items-center gap-3 flex-wrap">
-                                            <h2 className="text-2xl font-bold text-white">AI Neural Engine</h2>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${aiAnalyzed ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300 animate-pulse' : aiAnalyzing ? 'bg-amber-500/20 border-amber-400/30 text-amber-300 animate-pulse' : 'bg-neutral-500/20 border-neutral-400/30 text-neutral-400'}`}>
-                                                ● {aiAnalyzed ? 'COMPLETE' : aiAnalyzing ? 'ANALYZING...' : 'STANDBY'}
+                                    <div className="min-w-[200px] flex-1">
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <h2 className="text-2xl font-bold text-white">
+                                                AI Neural Engine
+                                            </h2>
+                                            <span
+                                                className={`rounded-full border px-3 py-1 text-xs font-bold ${aiAnalyzed ? 'animate-pulse border-emerald-400/30 bg-emerald-500/20 text-emerald-300' : aiAnalyzing ? 'animate-pulse border-amber-400/30 bg-amber-500/20 text-amber-300' : 'border-neutral-400/30 bg-neutral-500/20 text-neutral-400'}`}
+                                            >
+                                                ●{' '}
+                                                {aiAnalyzed
+                                                    ? 'COMPLETE'
+                                                    : aiAnalyzing
+                                                      ? 'ANALYZING...'
+                                                      : 'STANDBY'}
                                             </span>
                                         </div>
-                                        <p className="text-indigo-300/80 text-sm mt-1">
-                                            {aiAnalyzing ? `Processing stage ${analyzeStep}/7...` : aiAnalyzed ? `Analysis complete • ${aiPredictions.data_points} data points processed` : 'Klik "Mulai Analisis" untuk menganalisis data kehadiran'}
+                                        <p className="mt-1 text-sm text-indigo-300/80">
+                                            {aiAnalyzing
+                                                ? `Processing stage ${analyzeStep}/7...`
+                                                : aiAnalyzed
+                                                  ? `Analysis complete • ${aiPredictions.data_points} data points processed`
+                                                  : 'Klik "Mulai Analisis" untuk menganalisis data kehadiran'}
                                         </p>
                                     </div>
                                     {aiAnalyzed && (
                                         <div className="flex items-center gap-3">
-                                            <div className="text-center px-4 py-2 rounded-xl bg-white/5 border border-white/10"><p className="text-lg font-bold text-emerald-400">{aiPredictions.confidence}%</p><p className="text-[10px] text-indigo-300/60 uppercase">Confidence</p></div>
-                                            <div className="text-center px-4 py-2 rounded-xl bg-white/5 border border-white/10"><p className={`text-lg font-bold ${aiPredictions.anomaly_count > 0 ? 'text-red-400' : 'text-emerald-400'}`}>{aiPredictions.anomaly_count}</p><p className="text-[10px] text-indigo-300/60 uppercase">Anomalies</p></div>
+                                            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-center">
+                                                <p className="text-lg font-bold text-emerald-400">
+                                                    {aiPredictions.confidence}%
+                                                </p>
+                                                <p className="text-[10px] text-indigo-300/60 uppercase">
+                                                    Confidence
+                                                </p>
+                                            </div>
+                                            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-center">
+                                                <p
+                                                    className={`text-lg font-bold ${aiPredictions.anomaly_count > 0 ? 'text-red-400' : 'text-emerald-400'}`}
+                                                >
+                                                    {
+                                                        aiPredictions.anomaly_count
+                                                    }
+                                                </p>
+                                                <p className="text-[10px] text-indigo-300/60 uppercase">
+                                                    Anomalies
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -514,35 +944,81 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                                 {/* Start Analysis Button — pre-analysis only */}
                                 {!aiAnalyzed && !aiAnalyzing && (
                                     <div className="relative z-10 mt-8 text-center">
-                                        <button onClick={startAnalysis} className="group relative inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-10 py-4 text-lg font-bold text-white shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all hover:scale-105 active:scale-95">
+                                        <button
+                                            onClick={startAnalysis}
+                                            className="group relative inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-10 py-4 text-lg font-bold text-white shadow-2xl shadow-indigo-500/30 transition-all hover:scale-105 hover:shadow-indigo-500/50 active:scale-95"
+                                        >
                                             <Scan className="h-6 w-6 group-hover:animate-pulse" />
                                             Mulai Analisis
                                             <Sparkles className="h-5 w-5 animate-pulse" />
                                         </button>
-                                        <p className="text-indigo-300/50 text-xs mt-3">{stats.total} attendance logs • {aiPredictions.data_points} historical data points ready</p>
+                                        <p className="mt-3 text-xs text-indigo-300/50">
+                                            {stats.total} attendance logs •{' '}
+                                            {aiPredictions.data_points}{' '}
+                                            historical data points ready
+                                        </p>
                                     </div>
                                 )}
 
                                 {/* Analysis Pipeline Animation — analyzing only */}
                                 {aiAnalyzing && (
                                     <div className="relative z-10 mt-8 space-y-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-bold text-indigo-200">Processing Pipeline</span>
-                                            <span className="text-sm font-mono font-bold text-indigo-300">{Math.min(Math.round((analyzeStep / 7) * 100), 100)}%</span>
+                                        <div className="mb-2 flex items-center justify-between">
+                                            <span className="text-sm font-bold text-indigo-200">
+                                                Processing Pipeline
+                                            </span>
+                                            <span className="font-mono text-sm font-bold text-indigo-300">
+                                                {Math.min(
+                                                    Math.round(
+                                                        (analyzeStep / 7) * 100,
+                                                    ),
+                                                    100,
+                                                )}
+                                                %
+                                            </span>
                                         </div>
-                                        <div className="h-3 bg-indigo-900/50 rounded-full overflow-hidden border border-indigo-500/20">
-                                            <div className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out" style={{ width: `${Math.min((analyzeStep / 7) * 100, 100)}%` }} />
+                                        <div className="h-3 overflow-hidden rounded-full border border-indigo-500/20 bg-indigo-900/50">
+                                            <div
+                                                className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-500 ease-out"
+                                                style={{
+                                                    width: `${Math.min((analyzeStep / 7) * 100, 100)}%`,
+                                                }}
+                                            />
                                         </div>
-                                        <div className="grid grid-cols-3 md:grid-cols-7 gap-2 mt-4">
+                                        <div className="mt-4 grid grid-cols-3 gap-2 md:grid-cols-7">
                                             {[
-                                                { n: 'Data Load', I: Activity }, { n: 'Face Detect', I: Eye }, { n: 'Recognition', I: Fingerprint },
-                                                { n: 'Liveness', I: Scan }, { n: 'Location', I: MapPin }, { n: 'Device', I: Smartphone }, { n: 'Decision', I: BrainCircuit },
+                                                { n: 'Data Load', I: Activity },
+                                                { n: 'Face Detect', I: Eye },
+                                                {
+                                                    n: 'Recognition',
+                                                    I: Fingerprint,
+                                                },
+                                                { n: 'Liveness', I: Scan },
+                                                { n: 'Location', I: MapPin },
+                                                { n: 'Device', I: Smartphone },
+                                                {
+                                                    n: 'Decision',
+                                                    I: BrainCircuit,
+                                                },
                                             ].map((p, i) => (
-                                                <div key={p.n} className={`rounded-xl p-3 text-center border transition-all duration-300 ${i < analyzeStep ? 'bg-emerald-500/20 border-emerald-500/30' : i === analyzeStep ? 'bg-amber-500/20 border-amber-500/30 animate-pulse' : 'bg-white/5 border-white/10 opacity-40'}`}>
-                                                    <p.I className={`h-5 w-5 mx-auto mb-1 ${i < analyzeStep ? 'text-emerald-400' : i === analyzeStep ? 'text-amber-400 animate-spin' : 'text-neutral-500'}`} />
-                                                    <p className="text-[9px] font-bold text-white/70">{p.n}</p>
-                                                    <p className={`text-[8px] font-bold mt-0.5 ${i < analyzeStep ? 'text-emerald-400' : i === analyzeStep ? 'text-amber-400' : 'text-neutral-600'}`}>
-                                                        {i < analyzeStep ? '✓ DONE' : i === analyzeStep ? '⏳ RUNNING' : 'PENDING'}
+                                                <div
+                                                    key={p.n}
+                                                    className={`rounded-xl border p-3 text-center transition-all duration-300 ${i < analyzeStep ? 'border-emerald-500/30 bg-emerald-500/20' : i === analyzeStep ? 'animate-pulse border-amber-500/30 bg-amber-500/20' : 'border-white/10 bg-white/5 opacity-40'}`}
+                                                >
+                                                    <p.I
+                                                        className={`mx-auto mb-1 h-5 w-5 ${i < analyzeStep ? 'text-emerald-400' : i === analyzeStep ? 'animate-spin text-amber-400' : 'text-neutral-500'}`}
+                                                    />
+                                                    <p className="text-[9px] font-bold text-white/70">
+                                                        {p.n}
+                                                    </p>
+                                                    <p
+                                                        className={`mt-0.5 text-[8px] font-bold ${i < analyzeStep ? 'text-emerald-400' : i === analyzeStep ? 'text-amber-400' : 'text-neutral-600'}`}
+                                                    >
+                                                        {i < analyzeStep
+                                                            ? '✓ DONE'
+                                                            : i === analyzeStep
+                                                              ? '⏳ RUNNING'
+                                                              : 'PENDING'}
                                                     </p>
                                                 </div>
                                             ))}
@@ -555,20 +1031,106 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                             {aiAnalyzed && (
                                 <>
                                     {/* Metrics Grid */}
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
                                         {[
-                                            { label: 'Attendance Prediction', value: aiPredictions.forecast, bar: 'bg-emerald-500', tc: 'text-emerald-600 dark:text-emerald-400' },
-                                            { label: 'AI Confidence', value: aiPredictions.confidence, bar: 'bg-indigo-500', tc: 'text-indigo-600 dark:text-indigo-400' },
-                                            { label: 'Face Match Rate', value: stats.face_match_rate, bar: 'bg-violet-500', tc: 'text-violet-600 dark:text-violet-400' },
-                                            { label: 'Location Accuracy', value: stats.total > 0 ? Math.round((stats.location_valid / stats.total) * 100) : 0, bar: 'bg-blue-500', tc: 'text-blue-600 dark:text-blue-400' },
-                                            { label: 'Device Trust', value: stats.total > 0 ? Math.round((stats.device_trusted / stats.total) * 100) : 0, bar: 'bg-cyan-500', tc: 'text-cyan-600 dark:text-cyan-400' },
-                                            { label: 'Safety Score', value: Math.max(0, 100 - aiPredictions.anomaly_count * 15), bar: aiPredictions.anomaly_count > 0 ? 'bg-red-500' : 'bg-emerald-500', tc: aiPredictions.anomaly_count > 0 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400' },
-                                        ].map(m => (
-                                            <div key={m.label} className="rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-5 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">{m.label}</p>
-                                                <p className={`text-3xl font-black ${m.tc} mb-3`}>{m.value}<span className="text-sm ml-0.5">%</span></p>
-                                                <div className="h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden"><div className={`h-full rounded-full ${m.bar} transition-all duration-1000`} style={{ width: `${Math.min(m.value, 100)}%` }} /></div>
-                                                <p className={`text-[10px] mt-1.5 font-semibold ${m.tc}`}>{m.value >= 80 ? '● Excellent' : m.value >= 60 ? '● Good' : m.value >= 40 ? '● Fair' : '● Low'}</p>
+                                            {
+                                                label: 'Attendance Prediction',
+                                                value: aiPredictions.forecast,
+                                                bar: 'bg-emerald-500',
+                                                tc: 'text-emerald-600 dark:text-emerald-400',
+                                            },
+                                            {
+                                                label: 'AI Confidence',
+                                                value: aiPredictions.confidence,
+                                                bar: 'bg-indigo-500',
+                                                tc: 'text-indigo-600 dark:text-indigo-400',
+                                            },
+                                            {
+                                                label: 'Face Match Rate',
+                                                value: stats.face_match_rate,
+                                                bar: 'bg-violet-500',
+                                                tc: 'text-violet-600 dark:text-violet-400',
+                                            },
+                                            {
+                                                label: 'Location Accuracy',
+                                                value:
+                                                    stats.total > 0
+                                                        ? Math.round(
+                                                              (stats.location_valid /
+                                                                  stats.total) *
+                                                                  100,
+                                                          )
+                                                        : 0,
+                                                bar: 'bg-blue-500',
+                                                tc: 'text-blue-600 dark:text-blue-400',
+                                            },
+                                            {
+                                                label: 'Device Trust',
+                                                value:
+                                                    stats.total > 0
+                                                        ? Math.round(
+                                                              (stats.device_trusted /
+                                                                  stats.total) *
+                                                                  100,
+                                                          )
+                                                        : 0,
+                                                bar: 'bg-cyan-500',
+                                                tc: 'text-cyan-600 dark:text-cyan-400',
+                                            },
+                                            {
+                                                label: 'Safety Score',
+                                                value: Math.max(
+                                                    0,
+                                                    100 -
+                                                        aiPredictions.anomaly_count *
+                                                            15,
+                                                ),
+                                                bar:
+                                                    aiPredictions.anomaly_count >
+                                                    0
+                                                        ? 'bg-red-500'
+                                                        : 'bg-emerald-500',
+                                                tc:
+                                                    aiPredictions.anomaly_count >
+                                                    0
+                                                        ? 'text-red-600 dark:text-red-400'
+                                                        : 'text-emerald-600 dark:text-emerald-400',
+                                            },
+                                        ].map((m) => (
+                                            <div
+                                                key={m.label}
+                                                className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-neutral-900/40"
+                                            >
+                                                <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                                    {m.label}
+                                                </p>
+                                                <p
+                                                    className={`text-3xl font-black ${m.tc} mb-3`}
+                                                >
+                                                    {m.value}
+                                                    <span className="ml-0.5 text-sm">
+                                                        %
+                                                    </span>
+                                                </p>
+                                                <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                                                    <div
+                                                        className={`h-full rounded-full ${m.bar} transition-all duration-1000`}
+                                                        style={{
+                                                            width: `${Math.min(m.value, 100)}%`,
+                                                        }}
+                                                    />
+                                                </div>
+                                                <p
+                                                    className={`mt-1.5 text-[10px] font-semibold ${m.tc}`}
+                                                >
+                                                    {m.value >= 80
+                                                        ? '● Excellent'
+                                                        : m.value >= 60
+                                                          ? '● Good'
+                                                          : m.value >= 40
+                                                            ? '● Fair'
+                                                            : '● Low'}
+                                                </p>
                                             </div>
                                         ))}
                                     </div>
@@ -576,109 +1138,443 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                                     {/* Insights Grid */}
                                     <div className="grid gap-6 md:grid-cols-2">
                                         {/* Forecast */}
-                                        <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl overflow-hidden">
-                                            <div className="px-6 pt-6 pb-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-3">
-                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg"><TrendingUp className="h-5 w-5 text-white" /></div>
-                                                <div><h3 className="text-base font-bold text-gray-900 dark:text-white">Attendance Forecast</h3><p className="text-xs text-gray-500">Dari {aiPredictions.data_points} data historis</p></div>
-                                            </div>
-                                            <div className="p-6 space-y-4">
-                                                <div className="flex items-end justify-between">
-                                                    <p className="text-5xl font-black text-emerald-600 dark:text-emerald-400">{aiPredictions.forecast}<span className="text-2xl">%</span></p>
-                                                    <div className="text-right"><p className="text-sm font-bold text-emerald-600 flex items-center gap-1"><TrendingUp className="h-4 w-4" />Predicted</p><p className="text-[10px] text-neutral-400">sesi berikutnya</p></div>
+                                        <div className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                            <div className="flex items-center gap-3 border-b border-neutral-200 px-6 pt-6 pb-4 dark:border-neutral-800">
+                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg">
+                                                    <TrendingUp className="h-5 w-5 text-white" />
                                                 </div>
-                                                <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full transition-all duration-1000" style={{ width: `${aiPredictions.forecast}%` }} /></div>
+                                                <div>
+                                                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                                                        Attendance Forecast
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500">
+                                                        Dari{' '}
+                                                        {
+                                                            aiPredictions.data_points
+                                                        }{' '}
+                                                        data historis
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-4 p-6">
+                                                <div className="flex items-end justify-between">
+                                                    <p className="text-5xl font-black text-emerald-600 dark:text-emerald-400">
+                                                        {aiPredictions.forecast}
+                                                        <span className="text-2xl">
+                                                            %
+                                                        </span>
+                                                    </p>
+                                                    <div className="text-right">
+                                                        <p className="flex items-center gap-1 text-sm font-bold text-emerald-600">
+                                                            <TrendingUp className="h-4 w-4" />
+                                                            Predicted
+                                                        </p>
+                                                        <p className="text-[10px] text-neutral-400">
+                                                            sesi berikutnya
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="h-4 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                                                    <div
+                                                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 transition-all duration-1000"
+                                                        style={{
+                                                            width: `${aiPredictions.forecast}%`,
+                                                        }}
+                                                    />
+                                                </div>
                                                 <div className="grid grid-cols-3 gap-3">
-                                                    <div className="text-center p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50"><p className="text-sm font-bold text-blue-600">{aiPredictions.confidence}%</p><p className="text-[9px] text-neutral-400 uppercase">Confidence</p></div>
-                                                    <div className="text-center p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50"><p className="text-sm font-bold text-violet-600">{aiPredictions.optimal_time}</p><p className="text-[9px] text-neutral-400 uppercase">Waktu Optimal</p></div>
-                                                    <div className="text-center p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50"><p className="text-sm font-bold text-cyan-600">{aiPredictions.data_points}</p><p className="text-[9px] text-neutral-400 uppercase">Data Points</p></div>
+                                                    <div className="rounded-xl bg-neutral-50 p-2 text-center dark:bg-neutral-800/50">
+                                                        <p className="text-sm font-bold text-blue-600">
+                                                            {
+                                                                aiPredictions.confidence
+                                                            }
+                                                            %
+                                                        </p>
+                                                        <p className="text-[9px] text-neutral-400 uppercase">
+                                                            Confidence
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-neutral-50 p-2 text-center dark:bg-neutral-800/50">
+                                                        <p className="text-sm font-bold text-violet-600">
+                                                            {
+                                                                aiPredictions.optimal_time
+                                                            }
+                                                        </p>
+                                                        <p className="text-[9px] text-neutral-400 uppercase">
+                                                            Waktu Optimal
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-neutral-50 p-2 text-center dark:bg-neutral-800/50">
+                                                        <p className="text-sm font-bold text-cyan-600">
+                                                            {
+                                                                aiPredictions.data_points
+                                                            }
+                                                        </p>
+                                                        <p className="text-[9px] text-neutral-400 uppercase">
+                                                            Data Points
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* At-Risk */}
-                                        <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl overflow-hidden">
-                                            <div className="px-6 pt-6 pb-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                                        <div className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                            <div className="flex items-center justify-between border-b border-neutral-200 px-6 pt-6 pb-4 dark:border-neutral-800">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 shadow-lg"><AlertTriangle className="h-5 w-5 text-white" /></div>
-                                                    <div><h3 className="text-base font-bold text-gray-900 dark:text-white">At-Risk Students</h3><p className="text-xs text-gray-500">{aiPredictions.at_risk_count} perlu perhatian</p></div>
+                                                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 shadow-lg">
+                                                        <AlertTriangle className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                                                            At-Risk Students
+                                                        </h3>
+                                                        <p className="text-xs text-gray-500">
+                                                            {
+                                                                aiPredictions.at_risk_count
+                                                            }{' '}
+                                                            perlu perhatian
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                {aiPredictions.at_risk_count > 0 && <span className="px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-xs font-bold text-red-500 animate-pulse">⚠ {aiPredictions.at_risk_count}</span>}
+                                                {aiPredictions.at_risk_count >
+                                                    0 && (
+                                                    <span className="animate-pulse rounded-lg border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-xs font-bold text-red-500">
+                                                        ⚠{' '}
+                                                        {
+                                                            aiPredictions.at_risk_count
+                                                        }
+                                                    </span>
+                                                )}
                                             </div>
                                             <div className="p-6">
-                                                {aiPredictions.at_risk_students.length === 0 ? (
-                                                    <div className="text-center py-8"><Award className="h-10 w-10 text-emerald-500 mx-auto mb-3" /><p className="font-bold text-emerald-700 dark:text-emerald-300">Semua Aman!</p><p className="text-xs text-neutral-500 mt-1">Tidak ada mahasiswa berisiko</p></div>
+                                                {aiPredictions.at_risk_students
+                                                    .length === 0 ? (
+                                                    <div className="py-8 text-center">
+                                                        <Award className="mx-auto mb-3 h-10 w-10 text-emerald-500" />
+                                                        <p className="font-bold text-emerald-700 dark:text-emerald-300">
+                                                            Semua Aman!
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-500">
+                                                            Tidak ada mahasiswa
+                                                            berisiko
+                                                        </p>
+                                                    </div>
                                                 ) : (
                                                     <div className="space-y-3">
-                                                        {aiPredictions.at_risk_students.map(stu => (
-                                                            <div key={stu.id} className="flex items-center gap-3 p-3 rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-900/10 hover:scale-[1.02] transition-transform">
-                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-red-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{stu.nama.charAt(0)}</div>
-                                                                <div className="flex-1 min-w-0"><p className="text-sm font-bold text-gray-900 dark:text-white truncate">{stu.nama}</p><p className="text-[10px] text-neutral-500 font-mono">{stu.nim}</p></div>
-                                                                <div className="text-right"><span className={`text-xs font-bold ${stu.risk_score >= 60 ? 'text-red-500' : 'text-amber-500'}`}>Risk {stu.risk_score}%</span><div className="w-16 h-1.5 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden mt-1"><div className={`h-full rounded-full ${stu.risk_score >= 60 ? 'bg-red-500' : 'bg-amber-500'}`} style={{ width: `${stu.risk_score}%` }} /></div></div>
-                                                            </div>
-                                                        ))}
+                                                        {aiPredictions.at_risk_students.map(
+                                                            (stu) => (
+                                                                <div
+                                                                    key={stu.id}
+                                                                    className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/50 p-3 transition-transform hover:scale-[1.02] dark:border-amber-800/50 dark:bg-amber-900/10"
+                                                                >
+                                                                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-red-500 text-xs font-bold text-white">
+                                                                        {stu.nama.charAt(
+                                                                            0,
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="min-w-0 flex-1">
+                                                                        <p className="truncate text-sm font-bold text-gray-900 dark:text-white">
+                                                                            {
+                                                                                stu.nama
+                                                                            }
+                                                                        </p>
+                                                                        <p className="font-mono text-[10px] text-neutral-500">
+                                                                            {
+                                                                                stu.nim
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <span
+                                                                            className={`text-xs font-bold ${stu.risk_score >= 60 ? 'text-red-500' : 'text-amber-500'}`}
+                                                                        >
+                                                                            Risk{' '}
+                                                                            {
+                                                                                stu.risk_score
+                                                                            }
+                                                                            %
+                                                                        </span>
+                                                                        <div className="mt-1 h-1.5 w-16 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                                                                            <div
+                                                                                className={`h-full rounded-full ${stu.risk_score >= 60 ? 'bg-red-500' : 'bg-amber-500'}`}
+                                                                                style={{
+                                                                                    width: `${stu.risk_score}%`,
+                                                                                }}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ),
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
 
                                         {/* Fraud Detection */}
-                                        <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl overflow-hidden">
-                                            <div className="px-6 pt-6 pb-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-3">
-                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-rose-600 shadow-lg"><Shield className="h-5 w-5 text-white" /></div>
-                                                <div><h3 className="text-base font-bold text-gray-900 dark:text-white">Fraud Detection</h3><p className="text-xs text-gray-500">AI anomaly detection</p></div>
-                                            </div>
-                                            <div className="p-6 space-y-4">
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-center"><AlertTriangle className="h-5 w-5 text-red-500 mx-auto mb-1" /><p className="text-2xl font-black text-red-600">{aiPredictions.anomaly_count}</p><p className="text-[10px] font-semibold text-neutral-500 uppercase">Anomaly</p></div>
-                                                    <div className="rounded-xl border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/20 p-4 text-center"><Eye className="h-5 w-5 text-orange-500 mx-auto mb-1" /><p className="text-2xl font-black text-orange-600">{stats.suspicious}</p><p className="text-[10px] font-semibold text-neutral-500 uppercase">Suspicious</p></div>
-                                                    <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center"><Smartphone className="h-5 w-5 text-emerald-500 mx-auto mb-1" /><p className="text-2xl font-black text-emerald-600">{stats.device_trusted}</p><p className="text-[10px] font-semibold text-neutral-500 uppercase">Trusted</p></div>
-                                                    <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4 text-center"><MapPin className="h-5 w-5 text-blue-500 mx-auto mb-1" /><p className="text-2xl font-black text-blue-600">{stats.location_valid}</p><p className="text-[10px] font-semibold text-neutral-500 uppercase">Valid Loc</p></div>
+                                        <div className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                            <div className="flex items-center gap-3 border-b border-neutral-200 px-6 pt-6 pb-4 dark:border-neutral-800">
+                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-rose-600 shadow-lg">
+                                                    <Shield className="h-5 w-5 text-white" />
                                                 </div>
-                                                <div className={`p-4 rounded-xl border ${aiPredictions.anomaly_count === 0 ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'}`}>
-                                                    <div className="flex items-center gap-2"><Shield className={`h-5 w-5 ${aiPredictions.anomaly_count === 0 ? 'text-emerald-600' : 'text-red-600'}`} /><p className={`text-sm font-bold ${aiPredictions.anomaly_count === 0 ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>{aiPredictions.anomaly_count === 0 ? 'Sistem Aman — Tidak ada ancaman' : `${aiPredictions.anomaly_count} Ancaman — Review diperlukan`}</p></div>
+                                                <div>
+                                                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                                                        Fraud Detection
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500">
+                                                        AI anomaly detection
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-4 p-6">
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center dark:border-red-800 dark:bg-red-900/20">
+                                                        <AlertTriangle className="mx-auto mb-1 h-5 w-5 text-red-500" />
+                                                        <p className="text-2xl font-black text-red-600">
+                                                            {
+                                                                aiPredictions.anomaly_count
+                                                            }
+                                                        </p>
+                                                        <p className="text-[10px] font-semibold text-neutral-500 uppercase">
+                                                            Anomaly
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-center dark:border-orange-800 dark:bg-orange-900/20">
+                                                        <Eye className="mx-auto mb-1 h-5 w-5 text-orange-500" />
+                                                        <p className="text-2xl font-black text-orange-600">
+                                                            {stats.suspicious}
+                                                        </p>
+                                                        <p className="text-[10px] font-semibold text-neutral-500 uppercase">
+                                                            Suspicious
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-800 dark:bg-emerald-900/20">
+                                                        <Smartphone className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
+                                                        <p className="text-2xl font-black text-emerald-600">
+                                                            {
+                                                                stats.device_trusted
+                                                            }
+                                                        </p>
+                                                        <p className="text-[10px] font-semibold text-neutral-500 uppercase">
+                                                            Trusted
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center dark:border-blue-800 dark:bg-blue-900/20">
+                                                        <MapPin className="mx-auto mb-1 h-5 w-5 text-blue-500" />
+                                                        <p className="text-2xl font-black text-blue-600">
+                                                            {
+                                                                stats.location_valid
+                                                            }
+                                                        </p>
+                                                        <p className="text-[10px] font-semibold text-neutral-500 uppercase">
+                                                            Valid Loc
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    className={`rounded-xl border p-4 ${aiPredictions.anomaly_count === 0 ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20' : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'}`}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Shield
+                                                            className={`h-5 w-5 ${aiPredictions.anomaly_count === 0 ? 'text-emerald-600' : 'text-red-600'}`}
+                                                        />
+                                                        <p
+                                                            className={`text-sm font-bold ${aiPredictions.anomaly_count === 0 ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}
+                                                        >
+                                                            {aiPredictions.anomaly_count ===
+                                                            0
+                                                                ? 'Sistem Aman — Tidak ada ancaman'
+                                                                : `${aiPredictions.anomaly_count} Ancaman — Review diperlukan`}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Recommendations */}
-                                        <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl overflow-hidden">
-                                            <div className="px-6 pt-6 pb-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-3">
-                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 shadow-lg"><Sparkles className="h-5 w-5 text-white" /></div>
-                                                <div><h3 className="text-base font-bold text-gray-900 dark:text-white">Smart Recommendations</h3><p className="text-xs text-gray-500">AI insights</p></div>
+                                        <div className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                            <div className="flex items-center gap-3 border-b border-neutral-200 px-6 pt-6 pb-4 dark:border-neutral-800">
+                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 shadow-lg">
+                                                    <Sparkles className="h-5 w-5 text-white" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                                                        Smart Recommendations
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500">
+                                                        AI insights
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="p-6 space-y-3">
-                                                <div className="flex items-start gap-3 p-4 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20"><Clock className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" /><div className="flex-1"><p className="text-sm font-bold text-blue-600">Waktu Optimal</p><p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Jadwalkan sesi pukul {aiPredictions.optimal_time}</p></div><span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-blue-500/20 text-blue-700 dark:text-blue-300">INFO</span></div>
-                                                <div className="flex items-start gap-3 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20"><Target className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" /><div className="flex-1"><p className="text-sm font-bold text-emerald-600">Target Kehadiran</p><p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Targetkan {Math.min(100, aiPredictions.forecast + 5)}% di sesi berikutnya</p></div><span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-500 text-white">GOAL</span></div>
-                                                <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20"><Bell className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" /><div className="flex-1"><p className="text-sm font-bold text-amber-600">Reminder</p><p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Kirim ke {aiPredictions.at_risk_count} mahasiswa at-risk</p></div><span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-amber-500 text-white">ACTION</span></div>
-                                                <div className={`flex items-start gap-3 p-4 rounded-xl border ${stats.suspicious > 0 ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' : 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20'}`}><Activity className={`h-4 w-4 ${stats.suspicious > 0 ? 'text-red-600' : 'text-emerald-600'} mt-0.5 flex-shrink-0`} /><div className="flex-1"><p className={`text-sm font-bold ${stats.suspicious > 0 ? 'text-red-600' : 'text-emerald-600'}`}>Security</p><p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">{stats.suspicious > 0 ? `Review ${stats.suspicious} suspicious` : 'Semua terverifikasi'}</p></div><span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${stats.suspicious > 0 ? 'bg-red-500 text-white' : 'bg-emerald-500/20 text-emerald-700'}`}>{stats.suspicious > 0 ? 'URGENT' : 'OK'}</span></div>
+                                            <div className="space-y-3 p-6">
+                                                <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+                                                    <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-bold text-blue-600">
+                                                            Waktu Optimal
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                                                            Jadwalkan sesi pukul{' '}
+                                                            {
+                                                                aiPredictions.optimal_time
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[8px] font-black text-blue-700 uppercase dark:text-blue-300">
+                                                        INFO
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
+                                                    <Target className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-bold text-emerald-600">
+                                                            Target Kehadiran
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                                                            Targetkan{' '}
+                                                            {Math.min(
+                                                                100,
+                                                                aiPredictions.forecast +
+                                                                    5,
+                                                            )}
+                                                            % di sesi berikutnya
+                                                        </p>
+                                                    </div>
+                                                    <span className="rounded bg-emerald-500 px-1.5 py-0.5 text-[8px] font-black text-white uppercase">
+                                                        GOAL
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+                                                    <Bell className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-bold text-amber-600">
+                                                            Reminder
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                                                            Kirim ke{' '}
+                                                            {
+                                                                aiPredictions.at_risk_count
+                                                            }{' '}
+                                                            mahasiswa at-risk
+                                                        </p>
+                                                    </div>
+                                                    <span className="rounded bg-amber-500 px-1.5 py-0.5 text-[8px] font-black text-white uppercase">
+                                                        ACTION
+                                                    </span>
+                                                </div>
+                                                <div
+                                                    className={`flex items-start gap-3 rounded-xl border p-4 ${stats.suspicious > 0 ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20' : 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20'}`}
+                                                >
+                                                    <Activity
+                                                        className={`h-4 w-4 ${stats.suspicious > 0 ? 'text-red-600' : 'text-emerald-600'} mt-0.5 flex-shrink-0`}
+                                                    />
+                                                    <div className="flex-1">
+                                                        <p
+                                                            className={`text-sm font-bold ${stats.suspicious > 0 ? 'text-red-600' : 'text-emerald-600'}`}
+                                                        >
+                                                            Security
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                                                            {stats.suspicious >
+                                                            0
+                                                                ? `Review ${stats.suspicious} suspicious`
+                                                                : 'Semua terverifikasi'}
+                                                        </p>
+                                                    </div>
+                                                    <span
+                                                        className={`rounded px-1.5 py-0.5 text-[8px] font-black uppercase ${stats.suspicious > 0 ? 'bg-red-500 text-white' : 'bg-emerald-500/20 text-emerald-700'}`}
+                                                    >
+                                                        {stats.suspicious > 0
+                                                            ? 'URGENT'
+                                                            : 'OK'}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* AI Pipeline Summary */}
-                                    <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl p-6">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 shadow-lg"><Scan className="h-5 w-5 text-white" /></div><div><h3 className="text-base font-bold text-gray-900 dark:text-white">AI Insight Pipeline</h3><p className="text-xs text-gray-500">Multi-layer verification</p></div></div>
-                                            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold">ALL PASSED</span>
+                                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                        <div className="mb-6 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 shadow-lg">
+                                                    <Scan className="h-5 w-5 text-white" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                                                        AI Insight Pipeline
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500">
+                                                        Multi-layer verification
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600">
+                                                ALL PASSED
+                                            </span>
                                         </div>
-                                        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                                            {[{ n: 'Face Detect', I: Eye, g: 'from-blue-400 to-indigo-600' }, { n: 'Recognition', I: Fingerprint, g: 'from-violet-400 to-purple-600' }, { n: 'Liveness', I: Scan, g: 'from-emerald-400 to-teal-600' }, { n: 'Location', I: MapPin, g: 'from-cyan-400 to-blue-600' }, { n: 'Device', I: Smartphone, g: 'from-amber-400 to-orange-600' }, { n: 'Decision', I: BrainCircuit, g: 'from-pink-400 to-rose-600' }].map(p => (
-                                                <div key={p.n} className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/50 dark:bg-emerald-900/10 p-4 text-center hover:shadow-md hover:-translate-y-1 transition-all">
-                                                    <div className={`mx-auto w-10 h-10 rounded-lg bg-gradient-to-br ${p.g} flex items-center justify-center shadow-lg mb-2`}><p.I className="h-5 w-5 text-white" /></div>
-                                                    <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{p.n}</p>
-                                                    <div className="flex items-center justify-center gap-1 mt-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="text-[9px] font-semibold text-emerald-600">PASS</span></div>
+                                        <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
+                                            {[
+                                                {
+                                                    n: 'Face Detect',
+                                                    I: Eye,
+                                                    g: 'from-blue-400 to-indigo-600',
+                                                },
+                                                {
+                                                    n: 'Recognition',
+                                                    I: Fingerprint,
+                                                    g: 'from-violet-400 to-purple-600',
+                                                },
+                                                {
+                                                    n: 'Liveness',
+                                                    I: Scan,
+                                                    g: 'from-emerald-400 to-teal-600',
+                                                },
+                                                {
+                                                    n: 'Location',
+                                                    I: MapPin,
+                                                    g: 'from-cyan-400 to-blue-600',
+                                                },
+                                                {
+                                                    n: 'Device',
+                                                    I: Smartphone,
+                                                    g: 'from-amber-400 to-orange-600',
+                                                },
+                                                {
+                                                    n: 'Decision',
+                                                    I: BrainCircuit,
+                                                    g: 'from-pink-400 to-rose-600',
+                                                },
+                                            ].map((p) => (
+                                                <div
+                                                    key={p.n}
+                                                    className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 text-center transition-all hover:-translate-y-1 hover:shadow-md dark:border-emerald-800/50 dark:bg-emerald-900/10"
+                                                >
+                                                    <div
+                                                        className={`mx-auto h-10 w-10 rounded-lg bg-gradient-to-br ${p.g} mb-2 flex items-center justify-center shadow-lg`}
+                                                    >
+                                                        <p.I className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200">
+                                                        {p.n}
+                                                    </p>
+                                                    <div className="mt-1.5 flex items-center justify-center gap-1">
+                                                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                        <span className="text-[9px] font-semibold text-emerald-600">
+                                                            PASS
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 </>
                             )}
-
                         </div>
                     )}
-
                 </div>
-            </motion.div >
-        </DosenLayout >
+            </motion.div>
+        </DosenLayout>
     );
 }

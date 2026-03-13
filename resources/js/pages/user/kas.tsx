@@ -1,7 +1,7 @@
 import KasIcon from '@/assets/admin/kas/kas.png';
 
-import StatusIcon from '@/assets/admin/kas/status.png';
 import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
+import StatusIcon from '@/assets/admin/kas/status.png';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import StudentLayout from '@/layouts/student-layout';
 import { cn } from '@/lib/utils';
@@ -310,8 +310,8 @@ export default function UserKas({
     const paymentRate =
         personalStats.paid_count + personalStats.unpaid_count > 0
             ? (personalStats.paid_count /
-                (personalStats.paid_count + personalStats.unpaid_count)) *
-            100
+                  (personalStats.paid_count + personalStats.unpaid_count)) *
+              100
             : 0;
 
     const healthLabel = {
@@ -527,7 +527,7 @@ export default function UserKas({
                                         Keuangan Kelas
                                     </motion.p>
                                     <motion.h1
-                                        className="mt-1 text-xl font-bold leading-tight text-white sm:text-3xl"
+                                        className="mt-1 text-xl leading-tight font-bold text-white sm:text-3xl"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
@@ -577,7 +577,11 @@ export default function UserKas({
                             className="mt-5 flex justify-center sm:justify-end"
                         >
                             <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                whileHover={{
+                                    scale: 1.02,
+                                    backgroundColor:
+                                        'rgba(255, 255, 255, 0.25)',
+                                }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => router.visit('/user/kas-voting')}
                                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-5 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30"
@@ -629,7 +633,7 @@ export default function UserKas({
                                     Total Sudah Bayar
                                 </p>
                                 <div className="mt-1">
-                                    <p className="text-lg font-bold leading-tight text-neutral-900 sm:text-3xl dark:text-white">
+                                    <p className="text-lg leading-tight font-bold text-neutral-900 sm:text-3xl dark:text-white">
                                         <AnimatedCounter
                                             value={personalStats.total_paid}
                                             prefix="Rp "
@@ -683,7 +687,7 @@ export default function UserKas({
                                     Total Belum Bayar
                                 </p>
                                 <div className="mt-1">
-                                    <p className="text-lg font-bold leading-tight text-neutral-900 sm:text-3xl dark:text-white">
+                                    <p className="text-lg leading-tight font-bold text-neutral-900 sm:text-3xl dark:text-white">
                                         <AnimatedCounter
                                             value={personalStats.total_unpaid}
                                             prefix="Rp "
@@ -1391,10 +1395,10 @@ export default function UserKas({
                                                     )}
                                                 >
                                                     {item.status ===
-                                                        'verified' ? (
+                                                    'verified' ? (
                                                         <CheckCircle className="h-3 w-3" />
                                                     ) : item.status ===
-                                                        'rejected' ? (
+                                                      'rejected' ? (
                                                         <XCircle className="h-3 w-3" />
                                                     ) : (
                                                         <Clock className="h-3 w-3" />
@@ -1412,8 +1416,8 @@ export default function UserKas({
                                                             ? 'bg-emerald-500'
                                                             : item.status ===
                                                                 'rejected'
-                                                                ? 'bg-rose-500'
-                                                                : 'bg-amber-500',
+                                                              ? 'bg-rose-500'
+                                                              : 'bg-amber-500',
                                                     )}
                                                     style={{
                                                         width: `${status.progress}%`,
@@ -1677,7 +1681,7 @@ export default function UserKas({
                                                     )}
                                                 >
                                                     {record.status ===
-                                                        'paid' ? (
+                                                    'paid' ? (
                                                         <CheckCircle className="h-5 w-5" />
                                                     ) : (
                                                         <Clock className="h-5 w-5" />

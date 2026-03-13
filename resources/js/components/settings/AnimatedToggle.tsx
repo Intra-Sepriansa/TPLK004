@@ -13,7 +13,7 @@ export function AnimatedToggle({
     onChange,
     disabled = false,
     label,
-    description
+    description,
 }: AnimatedToggleProps) {
     return (
         <div className="flex items-center justify-between gap-4">
@@ -22,11 +22,11 @@ export function AnimatedToggle({
                     className="flex-1 cursor-pointer select-none"
                     onClick={!disabled ? onChange : undefined}
                 >
-                    <label className="font-medium text-gray-900 dark:text-white cursor-pointer">
+                    <label className="cursor-pointer font-medium text-gray-900 dark:text-white">
                         {label}
                     </label>
                     {description && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 cursor-pointer">
+                        <p className="mt-1 cursor-pointer text-sm text-gray-500 dark:text-gray-400">
                             {description}
                         </p>
                     )}
@@ -39,18 +39,11 @@ export function AnimatedToggle({
                 aria-checked={checked}
                 onClick={onChange}
                 disabled={disabled}
-                className={`
-                    relative inline-flex h-7 w-14 flex-shrink-0 cursor-pointer 
-                    rounded-full border-2 border-transparent transition-colors 
-                    duration-300 ease-in-out focus:outline-none focus:ring-2 
-                    focus:ring-purple-500 focus:ring-offset-2 
-                    dark:focus:ring-offset-gray-900
-                    ${checked
+                className={`relative inline-flex h-7 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-in-out focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-gray-900 ${
+                    checked
                         ? 'bg-gradient-to-r from-purple-500 to-pink-500'
                         : 'bg-gray-300 dark:bg-gray-700'
-                    }
-                    ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
+                } ${disabled ? 'cursor-not-allowed opacity-50' : ''} `}
                 whileHover={!disabled ? { scale: 1.05 } : {}}
                 whileTap={!disabled ? { scale: 0.95 } : {}}
             >

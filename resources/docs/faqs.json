@@ -1,216 +1,216 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2026-02-20",
-  "categories": [
-    {
-      "id": "absensi",
-      "name": "Absensi",
-      "icon": "QrCode",
-      "faqs": [
+    "version": "1.0.0",
+    "lastUpdated": "2026-02-20",
+    "categories": [
         {
-          "id": "faq-1",
-          "question": "Bagaimana cara melakukan absensi?",
-          "answer": "Proses absensi kini menggunakan format digital penuh. Saat dosen membuka sesi kelas, beliau akan menampilkan QR Code di layar depan.\n\nLangkah-langkahnya: Buka menu Absen di aplikasi Anda, lalu arahkan kamera smartphone ke QR Code tersebut. Setelah berhasil dipindai, sistem akan meminta Anda untuk mengambil foto selfie sebagai 'Proof of Presence' (Bukti Kehadiran). Pastikan Anda mengklik tombol Konfirmasi agar data kehadiran Anda terkirim ke server.",
-          "tags": ["absen", "qr", "selfie"]
+            "id": "absensi",
+            "name": "Absensi",
+            "icon": "QrCode",
+            "faqs": [
+                {
+                    "id": "faq-1",
+                    "question": "Bagaimana cara melakukan absensi?",
+                    "answer": "Proses absensi kini menggunakan format digital penuh. Saat dosen membuka sesi kelas, beliau akan menampilkan QR Code di layar depan.\n\nLangkah-langkahnya: Buka menu Absen di aplikasi Anda, lalu arahkan kamera smartphone ke QR Code tersebut. Setelah berhasil dipindai, sistem akan meminta Anda untuk mengambil foto selfie sebagai 'Proof of Presence' (Bukti Kehadiran). Pastikan Anda mengklik tombol Konfirmasi agar data kehadiran Anda terkirim ke server.",
+                    "tags": ["absen", "qr", "selfie"]
+                },
+                {
+                    "id": "faq-2",
+                    "question": "QR code tidak bisa di-scan?",
+                    "answer": "Kegagalan pemindaian biasanya disebabkan oleh kendala fisik atau lingkungan.\n\nPertama, pastikan lensa kamera Anda bersih dari debu atau sidik jari. Kedua, perhatikan pencahayaan; hindari pantulan cahaya (glare) dari proyektor yang membuat QR Code tak terbaca. Ketiga, atur jarak scan agar seluruh kotak QR masuk ke dalam frame layar Anda.\n\nJika mahasiswa lain juga mengalami hal yang sama, kemungkinan sesi QR tersebut sudah habis waktu (timeout). Silakan minta dosen untuk me-refresh QR Code di sistem mereka.",
+                    "tags": ["qr", "scan", "error"]
+                },
+                {
+                    "id": "faq-3",
+                    "question": "Selfie ditolak, mengapa?",
+                    "answer": "Sistem biometrik membutuhkan visual yang sangat jelas untuk mencocokkan wajah Anda dengan database.\n\nAlasan utama penolakan biasanya karena wajah tertutup aksesori (seperti masker, topi, atau kacamata hitam). Alasan lainnya adalah pencahayaan yang buruk, terutama posisi 'backlight' di mana Anda membelakangi jendela atau sumber cahaya, sehingga wajah menjadi siluet gelap. Pastikan cahaya jatuh tepat di wajah Anda dan posisikan wajah di tengah frame yang disediakan.",
+                    "tags": ["selfie", "verifikasi"]
+                },
+                {
+                    "id": "faq-4",
+                    "question": "Berapa minimal kehadiran untuk UAS?",
+                    "answer": "Sesuai dengan regulasi akademik universitas (khususnya standar UNPAM), setiap mahasiswa diwajibkan memiliki persentase kehadiran minimal 75% dari total pertemuan dalam satu semester.\n\nJika kehadiran Anda berada di bawah ambang batas ini tanpa adanya alasan cuti atau sakit yang divalidasi, sistem akan secara otomatis memblokir akses Anda. Anda tidak akan bisa mencetak kartu Ujian Akhir Semester (UAS) maupun mengikuti ujian untuk mata kuliah tersebut.",
+                    "tags": ["kehadiran", "uas"]
+                }
+            ]
         },
         {
-          "id": "faq-2",
-          "question": "QR code tidak bisa di-scan?",
-          "answer": "Kegagalan pemindaian biasanya disebabkan oleh kendala fisik atau lingkungan.\n\nPertama, pastikan lensa kamera Anda bersih dari debu atau sidik jari. Kedua, perhatikan pencahayaan; hindari pantulan cahaya (glare) dari proyektor yang membuat QR Code tak terbaca. Ketiga, atur jarak scan agar seluruh kotak QR masuk ke dalam frame layar Anda.\n\nJika mahasiswa lain juga mengalami hal yang sama, kemungkinan sesi QR tersebut sudah habis waktu (timeout). Silakan minta dosen untuk me-refresh QR Code di sistem mereka.",
-          "tags": ["qr", "scan", "error"]
+            "id": "tugas",
+            "name": "Tugas",
+            "icon": "ClipboardList",
+            "faqs": [
+                {
+                    "id": "faq-5",
+                    "question": "Bagaimana cara mengumpulkan tugas?",
+                    "answer": "Pengumpulan tugas kini dipusatkan dalam satu pintu agar tidak ada file yang tercecer.\n\nBuka menu Tugas, pilih tugas yang sedang aktif, dan baca instruksi dosen dengan saksama. Klik area unggah untuk memilih file dari perangkat Anda. Sangat penting: setelah file terunggah, pastikan Anda menekan tombol 'Submit' atau 'Kirim'. Jika tidak ditekan, tugas Anda hanya akan berstatus 'Draft' dan tidak masuk ke sistem penilaian dosen.",
+                    "tags": ["tugas", "submit"]
+                },
+                {
+                    "id": "faq-6",
+                    "question": "Bisa submit setelah deadline?",
+                    "answer": "Hal ini sepenuhnya bergantung pada kebijakan masing-masing dosen pengampu.\n\nBeberapa tugas dikunci otomatis tepat pada detik tenggat waktu berakhir. Namun, jika dosen mengaktifkan fitur 'Late Submission', Anda tetap bisa mengunggah tugas setelah deadline terlewati. Harap diingat, sistem akan menempelkan label 'Terlambat' pada tugas tersebut, dan dosen berhak memberikan penalti atau pengurangan nilai sesuai dengan silabus mata kuliah.",
+                    "tags": ["deadline", "late"]
+                },
+                {
+                    "id": "faq-7",
+                    "question": "Format file apa yang diterima?",
+                    "answer": "Untuk memastikan dosen dapat membuka dan menilai tugas Anda tanpa masalah kompatibilitas, sistem membatasi format file yang dapat diunggah.\n\nUmumnya, sistem hanya menerima format .PDF, .DOC, atau .DOCX. Kami sangat merekomendasikan Anda untuk selalu mengonversi tugas ke dalam format PDF sebelum diunggah. PDF akan mengunci layout, font, dan spasi dokumen Anda agar tidak berantakan saat dibuka di perangkat keras dosen.",
+                    "tags": ["format", "file"]
+                }
+            ]
         },
         {
-          "id": "faq-3",
-          "question": "Selfie ditolak, mengapa?",
-          "answer": "Sistem biometrik membutuhkan visual yang sangat jelas untuk mencocokkan wajah Anda dengan database.\n\nAlasan utama penolakan biasanya karena wajah tertutup aksesori (seperti masker, topi, atau kacamata hitam). Alasan lainnya adalah pencahayaan yang buruk, terutama posisi 'backlight' di mana Anda membelakangi jendela atau sumber cahaya, sehingga wajah menjadi siluet gelap. Pastikan cahaya jatuh tepat di wajah Anda dan posisikan wajah di tengah frame yang disediakan.",
-          "tags": ["selfie", "verifikasi"]
+            "id": "izin",
+            "name": "Izin & Sakit",
+            "icon": "FileCheck",
+            "faqs": [
+                {
+                    "id": "faq-8",
+                    "question": "Bagaimana mengajukan izin?",
+                    "answer": "Pengajuan izin absensi tidak lagi dilakukan melalui pesan singkat, melainkan harus diarsipkan di dalam sistem secara resmi.\n\nMasuk ke menu Izin/Sakit, klik tombol 'Ajukan Izin Baru'. Anda wajib memilih kategori (Sakit, Izin Keluarga, dsb.), menuliskan alasan yang logis dan jelas di kolom keterangan, mengunggah dokumen bukti yang valid, lalu menekan tombol Kirim untuk diproses oleh admin/dosen.",
+                    "tags": ["izin", "sakit"]
+                },
+                {
+                    "id": "faq-9",
+                    "question": "Dokumen apa untuk izin sakit?",
+                    "answer": "Sistem mewajibkan adanya bukti autentik untuk setiap ketidakhadiran.\n\nUntuk izin sakit, Anda diwajibkan mengunggah foto atau hasil scan Surat Keterangan Dokter yang resmi (memiliki tanda tangan dan cap instansi kesehatan). Jika tidak ada, Anda bisa menggunakan foto resep obat yang mencantumkan nama Anda beserta tanggal yang sesuai dengan hari ketidakhadiran Anda di kelas.",
+                    "tags": ["dokumen", "sakit"]
+                },
+                {
+                    "id": "faq-10",
+                    "question": "Berapa lama proses approval?",
+                    "answer": "Pengajuan izin Anda akan melalui proses verifikasi oleh admin program studi atau dosen wali.\n\nStandar waktu penyelesaian (SLA) untuk proses approval ini biasanya memakan waktu 1 hingga 2 hari kerja. Anda tidak perlu bertanya secara manual; cukup pantau terus perubahan status pengajuan Anda (Menunggu, Disetujui, atau Ditolak) secara langsung di menu Izin/Sakit.",
+                    "tags": ["approval", "status"]
+                }
+            ]
         },
         {
-          "id": "faq-4",
-          "question": "Berapa minimal kehadiran untuk UAS?",
-          "answer": "Sesuai dengan regulasi akademik universitas (khususnya standar UNPAM), setiap mahasiswa diwajibkan memiliki persentase kehadiran minimal 75% dari total pertemuan dalam satu semester.\n\nJika kehadiran Anda berada di bawah ambang batas ini tanpa adanya alasan cuti atau sakit yang divalidasi, sistem akan secara otomatis memblokir akses Anda. Anda tidak akan bisa mencetak kartu Ujian Akhir Semester (UAS) maupun mengikuti ujian untuk mata kuliah tersebut.",
-          "tags": ["kehadiran", "uas"]
+            "id": "akun",
+            "name": "Akun & Profil",
+            "icon": "UserCircle",
+            "faqs": [
+                {
+                    "id": "faq-11",
+                    "question": "Bagaimana mengubah password?",
+                    "answer": "Menjaga keamanan akun adalah tanggung jawab mahasiswa. Sangat disarankan untuk mengubah kata sandi Anda secara berkala.\n\nBuka Pengaturan > Keamanan > Ubah Password. Sistem akan meminta Anda memasukkan password lama terlebih dahulu sebagai verifikasi, baru kemudian memasukkan password baru. Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol agar akun Anda tidak mudah diretas.",
+                    "tags": ["password", "keamanan"]
+                },
+                {
+                    "id": "faq-12",
+                    "question": "Bagaimana mengubah foto profil?",
+                    "answer": "Mengingat aplikasi ini adalah platform akademik resmi, foto profil yang digunakan haruslah sopan, formal, dan memperlihatkan wajah Anda dengan jelas.\n\nBuka menu Profil, klik pada area foto profil Anda saat ini, lalu pilih unggah foto baru dari galeri. Gunakan fitur 'crop' bawaan untuk memfokuskan rasio pada wajah Anda, lalu klik Simpan. Foto ini akan sering dilihat oleh dosen saat mereka melakukan rekapitulasi nilai.",
+                    "tags": ["foto", "profil"]
+                },
+                {
+                    "id": "faq-13",
+                    "question": "Lupa password?",
+                    "answer": "Jika Anda tidak dapat mengakses akun karena lupa kata sandi, jangan panik.\n\nDi halaman awal (login), klik tautan 'Lupa Password'. Anda akan diminta untuk memasukkan Nomor Induk Mahasiswa (NIM). Sistem akan melakukan verifikasi dan mengirimkan instruksi beserta tautan reset password langsung ke email kampus atau email utama yang Anda daftarkan di sistem.",
+                    "tags": ["password", "lupa"]
+                }
+            ]
+        },
+        {
+            "id": "teknis",
+            "name": "Masalah Teknis",
+            "icon": "Settings",
+            "faqs": [
+                {
+                    "id": "faq-14",
+                    "question": "Aplikasi error atau tidak bisa dibuka?",
+                    "answer": "Kendala teknis seperti blank screen atau gagal memuat halaman bisa terjadi karena masalah cache atau jaringan.\n\nLangkah pertama yang harus dilakukan adalah me-refresh halaman. Jika menggunakan browser, cobalah melakukan 'Clear Cache' atau gunakan mode penyamaran (Incognito). Anda juga bisa mencoba mengakses menggunakan browser atau perangkat lain. Jika masalah persisten, segera hubungi tim IT Support kampus.",
+                    "tags": ["error", "teknis"]
+                },
+                {
+                    "id": "faq-15",
+                    "question": "Data tidak tersimpan?",
+                    "answer": "Kegagalan penyimpanan data (seperti gagal submit tugas atau update profil) umumnya disebabkan oleh fluktuasi koneksi internet.\n\nPastikan Anda terhubung ke jaringan internet yang stabil, seperti Wi-Fi kampus. Setelah menekan tombol simpan, jangan langsung menutup aplikasi atau browser; tunggu hingga indikator loading selesai dan muncul notifikasi sukses.",
+                    "tags": ["data", "simpan"]
+                },
+                {
+                    "id": "faq-16",
+                    "question": "Notifikasi tidak muncul?",
+                    "answer": "Jika Anda tidak menerima pemberitahuan mengenai tugas baru atau kelas yang akan dimulai, periksa pengaturan izin perangkat Anda.\n\nPastikan Anda telah memberikan izin notifikasi untuk aplikasi ini di pengaturan smartphone Anda (bagi pengguna mobile) atau mengizinkan pop-up notifikasi di setelan browser (bagi pengguna web). Cek juga menu Pengaturan di dalam aplikasi untuk memastikan toggle notifikasi dalam keadaan aktif.",
+                    "tags": ["notifikasi", "browser"]
+                }
+            ]
+        },
+        {
+            "id": "gamifikasi",
+            "name": "Poin & Badge",
+            "icon": "Trophy",
+            "faqs": [
+                {
+                    "id": "faq-17",
+                    "question": "Bagaimana cara mendapat poin?",
+                    "answer": "Sistem ini menggunakan gamifikasi untuk mengapresiasi keaktifan akademik Anda.\n\nAnda bisa mengumpulkan poin dengan berbagai tindakan positif: Hadir di kelas tepat waktu akan memberikan +10 poin, mengumpulkan tugas sebelum deadline memberikan +5 poin. Anda juga bisa mendapatkan bonus poin tambahan jika berhasil menjaga 'Streak' (kehadiran berturut-turut tanpa absen) atau saat berhasil membuka sebuah Badge pencapaian khusus.",
+                    "tags": ["poin", "cara"]
+                },
+                {
+                    "id": "faq-18",
+                    "question": "Apa manfaat poin?",
+                    "answer": "Poin yang Anda kumpulkan tidak hanya sekadar angka, melainkan representasi dari dedikasi belajar Anda.\n\nTotal poin akan menentukan posisi Anda di Leaderboard (Papan Peringkat) kelas maupun angkatan. Di beberapa program studi, poin yang terkumpul dalam jumlah tertentu dapat ditukarkan dengan reward akademik, apresiasi dari dosen, atau sertifikat penghargaan khusus di akhir semester.",
+                    "tags": ["poin", "manfaat"]
+                },
+                {
+                    "id": "faq-19",
+                    "question": "Bagaimana mendapat badge?",
+                    "answer": "Badge (Lencana) adalah trofi digital yang mewakili pencapaian spesifik Anda selama perkuliahan.\n\nSetiap badge memiliki kriteria pencapaian (milestone) yang unik. Misalnya, badge 'Si Paling Tepat Waktu' mungkin menuntut Anda hadir 10 menit sebelum kelas dimulai sebanyak 5 kali berturut-turut. Anda dapat membuka menu Pencapaian untuk melihat daftar badge yang tersedia beserta kriteria yang harus dipenuhi untuk mendapatkannya.",
+                    "tags": ["badge", "kriteria"]
+                }
+            ]
         }
-      ]
-    },
-    {
-      "id": "tugas",
-      "name": "Tugas",
-      "icon": "ClipboardList",
-      "faqs": [
+    ],
+    "troubleshooting": [
         {
-          "id": "faq-5",
-          "question": "Bagaimana cara mengumpulkan tugas?",
-          "answer": "Pengumpulan tugas kini dipusatkan dalam satu pintu agar tidak ada file yang tercecer.\n\nBuka menu Tugas, pilih tugas yang sedang aktif, dan baca instruksi dosen dengan saksama. Klik area unggah untuk memilih file dari perangkat Anda. Sangat penting: setelah file terunggah, pastikan Anda menekan tombol 'Submit' atau 'Kirim'. Jika tidak ditekan, tugas Anda hanya akan berstatus 'Draft' dan tidak masuk ke sistem penilaian dosen.",
-          "tags": ["tugas", "submit"]
+            "id": "ts-1",
+            "title": "QR Code Tidak Bisa Di-scan",
+            "problem": "QR code tidak terdeteksi atau scan gagal",
+            "solution": [
+                "Usap dan bersihkan lensa kamera smartphone Anda dari debu atau sidik jari yang mengaburkan fokus.",
+                "Pastikan layar proyektor tidak terkena pantulan cahaya (glare). Cari sudut kemiringan lain saat memindai.",
+                "Atur jarak kamera; pastikan seluruh kotak QR masuk ke dalam frame panduan di layar aplikasi Anda.",
+                "Jika semua mahasiswa gagal memindai, masa aktif QR mungkin telah habis. Minta dosen untuk me-refresh QR.",
+                "Restart aplikasi Anda untuk mereset fungsi akses kamera keras (hardware access) pada perangkat."
+            ],
+            "relatedGuides": ["mahasiswa-absen"]
         },
         {
-          "id": "faq-6",
-          "question": "Bisa submit setelah deadline?",
-          "answer": "Hal ini sepenuhnya bergantung pada kebijakan masing-masing dosen pengampu.\n\nBeberapa tugas dikunci otomatis tepat pada detik tenggat waktu berakhir. Namun, jika dosen mengaktifkan fitur 'Late Submission', Anda tetap bisa mengunggah tugas setelah deadline terlewati. Harap diingat, sistem akan menempelkan label 'Terlambat' pada tugas tersebut, dan dosen berhak memberikan penalti atau pengurangan nilai sesuai dengan silabus mata kuliah.",
-          "tags": ["deadline", "late"]
+            "id": "ts-2",
+            "title": "Selfie Verifikasi Ditolak",
+            "problem": "Foto selfie selalu ditolak sistem saat melakukan absen",
+            "solution": [
+                "Sistem membutuhkan visual wajah yang utuh. Segera lepaskan masker, topi, atau kacamata hitam Anda.",
+                "Pencahayaan sangat penting. Hindari posisi backlight (membelakangi sumber cahaya yang terang).",
+                "Posisikan wajah Anda tepat di tengah oval atau kotak frame yang muncul di layar, jangan terlalu miring.",
+                "Pastikan Anda berada di lingkungan dengan pencahayaan ruangan yang cukup terang.",
+                "Tunggu hingga indikator kamera fokus pada wajah Anda sebelum menekan tombol ambil foto."
+            ],
+            "relatedGuides": ["mahasiswa-absen", "dosen-verify"]
         },
         {
-          "id": "faq-7",
-          "question": "Format file apa yang diterima?",
-          "answer": "Untuk memastikan dosen dapat membuka dan menilai tugas Anda tanpa masalah kompatibilitas, sistem membatasi format file yang dapat diunggah.\n\nUmumnya, sistem hanya menerima format .PDF, .DOC, atau .DOCX. Kami sangat merekomendasikan Anda untuk selalu mengonversi tugas ke dalam format PDF sebelum diunggah. PDF akan mengunci layout, font, dan spasi dokumen Anda agar tidak berantakan saat dibuka di perangkat keras dosen.",
-          "tags": ["format", "file"]
+            "id": "ts-3",
+            "title": "Tidak Bisa Login",
+            "problem": "Gagal masuk ke dashboard dengan NIM dan password",
+            "solution": [
+                "Periksa kembali input NIM Anda secara perlahan, pastikan tidak ada salah ketik (typo) pada angka.",
+                "Password bersifat case-sensitive. Pastikan huruf besar/kecil sudah tepat dan tombol Caps Lock mati.",
+                "Pastikan tidak ada spasi ekstra (whitespace) yang tidak sengaja terketik di akhir NIM atau password.",
+                "Gunakan fitur 'Lupa Password' untuk mereset kata sandi melalui email kampus Anda.",
+                "Jika akun terkunci karena terlalu sering gagal login, segera hubungi admin BAAK atau IT Support."
+            ],
+            "relatedGuides": []
+        },
+        {
+            "id": "ts-4",
+            "title": "Upload File Gagal",
+            "problem": "File tugas tidak bisa terkirim atau loading berhenti di tengah",
+            "solution": [
+                "Periksa ukuran file Anda. Sistem menolak file yang melebihi batas maksimal 10MB.",
+                "Jika ukuran file terlalu besar, gunakan layanan kompresi PDF secara online untuk mengecilkannya.",
+                "Pastikan format ekstensi file diizinkan oleh sistem (umumnya wajib berformat .pdf, .doc, atau .docx).",
+                "Jangan gunakan ekstensi bawaan OS tertentu seperti .pages, karena sistem dan dosen mungkin tidak bisa membukanya.",
+                "Pastikan koneksi internet Anda stabil (hindari menggunakan kuota yang sedang throttling). Tunggu hingga loading selesai 100%."
+            ],
+            "relatedGuides": ["mahasiswa-tugas"]
         }
-      ]
-    },
-    {
-      "id": "izin",
-      "name": "Izin & Sakit",
-      "icon": "FileCheck",
-      "faqs": [
-        {
-          "id": "faq-8",
-          "question": "Bagaimana mengajukan izin?",
-          "answer": "Pengajuan izin absensi tidak lagi dilakukan melalui pesan singkat, melainkan harus diarsipkan di dalam sistem secara resmi.\n\nMasuk ke menu Izin/Sakit, klik tombol 'Ajukan Izin Baru'. Anda wajib memilih kategori (Sakit, Izin Keluarga, dsb.), menuliskan alasan yang logis dan jelas di kolom keterangan, mengunggah dokumen bukti yang valid, lalu menekan tombol Kirim untuk diproses oleh admin/dosen.",
-          "tags": ["izin", "sakit"]
-        },
-        {
-          "id": "faq-9",
-          "question": "Dokumen apa untuk izin sakit?",
-          "answer": "Sistem mewajibkan adanya bukti autentik untuk setiap ketidakhadiran.\n\nUntuk izin sakit, Anda diwajibkan mengunggah foto atau hasil scan Surat Keterangan Dokter yang resmi (memiliki tanda tangan dan cap instansi kesehatan). Jika tidak ada, Anda bisa menggunakan foto resep obat yang mencantumkan nama Anda beserta tanggal yang sesuai dengan hari ketidakhadiran Anda di kelas.",
-          "tags": ["dokumen", "sakit"]
-        },
-        {
-          "id": "faq-10",
-          "question": "Berapa lama proses approval?",
-          "answer": "Pengajuan izin Anda akan melalui proses verifikasi oleh admin program studi atau dosen wali.\n\nStandar waktu penyelesaian (SLA) untuk proses approval ini biasanya memakan waktu 1 hingga 2 hari kerja. Anda tidak perlu bertanya secara manual; cukup pantau terus perubahan status pengajuan Anda (Menunggu, Disetujui, atau Ditolak) secara langsung di menu Izin/Sakit.",
-          "tags": ["approval", "status"]
-        }
-      ]
-    },
-    {
-      "id": "akun",
-      "name": "Akun & Profil",
-      "icon": "UserCircle",
-      "faqs": [
-        {
-          "id": "faq-11",
-          "question": "Bagaimana mengubah password?",
-          "answer": "Menjaga keamanan akun adalah tanggung jawab mahasiswa. Sangat disarankan untuk mengubah kata sandi Anda secara berkala.\n\nBuka Pengaturan > Keamanan > Ubah Password. Sistem akan meminta Anda memasukkan password lama terlebih dahulu sebagai verifikasi, baru kemudian memasukkan password baru. Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol agar akun Anda tidak mudah diretas.",
-          "tags": ["password", "keamanan"]
-        },
-        {
-          "id": "faq-12",
-          "question": "Bagaimana mengubah foto profil?",
-          "answer": "Mengingat aplikasi ini adalah platform akademik resmi, foto profil yang digunakan haruslah sopan, formal, dan memperlihatkan wajah Anda dengan jelas.\n\nBuka menu Profil, klik pada area foto profil Anda saat ini, lalu pilih unggah foto baru dari galeri. Gunakan fitur 'crop' bawaan untuk memfokuskan rasio pada wajah Anda, lalu klik Simpan. Foto ini akan sering dilihat oleh dosen saat mereka melakukan rekapitulasi nilai.",
-          "tags": ["foto", "profil"]
-        },
-        {
-          "id": "faq-13",
-          "question": "Lupa password?",
-          "answer": "Jika Anda tidak dapat mengakses akun karena lupa kata sandi, jangan panik.\n\nDi halaman awal (login), klik tautan 'Lupa Password'. Anda akan diminta untuk memasukkan Nomor Induk Mahasiswa (NIM). Sistem akan melakukan verifikasi dan mengirimkan instruksi beserta tautan reset password langsung ke email kampus atau email utama yang Anda daftarkan di sistem.",
-          "tags": ["password", "lupa"]
-        }
-      ]
-    },
-    {
-      "id": "teknis",
-      "name": "Masalah Teknis",
-      "icon": "Settings",
-      "faqs": [
-        {
-          "id": "faq-14",
-          "question": "Aplikasi error atau tidak bisa dibuka?",
-          "answer": "Kendala teknis seperti blank screen atau gagal memuat halaman bisa terjadi karena masalah cache atau jaringan.\n\nLangkah pertama yang harus dilakukan adalah me-refresh halaman. Jika menggunakan browser, cobalah melakukan 'Clear Cache' atau gunakan mode penyamaran (Incognito). Anda juga bisa mencoba mengakses menggunakan browser atau perangkat lain. Jika masalah persisten, segera hubungi tim IT Support kampus.",
-          "tags": ["error", "teknis"]
-        },
-        {
-          "id": "faq-15",
-          "question": "Data tidak tersimpan?",
-          "answer": "Kegagalan penyimpanan data (seperti gagal submit tugas atau update profil) umumnya disebabkan oleh fluktuasi koneksi internet.\n\nPastikan Anda terhubung ke jaringan internet yang stabil, seperti Wi-Fi kampus. Setelah menekan tombol simpan, jangan langsung menutup aplikasi atau browser; tunggu hingga indikator loading selesai dan muncul notifikasi sukses.",
-          "tags": ["data", "simpan"]
-        },
-        {
-          "id": "faq-16",
-          "question": "Notifikasi tidak muncul?",
-          "answer": "Jika Anda tidak menerima pemberitahuan mengenai tugas baru atau kelas yang akan dimulai, periksa pengaturan izin perangkat Anda.\n\nPastikan Anda telah memberikan izin notifikasi untuk aplikasi ini di pengaturan smartphone Anda (bagi pengguna mobile) atau mengizinkan pop-up notifikasi di setelan browser (bagi pengguna web). Cek juga menu Pengaturan di dalam aplikasi untuk memastikan toggle notifikasi dalam keadaan aktif.",
-          "tags": ["notifikasi", "browser"]
-        }
-      ]
-    },
-    {
-      "id": "gamifikasi",
-      "name": "Poin & Badge",
-      "icon": "Trophy",
-      "faqs": [
-        {
-          "id": "faq-17",
-          "question": "Bagaimana cara mendapat poin?",
-          "answer": "Sistem ini menggunakan gamifikasi untuk mengapresiasi keaktifan akademik Anda.\n\nAnda bisa mengumpulkan poin dengan berbagai tindakan positif: Hadir di kelas tepat waktu akan memberikan +10 poin, mengumpulkan tugas sebelum deadline memberikan +5 poin. Anda juga bisa mendapatkan bonus poin tambahan jika berhasil menjaga 'Streak' (kehadiran berturut-turut tanpa absen) atau saat berhasil membuka sebuah Badge pencapaian khusus.",
-          "tags": ["poin", "cara"]
-        },
-        {
-          "id": "faq-18",
-          "question": "Apa manfaat poin?",
-          "answer": "Poin yang Anda kumpulkan tidak hanya sekadar angka, melainkan representasi dari dedikasi belajar Anda.\n\nTotal poin akan menentukan posisi Anda di Leaderboard (Papan Peringkat) kelas maupun angkatan. Di beberapa program studi, poin yang terkumpul dalam jumlah tertentu dapat ditukarkan dengan reward akademik, apresiasi dari dosen, atau sertifikat penghargaan khusus di akhir semester.",
-          "tags": ["poin", "manfaat"]
-        },
-        {
-          "id": "faq-19",
-          "question": "Bagaimana mendapat badge?",
-          "answer": "Badge (Lencana) adalah trofi digital yang mewakili pencapaian spesifik Anda selama perkuliahan.\n\nSetiap badge memiliki kriteria pencapaian (milestone) yang unik. Misalnya, badge 'Si Paling Tepat Waktu' mungkin menuntut Anda hadir 10 menit sebelum kelas dimulai sebanyak 5 kali berturut-turut. Anda dapat membuka menu Pencapaian untuk melihat daftar badge yang tersedia beserta kriteria yang harus dipenuhi untuk mendapatkannya.",
-          "tags": ["badge", "kriteria"]
-        }
-      ]
-    }
-  ],
-  "troubleshooting": [
-    {
-      "id": "ts-1",
-      "title": "QR Code Tidak Bisa Di-scan",
-      "problem": "QR code tidak terdeteksi atau scan gagal",
-      "solution": [
-        "Usap dan bersihkan lensa kamera smartphone Anda dari debu atau sidik jari yang mengaburkan fokus.",
-        "Pastikan layar proyektor tidak terkena pantulan cahaya (glare). Cari sudut kemiringan lain saat memindai.",
-        "Atur jarak kamera; pastikan seluruh kotak QR masuk ke dalam frame panduan di layar aplikasi Anda.",
-        "Jika semua mahasiswa gagal memindai, masa aktif QR mungkin telah habis. Minta dosen untuk me-refresh QR.",
-        "Restart aplikasi Anda untuk mereset fungsi akses kamera keras (hardware access) pada perangkat."
-      ],
-      "relatedGuides": ["mahasiswa-absen"]
-    },
-    {
-      "id": "ts-2",
-      "title": "Selfie Verifikasi Ditolak",
-      "problem": "Foto selfie selalu ditolak sistem saat melakukan absen",
-      "solution": [
-        "Sistem membutuhkan visual wajah yang utuh. Segera lepaskan masker, topi, atau kacamata hitam Anda.",
-        "Pencahayaan sangat penting. Hindari posisi backlight (membelakangi sumber cahaya yang terang).",
-        "Posisikan wajah Anda tepat di tengah oval atau kotak frame yang muncul di layar, jangan terlalu miring.",
-        "Pastikan Anda berada di lingkungan dengan pencahayaan ruangan yang cukup terang.",
-        "Tunggu hingga indikator kamera fokus pada wajah Anda sebelum menekan tombol ambil foto."
-      ],
-      "relatedGuides": ["mahasiswa-absen", "dosen-verify"]
-    },
-    {
-      "id": "ts-3",
-      "title": "Tidak Bisa Login",
-      "problem": "Gagal masuk ke dashboard dengan NIM dan password",
-      "solution": [
-        "Periksa kembali input NIM Anda secara perlahan, pastikan tidak ada salah ketik (typo) pada angka.",
-        "Password bersifat case-sensitive. Pastikan huruf besar/kecil sudah tepat dan tombol Caps Lock mati.",
-        "Pastikan tidak ada spasi ekstra (whitespace) yang tidak sengaja terketik di akhir NIM atau password.",
-        "Gunakan fitur 'Lupa Password' untuk mereset kata sandi melalui email kampus Anda.",
-        "Jika akun terkunci karena terlalu sering gagal login, segera hubungi admin BAAK atau IT Support."
-      ],
-      "relatedGuides": []
-    },
-    {
-      "id": "ts-4",
-      "title": "Upload File Gagal",
-      "problem": "File tugas tidak bisa terkirim atau loading berhenti di tengah",
-      "solution": [
-        "Periksa ukuran file Anda. Sistem menolak file yang melebihi batas maksimal 10MB.",
-        "Jika ukuran file terlalu besar, gunakan layanan kompresi PDF secara online untuk mengecilkannya.",
-        "Pastikan format ekstensi file diizinkan oleh sistem (umumnya wajib berformat .pdf, .doc, atau .docx).",
-        "Jangan gunakan ekstensi bawaan OS tertentu seperti .pages, karena sistem dan dosen mungkin tidak bisa membukanya.",
-        "Pastikan koneksi internet Anda stabil (hindari menggunakan kuota yang sedang throttling). Tunggu hingga loading selesai 100%."
-      ],
-      "relatedGuides": ["mahasiswa-tugas"]
-    }
-  ]
+    ]
 }

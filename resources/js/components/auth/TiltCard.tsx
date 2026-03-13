@@ -1,5 +1,5 @@
-import { useRef, useState, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { ReactNode, useRef, useState } from 'react';
 
 interface TiltCardProps {
     children: ReactNode;
@@ -7,7 +7,11 @@ interface TiltCardProps {
     intensity?: number;
 }
 
-export function TiltCard({ children, className, intensity = 15 }: TiltCardProps) {
+export function TiltCard({
+    children,
+    className,
+    intensity = 15,
+}: TiltCardProps) {
     const cardRef = useRef<HTMLDivElement>(null);
     const [transform, setTransform] = useState('');
     const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
@@ -26,7 +30,9 @@ export function TiltCard({ children, className, intensity = 15 }: TiltCardProps)
         const rotateX = ((y - centerY) / centerY) * intensity;
         const rotateY = ((centerX - x) / centerX) * intensity;
 
-        setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+        setTransform(
+            `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`,
+        );
         setGlare({
             x: (x / rect.width) * 100,
             y: (y / rect.height) * 100,
@@ -35,7 +41,9 @@ export function TiltCard({ children, className, intensity = 15 }: TiltCardProps)
     };
 
     const handleMouseLeave = () => {
-        setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+        setTransform(
+            'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
+        );
         setGlare({ x: 50, y: 50, opacity: 0 });
     };
 
@@ -44,12 +52,15 @@ export function TiltCard({ children, className, intensity = 15 }: TiltCardProps)
             ref={cardRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className={cn('relative transition-transform duration-300 ease-out', className)}
+            className={cn(
+                'relative transition-transform duration-300 ease-out',
+                className,
+            )}
             style={{ transform, transformStyle: 'preserve-3d' }}
         >
             {/* Glare effect */}
             <div
-                className="absolute inset-0 pointer-events-none rounded-2xl transition-opacity duration-300"
+                className="pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-300"
                 style={{
                     background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,${glare.opacity}), transparent 50%)`,
                 }}

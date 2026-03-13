@@ -45,4 +45,3 @@ export function useAppearance() {
         updateAppearance,
     } as const;
 }
-

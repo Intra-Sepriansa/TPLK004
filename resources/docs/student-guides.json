@@ -1,526 +1,655 @@
 {
-  "version": "2.0.0",
-  "lastUpdated": "2026-02-28",
-  "guides": [
-    {
-      "id": "intro-sistem-tplk",
-      "menuKey": "dashboard",
-      "title": "Pengenalan Sistem TPLK",
-      "slug": "pengenalan-sistem-tplk",
-      "description": "Memahami struktur menu utama, alur penggunaan harian, dan prinsip dasar platform mahasiswa.",
-      "icon": "BookOpen",
-      "category": "beginner",
-      "difficulty": 1,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 10,
-      "tags": ["dashboard", "pengantar", "pemula"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
+    "version": "2.0.0",
+    "lastUpdated": "2026-02-28",
+    "guides": [
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "TPLK adalah pusat aktivitas akademik mahasiswa: absensi, tugas, notifikasi, rekapan, dan keuangan kelas. Halaman dashboard dirancang agar kamu bisa melihat prioritas harian dalam satu layar."
+            "id": "intro-sistem-tplk",
+            "menuKey": "dashboard",
+            "title": "Pengenalan Sistem TPLK",
+            "slug": "pengenalan-sistem-tplk",
+            "description": "Memahami struktur menu utama, alur penggunaan harian, dan prinsip dasar platform mahasiswa.",
+            "icon": "BookOpen",
+            "category": "beginner",
+            "difficulty": 1,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 10,
+            "tags": ["dashboard", "pengantar", "pemula"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "TPLK adalah pusat aktivitas akademik mahasiswa: absensi, tugas, notifikasi, rekapan, dan keuangan kelas. Halaman dashboard dirancang agar kamu bisa melihat prioritas harian dalam satu layar."
+                },
+                {
+                    "id": "features",
+                    "title": "Fitur Inti",
+                    "type": "text",
+                    "content": "Menu utama yang wajib dipahami: Dashboard, Absen, Rekapan, Tugas, Notifikasi, Uang Kas, dan Voting Kas. Setiap menu saling terhubung melalui status aktivitas real-time."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Tutorial Cepat",
+                    "type": "steps",
+                    "content": "Ikuti alur harian sederhana berikut agar penggunaan sistem tetap efektif.",
+                    "steps": [
+                        {
+                            "title": "Cek dashboard di awal hari",
+                            "description": "Lihat tugas mendekati deadline dan status kehadiran terbaru."
+                        },
+                        {
+                            "title": "Buka notifikasi",
+                            "description": "Prioritaskan peringatan penting seperti izin, pengumuman, atau voting aktif."
+                        },
+                        {
+                            "title": "Pantau menu rekapan",
+                            "description": "Evaluasi progres kehadiran dan performa mingguan secara konsisten."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips & Best Practices",
+                    "type": "callout",
+                    "content": "Biasakan mengecek dashboard minimal dua kali sehari. Simpan menu penting ke bookmark browser. Gunakan notifikasi sebagai to-do list, bukan sekadar informasi lewat."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "Pertanyaan umum seputar penggunaan awal sistem.",
+                    "faqs": [
+                        {
+                            "question": "Apakah semua menu wajib dibuka setiap hari?",
+                            "answer": "Tidak, tapi Dashboard dan Notifikasi sangat disarankan untuk dipantau setiap hari."
+                        },
+                        {
+                            "question": "Kenapa data saya berbeda dari teman?",
+                            "answer": "Data bersifat personal berdasarkan akun, kelas, dan riwayat aktivitas masing-masing."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "intro-q1",
+                    "question": "Menu mana yang paling tepat untuk melihat prioritas harian?",
+                    "type": "multiple-choice",
+                    "options": ["Dashboard", "Voting Kas", "Riwayat"],
+                    "correctAnswer": "Dashboard",
+                    "explanation": "Dashboard menampilkan ringkasan aktivitas paling penting dalam satu tampilan.",
+                    "points": 10
+                },
+                {
+                    "id": "intro-q2",
+                    "question": "Notifikasi sebaiknya diperlakukan sebagai?",
+                    "type": "multiple-choice",
+                    "options": ["Arsip", "To-do list", "Konten hiburan"],
+                    "correctAnswer": "To-do list",
+                    "explanation": "Notifikasi membantu prioritas tindakan, bukan hanya informasi pasif.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "intro-ex1",
+                    "title": "Rencana Aktivitas Harian",
+                    "instruction": "Buat checklist 3 menu yang akan kamu cek rutin setiap hari selama 1 minggu."
+                }
+            ]
         },
         {
-          "id": "features",
-          "title": "Fitur Inti",
-          "type": "text",
-          "content": "Menu utama yang wajib dipahami: Dashboard, Absen, Rekapan, Tugas, Notifikasi, Uang Kas, dan Voting Kas. Setiap menu saling terhubung melalui status aktivitas real-time."
+            "id": "cara-melakukan-absensi",
+            "menuKey": "absen",
+            "title": "Cara Melakukan Absensi",
+            "slug": "cara-melakukan-absensi",
+            "description": "Panduan scan QR, validasi lokasi, dan penyelesaian absensi agar tidak gagal tercatat.",
+            "icon": "QrCode",
+            "category": "beginner",
+            "difficulty": 1,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 12,
+            "tags": ["absensi", "qr", "kehadiran"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "Absensi dilakukan saat sesi aktif dengan QR yang ditampilkan dosen. Sistem memvalidasi waktu, sesi, dan identitas akun mahasiswa untuk mencegah titip absen."
+                },
+                {
+                    "id": "features",
+                    "title": "Komponen Validasi",
+                    "type": "text",
+                    "content": "Komponen penting: sesi aktif, token/QR valid, sinkron waktu perangkat, serta status konfirmasi sukses setelah proses selesai."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Langkah Absensi",
+                    "type": "steps",
+                    "content": "Lakukan langkah berikut secara berurutan.",
+                    "steps": [
+                        {
+                            "title": "Buka menu Absen",
+                            "description": "Pastikan kamu login dengan akun mahasiswa yang benar."
+                        },
+                        {
+                            "title": "Scan QR sesi",
+                            "description": "Arahkan kamera ke QR dosen hingga data sesi terbaca."
+                        },
+                        {
+                            "title": "Konfirmasi absensi",
+                            "description": "Tunggu respons sukses dan cek status pada riwayat absensi."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips Anti Gagal",
+                    "type": "callout",
+                    "content": "Jangan menunggu menit terakhir. Cek koneksi internet, izin kamera, dan brightness layar saat scan. Simpan bukti screenshot status sukses bila diperlukan."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "Pertanyaan yang sering muncul saat absensi.",
+                    "faqs": [
+                        {
+                            "question": "Kenapa QR tidak terbaca?",
+                            "answer": "Biasanya karena kamera blur, jarak tidak pas, atau QR sudah expired."
+                        },
+                        {
+                            "question": "Status belum masuk padahal sudah scan?",
+                            "answer": "Refresh halaman riwayat. Jika tetap belum masuk, laporkan ke dosen saat sesi masih berlangsung."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "absen-q1",
+                    "question": "Kapan waktu terbaik melakukan absensi?",
+                    "type": "multiple-choice",
+                    "options": [
+                        "Di akhir kelas",
+                        "Sesaat sesi dibuka",
+                        "Kapan saja setelah kelas selesai"
+                    ],
+                    "correctAnswer": "Sesaat sesi dibuka",
+                    "explanation": "Absensi lebih aman dicatat saat sesi masih aktif dan tidak mendekati timeout.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "absen-ex1",
+                    "title": "Checklist Absensi",
+                    "instruction": "Sebelum kelas berikutnya, siapkan checklist: kamera, internet, dan akun login sudah benar."
+                }
+            ]
         },
         {
-          "id": "tutorial",
-          "title": "Tutorial Cepat",
-          "type": "steps",
-          "content": "Ikuti alur harian sederhana berikut agar penggunaan sistem tetap efektif.",
-          "steps": [
-            { "title": "Cek dashboard di awal hari", "description": "Lihat tugas mendekati deadline dan status kehadiran terbaru." },
-            { "title": "Buka notifikasi", "description": "Prioritaskan peringatan penting seperti izin, pengumuman, atau voting aktif." },
-            { "title": "Pantau menu rekapan", "description": "Evaluasi progres kehadiran dan performa mingguan secara konsisten." }
-          ]
+            "id": "verifikasi-selfie-mahasiswa",
+            "menuKey": "selfie-verification",
+            "title": "Verifikasi Selfie",
+            "slug": "verifikasi-selfie",
+            "description": "Memahami alur verifikasi selfie, alasan penolakan, dan langkah koreksi yang aman.",
+            "icon": "Shield",
+            "category": "intermediate",
+            "difficulty": 2,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 10,
+            "tags": ["selfie", "verifikasi", "keamanan"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "Verifikasi selfie membantu memastikan kehadiran dilakukan oleh mahasiswa yang benar. Sistem menganalisis kualitas foto, posisi wajah, dan kecocokan data akun."
+                },
+                {
+                    "id": "features",
+                    "title": "Parameter Verifikasi",
+                    "type": "text",
+                    "content": "Parameter umum: pencahayaan, ketajaman gambar, posisi wajah, dan tidak adanya objek yang menutupi area wajah."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Cara Selfie Benar",
+                    "type": "steps",
+                    "content": "Ikuti langkah teknis berikut untuk meningkatkan keberhasilan.",
+                    "steps": [
+                        {
+                            "title": "Gunakan cahaya depan",
+                            "description": "Hindari backlight agar wajah tidak gelap."
+                        },
+                        {
+                            "title": "Posisikan wajah di tengah",
+                            "description": "Pastikan area wajah masuk frame panduan."
+                        },
+                        {
+                            "title": "Tahan perangkat stabil",
+                            "description": "Kurangi blur agar foto dapat diproses dengan akurat."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips Praktis",
+                    "type": "callout",
+                    "content": "Jika selfie ditolak, ulangi di lokasi lebih terang. Bersihkan lensa kamera. Lepas aksesoris yang menutupi wajah saat proses verifikasi."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "FAQ verifikasi selfie.",
+                    "faqs": [
+                        {
+                            "question": "Apakah selfie wajib setiap sesi?",
+                            "answer": "Tergantung konfigurasi sesi absensi dari dosen/admin."
+                        },
+                        {
+                            "question": "Bagaimana jika kamera rusak?",
+                            "answer": "Segera laporkan ke dosen dan admin untuk proses verifikasi alternatif sesuai kebijakan kelas."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "selfie-q1",
+                    "question": "Faktor paling penting agar selfie lolos adalah?",
+                    "type": "multiple-choice",
+                    "options": [
+                        "Warna baju",
+                        "Pencahayaan wajah",
+                        "Merek perangkat"
+                    ],
+                    "correctAnswer": "Pencahayaan wajah",
+                    "explanation": "Pencahayaan baik membuat detail wajah terbaca jelas.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "selfie-ex1",
+                    "title": "Simulasi Kualitas Foto",
+                    "instruction": "Bandingkan 3 foto selfie (terang, gelap, blur) dan catat mana yang paling mudah dikenali."
+                }
+            ]
         },
         {
-          "id": "tips",
-          "title": "Tips & Best Practices",
-          "type": "callout",
-          "content": "Biasakan mengecek dashboard minimal dua kali sehari. Simpan menu penting ke bookmark browser. Gunakan notifikasi sebagai to-do list, bukan sekadar informasi lewat."
+            "id": "cara-mengumpulkan-tugas",
+            "menuKey": "tugas",
+            "title": "Cara Mengumpulkan Tugas",
+            "slug": "cara-mengumpulkan-tugas",
+            "description": "Panduan upload, validasi format file, dan strategi submit aman sebelum deadline.",
+            "icon": "ClipboardList",
+            "category": "intermediate",
+            "difficulty": 2,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 11,
+            "tags": ["tugas", "deadline", "submit"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "Menu tugas menampilkan daftar tugas aktif, status penilaian, serta batas waktu pengumpulan. Setiap tugas bisa memiliki aturan file dan format berbeda."
+                },
+                {
+                    "id": "features",
+                    "title": "Aturan Pengumpulan",
+                    "type": "text",
+                    "content": "Perhatikan batas waktu, ukuran file maksimum, jenis file yang diizinkan, dan ketentuan revisi dari dosen."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Langkah Submit",
+                    "type": "steps",
+                    "content": "Alur aman submit tugas.",
+                    "steps": [
+                        {
+                            "title": "Buka detail tugas",
+                            "description": "Baca instruksi dosen dan rubrik penilaian."
+                        },
+                        {
+                            "title": "Upload file final",
+                            "description": "Pastikan nama file rapi dan format sesuai ketentuan."
+                        },
+                        {
+                            "title": "Cek status terkirim",
+                            "description": "Verifikasi bahwa status berubah menjadi submitted/terkirim."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Best Practices",
+                    "type": "callout",
+                    "content": "Unggah minimal 30 menit sebelum deadline. Simpan salinan cloud lokal. Gunakan versi final yang sudah dicek ulang untuk menghindari revisi tidak perlu."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "FAQ pengumpulan tugas.",
+                    "faqs": [
+                        {
+                            "question": "Bisa ganti file setelah submit?",
+                            "answer": "Tergantung kebijakan dosen dan status tugas pada sistem."
+                        },
+                        {
+                            "question": "Kenapa upload gagal?",
+                            "answer": "Umumnya karena file terlalu besar atau format tidak didukung."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "tugas-q1",
+                    "question": "Kapan waktu submit paling aman?",
+                    "type": "multiple-choice",
+                    "options": [
+                        "Detik terakhir",
+                        "30 menit sebelum deadline",
+                        "Setelah deadline"
+                    ],
+                    "correctAnswer": "30 menit sebelum deadline",
+                    "explanation": "Memberi waktu antisipasi jika koneksi atau upload bermasalah.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "tugas-ex1",
+                    "title": "Checklist Pre-Submit",
+                    "instruction": "Buat checklist 5 poin sebelum submit: format, ukuran, nama file, isi final, dan bukti status terkirim."
+                }
+            ]
         },
         {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "Pertanyaan umum seputar penggunaan awal sistem.",
-          "faqs": [
-            { "question": "Apakah semua menu wajib dibuka setiap hari?", "answer": "Tidak, tapi Dashboard dan Notifikasi sangat disarankan untuk dipantau setiap hari." },
-            { "question": "Kenapa data saya berbeda dari teman?", "answer": "Data bersifat personal berdasarkan akun, kelas, dan riwayat aktivitas masing-masing." }
-          ]
+            "id": "pembayaran-kas-kelas",
+            "menuKey": "kas",
+            "title": "Pembayaran Kas Kelas",
+            "slug": "pembayaran-kas-kelas",
+            "description": "Panduan memantau tagihan kas, status pembayaran, dan cara menyimpan bukti transaksi.",
+            "icon": "Wallet",
+            "category": "intermediate",
+            "difficulty": 2,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 9,
+            "tags": ["kas", "keuangan", "pembayaran"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "Menu kas menampilkan daftar iuran, status lunas/belum, histori pembayaran, dan ringkasan kontribusi mahasiswa terhadap kas kelas."
+                },
+                {
+                    "id": "features",
+                    "title": "Fitur Keuangan",
+                    "type": "text",
+                    "content": "Fitur utama: histori transaksi, ringkasan total bayar, tagihan aktif, dan insight pembayaran periodik."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Alur Pembayaran",
+                    "type": "steps",
+                    "content": "Langkah aman untuk menjaga status kas tetap rapi.",
+                    "steps": [
+                        {
+                            "title": "Cek tagihan aktif",
+                            "description": "Prioritaskan tagihan dengan deadline terdekat."
+                        },
+                        {
+                            "title": "Selesaikan pembayaran",
+                            "description": "Lakukan transfer sesuai nominal dan catat tanggal transaksi."
+                        },
+                        {
+                            "title": "Simpan bukti",
+                            "description": "Arsipkan screenshot/bukti transfer untuk verifikasi bila dibutuhkan."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips Pengelolaan",
+                    "type": "callout",
+                    "content": "Gunakan pengingat pribadi H-3 sebelum jatuh tempo. Bayar lebih awal untuk menghindari penumpukan tagihan."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "FAQ kas mahasiswa.",
+                    "faqs": [
+                        {
+                            "question": "Kenapa status belum berubah setelah bayar?",
+                            "answer": "Proses verifikasi bendahara/admin bisa membutuhkan waktu."
+                        },
+                        {
+                            "question": "Apakah bisa melihat histori lama?",
+                            "answer": "Ya, histori transaksi ditampilkan pada tab riwayat kas."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "kas-q1",
+                    "question": "Langkah penting setelah transfer kas adalah?",
+                    "type": "multiple-choice",
+                    "options": [
+                        "Menutup aplikasi",
+                        "Menyimpan bukti pembayaran",
+                        "Menghapus histori chat"
+                    ],
+                    "correctAnswer": "Menyimpan bukti pembayaran",
+                    "explanation": "Bukti diperlukan jika ada kendala verifikasi status.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "kas-ex1",
+                    "title": "Perencanaan Kas Bulanan",
+                    "instruction": "Tentukan tanggal rutin pembayaran kas tiap bulan agar tidak menumpuk."
+                }
+            ]
+        },
+        {
+            "id": "voting-pengeluaran-kas",
+            "menuKey": "kas-voting",
+            "title": "Voting Pengeluaran Kas",
+            "slug": "voting-pengeluaran-kas",
+            "description": "Pelajari cara mengusulkan pengeluaran, memberi suara, dan membaca hasil voting kas secara transparan.",
+            "icon": "Vote",
+            "category": "advanced",
+            "difficulty": 3,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 9,
+            "tags": ["voting", "kas", "musyawarah"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "Voting kas digunakan untuk keputusan pengeluaran kelas secara kolektif. Setiap usulan memiliki periode voting, jumlah suara, dan hasil akhir setuju/tolak."
+                },
+                {
+                    "id": "features",
+                    "title": "Elemen Voting",
+                    "type": "text",
+                    "content": "Elemen inti: judul usulan, nominal, kategori, deadline voting, progress suara, dan komentar pendukung/penolak."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Cara Berpartisipasi",
+                    "type": "steps",
+                    "content": "Langkah partisipasi voting yang efektif.",
+                    "steps": [
+                        {
+                            "title": "Baca detail usulan",
+                            "description": "Periksa urgensi dan nominal sebelum memilih."
+                        },
+                        {
+                            "title": "Berikan suara",
+                            "description": "Pilih setuju/tolak sesuai pertimbangan objektif."
+                        },
+                        {
+                            "title": "Tambahkan komentar",
+                            "description": "Berikan alasan singkat agar diskusi lebih konstruktif."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips Diskusi Sehat",
+                    "type": "callout",
+                    "content": "Fokus pada kebutuhan kelas, bukan personal. Gunakan komentar ringkas, sopan, dan berbasis data kebutuhan."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "FAQ voting kas.",
+                    "faqs": [
+                        {
+                            "question": "Bisa ubah pilihan vote?",
+                            "answer": "Ikuti aturan yang berlaku di sistem saat voting aktif."
+                        },
+                        {
+                            "question": "Kenapa usulan tidak lolos?",
+                            "answer": "Biasanya karena persentase setuju tidak mencapai ambang ketentuan."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "voting-q1",
+                    "question": "Sebelum vote, hal terpenting yang harus dicek adalah?",
+                    "type": "multiple-choice",
+                    "options": [
+                        "Warna kartu",
+                        "Urgensi + nominal usulan",
+                        "Jumlah komentar"
+                    ],
+                    "correctAnswer": "Urgensi + nominal usulan",
+                    "explanation": "Keputusan yang baik mempertimbangkan urgensi kebutuhan dan dampak nominal kas.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "voting-ex1",
+                    "title": "Analisis Usulan",
+                    "instruction": "Ambil satu usulan voting aktif, tulis 3 alasan setuju/menolak secara objektif."
+                }
+            ]
+        },
+        {
+            "id": "troubleshooting-akun-mahasiswa",
+            "menuKey": "help",
+            "title": "Troubleshooting Umum Mahasiswa",
+            "slug": "troubleshooting-akun-mahasiswa",
+            "description": "Kumpulan solusi cepat untuk masalah login, sinkron data, dan kendala teknis umum.",
+            "icon": "LifeBuoy",
+            "category": "reference",
+            "difficulty": 2,
+            "author": "Tim Dokumentasi TPLK",
+            "estimatedReadTime": 8,
+            "tags": ["troubleshooting", "error", "bantuan"],
+            "lastUpdated": "2026-02-28",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "text",
+                    "content": "Halaman ini merangkum solusi praktis untuk masalah yang sering dialami mahasiswa saat menggunakan platform."
+                },
+                {
+                    "id": "features",
+                    "title": "Kategori Masalah",
+                    "type": "text",
+                    "content": "Kategori utama: login, loading lambat, data tidak sinkron, gagal upload, dan kendala notifikasi."
+                },
+                {
+                    "id": "tutorial",
+                    "title": "Langkah Diagnostik",
+                    "type": "steps",
+                    "content": "Urutan cek masalah dasar.",
+                    "steps": [
+                        {
+                            "title": "Refresh dan login ulang",
+                            "description": "Cek apakah token sesi masih valid."
+                        },
+                        {
+                            "title": "Cek koneksi jaringan",
+                            "description": "Gunakan jaringan stabil sebelum mengulangi tindakan."
+                        },
+                        {
+                            "title": "Laporkan dengan bukti",
+                            "description": "Kirim screenshot error + waktu kejadian ke admin."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips Pelaporan",
+                    "type": "callout",
+                    "content": "Laporan yang baik berisi: menu yang dibuka, langkah sebelum error, screenshot, dan waktu kejadian."
+                },
+                {
+                    "id": "faq",
+                    "title": "FAQ",
+                    "type": "faq",
+                    "content": "FAQ troubleshooting.",
+                    "faqs": [
+                        {
+                            "question": "Data tugas tidak update",
+                            "answer": "Lakukan refresh, logout-login, lalu cek lagi setelah beberapa menit sinkronisasi."
+                        },
+                        {
+                            "question": "Notifikasi tidak muncul",
+                            "answer": "Periksa pengaturan notifikasi browser/perangkat dan status izin notifikasi aplikasi."
+                        }
+                    ]
+                }
+            ],
+            "quiz": [
+                {
+                    "id": "trouble-q1",
+                    "question": "Saat melapor bug, data paling penting yang harus disertakan adalah?",
+                    "type": "multiple-choice",
+                    "options": [
+                        "Nama panggilan",
+                        "Screenshot + waktu kejadian",
+                        "Warna tema aplikasi"
+                    ],
+                    "correctAnswer": "Screenshot + waktu kejadian",
+                    "explanation": "Bukti visual dan waktu membantu tim teknis melakukan reproduksi masalah.",
+                    "points": 10
+                }
+            ],
+            "exercises": [
+                {
+                    "id": "trouble-ex1",
+                    "title": "Template Laporan Error",
+                    "instruction": "Susun template pelaporan bug pribadi agar saat error kamu bisa lapor dengan cepat dan jelas."
+                }
+            ]
         }
-      ],
-      "quiz": [
-        {
-          "id": "intro-q1",
-          "question": "Menu mana yang paling tepat untuk melihat prioritas harian?",
-          "type": "multiple-choice",
-          "options": ["Dashboard", "Voting Kas", "Riwayat"],
-          "correctAnswer": "Dashboard",
-          "explanation": "Dashboard menampilkan ringkasan aktivitas paling penting dalam satu tampilan.",
-          "points": 10
-        },
-        {
-          "id": "intro-q2",
-          "question": "Notifikasi sebaiknya diperlakukan sebagai?",
-          "type": "multiple-choice",
-          "options": ["Arsip", "To-do list", "Konten hiburan"],
-          "correctAnswer": "To-do list",
-          "explanation": "Notifikasi membantu prioritas tindakan, bukan hanya informasi pasif.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "intro-ex1",
-          "title": "Rencana Aktivitas Harian",
-          "instruction": "Buat checklist 3 menu yang akan kamu cek rutin setiap hari selama 1 minggu."
-        }
-      ]
-    },
-    {
-      "id": "cara-melakukan-absensi",
-      "menuKey": "absen",
-      "title": "Cara Melakukan Absensi",
-      "slug": "cara-melakukan-absensi",
-      "description": "Panduan scan QR, validasi lokasi, dan penyelesaian absensi agar tidak gagal tercatat.",
-      "icon": "QrCode",
-      "category": "beginner",
-      "difficulty": 1,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 12,
-      "tags": ["absensi", "qr", "kehadiran"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "Absensi dilakukan saat sesi aktif dengan QR yang ditampilkan dosen. Sistem memvalidasi waktu, sesi, dan identitas akun mahasiswa untuk mencegah titip absen."
-        },
-        {
-          "id": "features",
-          "title": "Komponen Validasi",
-          "type": "text",
-          "content": "Komponen penting: sesi aktif, token/QR valid, sinkron waktu perangkat, serta status konfirmasi sukses setelah proses selesai."
-        },
-        {
-          "id": "tutorial",
-          "title": "Langkah Absensi",
-          "type": "steps",
-          "content": "Lakukan langkah berikut secara berurutan.",
-          "steps": [
-            { "title": "Buka menu Absen", "description": "Pastikan kamu login dengan akun mahasiswa yang benar." },
-            { "title": "Scan QR sesi", "description": "Arahkan kamera ke QR dosen hingga data sesi terbaca." },
-            { "title": "Konfirmasi absensi", "description": "Tunggu respons sukses dan cek status pada riwayat absensi." }
-          ]
-        },
-        {
-          "id": "tips",
-          "title": "Tips Anti Gagal",
-          "type": "callout",
-          "content": "Jangan menunggu menit terakhir. Cek koneksi internet, izin kamera, dan brightness layar saat scan. Simpan bukti screenshot status sukses bila diperlukan."
-        },
-        {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "Pertanyaan yang sering muncul saat absensi.",
-          "faqs": [
-            { "question": "Kenapa QR tidak terbaca?", "answer": "Biasanya karena kamera blur, jarak tidak pas, atau QR sudah expired." },
-            { "question": "Status belum masuk padahal sudah scan?", "answer": "Refresh halaman riwayat. Jika tetap belum masuk, laporkan ke dosen saat sesi masih berlangsung." }
-          ]
-        }
-      ],
-      "quiz": [
-        {
-          "id": "absen-q1",
-          "question": "Kapan waktu terbaik melakukan absensi?",
-          "type": "multiple-choice",
-          "options": ["Di akhir kelas", "Sesaat sesi dibuka", "Kapan saja setelah kelas selesai"],
-          "correctAnswer": "Sesaat sesi dibuka",
-          "explanation": "Absensi lebih aman dicatat saat sesi masih aktif dan tidak mendekati timeout.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "absen-ex1",
-          "title": "Checklist Absensi",
-          "instruction": "Sebelum kelas berikutnya, siapkan checklist: kamera, internet, dan akun login sudah benar."
-        }
-      ]
-    },
-    {
-      "id": "verifikasi-selfie-mahasiswa",
-      "menuKey": "selfie-verification",
-      "title": "Verifikasi Selfie",
-      "slug": "verifikasi-selfie",
-      "description": "Memahami alur verifikasi selfie, alasan penolakan, dan langkah koreksi yang aman.",
-      "icon": "Shield",
-      "category": "intermediate",
-      "difficulty": 2,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 10,
-      "tags": ["selfie", "verifikasi", "keamanan"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "Verifikasi selfie membantu memastikan kehadiran dilakukan oleh mahasiswa yang benar. Sistem menganalisis kualitas foto, posisi wajah, dan kecocokan data akun."
-        },
-        {
-          "id": "features",
-          "title": "Parameter Verifikasi",
-          "type": "text",
-          "content": "Parameter umum: pencahayaan, ketajaman gambar, posisi wajah, dan tidak adanya objek yang menutupi area wajah."
-        },
-        {
-          "id": "tutorial",
-          "title": "Cara Selfie Benar",
-          "type": "steps",
-          "content": "Ikuti langkah teknis berikut untuk meningkatkan keberhasilan.",
-          "steps": [
-            { "title": "Gunakan cahaya depan", "description": "Hindari backlight agar wajah tidak gelap." },
-            { "title": "Posisikan wajah di tengah", "description": "Pastikan area wajah masuk frame panduan." },
-            { "title": "Tahan perangkat stabil", "description": "Kurangi blur agar foto dapat diproses dengan akurat." }
-          ]
-        },
-        {
-          "id": "tips",
-          "title": "Tips Praktis",
-          "type": "callout",
-          "content": "Jika selfie ditolak, ulangi di lokasi lebih terang. Bersihkan lensa kamera. Lepas aksesoris yang menutupi wajah saat proses verifikasi."
-        },
-        {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "FAQ verifikasi selfie.",
-          "faqs": [
-            { "question": "Apakah selfie wajib setiap sesi?", "answer": "Tergantung konfigurasi sesi absensi dari dosen/admin." },
-            { "question": "Bagaimana jika kamera rusak?", "answer": "Segera laporkan ke dosen dan admin untuk proses verifikasi alternatif sesuai kebijakan kelas." }
-          ]
-        }
-      ],
-      "quiz": [
-        {
-          "id": "selfie-q1",
-          "question": "Faktor paling penting agar selfie lolos adalah?",
-          "type": "multiple-choice",
-          "options": ["Warna baju", "Pencahayaan wajah", "Merek perangkat"],
-          "correctAnswer": "Pencahayaan wajah",
-          "explanation": "Pencahayaan baik membuat detail wajah terbaca jelas.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "selfie-ex1",
-          "title": "Simulasi Kualitas Foto",
-          "instruction": "Bandingkan 3 foto selfie (terang, gelap, blur) dan catat mana yang paling mudah dikenali."
-        }
-      ]
-    },
-    {
-      "id": "cara-mengumpulkan-tugas",
-      "menuKey": "tugas",
-      "title": "Cara Mengumpulkan Tugas",
-      "slug": "cara-mengumpulkan-tugas",
-      "description": "Panduan upload, validasi format file, dan strategi submit aman sebelum deadline.",
-      "icon": "ClipboardList",
-      "category": "intermediate",
-      "difficulty": 2,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 11,
-      "tags": ["tugas", "deadline", "submit"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "Menu tugas menampilkan daftar tugas aktif, status penilaian, serta batas waktu pengumpulan. Setiap tugas bisa memiliki aturan file dan format berbeda."
-        },
-        {
-          "id": "features",
-          "title": "Aturan Pengumpulan",
-          "type": "text",
-          "content": "Perhatikan batas waktu, ukuran file maksimum, jenis file yang diizinkan, dan ketentuan revisi dari dosen."
-        },
-        {
-          "id": "tutorial",
-          "title": "Langkah Submit",
-          "type": "steps",
-          "content": "Alur aman submit tugas.",
-          "steps": [
-            { "title": "Buka detail tugas", "description": "Baca instruksi dosen dan rubrik penilaian." },
-            { "title": "Upload file final", "description": "Pastikan nama file rapi dan format sesuai ketentuan." },
-            { "title": "Cek status terkirim", "description": "Verifikasi bahwa status berubah menjadi submitted/terkirim." }
-          ]
-        },
-        {
-          "id": "tips",
-          "title": "Best Practices",
-          "type": "callout",
-          "content": "Unggah minimal 30 menit sebelum deadline. Simpan salinan cloud lokal. Gunakan versi final yang sudah dicek ulang untuk menghindari revisi tidak perlu."
-        },
-        {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "FAQ pengumpulan tugas.",
-          "faqs": [
-            { "question": "Bisa ganti file setelah submit?", "answer": "Tergantung kebijakan dosen dan status tugas pada sistem." },
-            { "question": "Kenapa upload gagal?", "answer": "Umumnya karena file terlalu besar atau format tidak didukung." }
-          ]
-        }
-      ],
-      "quiz": [
-        {
-          "id": "tugas-q1",
-          "question": "Kapan waktu submit paling aman?",
-          "type": "multiple-choice",
-          "options": ["Detik terakhir", "30 menit sebelum deadline", "Setelah deadline"],
-          "correctAnswer": "30 menit sebelum deadline",
-          "explanation": "Memberi waktu antisipasi jika koneksi atau upload bermasalah.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "tugas-ex1",
-          "title": "Checklist Pre-Submit",
-          "instruction": "Buat checklist 5 poin sebelum submit: format, ukuran, nama file, isi final, dan bukti status terkirim."
-        }
-      ]
-    },
-    {
-      "id": "pembayaran-kas-kelas",
-      "menuKey": "kas",
-      "title": "Pembayaran Kas Kelas",
-      "slug": "pembayaran-kas-kelas",
-      "description": "Panduan memantau tagihan kas, status pembayaran, dan cara menyimpan bukti transaksi.",
-      "icon": "Wallet",
-      "category": "intermediate",
-      "difficulty": 2,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 9,
-      "tags": ["kas", "keuangan", "pembayaran"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "Menu kas menampilkan daftar iuran, status lunas/belum, histori pembayaran, dan ringkasan kontribusi mahasiswa terhadap kas kelas."
-        },
-        {
-          "id": "features",
-          "title": "Fitur Keuangan",
-          "type": "text",
-          "content": "Fitur utama: histori transaksi, ringkasan total bayar, tagihan aktif, dan insight pembayaran periodik."
-        },
-        {
-          "id": "tutorial",
-          "title": "Alur Pembayaran",
-          "type": "steps",
-          "content": "Langkah aman untuk menjaga status kas tetap rapi.",
-          "steps": [
-            { "title": "Cek tagihan aktif", "description": "Prioritaskan tagihan dengan deadline terdekat." },
-            { "title": "Selesaikan pembayaran", "description": "Lakukan transfer sesuai nominal dan catat tanggal transaksi." },
-            { "title": "Simpan bukti", "description": "Arsipkan screenshot/bukti transfer untuk verifikasi bila dibutuhkan." }
-          ]
-        },
-        {
-          "id": "tips",
-          "title": "Tips Pengelolaan",
-          "type": "callout",
-          "content": "Gunakan pengingat pribadi H-3 sebelum jatuh tempo. Bayar lebih awal untuk menghindari penumpukan tagihan." 
-        },
-        {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "FAQ kas mahasiswa.",
-          "faqs": [
-            { "question": "Kenapa status belum berubah setelah bayar?", "answer": "Proses verifikasi bendahara/admin bisa membutuhkan waktu." },
-            { "question": "Apakah bisa melihat histori lama?", "answer": "Ya, histori transaksi ditampilkan pada tab riwayat kas." }
-          ]
-        }
-      ],
-      "quiz": [
-        {
-          "id": "kas-q1",
-          "question": "Langkah penting setelah transfer kas adalah?",
-          "type": "multiple-choice",
-          "options": ["Menutup aplikasi", "Menyimpan bukti pembayaran", "Menghapus histori chat"],
-          "correctAnswer": "Menyimpan bukti pembayaran",
-          "explanation": "Bukti diperlukan jika ada kendala verifikasi status.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "kas-ex1",
-          "title": "Perencanaan Kas Bulanan",
-          "instruction": "Tentukan tanggal rutin pembayaran kas tiap bulan agar tidak menumpuk."
-        }
-      ]
-    },
-    {
-      "id": "voting-pengeluaran-kas",
-      "menuKey": "kas-voting",
-      "title": "Voting Pengeluaran Kas",
-      "slug": "voting-pengeluaran-kas",
-      "description": "Pelajari cara mengusulkan pengeluaran, memberi suara, dan membaca hasil voting kas secara transparan.",
-      "icon": "Vote",
-      "category": "advanced",
-      "difficulty": 3,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 9,
-      "tags": ["voting", "kas", "musyawarah"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "Voting kas digunakan untuk keputusan pengeluaran kelas secara kolektif. Setiap usulan memiliki periode voting, jumlah suara, dan hasil akhir setuju/tolak."
-        },
-        {
-          "id": "features",
-          "title": "Elemen Voting",
-          "type": "text",
-          "content": "Elemen inti: judul usulan, nominal, kategori, deadline voting, progress suara, dan komentar pendukung/penolak."
-        },
-        {
-          "id": "tutorial",
-          "title": "Cara Berpartisipasi",
-          "type": "steps",
-          "content": "Langkah partisipasi voting yang efektif.",
-          "steps": [
-            { "title": "Baca detail usulan", "description": "Periksa urgensi dan nominal sebelum memilih." },
-            { "title": "Berikan suara", "description": "Pilih setuju/tolak sesuai pertimbangan objektif." },
-            { "title": "Tambahkan komentar", "description": "Berikan alasan singkat agar diskusi lebih konstruktif." }
-          ]
-        },
-        {
-          "id": "tips",
-          "title": "Tips Diskusi Sehat",
-          "type": "callout",
-          "content": "Fokus pada kebutuhan kelas, bukan personal. Gunakan komentar ringkas, sopan, dan berbasis data kebutuhan."
-        },
-        {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "FAQ voting kas.",
-          "faqs": [
-            { "question": "Bisa ubah pilihan vote?", "answer": "Ikuti aturan yang berlaku di sistem saat voting aktif." },
-            { "question": "Kenapa usulan tidak lolos?", "answer": "Biasanya karena persentase setuju tidak mencapai ambang ketentuan." }
-          ]
-        }
-      ],
-      "quiz": [
-        {
-          "id": "voting-q1",
-          "question": "Sebelum vote, hal terpenting yang harus dicek adalah?",
-          "type": "multiple-choice",
-          "options": ["Warna kartu", "Urgensi + nominal usulan", "Jumlah komentar"],
-          "correctAnswer": "Urgensi + nominal usulan",
-          "explanation": "Keputusan yang baik mempertimbangkan urgensi kebutuhan dan dampak nominal kas.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "voting-ex1",
-          "title": "Analisis Usulan",
-          "instruction": "Ambil satu usulan voting aktif, tulis 3 alasan setuju/menolak secara objektif."
-        }
-      ]
-    },
-    {
-      "id": "troubleshooting-akun-mahasiswa",
-      "menuKey": "help",
-      "title": "Troubleshooting Umum Mahasiswa",
-      "slug": "troubleshooting-akun-mahasiswa",
-      "description": "Kumpulan solusi cepat untuk masalah login, sinkron data, dan kendala teknis umum.",
-      "icon": "LifeBuoy",
-      "category": "reference",
-      "difficulty": 2,
-      "author": "Tim Dokumentasi TPLK",
-      "estimatedReadTime": 8,
-      "tags": ["troubleshooting", "error", "bantuan"],
-      "lastUpdated": "2026-02-28",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "text",
-          "content": "Halaman ini merangkum solusi praktis untuk masalah yang sering dialami mahasiswa saat menggunakan platform."
-        },
-        {
-          "id": "features",
-          "title": "Kategori Masalah",
-          "type": "text",
-          "content": "Kategori utama: login, loading lambat, data tidak sinkron, gagal upload, dan kendala notifikasi."
-        },
-        {
-          "id": "tutorial",
-          "title": "Langkah Diagnostik",
-          "type": "steps",
-          "content": "Urutan cek masalah dasar.",
-          "steps": [
-            { "title": "Refresh dan login ulang", "description": "Cek apakah token sesi masih valid." },
-            { "title": "Cek koneksi jaringan", "description": "Gunakan jaringan stabil sebelum mengulangi tindakan." },
-            { "title": "Laporkan dengan bukti", "description": "Kirim screenshot error + waktu kejadian ke admin." }
-          ]
-        },
-        {
-          "id": "tips",
-          "title": "Tips Pelaporan",
-          "type": "callout",
-          "content": "Laporan yang baik berisi: menu yang dibuka, langkah sebelum error, screenshot, dan waktu kejadian."
-        },
-        {
-          "id": "faq",
-          "title": "FAQ",
-          "type": "faq",
-          "content": "FAQ troubleshooting.",
-          "faqs": [
-            { "question": "Data tugas tidak update", "answer": "Lakukan refresh, logout-login, lalu cek lagi setelah beberapa menit sinkronisasi." },
-            { "question": "Notifikasi tidak muncul", "answer": "Periksa pengaturan notifikasi browser/perangkat dan status izin notifikasi aplikasi." }
-          ]
-        }
-      ],
-      "quiz": [
-        {
-          "id": "trouble-q1",
-          "question": "Saat melapor bug, data paling penting yang harus disertakan adalah?",
-          "type": "multiple-choice",
-          "options": ["Nama panggilan", "Screenshot + waktu kejadian", "Warna tema aplikasi"],
-          "correctAnswer": "Screenshot + waktu kejadian",
-          "explanation": "Bukti visual dan waktu membantu tim teknis melakukan reproduksi masalah.",
-          "points": 10
-        }
-      ],
-      "exercises": [
-        {
-          "id": "trouble-ex1",
-          "title": "Template Laporan Error",
-          "instruction": "Susun template pelaporan bug pribadi agar saat error kamu bisa lapor dengan cepat dan jelas."
-        }
-      ]
-    }
-  ]
+    ]
 }

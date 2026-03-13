@@ -1,14 +1,20 @@
-import { router } from '@inertiajs/react';
-import axios from 'axios';
-import { motion } from 'framer-motion';
-import { useEffect, useMemo, useState } from 'react';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 import TipTapEditor from '@/components/editor/TipTapEditor';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { router } from '@inertiajs/react';
+import axios from 'axios';
+import { motion } from 'framer-motion';
 import {
     AlertCircle,
     ArrowLeft,
@@ -35,7 +41,7 @@ import {
     Users,
     Zap,
 } from 'lucide-react';
-import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import { useEffect, useMemo, useState } from 'react';
 
 type Mode = 'dosen' | 'mahasiswa';
 type ScheduleType = 'immediate' | 'scheduled' | 'recurring';
@@ -119,7 +125,13 @@ interface TugasCreateFormProps {
     showWeight: boolean;
 }
 
-const categories: Category[] = ['Tugas', 'Quiz', 'Ujian', 'Project', 'Presentasi'];
+const categories: Category[] = [
+    'Tugas',
+    'Quiz',
+    'Ujian',
+    'Project',
+    'Presentasi',
+];
 const priorities: Priority[] = ['Rendah', 'Sedang', 'Tinggi', 'Urgent'];
 
 const quickTemplates = [
@@ -131,7 +143,8 @@ const quickTemplates = [
             kategori: 'Tugas' as Category,
             estimated_hours: 8,
             prioritas: 'Sedang' as Priority,
-            description: '<h3>Instruksi</h3><ol><li>Baca materi referensi</li><li>Susun outline</li><li>Tulis esai minimal 1000 kata</li><li>Lakukan final review</li></ol><h3>Format</h3><ul><li>Font: Times New Roman 12pt</li><li>Spacing: 1.5</li><li>Margin: 2.5cm</li></ul>',
+            description:
+                '<h3>Instruksi</h3><ol><li>Baca materi referensi</li><li>Susun outline</li><li>Tulis esai minimal 1000 kata</li><li>Lakukan final review</li></ol><h3>Format</h3><ul><li>Font: Times New Roman 12pt</li><li>Spacing: 1.5</li><li>Margin: 2.5cm</li></ul>',
         },
     },
     {
@@ -142,7 +155,8 @@ const quickTemplates = [
             kategori: 'Project' as Category,
             estimated_hours: 20,
             prioritas: 'Tinggi' as Priority,
-            description: '<h3>Deliverables</h3><ol><li>Source code</li><li>Dokumentasi README</li><li>Demo video</li><li>Slide presentasi</li></ol><h3>Requirements</h3><ul><li>Frontend</li><li>Backend</li><li>Database</li></ul>',
+            description:
+                '<h3>Deliverables</h3><ol><li>Source code</li><li>Dokumentasi README</li><li>Demo video</li><li>Slide presentasi</li></ol><h3>Requirements</h3><ul><li>Frontend</li><li>Backend</li><li>Database</li></ul>',
         },
     },
     {
@@ -153,7 +167,8 @@ const quickTemplates = [
             kategori: 'Presentasi' as Category,
             estimated_hours: 6,
             prioritas: 'Sedang' as Priority,
-            description: '<h3>Outline Presentasi</h3><ol><li>Introduction</li><li>Main Content</li><li>Conclusion</li><li>Q&A</li></ol><p>Durasi 15-20 menit.</p>',
+            description:
+                '<h3>Outline Presentasi</h3><ol><li>Introduction</li><li>Main Content</li><li>Conclusion</li><li>Q&A</li></ol><p>Durasi 15-20 menit.</p>',
         },
     },
 ];
@@ -173,16 +188,23 @@ export default function TugasCreateForm({
     showCollaboration,
     showWeight,
 }: TugasCreateFormProps) {
-    const courseFieldName = mode === 'dosen' ? 'course_id' : 'mahasiswa_course_id';
+    const courseFieldName =
+        mode === 'dosen' ? 'course_id' : 'mahasiswa_course_id';
 
     const [currentStep, setCurrentStep] = useState(1);
     const [showTemplates, setShowTemplates] = useState(false);
     const [showBulkPanel, setShowBulkPanel] = useState(false);
-    const [templates, setTemplates] = useState<TemplateItem[]>(initialTemplates);
-    const [titleSuggestions, setTitleSuggestions] = useState<TitleSuggestion[]>([]);
-    const [deadlinePredictions, setDeadlinePredictions] = useState<DeadlinePrediction[]>([]);
+    const [templates, setTemplates] =
+        useState<TemplateItem[]>(initialTemplates);
+    const [titleSuggestions, setTitleSuggestions] = useState<TitleSuggestion[]>(
+        [],
+    );
+    const [deadlinePredictions, setDeadlinePredictions] = useState<
+        DeadlinePrediction[]
+    >([]);
     const [isAnalyzingTitle, setIsAnalyzingTitle] = useState(false);
-    const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+    const [isGeneratingDescription, setIsGeneratingDescription] =
+        useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -195,7 +217,9 @@ export default function TugasCreateForm({
 
     const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
     const [uploadingFiles, setUploadingFiles] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+    const [uploadProgress, setUploadProgress] = useState<
+        Record<string, number>
+    >({});
 
     const [tagInput, setTagInput] = useState('');
     const [resourceLinks, setResourceLinks] = useState<string[]>(['']);
@@ -220,8 +244,18 @@ export default function TugasCreateForm({
             endDate: '',
         },
         reminders: [
-            { type: 'before_deadline', value: 24, unit: 'hours', enabled: true } as ReminderInput,
-            { type: 'before_deadline', value: 1, unit: 'days', enabled: true } as ReminderInput,
+            {
+                type: 'before_deadline',
+                value: 24,
+                unit: 'hours',
+                enabled: true,
+            } as ReminderInput,
+            {
+                type: 'before_deadline',
+                value: 1,
+                unit: 'days',
+                enabled: true,
+            } as ReminderInput,
         ],
         dependencies: [] as number[],
         collaboration_type: 'individual' as CollaborationType,
@@ -258,9 +292,13 @@ export default function TugasCreateForm({
         const timeout = window.setTimeout(async () => {
             setIsAnalyzingTitle(true);
             try {
-                const response = await axios.post<{ suggestions: TitleSuggestion[] }>(`${basePath}/ai/suggest-title`, {
+                const response = await axios.post<{
+                    suggestions: TitleSuggestion[];
+                }>(`${basePath}/ai/suggest-title`, {
                     partial_title: form.judul,
-                    course_id: form.course_id ? Number(form.course_id) : undefined,
+                    course_id: form.course_id
+                        ? Number(form.course_id)
+                        : undefined,
                 });
                 setTitleSuggestions(response.data.suggestions ?? []);
             } catch {
@@ -281,7 +319,9 @@ export default function TugasCreateForm({
 
         const timeout = window.setTimeout(async () => {
             try {
-                const response = await axios.post<{ predictions: DeadlinePrediction[] }>(`${basePath}/ai/predict-deadline`, {
+                const response = await axios.post<{
+                    predictions: DeadlinePrediction[];
+                }>(`${basePath}/ai/predict-deadline`, {
                     title: form.judul,
                     category: form.kategori,
                     estimated_hours: form.estimated_hours,
@@ -297,7 +337,12 @@ export default function TugasCreateForm({
 
     const canGoNext = () => {
         if (currentStep === 1) {
-            return Boolean(form.course_id && form.judul.trim() && form.kategori && form.prioritas);
+            return Boolean(
+                form.course_id &&
+                    form.judul.trim() &&
+                    form.kategori &&
+                    form.prioritas,
+            );
         }
         if (currentStep === 2) {
             return Boolean(form.deadline && form.deskripsi.trim());
@@ -305,7 +350,10 @@ export default function TugasCreateForm({
         return true;
     };
 
-    const updateForm = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
+    const updateForm = <K extends keyof typeof form>(
+        key: K,
+        value: (typeof form)[K],
+    ) => {
         setForm((prev) => ({ ...prev, [key]: value }));
     };
 
@@ -314,11 +362,16 @@ export default function TugasCreateForm({
         setIsGeneratingDescription(true);
 
         try {
-            const response = await axios.post<{ description: string }>(`${basePath}/ai/generate-description`, {
-                title: form.judul,
-                category: form.kategori,
-                course_id: form.course_id ? Number(form.course_id) : undefined,
-            });
+            const response = await axios.post<{ description: string }>(
+                `${basePath}/ai/generate-description`,
+                {
+                    title: form.judul,
+                    category: form.kategori,
+                    course_id: form.course_id
+                        ? Number(form.course_id)
+                        : undefined,
+                },
+            );
 
             updateForm('deskripsi', response.data.description ?? '');
             updateForm('ai_generated', true);
@@ -338,15 +391,26 @@ export default function TugasCreateForm({
 
     const applySavedTemplate = async (templateId: number) => {
         try {
-            const response = await axios.post<{ template: Record<string, unknown> }>(`${basePath}/templates/${templateId}/apply`);
+            const response = await axios.post<{
+                template: Record<string, unknown>;
+            }>(`${basePath}/templates/${templateId}/apply`);
             const tpl = response.data.template;
             updateForm('template_id', templateId);
             updateForm('judul', String(tpl.title ?? form.judul));
             updateForm('deskripsi', String(tpl.description ?? form.deskripsi));
             updateForm('kategori', (tpl.category as Category) ?? form.kategori);
-            updateForm('prioritas', (tpl.priority as Priority) ?? form.prioritas);
-            updateForm('estimated_hours', Number(tpl.estimated_hours ?? form.estimated_hours));
-            updateForm('schedule_type', (tpl.schedule_type as ScheduleType) ?? form.schedule_type);
+            updateForm(
+                'prioritas',
+                (tpl.priority as Priority) ?? form.prioritas,
+            );
+            updateForm(
+                'estimated_hours',
+                Number(tpl.estimated_hours ?? form.estimated_hours),
+            );
+            updateForm(
+                'schedule_type',
+                (tpl.schedule_type as ScheduleType) ?? form.schedule_type,
+            );
             setStatusMessage('Template diterapkan ke form.');
         } catch {
             setStatusMessage('Template gagal diterapkan.');
@@ -358,17 +422,20 @@ export default function TugasCreateForm({
         if (!name) return;
 
         try {
-            const response = await axios.post<{ template: TemplateItem }>(`${basePath}/templates`, {
-                name,
-                description: `Template ${form.kategori}`,
-                category: form.kategori,
-                title_pattern: form.judul,
-                description_template: form.deskripsi,
-                default_duration: form.estimated_hours,
-                default_priority: form.prioritas,
-                schedule_type: form.schedule_type,
-                attachments: form.attachments,
-            });
+            const response = await axios.post<{ template: TemplateItem }>(
+                `${basePath}/templates`,
+                {
+                    name,
+                    description: `Template ${form.kategori}`,
+                    category: form.kategori,
+                    title_pattern: form.judul,
+                    description_template: form.deskripsi,
+                    default_duration: form.estimated_hours,
+                    default_priority: form.prioritas,
+                    schedule_type: form.schedule_type,
+                    attachments: form.attachments,
+                },
+            );
 
             setTemplates((prev) => [response.data.template, ...prev]);
             setStatusMessage('Template baru berhasil disimpan.');
@@ -410,13 +477,22 @@ export default function TugasCreateForm({
                 const payload = new FormData();
                 payload.append('file', file);
 
-                const response = await axios.post<AttachmentInput>(`${basePath}/upload`, payload, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                    onUploadProgress: (event) => {
-                        const progress = Math.round((event.loaded * 100) / (event.total || 1));
-                        setUploadProgress((prev) => ({ ...prev, [file.name]: progress }));
+                const response = await axios.post<AttachmentInput>(
+                    `${basePath}/upload`,
+                    payload,
+                    {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                        onUploadProgress: (event) => {
+                            const progress = Math.round(
+                                (event.loaded * 100) / (event.total || 1),
+                            );
+                            setUploadProgress((prev) => ({
+                                ...prev,
+                                [file.name]: progress,
+                            }));
+                        },
                     },
-                });
+                );
 
                 uploaded.push(response.data);
             }
@@ -434,7 +510,9 @@ export default function TugasCreateForm({
 
     const handleQuickBulkCreate = async () => {
         if (!form.course_id) {
-            setStatusMessage('Pilih mata kuliah terlebih dahulu untuk bulk create.');
+            setStatusMessage(
+                'Pilih mata kuliah terlebih dahulu untuk bulk create.',
+            );
             return;
         }
 
@@ -474,9 +552,13 @@ export default function TugasCreateForm({
         payload.append('file', file);
 
         try {
-            const response = await axios.post<{ tasks: QuickBulkRow[] }>(`${basePath}/bulk/preview`, payload, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            const response = await axios.post<{ tasks: QuickBulkRow[] }>(
+                `${basePath}/bulk/preview`,
+                payload,
+                {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                },
+            );
             setCsvPreview(response.data.tasks ?? []);
         } catch {
             setStatusMessage('Preview CSV gagal diproses.');
@@ -496,7 +578,9 @@ export default function TugasCreateForm({
             }));
 
             await axios.post(`${basePath}/bulk/import`, { tasks });
-            setStatusMessage(`${csvPreview.length} tugas dari CSV berhasil diimpor.`);
+            setStatusMessage(
+                `${csvPreview.length} tugas dari CSV berhasil diimpor.`,
+            );
             router.visit(listUrl);
         } catch {
             setStatusMessage('Import CSV gagal.');
@@ -519,14 +603,15 @@ export default function TugasCreateForm({
             estimated_hours: form.estimated_hours,
             schedule_type: form.schedule_type,
             publish_at: form.publish_at || null,
-            recurring_pattern: form.schedule_type === 'recurring'
-                ? {
-                    frequency: form.recurring_pattern.frequency,
-                    interval: form.recurring_pattern.interval,
-                    daysOfWeek: form.recurring_pattern.daysOfWeek,
-                    endDate: form.recurring_pattern.endDate || null,
-                }
-                : null,
+            recurring_pattern:
+                form.schedule_type === 'recurring'
+                    ? {
+                          frequency: form.recurring_pattern.frequency,
+                          interval: form.recurring_pattern.interval,
+                          daysOfWeek: form.recurring_pattern.daysOfWeek,
+                          endDate: form.recurring_pattern.endDate || null,
+                      }
+                    : null,
             dependencies: form.dependencies,
             reminders: form.reminders,
             attachments: form.attachments,
@@ -534,16 +619,22 @@ export default function TugasCreateForm({
             ai_generated: form.ai_generated,
             tags: form.tags,
             bobot_nilai: showWeight ? Number(form.bobot_nilai || 0) : undefined,
-            collaboration_type: showCollaboration ? form.collaboration_type : undefined,
+            collaboration_type: showCollaboration
+                ? form.collaboration_type
+                : undefined,
             collaboration_settings: showCollaboration
                 ? {
-                    max_members: form.collaboration_settings.max_members,
-                    allow_self_form: form.collaboration_settings.allow_self_form,
-                    random_assignment: form.collaboration_settings.random_assignment,
-                    reviews_per_student: form.collaboration_settings.reviews_per_student,
-                    anonymous: form.collaboration_settings.anonymous,
-                    rubric_enabled: form.collaboration_settings.rubric_enabled,
-                }
+                      max_members: form.collaboration_settings.max_members,
+                      allow_self_form:
+                          form.collaboration_settings.allow_self_form,
+                      random_assignment:
+                          form.collaboration_settings.random_assignment,
+                      reviews_per_student:
+                          form.collaboration_settings.reviews_per_student,
+                      anonymous: form.collaboration_settings.anonymous,
+                      rubric_enabled:
+                          form.collaboration_settings.rubric_enabled,
+                  }
                 : undefined,
             metadata: {
                 resources: resourceLinks.filter((item) => item.trim()),
@@ -555,7 +646,8 @@ export default function TugasCreateForm({
         router.post(basePath, payload, {
             preserveScroll: true,
             onFinish: () => setIsSubmitting(false),
-            onError: () => setStatusMessage('Validasi gagal. Periksa kembali isian form.'),
+            onError: () =>
+                setStatusMessage('Validasi gagal. Periksa kembali isian form.'),
         });
     };
 
@@ -569,18 +661,32 @@ export default function TugasCreateForm({
             >
                 <motion.div
                     className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                    animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                    transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                    animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                    }}
+                    transition={{
+                        duration: 15,
+                        repeat: Infinity,
+                        ease: 'linear',
+                    }}
                     style={{ backgroundSize: '200% 200%' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                 <div className="relative">
                     <motion.button
                         type="button"
-                        whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                        whileHover={{
+                            scale: 1.04,
+                            y: -4,
+                            transition: {
+                                type: 'spring',
+                                stiffness: 400,
+                                damping: 15,
+                            },
+                        }}
                         whileTap={{ scale: 0.96 }}
                         onClick={() => router.visit(backUrl)}
                         className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
@@ -593,7 +699,11 @@ export default function TugasCreateForm({
                         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                             <motion.div
                                 className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                initial={{
+                                    opacity: 0,
+                                    scale: 0.5,
+                                    rotate: -10,
+                                }}
                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                 transition={springBase}
                             >
@@ -608,7 +718,9 @@ export default function TugasCreateForm({
                                 <p className="text-sm font-medium tracking-wide text-indigo-100">
                                     Create New Assignment
                                 </p>
-                                <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">{pageTitle}</h1>
+                                <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">
+                                    {pageTitle}
+                                </h1>
                                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-indigo-100 sm:text-base">
                                     {description}
                                 </p>
@@ -619,16 +731,22 @@ export default function TugasCreateForm({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setShowTemplates((prev) => !prev)}
+                                onClick={() =>
+                                    setShowTemplates((prev) => !prev)
+                                }
                                 className="gap-2 border-white/20 bg-white/20 text-white hover:bg-white/30"
                             >
                                 <Layers className="h-4 w-4" />
-                                {showTemplates ? 'Hide Template' : 'Use Template'}
+                                {showTemplates
+                                    ? 'Hide Template'
+                                    : 'Use Template'}
                             </Button>
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setShowBulkPanel((prev) => !prev)}
+                                onClick={() =>
+                                    setShowBulkPanel((prev) => !prev)
+                                }
                                 className="gap-2 border-white/20 bg-white/20 text-white hover:bg-white/30"
                             >
                                 <Upload className="h-4 w-4" />
@@ -654,12 +772,19 @@ export default function TugasCreateForm({
                 >
                     <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Template Library</h3>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                Template Library
+                            </h3>
                             <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 {templates.length} templates tersedia
                             </p>
                         </div>
-                        <Button type="button" variant="outline" onClick={saveCurrentAsTemplate} className="gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={saveCurrentAsTemplate}
+                            className="gap-2"
+                        >
                             <Save className="h-4 w-4" />
                             Save as Template
                         </Button>
@@ -670,13 +795,23 @@ export default function TugasCreateForm({
                             <motion.button
                                 key={template.name}
                                 type="button"
-                                whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                whileHover={{
+                                    scale: 1.04,
+                                    y: -4,
+                                    transition: {
+                                        type: 'spring',
+                                        stiffness: 400,
+                                        damping: 15,
+                                    },
+                                }}
                                 whileTap={{ scale: 0.96 }}
                                 onClick={() => applyQuickTemplate(template)}
                                 className={`rounded-2xl bg-gradient-to-br ${template.color} p-4 text-left text-white shadow-lg`}
                             >
                                 <template.icon className="mb-2 h-7 w-7" />
-                                <p className="text-sm font-bold">{template.name}</p>
+                                <p className="text-sm font-bold">
+                                    {template.name}
+                                </p>
                             </motion.button>
                         ))}
                     </div>
@@ -685,28 +820,50 @@ export default function TugasCreateForm({
                         {templates.map((template) => (
                             <motion.div
                                 key={template.id}
-                                whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                whileHover={{
+                                    scale: 1.04,
+                                    y: -4,
+                                    transition: {
+                                        type: 'spring',
+                                        stiffness: 400,
+                                        damping: 15,
+                                    },
+                                }}
                                 className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800"
                             >
                                 <div className="mb-2 flex items-start justify-between gap-2">
                                     <div>
-                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{template.name}</p>
+                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                            {template.name}
+                                        </p>
                                         <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                                            {template.description || 'Template tugas'}
+                                            {template.description ||
+                                                'Template tugas'}
                                         </p>
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={() => toggleTemplateFavorite(template.id)}
+                                        onClick={() =>
+                                            toggleTemplateFavorite(template.id)
+                                        }
                                         className="text-yellow-500"
                                     >
-                                        <Star className={`h-4 w-4 ${template.is_favorite ? 'fill-yellow-500' : ''}`} />
+                                        <Star
+                                            className={`h-4 w-4 ${template.is_favorite ? 'fill-yellow-500' : ''}`}
+                                        />
                                     </button>
                                 </div>
                                 <div className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">
                                     {template.usage_count ?? 0} kali digunakan
                                 </div>
-                                <Button type="button" size="sm" className="w-full" onClick={() => applySavedTemplate(template.id)}>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    className="w-full"
+                                    onClick={() =>
+                                        applySavedTemplate(template.id)
+                                    }
+                                >
                                     Gunakan Template
                                 </Button>
                             </motion.div>
@@ -724,17 +881,23 @@ export default function TugasCreateForm({
                 >
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         <div>
-                            <h3 className="mb-3 text-lg font-bold text-neutral-900 dark:text-white">Quick Add Multiple</h3>
+                            <h3 className="mb-3 text-lg font-bold text-neutral-900 dark:text-white">
+                                Quick Add Multiple
+                            </h3>
                             <div className="space-y-2">
                                 {quickRows.map((row, index) => (
-                                    <div key={index} className="grid grid-cols-12 gap-2">
+                                    <div
+                                        key={index}
+                                        className="grid grid-cols-12 gap-2"
+                                    >
                                         <Input
                                             className="col-span-5"
                                             placeholder="Judul"
                                             value={row.judul}
                                             onChange={(event) => {
                                                 const next = [...quickRows];
-                                                next[index].judul = event.target.value;
+                                                next[index].judul =
+                                                    event.target.value;
                                                 setQuickRows(next);
                                             }}
                                         />
@@ -744,7 +907,8 @@ export default function TugasCreateForm({
                                             value={row.deadline}
                                             onChange={(event) => {
                                                 const next = [...quickRows];
-                                                next[index].deadline = event.target.value;
+                                                next[index].deadline =
+                                                    event.target.value;
                                                 setQuickRows(next);
                                             }}
                                         />
@@ -752,19 +916,38 @@ export default function TugasCreateForm({
                                             value={row.prioritas}
                                             onValueChange={(value) => {
                                                 const next = [...quickRows];
-                                                next[index].prioritas = value as Priority;
+                                                next[index].prioritas =
+                                                    value as Priority;
                                                 setQuickRows(next);
                                             }}
                                         >
-                                            <SelectTrigger className="col-span-3"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue />
+                                            </SelectTrigger>
                                             <SelectContent>
-                                                {priorities.map((priority) => <SelectItem key={priority} value={priority}>{priority}</SelectItem>)}
+                                                {priorities.map((priority) => (
+                                                    <SelectItem
+                                                        key={priority}
+                                                        value={priority}
+                                                    >
+                                                        {priority}
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                         <button
                                             type="button"
                                             className="col-span-1 rounded-xl border border-neutral-300 text-red-500"
-                                            onClick={() => setQuickRows((prev) => prev.length === 1 ? prev : prev.filter((_, i) => i !== index))}
+                                            onClick={() =>
+                                                setQuickRows((prev) =>
+                                                    prev.length === 1
+                                                        ? prev
+                                                        : prev.filter(
+                                                              (_, i) =>
+                                                                  i !== index,
+                                                          ),
+                                                )
+                                            }
                                         >
                                             <Trash2 className="mx-auto h-4 w-4" />
                                         </button>
@@ -773,17 +956,37 @@ export default function TugasCreateForm({
                             </div>
 
                             <div className="mt-3 flex gap-2">
-                                <Button type="button" variant="outline" onClick={() => setQuickRows((prev) => [...prev, { judul: '', deadline: '', prioritas: 'Sedang', kategori: 'Tugas' }])}>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() =>
+                                        setQuickRows((prev) => [
+                                            ...prev,
+                                            {
+                                                judul: '',
+                                                deadline: '',
+                                                prioritas: 'Sedang',
+                                                kategori: 'Tugas',
+                                            },
+                                        ])
+                                    }
+                                >
                                     <Plus className="mr-1 h-4 w-4" /> Add Row
                                 </Button>
-                                <Button type="button" onClick={handleQuickBulkCreate}>
-                                    <CheckCircle className="mr-1 h-4 w-4" /> Create All
+                                <Button
+                                    type="button"
+                                    onClick={handleQuickBulkCreate}
+                                >
+                                    <CheckCircle className="mr-1 h-4 w-4" />{' '}
+                                    Create All
                                 </Button>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="mb-3 text-lg font-bold text-neutral-900 dark:text-white">CSV Import</h3>
+                            <h3 className="mb-3 text-lg font-bold text-neutral-900 dark:text-white">
+                                CSV Import
+                            </h3>
                             <label className="flex h-32 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-300 text-sm dark:border-neutral-700">
                                 <Upload className="mb-2 h-8 w-8 text-neutral-400" />
                                 Upload CSV
@@ -791,46 +994,83 @@ export default function TugasCreateForm({
                                     type="file"
                                     className="hidden"
                                     accept=".csv"
-                                    onChange={(event) => handleCsvPreview(event.target.files?.[0] ?? null)}
+                                    onChange={(event) =>
+                                        handleCsvPreview(
+                                            event.target.files?.[0] ?? null,
+                                        )
+                                    }
                                 />
                             </label>
                             <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
-                                <span>{csvFileName || 'Belum ada file dipilih'}</span>
+                                <span>
+                                    {csvFileName || 'Belum ada file dipilih'}
+                                </span>
                                 <Button
                                     type="button"
                                     variant="link"
                                     size="sm"
-                                    onClick={() => window.open(`${basePath}/bulk/template`, '_blank')}
+                                    onClick={() =>
+                                        window.open(
+                                            `${basePath}/bulk/template`,
+                                            '_blank',
+                                        )
+                                    }
                                 >
-                                    <Download className="mr-1 h-4 w-4" /> Template
+                                    <Download className="mr-1 h-4 w-4" />{' '}
+                                    Template
                                 </Button>
                             </div>
 
-                            {csvLoading && <p className="mt-3 text-xs text-indigo-600">Memproses preview...</p>}
+                            {csvLoading && (
+                                <p className="mt-3 text-xs text-indigo-600">
+                                    Memproses preview...
+                                </p>
+                            )}
                             {csvPreview.length > 0 && (
                                 <div className="mt-3 rounded-2xl border border-neutral-200 dark:border-neutral-700">
                                     <div className="max-h-40 overflow-auto">
                                         <table className="w-full text-xs">
                                             <thead className="bg-neutral-100 dark:bg-neutral-800">
                                                 <tr>
-                                                    <th className="px-2 py-2 text-left">Judul</th>
-                                                    <th className="px-2 py-2 text-left">Kategori</th>
-                                                    <th className="px-2 py-2 text-left">Deadline</th>
+                                                    <th className="px-2 py-2 text-left">
+                                                        Judul
+                                                    </th>
+                                                    <th className="px-2 py-2 text-left">
+                                                        Kategori
+                                                    </th>
+                                                    <th className="px-2 py-2 text-left">
+                                                        Deadline
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {csvPreview.map((item, index) => (
-                                                    <tr key={`${item.judul}-${index}`} className="border-t border-neutral-200 dark:border-neutral-700">
-                                                        <td className="px-2 py-2">{item.judul}</td>
-                                                        <td className="px-2 py-2">{item.kategori}</td>
-                                                        <td className="px-2 py-2">{item.deadline}</td>
-                                                    </tr>
-                                                ))}
+                                                {csvPreview.map(
+                                                    (item, index) => (
+                                                        <tr
+                                                            key={`${item.judul}-${index}`}
+                                                            className="border-t border-neutral-200 dark:border-neutral-700"
+                                                        >
+                                                            <td className="px-2 py-2">
+                                                                {item.judul}
+                                                            </td>
+                                                            <td className="px-2 py-2">
+                                                                {item.kategori}
+                                                            </td>
+                                                            <td className="px-2 py-2">
+                                                                {item.deadline}
+                                                            </td>
+                                                        </tr>
+                                                    ),
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
                                     <div className="border-t border-neutral-200 p-2 dark:border-neutral-700">
-                                        <Button type="button" size="sm" onClick={importCsvPreview}>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            onClick={importCsvPreview}
+                                        >
                                             Import Semua ({csvPreview.length})
                                         </Button>
                                     </div>
@@ -842,7 +1082,7 @@ export default function TugasCreateForm({
             )}
 
             <div className="rounded-[2rem] border border-white/10 bg-black/70 p-4 shadow-xl backdrop-blur-xl sm:p-5">
-                <div className="overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     <div className="flex w-max snap-x snap-mandatory items-center gap-2.5 px-1">
                         {stepLabels.map((step, index) => {
                             const StepIcon = step.icon;
@@ -850,7 +1090,10 @@ export default function TugasCreateForm({
                             const isDone = currentStep > step.id;
 
                             return (
-                                <div key={step.id} className="flex shrink-0 snap-start items-center gap-2.5">
+                                <div
+                                    key={step.id}
+                                    className="flex shrink-0 snap-start items-center gap-2.5"
+                                >
                                     <motion.button
                                         type="button"
                                         onClick={() => setCurrentStep(step.id)}
@@ -860,12 +1103,18 @@ export default function TugasCreateForm({
                                             isActive
                                                 ? 'border-white/35 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-pink-500 text-white shadow-[0_12px_30px_rgba(192,38,211,0.35)]'
                                                 : isDone
-                                                    ? 'border-white/20 bg-neutral-900/95 text-slate-200'
-                                                    : 'border-white/15 bg-neutral-900/90 text-slate-400 hover:border-white/25 hover:text-slate-300'
+                                                  ? 'border-white/20 bg-neutral-900/95 text-slate-200'
+                                                  : 'border-white/15 bg-neutral-900/90 text-slate-400 hover:border-white/25 hover:text-slate-300'
                                         }`}
                                     >
-                                        {isDone ? <CheckCircle className="h-4 w-4 shrink-0" /> : <StepIcon className="h-4 w-4 shrink-0" />}
-                                        <span className="whitespace-nowrap">{step.title}</span>
+                                        {isDone ? (
+                                            <CheckCircle className="h-4 w-4 shrink-0" />
+                                        ) : (
+                                            <StepIcon className="h-4 w-4 shrink-0" />
+                                        )}
+                                        <span className="whitespace-nowrap">
+                                            {step.title}
+                                        </span>
                                     </motion.button>
 
                                     {index < stepLabels.length - 1 && (
@@ -889,11 +1138,21 @@ export default function TugasCreateForm({
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <Label>Mata Kuliah</Label>
-                                <Select value={form.course_id} onValueChange={(value) => updateForm('course_id', value)}>
-                                    <SelectTrigger className="mt-2"><SelectValue placeholder="Pilih mata kuliah" /></SelectTrigger>
+                                <Select
+                                    value={form.course_id}
+                                    onValueChange={(value) =>
+                                        updateForm('course_id', value)
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2">
+                                        <SelectValue placeholder="Pilih mata kuliah" />
+                                    </SelectTrigger>
                                     <SelectContent>
                                         {courses.map((course) => (
-                                            <SelectItem key={course.id} value={String(course.id)}>
+                                            <SelectItem
+                                                key={course.id}
+                                                value={String(course.id)}
+                                            >
                                                 {course.name}
                                             </SelectItem>
                                         ))}
@@ -903,10 +1162,27 @@ export default function TugasCreateForm({
 
                             <div>
                                 <Label>Kategori</Label>
-                                <Select value={form.kategori} onValueChange={(value) => updateForm('kategori', value as Category)}>
-                                    <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                                <Select
+                                    value={form.kategori}
+                                    onValueChange={(value) =>
+                                        updateForm(
+                                            'kategori',
+                                            value as Category,
+                                        )
+                                    }
+                                >
+                                    <SelectTrigger className="mt-2">
+                                        <SelectValue />
+                                    </SelectTrigger>
                                     <SelectContent>
-                                        {categories.map((category) => <SelectItem key={category} value={category}>{category}</SelectItem>)}
+                                        {categories.map((category) => (
+                                            <SelectItem
+                                                key={category}
+                                                value={category}
+                                            >
+                                                {category}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -917,22 +1193,38 @@ export default function TugasCreateForm({
                             <div className="relative mt-2">
                                 <Input
                                     value={form.judul}
-                                    onChange={(event) => updateForm('judul', event.target.value)}
+                                    onChange={(event) =>
+                                        updateForm('judul', event.target.value)
+                                    }
                                     placeholder="Masukkan judul tugas..."
                                     className="pr-10"
                                 />
                                 {isAnalyzingTitle && (
-                                    <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-indigo-500" />
+                                    <Loader2 className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin text-indigo-500" />
                                 )}
                             </div>
                         </div>
 
                         <div>
                             <Label>Prioritas</Label>
-                            <Select value={form.prioritas} onValueChange={(value) => updateForm('prioritas', value as Priority)}>
-                                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                            <Select
+                                value={form.prioritas}
+                                onValueChange={(value) =>
+                                    updateForm('prioritas', value as Priority)
+                                }
+                            >
+                                <SelectTrigger className="mt-2">
+                                    <SelectValue />
+                                </SelectTrigger>
                                 <SelectContent>
-                                    {priorities.map((priority) => <SelectItem key={priority} value={priority}>{priority}</SelectItem>)}
+                                    {priorities.map((priority) => (
+                                        <SelectItem
+                                            key={priority}
+                                            value={priority}
+                                        >
+                                            {priority}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -941,32 +1233,60 @@ export default function TugasCreateForm({
                             <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
                                 <div className="mb-2 flex items-center gap-2">
                                     <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                    <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">AI Suggestions</p>
+                                    <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
+                                        AI Suggestions
+                                    </p>
                                 </div>
                                 <div className="space-y-2">
-                                    {titleSuggestions.map((suggestion, index) => (
-                                        <motion.button
-                                            key={`${suggestion.title}-${index}`}
-                                            type="button"
-                                            whileHover={{ scale: 1.04, x: 5, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                                            onClick={() => {
-                                                updateForm('judul', suggestion.title);
-                                                updateForm('kategori', suggestion.category);
-                                            }}
-                                            className="w-full rounded-xl border border-indigo-200 bg-white p-3 text-left dark:border-indigo-800 dark:bg-neutral-800"
-                                        >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="font-medium text-neutral-900 dark:text-white">{suggestion.title}</p>
-                                                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{suggestion.reasoning}</p>
+                                    {titleSuggestions.map(
+                                        (suggestion, index) => (
+                                            <motion.button
+                                                key={`${suggestion.title}-${index}`}
+                                                type="button"
+                                                whileHover={{
+                                                    scale: 1.04,
+                                                    x: 5,
+                                                    transition: {
+                                                        type: 'spring',
+                                                        stiffness: 400,
+                                                        damping: 15,
+                                                    },
+                                                }}
+                                                onClick={() => {
+                                                    updateForm(
+                                                        'judul',
+                                                        suggestion.title,
+                                                    );
+                                                    updateForm(
+                                                        'kategori',
+                                                        suggestion.category,
+                                                    );
+                                                }}
+                                                className="w-full rounded-xl border border-indigo-200 bg-white p-3 text-left dark:border-indigo-800 dark:bg-neutral-800"
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p className="font-medium text-neutral-900 dark:text-white">
+                                                            {suggestion.title}
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                            {
+                                                                suggestion.reasoning
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                                                        <Zap className="h-3 w-3" />
+                                                        {Math.round(
+                                                            (suggestion.confidence ||
+                                                                0) * 100,
+                                                        )}
+                                                        %
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                                                    <Zap className="h-3 w-3" />
-                                                    {Math.round((suggestion.confidence || 0) * 100)}%
-                                                </div>
-                                            </div>
-                                        </motion.button>
-                                    ))}
+                                            </motion.button>
+                                        ),
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -977,8 +1297,18 @@ export default function TugasCreateForm({
                     <div className="space-y-5">
                         <div className="flex items-center justify-between">
                             <Label>Deskripsi Tugas</Label>
-                            <Button type="button" variant="outline" size="sm" onClick={generateDescriptionWithAI} disabled={isGeneratingDescription}>
-                                {isGeneratingDescription ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={generateDescriptionWithAI}
+                                disabled={isGeneratingDescription}
+                            >
+                                {isGeneratingDescription ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                )}
                                 Generate dengan AI
                             </Button>
                         </div>
@@ -996,7 +1326,12 @@ export default function TugasCreateForm({
                                     className="mt-2"
                                     type="datetime-local"
                                     value={form.deadline}
-                                    onChange={(event) => updateForm('deadline', event.target.value)}
+                                    onChange={(event) =>
+                                        updateForm(
+                                            'deadline',
+                                            event.target.value,
+                                        )
+                                    }
                                 />
                             </div>
                             <div>
@@ -1006,7 +1341,12 @@ export default function TugasCreateForm({
                                     type="number"
                                     min={1}
                                     value={form.estimated_hours}
-                                    onChange={(event) => updateForm('estimated_hours', Number(event.target.value || 1))}
+                                    onChange={(event) =>
+                                        updateForm(
+                                            'estimated_hours',
+                                            Number(event.target.value || 1),
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
@@ -1020,7 +1360,12 @@ export default function TugasCreateForm({
                                     min={0}
                                     max={100}
                                     value={form.bobot_nilai}
-                                    onChange={(event) => updateForm('bobot_nilai', event.target.value)}
+                                    onChange={(event) =>
+                                        updateForm(
+                                            'bobot_nilai',
+                                            event.target.value,
+                                        )
+                                    }
                                     placeholder="0-100"
                                 />
                             </div>
@@ -1032,13 +1377,34 @@ export default function TugasCreateForm({
                                     <motion.button
                                         key={`${prediction.label}-${prediction.date}`}
                                         type="button"
-                                        whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                                        onClick={() => updateForm('deadline', prediction.date.replace(' ', 'T').slice(0, 16))}
+                                        whileHover={{
+                                            scale: 1.04,
+                                            y: -4,
+                                            transition: {
+                                                type: 'spring',
+                                                stiffness: 400,
+                                                damping: 15,
+                                            },
+                                        }}
+                                        onClick={() =>
+                                            updateForm(
+                                                'deadline',
+                                                prediction.date
+                                                    .replace(' ', 'T')
+                                                    .slice(0, 16),
+                                            )
+                                        }
                                         className="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 p-3 text-left dark:border-indigo-800 dark:from-indigo-950/30 dark:to-purple-950/30"
                                     >
-                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{prediction.label}</p>
-                                        <p className="font-bold text-neutral-900 dark:text-white">{prediction.date.slice(0, 16)}</p>
-                                        <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">{prediction.reasoning}</p>
+                                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                            {prediction.label}
+                                        </p>
+                                        <p className="font-bold text-neutral-900 dark:text-white">
+                                            {prediction.date.slice(0, 16)}
+                                        </p>
+                                        <p className="mt-1 text-xs text-indigo-600 dark:text-indigo-400">
+                                            {prediction.reasoning}
+                                        </p>
                                     </motion.button>
                                 ))}
                             </div>
@@ -1050,7 +1416,9 @@ export default function TugasCreateForm({
                                 <Input
                                     value={tagInput}
                                     placeholder="Tambah tag..."
-                                    onChange={(event) => setTagInput(event.target.value)}
+                                    onChange={(event) =>
+                                        setTagInput(event.target.value)
+                                    }
                                     onKeyDown={(event) => {
                                         if (event.key === 'Enter') {
                                             event.preventDefault();
@@ -1058,14 +1426,36 @@ export default function TugasCreateForm({
                                         }
                                     }}
                                 />
-                                <Button type="button" variant="outline" onClick={addTag}><Plus className="h-4 w-4" /></Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={addTag}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
                             </div>
                             {form.tags.length > 0 && (
                                 <div className="mt-2 flex flex-wrap gap-2">
                                     {form.tags.map((tag) => (
-                                        <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300">
+                                        <span
+                                            key={tag}
+                                            className="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300"
+                                        >
                                             {tag}
-                                            <button type="button" onClick={() => updateForm('tags', form.tags.filter((item) => item !== tag))}>x</button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    updateForm(
+                                                        'tags',
+                                                        form.tags.filter(
+                                                            (item) =>
+                                                                item !== tag,
+                                                        ),
+                                                    )
+                                                }
+                                            >
+                                                x
+                                            </button>
                                         </span>
                                     ))}
                                 </div>
@@ -1078,16 +1468,35 @@ export default function TugasCreateForm({
                     <div className="space-y-5">
                         <div className="rounded-2xl border-2 border-dashed border-neutral-300 p-6 text-center dark:border-neutral-700">
                             <Upload className="mx-auto mb-3 h-10 w-10 text-neutral-400" />
-                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">Drop files here or click to browse</p>
-                            <p className="text-xs text-neutral-500">PDF, DOC, XLS, PPT, Images (maks 10MB/file)</p>
+                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                Drop files here or click to browse
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                                PDF, DOC, XLS, PPT, Images (maks 10MB/file)
+                            </p>
                             <Input
                                 className="mt-3"
                                 type="file"
                                 multiple
-                                onChange={(event) => setFilesToUpload(Array.from(event.target.files ?? []))}
+                                onChange={(event) =>
+                                    setFilesToUpload(
+                                        Array.from(event.target.files ?? []),
+                                    )
+                                }
                             />
-                            <Button type="button" className="mt-3" onClick={uploadSelectedFiles} disabled={uploadingFiles || filesToUpload.length === 0}>
-                                {uploadingFiles ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                            <Button
+                                type="button"
+                                className="mt-3"
+                                onClick={uploadSelectedFiles}
+                                disabled={
+                                    uploadingFiles || filesToUpload.length === 0
+                                }
+                            >
+                                {uploadingFiles ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Upload className="mr-2 h-4 w-4" />
+                                )}
                                 Upload Files
                             </Button>
                         </div>
@@ -1095,14 +1504,28 @@ export default function TugasCreateForm({
                         {filesToUpload.length > 0 && (
                             <div className="space-y-2">
                                 {filesToUpload.map((file) => (
-                                    <div key={file.name} className="rounded-xl border border-neutral-200 p-3 dark:border-neutral-700">
-                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{file.name}</p>
-                                        <p className="text-xs text-neutral-500">{Math.round(file.size / 1024)} KB</p>
-                                        {uploadingFiles && uploadProgress[file.name] !== undefined && (
-                                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                                                <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-600" style={{ width: `${uploadProgress[file.name]}%` }} />
-                                            </div>
-                                        )}
+                                    <div
+                                        key={file.name}
+                                        className="rounded-xl border border-neutral-200 p-3 dark:border-neutral-700"
+                                    >
+                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                            {file.name}
+                                        </p>
+                                        <p className="text-xs text-neutral-500">
+                                            {Math.round(file.size / 1024)} KB
+                                        </p>
+                                        {uploadingFiles &&
+                                            uploadProgress[file.name] !==
+                                                undefined && (
+                                                <div className="mt-2 h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-600"
+                                                        style={{
+                                                            width: `${uploadProgress[file.name]}%`,
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
                                     </div>
                                 ))}
                             </div>
@@ -1110,16 +1533,34 @@ export default function TugasCreateForm({
 
                         {form.attachments.length > 0 && (
                             <div className="space-y-2 rounded-2xl border border-neutral-200 p-4 dark:border-neutral-700">
-                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">Lampiran tersimpan ({form.attachments.length})</p>
+                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                    Lampiran tersimpan (
+                                    {form.attachments.length})
+                                </p>
                                 {form.attachments.map((attachment, index) => (
-                                    <div key={`${attachment.file_name}-${index}`} className="flex items-center justify-between rounded-xl border border-neutral-200 p-3 dark:border-neutral-700">
+                                    <div
+                                        key={`${attachment.file_name}-${index}`}
+                                        className="flex items-center justify-between rounded-xl border border-neutral-200 p-3 dark:border-neutral-700"
+                                    >
                                         <div>
-                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">{attachment.file_name}</p>
-                                            <p className="text-xs text-neutral-500">{attachment.file_type || 'file'}</p>
+                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {attachment.file_name}
+                                            </p>
+                                            <p className="text-xs text-neutral-500">
+                                                {attachment.file_type || 'file'}
+                                            </p>
                                         </div>
                                         <button
                                             type="button"
-                                            onClick={() => updateForm('attachments', form.attachments.filter((_, idx) => idx !== index))}
+                                            onClick={() =>
+                                                updateForm(
+                                                    'attachments',
+                                                    form.attachments.filter(
+                                                        (_, idx) =>
+                                                            idx !== index,
+                                                    ),
+                                                )
+                                            }
                                         >
                                             <Trash2 className="h-4 w-4 text-red-500" />
                                         </button>
@@ -1145,14 +1586,28 @@ export default function TugasCreateForm({
                                         type="button"
                                         variant="outline"
                                         onClick={() => {
-                                            if (index === resourceLinks.length - 1) {
-                                                setResourceLinks((prev) => [...prev, '']);
+                                            if (
+                                                index ===
+                                                resourceLinks.length - 1
+                                            ) {
+                                                setResourceLinks((prev) => [
+                                                    ...prev,
+                                                    '',
+                                                ]);
                                             } else {
-                                                setResourceLinks((prev) => prev.filter((_, i) => i !== index));
+                                                setResourceLinks((prev) =>
+                                                    prev.filter(
+                                                        (_, i) => i !== index,
+                                                    ),
+                                                );
                                             }
                                         }}
                                     >
-                                        {index === resourceLinks.length - 1 ? <Plus className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
+                                        {index === resourceLinks.length - 1 ? (
+                                            <Plus className="h-4 w-4" />
+                                        ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                        )}
                                     </Button>
                                 </div>
                             ))}
@@ -1165,18 +1620,37 @@ export default function TugasCreateForm({
                         <div className="rounded-2xl border border-neutral-200 p-4 dark:border-neutral-700">
                             <div className="mb-3 flex items-center gap-2">
                                 <Calendar className="h-5 w-5 text-indigo-600" />
-                                <p className="font-semibold text-neutral-900 dark:text-white">Schedule & Automation</p>
+                                <p className="font-semibold text-neutral-900 dark:text-white">
+                                    Schedule & Automation
+                                </p>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
                                 {[
-                                    { value: 'immediate', label: 'Publish Now', icon: Zap },
-                                    { value: 'scheduled', label: 'Schedule', icon: Clock },
-                                    { value: 'recurring', label: 'Recurring', icon: Calendar },
+                                    {
+                                        value: 'immediate',
+                                        label: 'Publish Now',
+                                        icon: Zap,
+                                    },
+                                    {
+                                        value: 'scheduled',
+                                        label: 'Schedule',
+                                        icon: Clock,
+                                    },
+                                    {
+                                        value: 'recurring',
+                                        label: 'Recurring',
+                                        icon: Calendar,
+                                    },
                                 ].map((option) => (
                                     <button
                                         key={option.value}
                                         type="button"
-                                        onClick={() => updateForm('schedule_type', option.value as ScheduleType)}
+                                        onClick={() =>
+                                            updateForm(
+                                                'schedule_type',
+                                                option.value as ScheduleType,
+                                            )
+                                        }
                                         className={`rounded-xl border-2 p-3 text-center ${
                                             form.schedule_type === option.value
                                                 ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30'
@@ -1184,7 +1658,9 @@ export default function TugasCreateForm({
                                         }`}
                                     >
                                         <option.icon className="mx-auto mb-1 h-5 w-5" />
-                                        <p className="text-xs font-semibold">{option.label}</p>
+                                        <p className="text-xs font-semibold">
+                                            {option.label}
+                                        </p>
                                     </button>
                                 ))}
                             </div>
@@ -1196,7 +1672,12 @@ export default function TugasCreateForm({
                                         className="mt-2"
                                         type="datetime-local"
                                         value={form.publish_at}
-                                        onChange={(event) => updateForm('publish_at', event.target.value)}
+                                        onChange={(event) =>
+                                            updateForm(
+                                                'publish_at',
+                                                event.target.value,
+                                            )
+                                        }
                                     />
                                 </div>
                             )}
@@ -1206,19 +1687,32 @@ export default function TugasCreateForm({
                                     <div>
                                         <Label>Frequency</Label>
                                         <Select
-                                            value={form.recurring_pattern.frequency}
+                                            value={
+                                                form.recurring_pattern.frequency
+                                            }
                                             onValueChange={(value) =>
-                                                updateForm('recurring_pattern', {
-                                                    ...form.recurring_pattern,
-                                                    frequency: value,
-                                                })
+                                                updateForm(
+                                                    'recurring_pattern',
+                                                    {
+                                                        ...form.recurring_pattern,
+                                                        frequency: value,
+                                                    },
+                                                )
                                             }
                                         >
-                                            <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="mt-2">
+                                                <SelectValue />
+                                            </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="daily">Daily</SelectItem>
-                                                <SelectItem value="weekly">Weekly</SelectItem>
-                                                <SelectItem value="monthly">Monthly</SelectItem>
+                                                <SelectItem value="daily">
+                                                    Daily
+                                                </SelectItem>
+                                                <SelectItem value="weekly">
+                                                    Weekly
+                                                </SelectItem>
+                                                <SelectItem value="monthly">
+                                                    Monthly
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -1228,12 +1722,20 @@ export default function TugasCreateForm({
                                             className="mt-2"
                                             type="number"
                                             min={1}
-                                            value={form.recurring_pattern.interval}
+                                            value={
+                                                form.recurring_pattern.interval
+                                            }
                                             onChange={(event) =>
-                                                updateForm('recurring_pattern', {
-                                                    ...form.recurring_pattern,
-                                                    interval: Number(event.target.value || 1),
-                                                })
+                                                updateForm(
+                                                    'recurring_pattern',
+                                                    {
+                                                        ...form.recurring_pattern,
+                                                        interval: Number(
+                                                            event.target
+                                                                .value || 1,
+                                                        ),
+                                                    },
+                                                )
                                             }
                                         />
                                     </div>
@@ -1243,24 +1745,42 @@ export default function TugasCreateForm({
 
                         <div className="rounded-2xl border border-neutral-200 p-4 dark:border-neutral-700">
                             <div className="mb-3 flex items-center justify-between">
-                                <p className="font-semibold text-neutral-900 dark:text-white">Reminder Notifications</p>
+                                <p className="font-semibold text-neutral-900 dark:text-white">
+                                    Reminder Notifications
+                                </p>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => updateForm('reminders', [...form.reminders, { type: 'before_deadline', value: 1, unit: 'hours', enabled: true }])}
+                                    onClick={() =>
+                                        updateForm('reminders', [
+                                            ...form.reminders,
+                                            {
+                                                type: 'before_deadline',
+                                                value: 1,
+                                                unit: 'hours',
+                                                enabled: true,
+                                            },
+                                        ])
+                                    }
                                 >
-                                    <Plus className="mr-1 h-4 w-4" /> Add Reminder
+                                    <Plus className="mr-1 h-4 w-4" /> Add
+                                    Reminder
                                 </Button>
                             </div>
 
                             <div className="space-y-2">
                                 {form.reminders.map((reminder, index) => (
-                                    <div key={index} className="flex items-center gap-2 rounded-xl border border-neutral-200 p-3 dark:border-neutral-700">
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-2 rounded-xl border border-neutral-200 p-3 dark:border-neutral-700"
+                                    >
                                         <Switch
                                             checked={reminder.enabled}
                                             onCheckedChange={(checked) => {
-                                                const next = [...form.reminders];
+                                                const next = [
+                                                    ...form.reminders,
+                                                ];
                                                 next[index].enabled = checked;
                                                 updateForm('reminders', next);
                                             }}
@@ -1272,31 +1792,58 @@ export default function TugasCreateForm({
                                             min={1}
                                             value={reminder.value}
                                             onChange={(event) => {
-                                                const next = [...form.reminders];
-                                                next[index].value = Number(event.target.value || 1);
+                                                const next = [
+                                                    ...form.reminders,
+                                                ];
+                                                next[index].value = Number(
+                                                    event.target.value || 1,
+                                                );
                                                 updateForm('reminders', next);
                                             }}
                                         />
                                         <Select
                                             value={reminder.unit}
                                             onValueChange={(value) => {
-                                                const next = [...form.reminders];
-                                                next[index].unit = value as ReminderInput['unit'];
+                                                const next = [
+                                                    ...form.reminders,
+                                                ];
+                                                next[index].unit =
+                                                    value as ReminderInput['unit'];
                                                 updateForm('reminders', next);
                                             }}
                                         >
-                                            <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="w-28">
+                                                <SelectValue />
+                                            </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="minutes">Minutes</SelectItem>
-                                                <SelectItem value="hours">Hours</SelectItem>
-                                                <SelectItem value="days">Days</SelectItem>
-                                                <SelectItem value="weeks">Weeks</SelectItem>
+                                                <SelectItem value="minutes">
+                                                    Minutes
+                                                </SelectItem>
+                                                <SelectItem value="hours">
+                                                    Hours
+                                                </SelectItem>
+                                                <SelectItem value="days">
+                                                    Days
+                                                </SelectItem>
+                                                <SelectItem value="weeks">
+                                                    Weeks
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <span className="text-xs text-neutral-500">before deadline</span>
+                                        <span className="text-xs text-neutral-500">
+                                            before deadline
+                                        </span>
                                         <button
                                             type="button"
-                                            onClick={() => updateForm('reminders', form.reminders.filter((_, idx) => idx !== index))}
+                                            onClick={() =>
+                                                updateForm(
+                                                    'reminders',
+                                                    form.reminders.filter(
+                                                        (_, idx) =>
+                                                            idx !== index,
+                                                    ),
+                                                )
+                                            }
                                         >
                                             <Trash2 className="h-4 w-4 text-red-500" />
                                         </button>
@@ -1308,11 +1855,15 @@ export default function TugasCreateForm({
                         <div className="rounded-2xl border border-neutral-200 p-4 dark:border-neutral-700">
                             <div className="mb-3 flex items-center gap-2">
                                 <GitBranch className="h-4 w-4 text-indigo-600" />
-                                <p className="font-semibold text-neutral-900 dark:text-white">Task Dependencies</p>
+                                <p className="font-semibold text-neutral-900 dark:text-white">
+                                    Task Dependencies
+                                </p>
                             </div>
                             <div className="max-h-56 space-y-2 overflow-y-auto">
                                 {availableTasks.length === 0 && (
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Belum ada tugas untuk dependency.</p>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Belum ada tugas untuk dependency.
+                                    </p>
                                 )}
                                 {availableTasks.map((task) => (
                                     <button
@@ -1320,17 +1871,37 @@ export default function TugasCreateForm({
                                         key={task.id}
                                         className="flex w-full items-center gap-3 rounded-xl border border-neutral-200 p-3 text-left dark:border-neutral-700"
                                         onClick={() => {
-                                            if (form.dependencies.includes(task.id)) {
-                                                updateForm('dependencies', form.dependencies.filter((id) => id !== task.id));
+                                            if (
+                                                form.dependencies.includes(
+                                                    task.id,
+                                                )
+                                            ) {
+                                                updateForm(
+                                                    'dependencies',
+                                                    form.dependencies.filter(
+                                                        (id) => id !== task.id,
+                                                    ),
+                                                );
                                             } else {
-                                                updateForm('dependencies', [...form.dependencies, task.id]);
+                                                updateForm('dependencies', [
+                                                    ...form.dependencies,
+                                                    task.id,
+                                                ]);
                                             }
                                         }}
                                     >
-                                        <Checkbox checked={form.dependencies.includes(task.id)} />
+                                        <Checkbox
+                                            checked={form.dependencies.includes(
+                                                task.id,
+                                            )}
+                                        />
                                         <div>
-                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">{task.title}</p>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">{task.subtitle}</p>
+                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {task.title}
+                                            </p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                {task.subtitle}
+                                            </p>
                                         </div>
                                     </button>
                                 ))}
@@ -1341,27 +1912,49 @@ export default function TugasCreateForm({
                             <div className="rounded-2xl border border-neutral-200 p-4 dark:border-neutral-700">
                                 <div className="mb-3 flex items-center gap-2">
                                     <Users className="h-4 w-4 text-indigo-600" />
-                                    <p className="font-semibold text-neutral-900 dark:text-white">Collaboration Settings</p>
+                                    <p className="font-semibold text-neutral-900 dark:text-white">
+                                        Collaboration Settings
+                                    </p>
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
-                                        { value: 'individual', label: 'Individual', icon: User },
-                                        { value: 'group', label: 'Group', icon: Users },
-                                        { value: 'peer_review', label: 'Peer Review', icon: AlertCircle },
+                                        {
+                                            value: 'individual',
+                                            label: 'Individual',
+                                            icon: User,
+                                        },
+                                        {
+                                            value: 'group',
+                                            label: 'Group',
+                                            icon: Users,
+                                        },
+                                        {
+                                            value: 'peer_review',
+                                            label: 'Peer Review',
+                                            icon: AlertCircle,
+                                        },
                                     ].map((option) => (
                                         <button
                                             key={option.value}
                                             type="button"
-                                            onClick={() => updateForm('collaboration_type', option.value as CollaborationType)}
+                                            onClick={() =>
+                                                updateForm(
+                                                    'collaboration_type',
+                                                    option.value as CollaborationType,
+                                                )
+                                            }
                                             className={`rounded-xl border-2 p-3 text-center ${
-                                                form.collaboration_type === option.value
+                                                form.collaboration_type ===
+                                                option.value
                                                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30'
                                                     : 'border-neutral-200 dark:border-neutral-700'
                                             }`}
                                         >
                                             <option.icon className="mx-auto mb-1 h-5 w-5" />
-                                            <p className="text-xs font-semibold">{option.label}</p>
+                                            <p className="text-xs font-semibold">
+                                                {option.label}
+                                            </p>
                                         </button>
                                     ))}
                                 </div>
@@ -1375,36 +1968,63 @@ export default function TugasCreateForm({
                                                 type="number"
                                                 min={2}
                                                 max={10}
-                                                value={form.collaboration_settings.max_members}
+                                                value={
+                                                    form.collaboration_settings
+                                                        .max_members
+                                                }
                                                 onChange={(event) =>
-                                                    updateForm('collaboration_settings', {
-                                                        ...form.collaboration_settings,
-                                                        max_members: Number(event.target.value || 2),
-                                                    })
+                                                    updateForm(
+                                                        'collaboration_settings',
+                                                        {
+                                                            ...form.collaboration_settings,
+                                                            max_members: Number(
+                                                                event.target
+                                                                    .value || 2,
+                                                            ),
+                                                        },
+                                                    )
                                                 }
                                             />
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm">Allow Self-Form Groups</span>
+                                            <span className="text-sm">
+                                                Allow Self-Form Groups
+                                            </span>
                                             <Switch
-                                                checked={form.collaboration_settings.allow_self_form}
+                                                checked={
+                                                    form.collaboration_settings
+                                                        .allow_self_form
+                                                }
                                                 onCheckedChange={(checked) =>
-                                                    updateForm('collaboration_settings', {
-                                                        ...form.collaboration_settings,
-                                                        allow_self_form: checked,
-                                                    })
+                                                    updateForm(
+                                                        'collaboration_settings',
+                                                        {
+                                                            ...form.collaboration_settings,
+                                                            allow_self_form:
+                                                                checked,
+                                                        },
+                                                    )
                                                 }
                                             />
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm">Random Assignment</span>
+                                            <span className="text-sm">
+                                                Random Assignment
+                                            </span>
                                             <Switch
-                                                checked={form.collaboration_settings.random_assignment}
+                                                checked={
+                                                    form.collaboration_settings
+                                                        .random_assignment
+                                                }
                                                 onCheckedChange={(checked) =>
-                                                    updateForm('collaboration_settings', {
-                                                        ...form.collaboration_settings,
-                                                        random_assignment: checked,
-                                                    })
+                                                    updateForm(
+                                                        'collaboration_settings',
+                                                        {
+                                                            ...form.collaboration_settings,
+                                                            random_assignment:
+                                                                checked,
+                                                        },
+                                                    )
                                                 }
                                             />
                                         </div>
@@ -1420,36 +2040,64 @@ export default function TugasCreateForm({
                                                 type="number"
                                                 min={1}
                                                 max={5}
-                                                value={form.collaboration_settings.reviews_per_student}
+                                                value={
+                                                    form.collaboration_settings
+                                                        .reviews_per_student
+                                                }
                                                 onChange={(event) =>
-                                                    updateForm('collaboration_settings', {
-                                                        ...form.collaboration_settings,
-                                                        reviews_per_student: Number(event.target.value || 1),
-                                                    })
+                                                    updateForm(
+                                                        'collaboration_settings',
+                                                        {
+                                                            ...form.collaboration_settings,
+                                                            reviews_per_student:
+                                                                Number(
+                                                                    event.target
+                                                                        .value ||
+                                                                        1,
+                                                                ),
+                                                        },
+                                                    )
                                                 }
                                             />
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm">Anonymous Review</span>
+                                            <span className="text-sm">
+                                                Anonymous Review
+                                            </span>
                                             <Switch
-                                                checked={form.collaboration_settings.anonymous}
+                                                checked={
+                                                    form.collaboration_settings
+                                                        .anonymous
+                                                }
                                                 onCheckedChange={(checked) =>
-                                                    updateForm('collaboration_settings', {
-                                                        ...form.collaboration_settings,
-                                                        anonymous: checked,
-                                                    })
+                                                    updateForm(
+                                                        'collaboration_settings',
+                                                        {
+                                                            ...form.collaboration_settings,
+                                                            anonymous: checked,
+                                                        },
+                                                    )
                                                 }
                                             />
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm">Enable Rubric</span>
+                                            <span className="text-sm">
+                                                Enable Rubric
+                                            </span>
                                             <Switch
-                                                checked={form.collaboration_settings.rubric_enabled}
+                                                checked={
+                                                    form.collaboration_settings
+                                                        .rubric_enabled
+                                                }
                                                 onCheckedChange={(checked) =>
-                                                    updateForm('collaboration_settings', {
-                                                        ...form.collaboration_settings,
-                                                        rubric_enabled: checked,
-                                                    })
+                                                    updateForm(
+                                                        'collaboration_settings',
+                                                        {
+                                                            ...form.collaboration_settings,
+                                                            rubric_enabled:
+                                                                checked,
+                                                        },
+                                                    )
                                                 }
                                             />
                                         </div>
@@ -1464,7 +2112,9 @@ export default function TugasCreateForm({
                     <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
+                        onClick={() =>
+                            setCurrentStep((prev) => Math.max(1, prev - 1))
+                        }
                         disabled={currentStep === 1}
                     >
                         <ChevronLeft className="mr-1 h-4 w-4" />
@@ -1472,13 +2122,28 @@ export default function TugasCreateForm({
                     </Button>
 
                     {currentStep < 4 ? (
-                        <Button type="button" onClick={() => setCurrentStep((prev) => Math.min(4, prev + 1))} disabled={!canGoNext()}>
+                        <Button
+                            type="button"
+                            onClick={() =>
+                                setCurrentStep((prev) => Math.min(4, prev + 1))
+                            }
+                            disabled={!canGoNext()}
+                        >
                             Next
                             <ChevronRight className="ml-1 h-4 w-4" />
                         </Button>
                     ) : (
-                        <Button type="button" onClick={handleSubmit} disabled={isSubmitting} className="gap-2">
-                            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+                        <Button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className="gap-2"
+                        >
+                            {isSubmitting ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <CheckCircle className="h-4 w-4" />
+                            )}
                             Create Task
                         </Button>
                     )}

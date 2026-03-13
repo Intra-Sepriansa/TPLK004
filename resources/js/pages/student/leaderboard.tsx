@@ -1,18 +1,17 @@
-import { Head } from '@inertiajs/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Users, Zap, TrendingUp, Filter, Search, Award, Crown } from 'lucide-react';
-import { useState } from 'react';
 import { LeaderboardCard } from '@/components/gamification/leaderboard-card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import StudentLayout from '@/layouts/student-layout';
-import ScrollFloat from '@/components/ui/scroll-float';
+import { Head } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Award, Crown, Search, TrendingUp, Trophy, Zap } from 'lucide-react';
+import { useState } from 'react';
 
 // Custom 3D Icons
-import TotalMahasiswaIcon from '@/assets/admin/leaderboard/total-mahasiswa.png';
-import RataRataIcon from '@/assets/admin/leaderboard/rata-rata.png';
 import LeaderboardIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+import RataRataIcon from '@/assets/admin/leaderboard/rata-rata.png';
+import TotalMahasiswaIcon from '@/assets/admin/leaderboard/total-mahasiswa.png';
 
 interface LeaderboardEntry {
     rank: number;
@@ -38,13 +37,18 @@ interface LeaderboardPageProps {
     };
 }
 
-export default function LeaderboardPage({ leaderboard, currentUser, stats }: LeaderboardPageProps) {
+export default function LeaderboardPage({
+    leaderboard,
+    currentUser,
+    stats,
+}: LeaderboardPageProps) {
     const [filter, setFilter] = useState<'all' | 'week' | 'month'>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredLeaderboard = leaderboard.filter(entry =>
-        entry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.nim.includes(searchQuery)
+    const filteredLeaderboard = leaderboard.filter(
+        (entry) =>
+            entry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            entry.nim.includes(searchQuery),
     );
 
     const topThree = filteredLeaderboard.slice(0, 3);
@@ -59,9 +63,16 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    transition={{
+                        duration: 0.6,
+                        type: 'spring',
+                        stiffness: 100,
+                    }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-600 p-8 text-white shadow-2xl"
-                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+                    style={{
+                        transformStyle: 'preserve-3d',
+                        perspective: '1500px',
+                    }}
                 >
                     {/* Ultra Advanced Animated Background Orbs */}
                     <motion.div
@@ -75,9 +86,9 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                         transition={{
                             duration: 20,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-white/30 to-yellow-200/30 blur-3xl"
+                        className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-white/30 to-yellow-200/30 blur-3xl"
                     />
                     <motion.div
                         animate={{
@@ -90,7 +101,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                         transition={{
                             duration: 25,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                         className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-300/30 to-red-400/30 blur-3xl"
                     />
@@ -104,13 +115,13 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             animate={{
                                 opacity: [0, 0.4, 0],
                                 scale: [0, 1, 0],
-                                y: [0, -40, -80]
+                                y: [0, -40, -80],
                             }}
                             transition={{
                                 duration: 4,
                                 repeat: Infinity,
                                 delay: i * 0.8,
-                                ease: "easeOut"
+                                ease: 'easeOut',
                             }}
                             style={{
                                 left: `${15 + i * 22}%`,
@@ -122,32 +133,48 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                     ))}
 
                     <div className="relative">
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
-                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
+                        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row sm:gap-6">
+                            <div className="flex w-full flex-col items-center gap-5 text-center sm:w-auto sm:flex-row sm:gap-6 sm:text-left">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
-                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    className="relative mx-auto flex h-20 w-20 shrink-0 items-center justify-center sm:mx-0 sm:h-24 sm:w-24"
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 0.5,
+                                        rotate: -10,
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        scale: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        delay: 0.2,
+                                    }}
                                     whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <img src={LeaderboardIcon} alt="Leaderboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                    <img
+                                        src={LeaderboardIcon}
+                                        alt="Leaderboard"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
                                 </motion.div>
-                                <div className="flex-1 mt-1 sm:mt-0">
+                                <div className="mt-1 flex-1 sm:mt-0">
                                     <motion.p
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-yellow-100 font-medium tracking-wide flex items-center justify-center sm:justify-start gap-2"
+                                        className="flex items-center justify-center gap-2 text-sm font-medium tracking-wide text-yellow-100 sm:justify-start"
                                     >
-                                        <Zap className="w-4 h-4" />
+                                        <Zap className="h-4 w-4" />
                                         Kompetisi Kelas
                                     </motion.p>
                                     <motion.h1
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-2xl sm:text-3xl font-bold mt-1"
+                                        className="mt-1 text-2xl font-bold sm:text-3xl"
                                     >
                                         Leaderboard
                                     </motion.h1>
@@ -155,9 +182,10 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="mt-2 text-yellow-100 max-w-xl text-sm sm:text-base leading-relaxed mx-auto sm:mx-0"
+                                        className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-yellow-100 sm:mx-0 sm:text-base"
                                     >
-                                        Compete with your classmates and climb to the top!
+                                        Compete with your classmates and climb
+                                        to the top!
                                     </motion.p>
                                 </div>
                             </div>
@@ -173,20 +201,22 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             src: TotalMahasiswaIcon,
                             label: 'Total Students',
                             value: stats.total_students,
-                            bgGradient: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
+                            bgGradient:
+                                'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
                             glowBg: 'bg-sky-500',
                             hoverShadow: 'hover:shadow-sky-500/10',
-                            delay: 0.1
+                            delay: 0.1,
                         },
                         {
                             isCustom: true,
                             src: RataRataIcon,
                             label: 'Avg Points',
                             value: stats.average_points,
-                            bgGradient: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
+                            bgGradient:
+                                'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
                             glowBg: 'bg-amber-500',
                             hoverShadow: 'hover:shadow-amber-500/10',
-                            delay: 0.15
+                            delay: 0.15,
                         },
                         {
                             isCustom: false,
@@ -195,41 +225,69 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             value: stats.top_streak,
                             suffix: ' days',
                             iconColor: 'text-orange-500',
-                            bgGradient: 'from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10',
+                            bgGradient:
+                                'from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10',
                             glowBg: 'bg-orange-500',
                             hoverShadow: 'hover:shadow-orange-500/10',
-                            delay: 0.2
-                        }
+                            delay: 0.2,
+                        },
                     ].map((stat) => (
                         <motion.div
                             key={stat.label}
                             initial={{ opacity: 0, y: 20, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                            className={`group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-5 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} dark:border-white/5 cursor-pointer`}
+                            transition={{
+                                delay: stat.delay,
+                                type: 'spring',
+                                stiffness: 200,
+                            }}
+                            whileHover={{
+                                scale: 1.04,
+                                y: -4,
+                                transition: {
+                                    type: 'spring',
+                                    stiffness: 400,
+                                    damping: 15,
+                                },
+                            }}
+                            className={`group relative overflow-hidden rounded-xl border border-white/20 bg-white/40 p-3 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-5 dark:bg-neutral-900/40 ${stat.hoverShadow} cursor-pointer dark:border-white/5`}
                         >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient}`} />
+                            <div
+                                className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient}`}
+                            />
                             <motion.div
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glowBg} blur-3xl opacity-20 group-hover:opacity-40 transform scale-100 group-hover:scale-150 transition-all duration-500`}
+                                className={`absolute -top-10 -right-10 h-32 w-32 rounded-full ${stat.glowBg} scale-100 transform opacity-20 blur-3xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-40`}
                             />
 
-                            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                            <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
+                                    className="relative mx-auto flex h-10 w-10 shrink-0 items-center justify-center sm:mx-0 sm:h-14 sm:w-14"
                                 >
                                     {stat.isCustom ? (
-                                        <img src={stat.src} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                        <img
+                                            src={stat.src}
+                                            alt={stat.label}
+                                            className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]"
+                                        />
                                     ) : (
-                                        stat.icon && <stat.icon className={`h-full w-full object-contain ${stat.iconColor} drop-shadow-md`} />
+                                        stat.icon && (
+                                            <stat.icon
+                                                className={`h-full w-full object-contain ${stat.iconColor} drop-shadow-md`}
+                                            />
+                                        )
                                     )}
                                 </motion.div>
                                 <div>
-                                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <p className="text-[10px] leading-tight font-medium text-neutral-500 sm:text-sm dark:text-neutral-400">
+                                        {stat.label}
+                                    </p>
                                     <div className="mt-0.5 sm:mt-1">
-                                        <span className="text-sm sm:text-2xl font-bold text-neutral-900 dark:text-white">
-                                            <AnimatedCounter value={stat.value} suffix={stat.suffix || ''} />
+                                        <span className="text-sm font-bold text-neutral-900 sm:text-2xl dark:text-white">
+                                            <AnimatedCounter
+                                                value={stat.value}
+                                                suffix={stat.suffix || ''}
+                                            />
                                         </span>
                                     </div>
                                 </div>
@@ -256,11 +314,19 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <Button
-                                    variant={filter === filterType ? 'default' : 'outline'}
+                                    variant={
+                                        filter === filterType
+                                            ? 'default'
+                                            : 'outline'
+                                    }
                                     size="sm"
                                     onClick={() => setFilter(filterType as any)}
                                 >
-                                    {filterType === 'all' ? 'All Time' : filterType === 'week' ? 'This Week' : 'This Month'}
+                                    {filterType === 'all'
+                                        ? 'All Time'
+                                        : filterType === 'week'
+                                          ? 'This Week'
+                                          : 'This Month'}
                                 </Button>
                             </motion.div>
                         ))}
@@ -272,7 +338,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                         transition={{ delay: 0.5 }}
                         className="relative w-full sm:w-64"
                     >
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                         <Input
                             placeholder="Search students..."
                             value={searchQuery}
@@ -296,9 +362,9 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{
                                 delay: 0.7 + index * 0.1,
-                                type: "spring",
+                                type: 'spring',
                                 stiffness: 200,
-                                damping: 15
+                                damping: 15,
                             }}
                             whileHover={{ scale: 1.05, y: -10 }}
                             className={`order-${index === 0 ? '2' : index === 1 ? '1' : '3'} sm:order-${index + 1}`}
@@ -308,30 +374,53 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                 <motion.div
                                     initial={{ height: 0 }}
                                     animate={{
-                                        height: entry.rank === 1 ? 128 : entry.rank === 2 ? 96 : 80
+                                        height:
+                                            entry.rank === 1
+                                                ? 128
+                                                : entry.rank === 2
+                                                  ? 96
+                                                  : 80,
                                     }}
-                                    transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
-                                    className={`rounded-t-2xl border-t-4 ${entry.rank === 1
-                                        ? 'border-yellow-500 bg-gradient-to-b from-yellow-500/20 to-transparent'
-                                        : entry.rank === 2
-                                            ? 'border-slate-400 bg-gradient-to-b from-slate-400/20 to-transparent'
-                                            : 'border-amber-600 bg-gradient-to-b from-amber-600/20 to-transparent'
-                                        }`}
+                                    transition={{
+                                        delay: 0.8 + index * 0.1,
+                                        duration: 0.5,
+                                    }}
+                                    className={`rounded-t-2xl border-t-4 ${
+                                        entry.rank === 1
+                                            ? 'border-yellow-500 bg-gradient-to-b from-yellow-500/20 to-transparent'
+                                            : entry.rank === 2
+                                              ? 'border-slate-400 bg-gradient-to-b from-slate-400/20 to-transparent'
+                                              : 'border-amber-600 bg-gradient-to-b from-amber-600/20 to-transparent'
+                                    }`}
                                 />
 
                                 {/* Card dengan animasi */}
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                                    transition={{
+                                        duration: 0.6,
+                                        type: 'spring',
+                                        stiffness: 100,
+                                    }}
                                     className="absolute -top-16 left-1/2 w-full -translate-x-1/2 px-2"
                                 >
-                                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 text-center backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 shadow-xl">
+                                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 text-center shadow-xl backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                         <div className="relative mx-auto mb-3 h-16 w-16">
                                             <motion.div
-                                                initial={{ scale: 0, rotate: -180 }}
-                                                animate={{ scale: 1, rotate: 0 }}
-                                                transition={{ delay: 1 + index * 0.1, type: "spring", stiffness: 200 }}
+                                                initial={{
+                                                    scale: 0,
+                                                    rotate: -180,
+                                                }}
+                                                animate={{
+                                                    scale: 1,
+                                                    rotate: 0,
+                                                }}
+                                                transition={{
+                                                    delay: 1 + index * 0.1,
+                                                    type: 'spring',
+                                                    stiffness: 200,
+                                                }}
                                                 className="h-full w-full overflow-hidden rounded-full border-4 border-white dark:border-slate-800"
                                             >
                                                 {entry.avatar ? (
@@ -342,19 +431,37 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                                     />
                                                 ) : (
                                                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-500 to-purple-500 text-xl font-bold text-white">
-                                                        {entry.name.charAt(0).toUpperCase()}
+                                                        {entry.name
+                                                            .charAt(0)
+                                                            .toUpperCase()}
                                                     </div>
                                                 )}
                                             </motion.div>
                                             <motion.div
-                                                initial={{ scale: 0, rotate: 180 }}
-                                                animate={{ scale: 1, rotate: 0 }}
-                                                transition={{ delay: 1.1 + index * 0.1, type: "spring", stiffness: 300 }}
-                                                className="absolute -bottom-1 -right-1"
+                                                initial={{
+                                                    scale: 0,
+                                                    rotate: 180,
+                                                }}
+                                                animate={{
+                                                    scale: 1,
+                                                    rotate: 0,
+                                                }}
+                                                transition={{
+                                                    delay: 1.1 + index * 0.1,
+                                                    type: 'spring',
+                                                    stiffness: 300,
+                                                }}
+                                                className="absolute -right-1 -bottom-1"
                                             >
-                                                {entry.rank === 1 && <Crown className="h-6 w-6 text-yellow-500" />}
-                                                {entry.rank === 2 && <Award className="h-6 w-6 text-slate-400" />}
-                                                {entry.rank === 3 && <Award className="h-6 w-6 text-amber-600" />}
+                                                {entry.rank === 1 && (
+                                                    <Crown className="h-6 w-6 text-yellow-500" />
+                                                )}
+                                                {entry.rank === 2 && (
+                                                    <Award className="h-6 w-6 text-slate-400" />
+                                                )}
+                                                {entry.rank === 3 && (
+                                                    <Award className="h-6 w-6 text-amber-600" />
+                                                )}
                                             </motion.div>
                                         </div>
                                         <h3 className="font-semibold text-slate-900 dark:text-white">
@@ -366,7 +473,9 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                         <div className="mt-3 flex items-center justify-center gap-2">
                                             <Zap className="h-4 w-4 text-yellow-500" />
                                             <span className="text-lg font-bold text-slate-900 dark:text-white">
-                                                <AnimatedCounter value={entry.points} />
+                                                <AnimatedCounter
+                                                    value={entry.points}
+                                                />
                                             </span>
                                         </div>
                                     </div>
@@ -386,7 +495,11 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                         <h3 className="mb-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
                             Your Position
                         </h3>
-                        <LeaderboardCard entry={currentUser} index={0} isCurrentUser={true} />
+                        <LeaderboardCard
+                            entry={currentUser}
+                            index={0}
+                            isCurrentUser={true}
+                        />
                     </motion.div>
                 )}
 
@@ -412,7 +525,9 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                     <LeaderboardCard
                                         entry={entry}
                                         index={index + 3}
-                                        isCurrentUser={entry.id === currentUser?.id}
+                                        isCurrentUser={
+                                            entry.id === currentUser?.id
+                                        }
                                     />
                                 </motion.div>
                             ))}
@@ -425,13 +540,17 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ type: "spring", stiffness: 200 }}
+                        transition={{ type: 'spring', stiffness: 200 }}
                         className="rounded-2xl border border-slate-200/70 bg-white/80 p-12 text-center backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
                         <motion.div
                             initial={{ scale: 0, rotate: -180 }}
                             animate={{ scale: 1, rotate: 0 }}
-                            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 200,
+                                delay: 0.2,
+                            }}
                         >
                             <Trophy className="mx-auto h-12 w-12 text-slate-400" />
                         </motion.div>

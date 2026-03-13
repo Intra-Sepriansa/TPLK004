@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
 import TugasCreateForm from '@/components/tugas/create/tugas-create-form';
 import DosenLayout from '@/layouts/dosen-layout';
+import { Head } from '@inertiajs/react';
 
 type CourseOption = {
     id: number;
@@ -36,7 +36,11 @@ interface DosenTugasCreateProps {
     availableTasks: AvailableTask[];
 }
 
-export default function DosenTugasCreate({ courses, templates, availableTasks }: DosenTugasCreateProps) {
+export default function DosenTugasCreate({
+    courses,
+    templates,
+    availableTasks,
+}: DosenTugasCreateProps) {
     return (
         <DosenLayout>
             <Head title="Tambah Tugas Baru" />

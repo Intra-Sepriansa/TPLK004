@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { Head, router, useForm } from '@inertiajs/react';
+import axios from 'axios';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     Activity,
@@ -7,8 +7,8 @@ import {
     ArrowLeft,
     Award,
     BarChart3,
-    CheckCircle,
     CheckCheck,
+    CheckCircle,
     ChevronRight,
     Clock,
     Download,
@@ -18,6 +18,7 @@ import {
     FolderOpen,
     Lock,
     MessageSquare,
+    Minus,
     Plus,
     Printer,
     RefreshCw,
@@ -27,32 +28,46 @@ import {
     Shuffle,
     Star,
     Table2,
+    Trash2,
     TrendingUp,
     Unlock,
-    UserPlus,
     UserCheck,
+    UserPlus,
     Users2,
     X,
+    Zap,
 } from 'lucide-react';
-import { Fragment, type ComponentType, useEffect, useMemo, useState } from 'react';
+import {
+    Fragment,
+    useEffect,
+    useMemo,
+    useState,
+    type ComponentType,
+} from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 
-import StatStudentsIcon from '@/assets/admin/analytics/total-mahasiswa.png';
 import StatCompletionIcon from '@/assets/admin/analytics/analytics.png';
-import StatAverageIcon from '@/assets/admin/leaderboard/rata-rata.png';
-import StatGroupIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+import StatStudentsIcon from '@/assets/admin/analytics/total-mahasiswa.png';
 import StatGradedIcon from '@/assets/admin/informasi-tugas/draft.png';
 import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 import StatSubmittedIcon from '@/assets/admin/informasi-tugas/publised.png';
+import StatGroupIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+import StatAverageIcon from '@/assets/admin/leaderboard/rata-rata.png';
 
 type Member = {
     id: number;
@@ -144,6 +159,7 @@ type Assignment = {
     min_members: number;
     max_members: number;
     is_locked: boolean;
+    allow_force_assign: boolean;
     formation_deadline_display: string | null;
     submission_deadline_display: string | null;
     course: { id: number; nama: string };
@@ -151,6 +167,17 @@ type Assignment = {
     features: string[];
     peer_evaluation_weight: number;
     allow_resubmission: boolean;
+};
+
+type ForceAssignLog = {
+    id: number;
+    student_name: string;
+    student_nim: string;
+    group_name: string;
+    action: string;
+    reason: string | null;
+    admin_type: string;
+    created_at: string;
 };
 
 type PeerEvalSummary = {
@@ -171,9 +198,18 @@ type Props = {
     unassignedStudents: Student[];
     peerEvalSummary: unknown;
     conflictReports: ConflictReport[];
+    totalStudentsInCourse: number;
+    calculatedMaxGroups: number;
+    forceAssignLogs: ForceAssignLog[];
 };
 
-type TabKey = 'groups' | 'analytics' | 'grading' | 'monitoring' | 'conflicts' | 'settings';
+type TabKey =
+    | 'groups'
+    | 'analytics'
+    | 'grading'
+    | 'monitoring'
+    | 'conflicts'
+    | 'settings';
 type FilterStatus = 'all' | 'submitted' | 'unsubmitted' | 'late' | 'ungraded';
 type SortBy = 'name' | 'progress' | 'grade' | 'members' | 'submission';
 type RefreshMode = 'off' | '30s' | '60s';
@@ -196,19 +232,41 @@ const iV = {
 } as const;
 
 const formationBadges: Record<string, { label: string; color: string }> = {
-    'self-form': { label: 'Self-Form', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300' },
-    random: { label: 'Random', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/35 dark:text-purple-300' },
-    manual: { label: 'Manual', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300' },
+    'self-form': {
+        label: 'Self-Form',
+        color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300',
+    },
+    random: {
+        label: 'Random',
+        color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/35 dark:text-purple-300',
+    },
+    manual: {
+        label: 'Manual',
+        color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300',
+    },
 };
 
 const gradingBadges: Record<string, { label: string; color: string }> = {
-    same: { label: 'Same Grade', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300' },
-    individual: { label: 'Individual', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300' },
-    peer: { label: 'Peer Eval', color: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/35 dark:text-fuchsia-300' },
-    contribution: { label: 'Contribution', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/35 dark:text-orange-300' },
+    same: {
+        label: 'Same Grade',
+        color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300',
+    },
+    individual: {
+        label: 'Individual',
+        color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300',
+    },
+    peer: {
+        label: 'Peer Eval',
+        color: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/35 dark:text-fuchsia-300',
+    },
+    contribution: {
+        label: 'Contribution',
+        color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/35 dark:text-orange-300',
+    },
 };
 
-const escapeCsv = (value: string | number | boolean | null | undefined) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+const escapeCsv = (value: string | number | boolean | null | undefined) =>
+    `"${String(value ?? '').replace(/"/g, '""')}"`;
 
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -222,19 +280,34 @@ const formatDate = (dateString: string) => {
     });
 };
 
-const getConflictPriority = (status: string, createdAt: string): { label: string; className: string } => {
+const getConflictPriority = (
+    status: string,
+    createdAt: string,
+): { label: string; className: string } => {
     const created = new Date(createdAt);
     const ageMs = Date.now() - created.getTime();
     const ageDays = Number.isNaN(ageMs) ? 0 : ageMs / (1000 * 60 * 60 * 24);
 
     if (status === 'resolved') {
-        return { label: 'Low', className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300' };
+        return {
+            label: 'Low',
+            className:
+                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300',
+        };
     }
     if (ageDays >= 7) {
-        return { label: 'High', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300' };
+        return {
+            label: 'High',
+            className:
+                'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300',
+        };
     }
 
-    return { label: 'Medium', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300' };
+    return {
+        label: 'Medium',
+        className:
+            'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300',
+    };
 };
 
 export default function AdminTugasKelompokDetail({
@@ -244,6 +317,9 @@ export default function AdminTugasKelompokDetail({
     unassignedStudents,
     peerEvalSummary,
     conflictReports,
+    totalStudentsInCourse,
+    calculatedMaxGroups,
+    forceAssignLogs,
 }: Props) {
     const [activeTab, setActiveTab] = useState<TabKey>('groups');
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -260,7 +336,8 @@ export default function AdminTugasKelompokDetail({
     const [bulkProcessing, setBulkProcessing] = useState(false);
 
     const [gradeModalOpen, setGradeModalOpen] = useState(false);
-    const [gradeTargetGroup, setGradeTargetGroup] = useState<GroupSummary | null>(null);
+    const [gradeTargetGroup, setGradeTargetGroup] =
+        useState<GroupSummary | null>(null);
 
     const [assignDialogOpen, setAssignDialogOpen] = useState(false);
     const [createGroupDialogOpen, setCreateGroupDialogOpen] = useState(false);
@@ -269,7 +346,9 @@ export default function AdminTugasKelompokDetail({
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
 
-    const [resolutionNotes, setResolutionNotes] = useState<Record<number, string>>({});
+    const [resolutionNotes, setResolutionNotes] = useState<
+        Record<number, string>
+    >({});
 
     const gradeForm = useForm<{
         group_id: number;
@@ -293,6 +372,77 @@ export default function AdminTugasKelompokDetail({
         leader_id: '',
     });
 
+    // Force assign states
+    const [forceAssignDialogOpen, setForceAssignDialogOpen] = useState(false);
+    const [forceAssignTarget, setForceAssignTarget] = useState<{
+        studentId: number;
+        studentName: string;
+    } | null>(null);
+    const forceAssignForm = useForm<{
+        group_id: string;
+        student_id: string;
+        reason: string;
+    }>({
+        group_id: '',
+        student_id: '',
+        reason: '',
+    });
+
+    const handleForceAssign = (studentId: number, studentName: string) => {
+        setForceAssignTarget({ studentId, studentName });
+        forceAssignForm.setData('student_id', String(studentId));
+        setForceAssignDialogOpen(true);
+    };
+
+    const submitForceAssign = () => {
+        forceAssignForm.post(
+            `/admin/tugas-kelompok/${assignment.id}/force-assign`,
+            {
+                onSuccess: () => {
+                    setForceAssignDialogOpen(false);
+                    forceAssignForm.reset();
+                    setForceAssignTarget(null);
+                },
+                preserveScroll: true,
+            },
+        );
+    };
+
+    const handleAutoAssign = () => {
+        router.post(
+            `/admin/tugas-kelompok/${assignment.id}/auto-assign`,
+            {},
+            { preserveScroll: true },
+        );
+    };
+
+    const handleRemoveMember = (
+        groupId: number,
+        studentId: number,
+    ) => {
+        if (!confirm('Yakin ingin mengeluarkan mahasiswa dari kelompok?')) return;
+        router.delete(
+            `/admin/tugas-kelompok/${assignment.id}/groups/${groupId}/members/${studentId}`,
+            { preserveScroll: true },
+        );
+    };
+
+    const handleDeleteGroup = (groupId: number) => {
+        if (!confirm('Yakin ingin menghapus kelompok ini? Semua anggota akan menjadi tidak tergabung.')) return;
+        router.delete(
+            `/admin/tugas-kelompok/${assignment.id}/groups/${groupId}`,
+            { preserveScroll: true },
+        );
+    };
+
+    const handleToggleForceAssign = (value: boolean) => {
+        router.patch(
+            `/admin/tugas-kelompok/${assignment.id}/group-config`,
+            { allow_force_assign: value },
+            { preserveScroll: true },
+        );
+    };
+
     const formationBadge = formationBadges[assignment.formation_mode] ?? {
         label: assignment.formation_mode,
         color: 'bg-slate-100 text-slate-700 dark:bg-neutral-800 dark:text-slate-300',
@@ -304,9 +454,11 @@ export default function AdminTugasKelompokDetail({
     };
 
     const peerSummary = useMemo<PeerEvalSummary>(() => {
-        const source = (peerEvalSummary && typeof peerEvalSummary === 'object'
-            ? (peerEvalSummary as Partial<PeerEvalSummary>)
-            : {}) as Partial<PeerEvalSummary>;
+        const source = (
+            peerEvalSummary && typeof peerEvalSummary === 'object'
+                ? (peerEvalSummary as Partial<PeerEvalSummary>)
+                : {}
+        ) as Partial<PeerEvalSummary>;
 
         return {
             total_evaluations: Number(source.total_evaluations ?? 0),
@@ -328,19 +480,22 @@ export default function AdminTugasKelompokDetail({
                 filterStatus === 'all'
                     ? true
                     : filterStatus === 'submitted'
-                        ? group.has_submission
-                        : filterStatus === 'unsubmitted'
-                            ? !group.has_submission
-                            : filterStatus === 'late'
-                                ? group.is_late
-                                : group.has_submission && (group.grade === null || group.grade === undefined);
+                      ? group.has_submission
+                      : filterStatus === 'unsubmitted'
+                        ? !group.has_submission
+                        : filterStatus === 'late'
+                          ? group.is_late
+                          : group.has_submission &&
+                            (group.grade === null || group.grade === undefined);
 
             if (!statusMatch) return false;
 
             if (!q) return true;
 
             const inGroupName = group.name.toLowerCase().includes(q);
-            const inMembers = group.members.some((member) => member.nama.toLowerCase().includes(q));
+            const inMembers = group.members.some((member) =>
+                member.nama.toLowerCase().includes(q),
+            );
 
             return inGroupName || inMembers;
         });
@@ -350,7 +505,8 @@ export default function AdminTugasKelompokDetail({
             if (sortBy === 'progress') return b.progress - a.progress;
             if (sortBy === 'grade') return (b.grade ?? -1) - (a.grade ?? -1);
             if (sortBy === 'members') return b.member_count - a.member_count;
-            if (sortBy === 'submission') return Number(b.has_submission) - Number(a.has_submission);
+            if (sortBy === 'submission')
+                return Number(b.has_submission) - Number(a.has_submission);
             return 0;
         });
 
@@ -358,7 +514,8 @@ export default function AdminTugasKelompokDetail({
     }, [filterStatus, groups, searchQuery, sortBy]);
 
     const allVisibleSelected =
-        filteredGroups.length > 0 && filteredGroups.every((group) => selectedGroups.includes(group.id));
+        filteredGroups.length > 0 &&
+        filteredGroups.every((group) => selectedGroups.includes(group.id));
 
     const selectedGroupObjects = useMemo(
         () => groups.filter((group) => selectedGroups.includes(group.id)),
@@ -370,9 +527,18 @@ export default function AdminTugasKelompokDetail({
         [selectedGroupObjects],
     );
 
-    const submittedGroups = useMemo(() => groups.filter((group) => group.has_submission), [groups]);
+    const submittedGroups = useMemo(
+        () => groups.filter((group) => group.has_submission),
+        [groups],
+    );
     const gradedGroups = useMemo(
-        () => groups.filter((group) => group.has_submission && group.grade !== null && group.grade !== undefined),
+        () =>
+            groups.filter(
+                (group) =>
+                    group.has_submission &&
+                    group.grade !== null &&
+                    group.grade !== undefined,
+            ),
         [groups],
     );
 
@@ -392,12 +558,18 @@ export default function AdminTugasKelompokDetail({
     }, [gradedGroups]);
 
     const latestTimeline = useMemo(
-        () => [...(analytics.timeline ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
+        () =>
+            [...(analytics.timeline ?? [])].sort((a, b) =>
+                a.date.localeCompare(b.date),
+            ),
         [analytics.timeline],
     );
 
     const maxTimelineActivity = useMemo(() => {
-        const max = Math.max(...latestTimeline.map((item) => item.activities), 0);
+        const max = Math.max(
+            ...latestTimeline.map((item) => item.activities),
+            0,
+        );
         return max > 0 ? max : 1;
     }, [latestTimeline]);
 
@@ -427,31 +599,58 @@ export default function AdminTugasKelompokDetail({
     }, [groups]);
 
     const engagementScore = useMemo(() => {
-        const totalMessages = groups.reduce((sum, group) => sum + group.message_count, 0);
-        const totalFiles = groups.reduce((sum, group) => sum + group.file_count, 0);
-        const totalCompletedTasks = groups.reduce((sum, group) => sum + group.task_stats.completed, 0);
+        const totalMessages = groups.reduce(
+            (sum, group) => sum + group.message_count,
+            0,
+        );
+        const totalFiles = groups.reduce(
+            (sum, group) => sum + group.file_count,
+            0,
+        );
+        const totalCompletedTasks = groups.reduce(
+            (sum, group) => sum + group.task_stats.completed,
+            0,
+        );
         const studentBase = Math.max(1, analytics.overview.total_students);
 
-        const raw = ((totalMessages + totalFiles * 2 + totalCompletedTasks * 3) / (studentBase * 10)) * 100;
+        const raw =
+            ((totalMessages + totalFiles * 2 + totalCompletedTasks * 3) /
+                (studentBase * 10)) *
+            100;
         return Math.max(0, Math.min(100, Math.round(raw)));
     }, [analytics.overview.total_students, groups]);
 
     const activeMemberCount = useMemo(
-        () => groups.reduce((sum, group) => sum + group.members.filter((member) => member.contribution_points > 0).length, 0),
+        () =>
+            groups.reduce(
+                (sum, group) =>
+                    sum +
+                    group.members.filter(
+                        (member) => member.contribution_points > 0,
+                    ).length,
+                0,
+            ),
         [groups],
     );
 
     const conflictSummary = useMemo(
         () => ({
-            open: conflictReports.filter((item) => item.status === 'open').length,
-            inReview: conflictReports.filter((item) => item.status === 'in_review').length,
-            resolved: conflictReports.filter((item) => item.status === 'resolved').length,
+            open: conflictReports.filter((item) => item.status === 'open')
+                .length,
+            inReview: conflictReports.filter(
+                (item) => item.status === 'in_review',
+            ).length,
+            resolved: conflictReports.filter(
+                (item) => item.status === 'resolved',
+            ).length,
         }),
         [conflictReports],
     );
 
     useEffect(() => {
-        setSelectedGroups((prev) => prev.filter((id) => groups.some((group) => group.id === id)));
+        setSelectedGroups((prev) =>
+            prev.filter((id) => groups.some((group) => group.id === id)),
+        );
     }, [groups]);
 
     useEffect(() => {
@@ -461,7 +660,12 @@ export default function AdminTugasKelompokDetail({
         const interval = window.setInterval(() => {
             setIsRefreshing(true);
             router.reload({
-                only: ['groups', 'analytics', 'conflictReports', 'peerEvalSummary'],
+                only: [
+                    'groups',
+                    'analytics',
+                    'conflictReports',
+                    'peerEvalSummary',
+                ],
                 onFinish: () => {
                     setIsRefreshing(false);
                     setLastRefreshedAt(new Date());
@@ -474,7 +678,14 @@ export default function AdminTugasKelompokDetail({
 
     const handleToggleSelectAll = (checked: boolean) => {
         if (checked) {
-            setSelectedGroups(Array.from(new Set([...selectedGroups, ...filteredGroups.map((group) => group.id)])));
+            setSelectedGroups(
+                Array.from(
+                    new Set([
+                        ...selectedGroups,
+                        ...filteredGroups.map((group) => group.id),
+                    ]),
+                ),
+            );
             return;
         }
         const visibleIds = new Set(filteredGroups.map((group) => group.id));
@@ -483,7 +694,9 @@ export default function AdminTugasKelompokDetail({
 
     const handleToggleGroup = (groupId: number, checked: boolean) => {
         if (checked) {
-            setSelectedGroups((prev) => (prev.includes(groupId) ? prev : [...prev, groupId]));
+            setSelectedGroups((prev) =>
+                prev.includes(groupId) ? prev : [...prev, groupId],
+            );
             return;
         }
         setSelectedGroups((prev) => prev.filter((id) => id !== groupId));
@@ -493,7 +706,10 @@ export default function AdminTugasKelompokDetail({
         setGradeTargetGroup(group);
         gradeForm.setData({
             group_id: group.id,
-            grade: group.grade !== null && group.grade !== undefined ? String(group.grade) : '',
+            grade:
+                group.grade !== null && group.grade !== undefined
+                    ? String(group.grade)
+                    : '',
             notes: '',
             adjustments: {},
         });
@@ -508,7 +724,11 @@ export default function AdminTugasKelompokDetail({
 
     const handleSingleGradeSubmit = () => {
         const gradeValue = Number(gradeForm.data.grade);
-        if (!Number.isFinite(gradeValue) || gradeValue < 0 || gradeValue > 100) {
+        if (
+            !Number.isFinite(gradeValue) ||
+            gradeValue < 0 ||
+            gradeValue > 100
+        ) {
             window.alert('Nilai harus di antara 0 sampai 100.');
             return;
         }
@@ -537,7 +757,11 @@ export default function AdminTugasKelompokDetail({
     const handleApplyBulkGrade = async () => {
         const gradeValue = Number(bulkGradeValue);
 
-        if (!Number.isFinite(gradeValue) || gradeValue < 0 || gradeValue > 100) {
+        if (
+            !Number.isFinite(gradeValue) ||
+            gradeValue < 0 ||
+            gradeValue > 100
+        ) {
             window.alert('Nilai massal harus di antara 0 sampai 100.');
             return;
         }
@@ -578,7 +802,8 @@ export default function AdminTugasKelompokDetail({
         router.post(
             `/admin/tugas-kelompok/${assignment.id}/resolve-conflict/${reportId}`,
             {
-                resolution_notes: resolutionNotes[reportId] || 'Diselesaikan oleh admin',
+                resolution_notes:
+                    resolutionNotes[reportId] || 'Diselesaikan oleh admin',
             },
             {
                 preserveScroll: true,
@@ -587,23 +812,29 @@ export default function AdminTugasKelompokDetail({
     };
 
     const handleAssignStudent = () => {
-        assignForm.post(`/admin/tugas-kelompok/${assignment.id}/assign-student`, {
-            preserveScroll: true,
-            onSuccess: () => {
-                assignForm.reset();
-                setAssignDialogOpen(false);
+        assignForm.post(
+            `/admin/tugas-kelompok/${assignment.id}/assign-student`,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    assignForm.reset();
+                    setAssignDialogOpen(false);
+                },
             },
-        });
+        );
     };
 
     const handleCreateGroup = () => {
-        createGroupForm.post(`/admin/tugas-kelompok/${assignment.id}/create-group`, {
-            preserveScroll: true,
-            onSuccess: () => {
-                createGroupForm.reset();
-                setCreateGroupDialogOpen(false);
+        createGroupForm.post(
+            `/admin/tugas-kelompok/${assignment.id}/create-group`,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    createGroupForm.reset();
+                    setCreateGroupDialogOpen(false);
+                },
             },
-        });
+        );
     };
 
     const handleExportCsv = () => {
@@ -720,12 +951,32 @@ export default function AdminTugasKelompokDetail({
         });
     };
 
-    const tabs: Array<{ key: TabKey; label: string; icon: ComponentType<{ className?: string }>; count?: number }> = [
-        { key: 'groups', label: 'Kelompok', icon: Users2, count: groups.length },
+    const tabs: Array<{
+        key: TabKey;
+        label: string;
+        icon: ComponentType<{ className?: string }>;
+        count?: number;
+    }> = [
+        {
+            key: 'groups',
+            label: 'Kelompok',
+            icon: Users2,
+            count: groups.length,
+        },
         { key: 'analytics', label: 'Analitik', icon: BarChart3 },
-        { key: 'grading', label: 'Penilaian', icon: Award, count: submittedGroups.length },
+        {
+            key: 'grading',
+            label: 'Penilaian',
+            icon: Award,
+            count: submittedGroups.length,
+        },
         { key: 'monitoring', label: 'Monitoring', icon: Activity },
-        { key: 'conflicts', label: 'Konflik', icon: AlertTriangle, count: conflictSummary.open + conflictSummary.inReview },
+        {
+            key: 'conflicts',
+            label: 'Konflik',
+            icon: AlertTriangle,
+            count: conflictSummary.open + conflictSummary.inReview,
+        },
         { key: 'settings', label: 'Pengaturan', icon: Settings },
     ];
 
@@ -733,24 +984,40 @@ export default function AdminTugasKelompokDetail({
         <AppLayout>
             <Head title={assignment.title} />
 
-            <motion.div className="space-y-6 overflow-x-hidden p-4 md:p-6" variants={cV} initial="hidden" animate="visible">
+            <motion.div
+                className="space-y-6 overflow-x-hidden p-4 md:p-6"
+                variants={cV}
+                initial="hidden"
+                animate="visible"
+            >
                 {/* Header */}
-                <motion.div variants={iV} className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8">
+                <motion.div
+                    variants={iV}
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
+                >
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 14,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/15 blur-3xl" />
-                    <div className="absolute -left-8 -bottom-8 h-44 w-44 rounded-full bg-indigo-500/30 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/15 blur-3xl" />
+                    <div className="absolute -bottom-8 -left-8 h-44 w-44 rounded-full bg-indigo-500/30 blur-3xl" />
 
                     <div className="relative z-10">
                         <motion.button
                             whileHover={{ scale: 1.02, x: -2 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => router.visit('/admin/tugas-kelompok')}
+                            onClick={() =>
+                                router.visit('/admin/tugas-kelompok')
+                            }
                             className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
                         >
                             <ArrowLeft className="h-4 w-4" />
@@ -763,7 +1030,11 @@ export default function AdminTugasKelompokDetail({
                                     className="relative h-16 w-16 shrink-0 sm:h-20 sm:w-20"
                                     initial={{ opacity: 0, scale: 0.85 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 24,
+                                    }}
                                     whileHover={{ scale: 1.04, rotate: -4 }}
                                 >
                                     <img
@@ -774,22 +1045,43 @@ export default function AdminTugasKelompokDetail({
                                 </motion.div>
 
                                 <div className="flex-1">
-                                    <h1 className="text-2xl font-bold sm:text-3xl">{assignment.title}</h1>
+                                    <h1 className="text-2xl font-bold sm:text-3xl">
+                                        {assignment.title}
+                                    </h1>
                                     <p className="mt-1 text-sm text-indigo-100 sm:text-base">
                                         {assignment.course.nama}
-                                        {assignment.dosen && ` • ${assignment.dosen.nama}`}
+                                        {assignment.dosen &&
+                                            ` • ${assignment.dosen.nama}`}
                                     </p>
                                     <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
-                                        <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium', formationBadge.color)}>{formationBadge.label}</span>
-                                        <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium', gradingBadge.color)}>{gradingBadge.label}</span>
+                                        <span
+                                            className={cn(
+                                                'rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                formationBadge.color,
+                                            )}
+                                        >
+                                            {formationBadge.label}
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                'rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                gradingBadge.color,
+                                            )}
+                                        >
+                                            {gradingBadge.label}
+                                        </span>
                                         {assignment.is_locked && (
                                             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/35 dark:text-amber-300">
-                                                <Lock className="mr-1 inline h-3 w-3" /> Locked
+                                                <Lock className="mr-1 inline h-3 w-3" />{' '}
+                                                Locked
                                             </span>
                                         )}
                                         {assignment.submission_deadline_display && (
                                             <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300">
-                                                Deadline: {assignment.submission_deadline_display}
+                                                Deadline:{' '}
+                                                {
+                                                    assignment.submission_deadline_display
+                                                }
                                             </span>
                                         )}
                                     </div>
@@ -798,16 +1090,22 @@ export default function AdminTugasKelompokDetail({
 
                             <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                                 <Button
-                                    onClick={() => router.post(`/admin/tugas-kelompok/${assignment.id}/toggle-lock`)}
+                                    onClick={() =>
+                                        router.post(
+                                            `/admin/tugas-kelompok/${assignment.id}/toggle-lock`,
+                                        )
+                                    }
                                     className="rounded-xl border border-white/20 bg-white/20 text-white backdrop-blur-md hover:bg-white/30"
                                 >
                                     {assignment.is_locked ? (
                                         <>
-                                            <Unlock className="mr-2 h-4 w-4" /> Unlock
+                                            <Unlock className="mr-2 h-4 w-4" />{' '}
+                                            Unlock
                                         </>
                                     ) : (
                                         <>
-                                            <Lock className="mr-2 h-4 w-4" /> Lock
+                                            <Lock className="mr-2 h-4 w-4" />{' '}
+                                            Lock
                                         </>
                                     )}
                                 </Button>
@@ -834,99 +1132,152 @@ export default function AdminTugasKelompokDetail({
                                 animate={{ opacity: 1, height: 'auto' }}
                                 className="mt-4 rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm"
                             >
-                                <p className="text-sm leading-relaxed text-white/90">{assignment.description}</p>
+                                <p className="text-sm leading-relaxed text-white/90">
+                                    {assignment.description}
+                                </p>
                             </motion.div>
                         )}
                     </div>
                 </motion.div>
 
                 {/* Quick Stats */}
-                <motion.div variants={iV} className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                <motion.div
+                    variants={iV}
+                    className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+                >
                     {[
                         {
                             label: 'Total Kelompok',
                             value: analytics.overview.total_groups,
                             icon: StatGroupIcon,
-                            cardClass: 'border-violet-300/40 bg-violet-100/55 dark:border-violet-500/30 dark:bg-violet-900/20',
+                            cardClass:
+                                'border-violet-300/40 bg-violet-100/55 dark:border-violet-500/30 dark:bg-violet-900/20',
                             valueClass: 'text-violet-700 dark:text-violet-200',
-                            iconFilter: 'drop-shadow(0 8px 14px rgba(139, 92, 246, 0.35))',
+                            iconFilter:
+                                'drop-shadow(0 8px 14px rgba(139, 92, 246, 0.35))',
                         },
                         {
                             label: 'Total Mahasiswa',
                             value: analytics.overview.total_students,
                             icon: StatStudentsIcon,
-                            cardClass: 'border-blue-300/40 bg-blue-100/55 dark:border-blue-500/30 dark:bg-blue-900/20',
+                            cardClass:
+                                'border-blue-300/40 bg-blue-100/55 dark:border-blue-500/30 dark:bg-blue-900/20',
                             valueClass: 'text-blue-700 dark:text-blue-200',
-                            iconFilter: 'drop-shadow(0 8px 14px rgba(59, 130, 246, 0.35))',
+                            iconFilter:
+                                'drop-shadow(0 8px 14px rgba(59, 130, 246, 0.35))',
                         },
                         {
                             label: 'Sudah Submit',
                             value: analytics.overview.submitted_groups,
                             icon: StatSubmittedIcon,
-                            cardClass: 'border-emerald-300/45 bg-emerald-100/55 dark:border-emerald-500/30 dark:bg-emerald-900/20',
-                            valueClass: 'text-emerald-700 dark:text-emerald-200',
-                            iconFilter: 'drop-shadow(0 8px 14px rgba(16, 185, 129, 0.35))',
+                            cardClass:
+                                'border-emerald-300/45 bg-emerald-100/55 dark:border-emerald-500/30 dark:bg-emerald-900/20',
+                            valueClass:
+                                'text-emerald-700 dark:text-emerald-200',
+                            iconFilter:
+                                'drop-shadow(0 8px 14px rgba(16, 185, 129, 0.35))',
                         },
                         {
                             label: 'Sudah Dinilai',
                             value: analytics.overview.graded_groups,
                             icon: StatGradedIcon,
-                            cardClass: 'border-amber-300/45 bg-amber-100/55 dark:border-amber-500/30 dark:bg-amber-900/20',
+                            cardClass:
+                                'border-amber-300/45 bg-amber-100/55 dark:border-amber-500/30 dark:bg-amber-900/20',
                             valueClass: 'text-amber-700 dark:text-amber-200',
-                            iconFilter: 'drop-shadow(0 8px 14px rgba(245, 158, 11, 0.35))',
+                            iconFilter:
+                                'drop-shadow(0 8px 14px rgba(245, 158, 11, 0.35))',
                         },
                         {
                             label: 'Rata-rata Nilai',
                             value: analytics.overview.average_grade.toFixed(1),
                             icon: StatAverageIcon,
-                            cardClass: 'border-fuchsia-300/45 bg-fuchsia-100/55 dark:border-fuchsia-500/30 dark:bg-fuchsia-900/20',
-                            valueClass: 'text-fuchsia-700 dark:text-fuchsia-200',
-                            iconFilter: 'drop-shadow(0 8px 14px rgba(217, 70, 239, 0.35))',
+                            cardClass:
+                                'border-fuchsia-300/45 bg-fuchsia-100/55 dark:border-fuchsia-500/30 dark:bg-fuchsia-900/20',
+                            valueClass:
+                                'text-fuchsia-700 dark:text-fuchsia-200',
+                            iconFilter:
+                                'drop-shadow(0 8px 14px rgba(217, 70, 239, 0.35))',
                         },
                         {
                             label: 'Completion Rate',
                             value: `${analytics.overview.total_groups > 0 ? ((analytics.overview.submitted_groups / analytics.overview.total_groups) * 100).toFixed(0) : 0}%`,
                             icon: StatCompletionIcon,
-                            cardClass: 'border-cyan-300/45 bg-cyan-100/55 dark:border-cyan-500/30 dark:bg-cyan-900/20',
+                            cardClass:
+                                'border-cyan-300/45 bg-cyan-100/55 dark:border-cyan-500/30 dark:bg-cyan-900/20',
                             valueClass: 'text-cyan-700 dark:text-cyan-200',
-                            iconFilter: 'drop-shadow(0 8px 14px rgba(6, 182, 212, 0.35))',
+                            iconFilter:
+                                'drop-shadow(0 8px 14px rgba(6, 182, 212, 0.35))',
                         },
                     ].map((stat, index) => (
                         <motion.div
                             key={`${stat.label}-${index}`}
                             variants={iV}
                             whileHover={{ y: -4, scale: 1.02 }}
-                            className={cn('rounded-2xl border p-4 shadow-lg backdrop-blur-xl transition-all duration-300', stat.cardClass)}
+                            className={cn(
+                                'rounded-2xl border p-4 shadow-lg backdrop-blur-xl transition-all duration-300',
+                                stat.cardClass,
+                            )}
                         >
                             <div className="flex items-center justify-between gap-3">
-                                <img src={stat.icon} alt={stat.label} className="h-11 w-11 shrink-0 object-contain" style={{ filter: stat.iconFilter }} />
-                                <p className={cn('text-xl font-bold', stat.valueClass)}>{stat.value}</p>
+                                <img
+                                    src={stat.icon}
+                                    alt={stat.label}
+                                    className="h-11 w-11 shrink-0 object-contain"
+                                    style={{ filter: stat.iconFilter }}
+                                />
+                                <p
+                                    className={cn(
+                                        'text-xl font-bold',
+                                        stat.valueClass,
+                                    )}
+                                >
+                                    {stat.value}
+                                </p>
                             </div>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stat.label}</p>
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {stat.label}
+                            </p>
                         </motion.div>
                     ))}
                 </motion.div>
 
                 {/* Filter & Search */}
-                <motion.div variants={iV} className="rounded-2xl border border-white/20 bg-white/40 p-4 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                <motion.div
+                    variants={iV}
+                    className="rounded-2xl border border-white/20 bg-white/40 p-4 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                >
                     <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             <Input
                                 type="text"
                                 placeholder="Cari kelompok atau anggota..."
                                 value={searchQuery}
-                                onChange={(event) => setSearchQuery(event.target.value)}
+                                onChange={(event) =>
+                                    setSearchQuery(event.target.value)
+                                }
                                 className="rounded-xl border-white/20 bg-white/60 pl-10 backdrop-blur-sm dark:bg-neutral-800/60"
                             />
                         </div>
 
                         <div className="flex flex-wrap gap-2">
                             {[
-                                { key: 'all', label: `Semua (${groups.length})` },
-                                { key: 'submitted', label: `Submitted (${groups.filter((group) => group.has_submission).length})` },
-                                { key: 'unsubmitted', label: `Belum Submit (${groups.filter((group) => !group.has_submission).length})` },
-                                { key: 'late', label: `Terlambat (${groups.filter((group) => group.is_late).length})` },
+                                {
+                                    key: 'all',
+                                    label: `Semua (${groups.length})`,
+                                },
+                                {
+                                    key: 'submitted',
+                                    label: `Submitted (${groups.filter((group) => group.has_submission).length})`,
+                                },
+                                {
+                                    key: 'unsubmitted',
+                                    label: `Belum Submit (${groups.filter((group) => !group.has_submission).length})`,
+                                },
+                                {
+                                    key: 'late',
+                                    label: `Terlambat (${groups.filter((group) => group.is_late).length})`,
+                                },
                                 {
                                     key: 'ungraded',
                                     label: `Belum Dinilai (${groups.filter((group) => group.has_submission && (group.grade === null || group.grade === undefined)).length})`,
@@ -935,11 +1286,20 @@ export default function AdminTugasKelompokDetail({
                                 <Button
                                     key={item.key}
                                     size="sm"
-                                    variant={filterStatus === item.key ? 'default' : 'outline'}
-                                    onClick={() => setFilterStatus(item.key as FilterStatus)}
+                                    variant={
+                                        filterStatus === item.key
+                                            ? 'default'
+                                            : 'outline'
+                                    }
+                                    onClick={() =>
+                                        setFilterStatus(
+                                            item.key as FilterStatus,
+                                        )
+                                    }
                                     className={cn(
                                         'rounded-xl',
-                                        filterStatus === item.key && 'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white',
+                                        filterStatus === item.key &&
+                                            'bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white',
                                     )}
                                 >
                                     {item.label}
@@ -949,16 +1309,29 @@ export default function AdminTugasKelompokDetail({
 
                         <div className="flex items-center gap-2">
                             <Filter className="h-4 w-4 text-slate-500" />
-                            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
+                            <Select
+                                value={sortBy}
+                                onValueChange={(value) =>
+                                    setSortBy(value as SortBy)
+                                }
+                            >
                                 <SelectTrigger className="w-[180px] rounded-xl border-white/20 bg-white/60 backdrop-blur-sm dark:bg-neutral-800/60">
                                     <SelectValue placeholder="Urutkan" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="name">Nama Kelompok</SelectItem>
-                                    <SelectItem value="progress">Progress</SelectItem>
+                                    <SelectItem value="name">
+                                        Nama Kelompok
+                                    </SelectItem>
+                                    <SelectItem value="progress">
+                                        Progress
+                                    </SelectItem>
                                     <SelectItem value="grade">Nilai</SelectItem>
-                                    <SelectItem value="members">Jumlah Anggota</SelectItem>
-                                    <SelectItem value="submission">Status Submit</SelectItem>
+                                    <SelectItem value="members">
+                                        Jumlah Anggota
+                                    </SelectItem>
+                                    <SelectItem value="submission">
+                                        Status Submit
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -966,8 +1339,11 @@ export default function AdminTugasKelompokDetail({
                 </motion.div>
 
                 {/* Tabs */}
-                <motion.div variants={iV} className="w-full overflow-hidden rounded-2xl border border-white/10 bg-neutral-100/50 p-2 backdrop-blur-md dark:bg-neutral-900/50">
-                    <div className="max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <motion.div
+                    variants={iV}
+                    className="w-full overflow-hidden rounded-2xl border border-white/10 bg-neutral-100/50 p-2 backdrop-blur-md dark:bg-neutral-900/50"
+                >
+                    <div className="max-w-full overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         <div className="inline-flex min-w-max items-center gap-2">
                             {tabs.map((tab, index) => {
                                 const TabIcon = tab.icon;
@@ -976,8 +1352,12 @@ export default function AdminTugasKelompokDetail({
                                 return (
                                     <Fragment key={tab.key}>
                                         <Button
-                                            variant={isActive ? 'default' : 'outline'}
-                                            onClick={() => setActiveTab(tab.key)}
+                                            variant={
+                                                isActive ? 'default' : 'outline'
+                                            }
+                                            onClick={() =>
+                                                setActiveTab(tab.key)
+                                            }
                                             className={cn(
                                                 'h-11 shrink-0 rounded-xl px-4 text-sm font-semibold transition-all duration-300',
                                                 isActive
@@ -991,14 +1371,18 @@ export default function AdminTugasKelompokDetail({
                                                 <span
                                                     className={cn(
                                                         'ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold',
-                                                        isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
+                                                        isActive
+                                                            ? 'bg-white/20 text-white'
+                                                            : 'bg-slate-200 text-slate-700 dark:bg-neutral-700 dark:text-slate-300',
                                                     )}
                                                 >
                                                     {tab.count}
                                                 </span>
                                             )}
                                         </Button>
-                                        {index < tabs.length - 1 && <ChevronRight className="h-4 w-4 text-slate-400" />}
+                                        {index < tabs.length - 1 && (
+                                            <ChevronRight className="h-4 w-4 text-slate-400" />
+                                        )}
                                     </Fragment>
                                 );
                             })}
@@ -1009,7 +1393,13 @@ export default function AdminTugasKelompokDetail({
                 <AnimatePresence mode="wait">
                     {/* Groups Tab */}
                     {activeTab === 'groups' && (
-                        <motion.div key="groups" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} className="space-y-4">
+                        <motion.div
+                            key="groups"
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            className="space-y-4"
+                        >
                             {unassignedStudents.length > 0 && (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.97 }}
@@ -1020,26 +1410,38 @@ export default function AdminTugasKelompokDetail({
                                         <div className="flex-1">
                                             <h4 className="mb-2 flex items-center gap-2 font-bold text-amber-700 dark:text-amber-300">
                                                 <AlertTriangle className="h-4 w-4" />
-                                                {unassignedStudents.length} Mahasiswa Belum Berkelompok
+                                                {unassignedStudents.length}{' '}
+                                                Mahasiswa Belum Berkelompok
                                             </h4>
                                             <div className="flex flex-wrap gap-2">
-                                                {unassignedStudents.slice(0, 12).map((student) => (
-                                                    <span
-                                                        key={student.id}
-                                                        className="rounded-lg border border-amber-200 bg-white px-2.5 py-1 text-xs text-slate-700 dark:border-amber-700 dark:bg-neutral-800 dark:text-slate-300"
-                                                    >
-                                                        {student.nama}
-                                                    </span>
-                                                ))}
-                                                {unassignedStudents.length > 12 && (
+                                                {unassignedStudents
+                                                    .slice(0, 12)
+                                                    .map((student) => (
+                                                        <span
+                                                            key={student.id}
+                                                            className="rounded-lg border border-amber-200 bg-white px-2.5 py-1 text-xs text-slate-700 dark:border-amber-700 dark:bg-neutral-800 dark:text-slate-300"
+                                                        >
+                                                            {student.nama}
+                                                        </span>
+                                                    ))}
+                                                {unassignedStudents.length >
+                                                    12 && (
                                                     <span className="rounded-lg bg-amber-100 px-2.5 py-1 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
-                                                        +{unassignedStudents.length - 12} lainnya
+                                                        +
+                                                        {unassignedStudents.length -
+                                                            12}{' '}
+                                                        lainnya
                                                     </span>
                                                 )}
                                             </div>
                                         </div>
 
-                                        <Button onClick={() => setAssignDialogOpen(true)} className="rounded-xl bg-amber-500 text-white hover:bg-amber-600">
+                                        <Button
+                                            onClick={() =>
+                                                setAssignDialogOpen(true)
+                                            }
+                                            className="rounded-xl bg-amber-500 text-white hover:bg-amber-600"
+                                        >
                                             <UserPlus className="mr-2 h-4 w-4" />
                                             Assign ke Kelompok
                                         </Button>
@@ -1052,7 +1454,11 @@ export default function AdminTugasKelompokDetail({
                                     <div className="flex items-center gap-3">
                                         <Checkbox
                                             checked={allVisibleSelected}
-                                            onCheckedChange={(checked) => handleToggleSelectAll(checked === true)}
+                                            onCheckedChange={(checked) =>
+                                                handleToggleSelectAll(
+                                                    checked === true,
+                                                )
+                                            }
                                             aria-label="Pilih semua kelompok yang tampil"
                                         />
                                         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -1063,33 +1469,58 @@ export default function AdminTugasKelompokDetail({
                                     </div>
 
                                     <div className="flex flex-wrap gap-2">
-                                        {assignment.formation_mode === 'manual' && (
+                                        {assignment.formation_mode ===
+                                            'manual' && (
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                onClick={() => setCreateGroupDialogOpen(true)}
+                                                onClick={() =>
+                                                    setCreateGroupDialogOpen(
+                                                        true,
+                                                    )
+                                                }
                                                 className="rounded-xl"
                                             >
-                                                <Plus className="mr-2 h-4 w-4" /> Buat Kelompok
+                                                <Plus className="mr-2 h-4 w-4" />{' '}
+                                                Buat Kelompok
                                             </Button>
                                         )}
-                                        {assignment.formation_mode === 'random' && !assignment.is_locked && (
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => router.post(`/admin/tugas-kelompok/${assignment.id}/random-groups`)}
-                                                className="rounded-xl"
-                                            >
-                                                <Shuffle className="mr-2 h-4 w-4" /> Acak Ulang
-                                            </Button>
-                                        )}
+                                        {assignment.formation_mode ===
+                                            'random' &&
+                                            !assignment.is_locked && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() =>
+                                                        router.post(
+                                                            `/admin/tugas-kelompok/${assignment.id}/random-groups`,
+                                                        )
+                                                    }
+                                                    className="rounded-xl"
+                                                >
+                                                    <Shuffle className="mr-2 h-4 w-4" />{' '}
+                                                    Acak Ulang
+                                                </Button>
+                                            )}
                                         <Button
                                             size="sm"
-                                            variant={bulkGradeMode ? 'default' : 'outline'}
-                                            onClick={() => setBulkGradeMode((prev) => !prev)}
-                                            className={cn(bulkGradeMode && 'rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white')}
+                                            variant={
+                                                bulkGradeMode
+                                                    ? 'default'
+                                                    : 'outline'
+                                            }
+                                            onClick={() =>
+                                                setBulkGradeMode(
+                                                    (prev) => !prev,
+                                                )
+                                            }
+                                            className={cn(
+                                                bulkGradeMode &&
+                                                    'rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white',
+                                            )}
                                         >
-                                            <Award className="mr-2 h-4 w-4" /> Nilai Massal
+                                            <Award className="mr-2 h-4 w-4" />{' '}
+                                            Nilai Massal
                                         </Button>
                                     </div>
                                 </div>
@@ -1108,27 +1539,46 @@ export default function AdminTugasKelompokDetail({
                                                     min={0}
                                                     max={100}
                                                     value={bulkGradeValue}
-                                                    onChange={(event) => setBulkGradeValue(event.target.value)}
+                                                    onChange={(event) =>
+                                                        setBulkGradeValue(
+                                                            event.target.value,
+                                                        )
+                                                    }
                                                     placeholder="Nilai 0-100"
                                                     className="rounded-xl"
                                                 />
                                                 <Input
                                                     value={bulkGradeNotes}
-                                                    onChange={(event) => setBulkGradeNotes(event.target.value)}
+                                                    onChange={(event) =>
+                                                        setBulkGradeNotes(
+                                                            event.target.value,
+                                                        )
+                                                    }
                                                     placeholder="Catatan nilai massal (opsional)"
                                                     className="rounded-xl"
                                                 />
                                                 <Button
-                                                    onClick={handleApplyBulkGrade}
-                                                    disabled={bulkProcessing || selectedSubmittedGroups.length === 0}
+                                                    onClick={
+                                                        handleApplyBulkGrade
+                                                    }
+                                                    disabled={
+                                                        bulkProcessing ||
+                                                        selectedSubmittedGroups.length ===
+                                                            0
+                                                    }
                                                     className="rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
                                                 >
-                                                    {bulkProcessing ? 'Memproses...' : `Terapkan (${selectedSubmittedGroups.length})`}
+                                                    {bulkProcessing
+                                                        ? 'Memproses...'
+                                                        : `Terapkan (${selectedSubmittedGroups.length})`}
                                                 </Button>
                                             </div>
-                                            {selectedGroups.length > selectedSubmittedGroups.length && (
+                                            {selectedGroups.length >
+                                                selectedSubmittedGroups.length && (
                                                 <p className="mt-2 text-xs text-amber-600 dark:text-amber-300">
-                                                    Sebagian kelompok terpilih belum submit, jadi tidak ikut dinilai.
+                                                    Sebagian kelompok terpilih
+                                                    belum submit, jadi tidak
+                                                    ikut dinilai.
                                                 </p>
                                             )}
                                         </motion.div>
@@ -1140,7 +1590,9 @@ export default function AdminTugasKelompokDetail({
                                 <div className="rounded-3xl border border-white/20 bg-white/40 py-14 text-center shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
                                     <Users2 className="mx-auto mb-3 h-12 w-12 text-slate-300" />
                                     <p className="text-slate-500 dark:text-slate-400">
-                                        {searchQuery ? 'Tidak ada kelompok yang cocok dengan pencarian.' : 'Belum ada kelompok.'}
+                                        {searchQuery
+                                            ? 'Tidak ada kelompok yang cocok dengan pencarian.'
+                                            : 'Belum ada kelompok.'}
                                     </p>
                                 </div>
                             ) : (
@@ -1156,19 +1608,32 @@ export default function AdminTugasKelompokDetail({
                                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                             <div className="flex flex-1 items-start gap-3">
                                                 <Checkbox
-                                                    checked={selectedGroups.includes(group.id)}
-                                                    onCheckedChange={(checked) => handleToggleGroup(group.id, checked === true)}
+                                                    checked={selectedGroups.includes(
+                                                        group.id,
+                                                    )}
+                                                    onCheckedChange={(
+                                                        checked,
+                                                    ) =>
+                                                        handleToggleGroup(
+                                                            group.id,
+                                                            checked === true,
+                                                        )
+                                                    }
                                                     className="mt-1"
                                                     aria-label={`Pilih ${group.name}`}
                                                 />
 
                                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-500 text-sm font-bold text-white shadow-lg">
-                                                    {group.name.slice(-1).toUpperCase()}
+                                                    {group.name
+                                                        .slice(-1)
+                                                        .toUpperCase()}
                                                 </div>
 
                                                 <div className="flex-1">
                                                     <div className="flex flex-wrap items-center gap-2">
-                                                        <h4 className="font-bold text-slate-900 dark:text-white">{group.name}</h4>
+                                                        <h4 className="font-bold text-slate-900 dark:text-white">
+                                                            {group.name}
+                                                        </h4>
                                                         {group.has_submission && (
                                                             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                                                                 Submitted
@@ -1182,51 +1647,90 @@ export default function AdminTugasKelompokDetail({
                                                     </div>
 
                                                     <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                                                        {group.member_count} anggota • {group.task_stats.completed}/{group.task_stats.total} task selesai
+                                                        {group.member_count}{' '}
+                                                        anggota •{' '}
+                                                        {
+                                                            group.task_stats
+                                                                .completed
+                                                        }
+                                                        /
+                                                        {group.task_stats.total}{' '}
+                                                        task selesai
                                                     </p>
 
                                                     <div className="mt-2 flex flex-wrap gap-1.5">
-                                                        {group.members.map((member) => (
-                                                            <span
-                                                                key={member.id}
-                                                                className={cn(
-                                                                    'rounded-lg border px-2.5 py-1 text-xs',
-                                                                    member.is_leader
-                                                                        ? 'border-purple-200 bg-purple-100 font-medium text-purple-700 dark:border-purple-700 dark:bg-purple-900/35 dark:text-purple-300'
-                                                                        : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-slate-300',
-                                                                )}
-                                                            >
-                                                                {member.is_leader && <Star className="mr-1 inline h-3 w-3" />}
-                                                                {member.nama}
-                                                                <span className="ml-1 text-[10px] opacity-75">({member.contribution_points} pts)</span>
-                                                            </span>
-                                                        ))}
+                                                        {group.members.map(
+                                                            (member) => (
+                                                                <span
+                                                                    key={
+                                                                        member.id
+                                                                    }
+                                                                    className={cn(
+                                                                        'rounded-lg border px-2.5 py-1 text-xs',
+                                                                        member.is_leader
+                                                                            ? 'border-purple-200 bg-purple-100 font-medium text-purple-700 dark:border-purple-700 dark:bg-purple-900/35 dark:text-purple-300'
+                                                                            : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-slate-300',
+                                                                    )}
+                                                                >
+                                                                    {member.is_leader && (
+                                                                        <Star className="mr-1 inline h-3 w-3" />
+                                                                    )}
+                                                                    {
+                                                                        member.nama
+                                                                    }
+                                                                    <span className="ml-1 text-[10px] opacity-75">
+                                                                        (
+                                                                        {
+                                                                            member.contribution_points
+                                                                        }{' '}
+                                                                        pts)
+                                                                    </span>
+                                                                </span>
+                                                            ),
+                                                        )}
                                                     </div>
 
                                                     <div className="mt-3 flex items-center gap-3">
                                                         <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-700">
                                                             <motion.div
-                                                                initial={{ width: 0 }}
-                                                                animate={{ width: `${group.progress}%` }}
-                                                                transition={{ duration: 0.8, ease: 'easeOut' }}
+                                                                initial={{
+                                                                    width: 0,
+                                                                }}
+                                                                animate={{
+                                                                    width: `${group.progress}%`,
+                                                                }}
+                                                                transition={{
+                                                                    duration: 0.8,
+                                                                    ease: 'easeOut',
+                                                                }}
                                                                 className="h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500"
                                                             />
                                                         </div>
-                                                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{group.progress}%</span>
+                                                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                                                            {group.progress}%
+                                                        </span>
                                                     </div>
 
                                                     <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
                                                         <span className="inline-flex items-center gap-1">
                                                             <MessageSquare className="h-3 w-3" />
-                                                            {group.message_count} pesan
+                                                            {
+                                                                group.message_count
+                                                            }{' '}
+                                                            pesan
                                                         </span>
                                                         <span className="inline-flex items-center gap-1">
                                                             <FolderOpen className="h-3 w-3" />
-                                                            {group.file_count} file
+                                                            {group.file_count}{' '}
+                                                            file
                                                         </span>
                                                         <span className="inline-flex items-center gap-1">
                                                             <CheckCheck className="h-3 w-3" />
-                                                            {group.task_stats.in_progress} in progress
+                                                            {
+                                                                group.task_stats
+                                                                    .in_progress
+                                                            }{' '}
+                                                            in progress
                                                         </span>
                                                     </div>
                                                 </div>
@@ -1238,39 +1742,55 @@ export default function AdminTugasKelompokDetail({
                                                         'rounded-full px-2.5 py-1 text-xs font-medium',
                                                         !group.has_submission
                                                             ? 'bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-slate-400'
-                                                            : group.grade !== null && group.grade !== undefined
-                                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300'
-                                                                : group.is_late
-                                                                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300'
-                                                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300',
+                                                            : group.grade !==
+                                                                    null &&
+                                                                group.grade !==
+                                                                    undefined
+                                                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300'
+                                                              : group.is_late
+                                                                ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300'
+                                                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300',
                                                     )}
                                                 >
                                                     {!group.has_submission
                                                         ? 'Belum Submit'
-                                                        : group.grade !== null && group.grade !== undefined
-                                                            ? `Nilai: ${group.grade}`
-                                                            : group.is_late
-                                                                ? 'Late Submit'
-                                                                : 'Belum Dinilai'}
+                                                        : group.grade !==
+                                                                null &&
+                                                            group.grade !==
+                                                                undefined
+                                                          ? `Nilai: ${group.grade}`
+                                                          : group.is_late
+                                                            ? 'Late Submit'
+                                                            : 'Belum Dinilai'}
                                                 </span>
 
                                                 <div className="flex gap-1">
                                                     <Button
                                                         size="sm"
                                                         variant="ghost"
-                                                        onClick={() => setActiveTab('monitoring')}
+                                                        onClick={() =>
+                                                            setActiveTab(
+                                                                'monitoring',
+                                                            )
+                                                        }
                                                         className="h-8 rounded-lg px-2"
                                                     >
-                                                        <Eye className="mr-1 h-4 w-4" /> Monitor
+                                                        <Eye className="mr-1 h-4 w-4" />{' '}
+                                                        Monitor
                                                     </Button>
 
                                                     {group.has_submission && (
                                                         <Button
                                                             size="sm"
-                                                            onClick={() => openGradeModal(group)}
+                                                            onClick={() =>
+                                                                openGradeModal(
+                                                                    group,
+                                                                )
+                                                            }
                                                             className="h-8 rounded-lg bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
                                                         >
-                                                            <Award className="mr-1 h-3 w-3" /> Nilai
+                                                            <Award className="mr-1 h-3 w-3" />{' '}
+                                                            Nilai
                                                         </Button>
                                                     )}
                                                 </div>
@@ -1284,7 +1804,13 @@ export default function AdminTugasKelompokDetail({
 
                     {/* Analytics Tab */}
                     {activeTab === 'analytics' && (
-                        <motion.div key="analytics" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} className="space-y-4">
+                        <motion.div
+                            key="analytics"
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            className="space-y-4"
+                        >
                             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                                 <div className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
                                     <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
@@ -1293,17 +1819,29 @@ export default function AdminTugasKelompokDetail({
                                     </h3>
                                     <div className="space-y-3">
                                         {[...groups]
-                                            .sort((a, b) => b.progress - a.progress)
+                                            .sort(
+                                                (a, b) =>
+                                                    b.progress - a.progress,
+                                            )
                                             .map((group) => (
                                                 <div key={group.id}>
                                                     <div className="mb-1 flex items-center justify-between text-xs">
-                                                        <span className="font-medium text-slate-700 dark:text-slate-300">{group.name}</span>
+                                                        <span className="font-medium text-slate-700 dark:text-slate-300">
+                                                            {group.name}
+                                                        </span>
                                                         <span className="text-slate-500 dark:text-slate-400">
-                                                            {group.progress}% • Nilai {group.grade ?? '-'}
+                                                            {group.progress}% •
+                                                            Nilai{' '}
+                                                            {group.grade ?? '-'}
                                                         </span>
                                                     </div>
                                                     <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-700">
-                                                        <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500" style={{ width: `${group.progress}%` }} />
+                                                        <div
+                                                            className="h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500"
+                                                            style={{
+                                                                width: `${group.progress}%`,
+                                                            }}
+                                                        />
                                                     </div>
                                                 </div>
                                             ))}
@@ -1317,38 +1855,73 @@ export default function AdminTugasKelompokDetail({
                                     </h3>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 dark:border-emerald-500/30 dark:bg-emerald-900/20">
-                                            <p className="text-xs text-emerald-700 dark:text-emerald-300">Engagement Score</p>
-                                            <p className="text-xl font-bold text-emerald-700 dark:text-emerald-200">{engagementScore}%</p>
+                                            <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                                Engagement Score
+                                            </p>
+                                            <p className="text-xl font-bold text-emerald-700 dark:text-emerald-200">
+                                                {engagementScore}%
+                                            </p>
                                         </div>
                                         <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3 dark:border-blue-500/30 dark:bg-blue-900/20">
-                                            <p className="text-xs text-blue-700 dark:text-blue-300">Active Members</p>
+                                            <p className="text-xs text-blue-700 dark:text-blue-300">
+                                                Active Members
+                                            </p>
                                             <p className="text-xl font-bold text-blue-700 dark:text-blue-200">
-                                                {activeMemberCount}/{analytics.overview.total_students}
+                                                {activeMemberCount}/
+                                                {
+                                                    analytics.overview
+                                                        .total_students
+                                                }
                                             </p>
                                         </div>
                                         <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-500/30 dark:bg-amber-900/20">
-                                            <p className="text-xs text-amber-700 dark:text-amber-300">Late Submissions</p>
-                                            <p className="text-xl font-bold text-amber-700 dark:text-amber-200">{analytics.overview.late_submissions}</p>
+                                            <p className="text-xs text-amber-700 dark:text-amber-300">
+                                                Late Submissions
+                                            </p>
+                                            <p className="text-xl font-bold text-amber-700 dark:text-amber-200">
+                                                {
+                                                    analytics.overview
+                                                        .late_submissions
+                                                }
+                                            </p>
                                         </div>
                                         <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-3 dark:border-rose-500/30 dark:bg-rose-900/20">
-                                            <p className="text-xs text-rose-700 dark:text-rose-300">High Risk Groups</p>
-                                            <p className="text-xl font-bold text-rose-700 dark:text-rose-200">{riskGroups.length}</p>
+                                            <p className="text-xs text-rose-700 dark:text-rose-300">
+                                                High Risk Groups
+                                            </p>
+                                            <p className="text-xl font-bold text-rose-700 dark:text-rose-200">
+                                                {riskGroups.length}
+                                            </p>
                                         </div>
                                     </div>
 
                                     <div className="mt-4 space-y-2 rounded-xl border border-white/20 bg-white/60 p-3 dark:border-white/5 dark:bg-neutral-800/60">
-                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Kelompok dengan risiko tertinggi</p>
+                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                            Kelompok dengan risiko tertinggi
+                                        </p>
                                         {riskGroups.length === 0 ? (
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">Tidak ada kelompok berisiko tinggi saat ini.</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                Tidak ada kelompok berisiko
+                                                tinggi saat ini.
+                                            </p>
                                         ) : (
-                                            riskGroups.slice(0, 5).map((group) => (
-                                                <div key={group.id} className="flex items-center justify-between text-xs">
-                                                    <span className="text-slate-700 dark:text-slate-300">{group.name}</span>
-                                                    <span className="font-medium text-rose-600 dark:text-rose-300">
-                                                        {group.has_submission ? `Nilai ${group.grade ?? 0}` : 'Belum submit'}
-                                                    </span>
-                                                </div>
-                                            ))
+                                            riskGroups
+                                                .slice(0, 5)
+                                                .map((group) => (
+                                                    <div
+                                                        key={group.id}
+                                                        className="flex items-center justify-between text-xs"
+                                                    >
+                                                        <span className="text-slate-700 dark:text-slate-300">
+                                                            {group.name}
+                                                        </span>
+                                                        <span className="font-medium text-rose-600 dark:text-rose-300">
+                                                            {group.has_submission
+                                                                ? `Nilai ${group.grade ?? 0}`
+                                                                : 'Belum submit'}
+                                                        </span>
+                                                    </div>
+                                                ))
                                         )}
                                     </div>
                                 </div>
@@ -1361,21 +1934,35 @@ export default function AdminTugasKelompokDetail({
                                 </h3>
 
                                 {latestTimeline.length === 0 ? (
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada data aktivitas timeline.</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                        Belum ada data aktivitas timeline.
+                                    </p>
                                 ) : (
                                     <div className="space-y-2">
-                                        {latestTimeline.slice(-12).map((day) => (
-                                            <div key={day.date} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-white/40 dark:hover:bg-neutral-800/40">
-                                                <span className="w-28 shrink-0 text-xs text-slate-500 dark:text-slate-400">{formatDate(day.date)}</span>
-                                                <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-700">
-                                                    <div
-                                                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500"
-                                                        style={{ width: `${Math.round((day.activities / maxTimelineActivity) * 100)}%` }}
-                                                    />
+                                        {latestTimeline
+                                            .slice(-12)
+                                            .map((day) => (
+                                                <div
+                                                    key={day.date}
+                                                    className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-white/40 dark:hover:bg-neutral-800/40"
+                                                >
+                                                    <span className="w-28 shrink-0 text-xs text-slate-500 dark:text-slate-400">
+                                                        {formatDate(day.date)}
+                                                    </span>
+                                                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-neutral-700">
+                                                        <div
+                                                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500"
+                                                            style={{
+                                                                width: `${Math.round((day.activities / maxTimelineActivity) * 100)}%`,
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <span className="w-20 text-right text-xs font-medium text-slate-600 dark:text-slate-300">
+                                                        {day.activities}{' '}
+                                                        aktivitas
+                                                    </span>
                                                 </div>
-                                                <span className="w-20 text-right text-xs font-medium text-slate-600 dark:text-slate-300">{day.activities} aktivitas</span>
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 )}
                             </div>
@@ -1384,37 +1971,74 @@ export default function AdminTugasKelompokDetail({
 
                     {/* Grading Tab */}
                     {activeTab === 'grading' && (
-                        <motion.div key="grading" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} className="space-y-4">
+                        <motion.div
+                            key="grading"
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            className="space-y-4"
+                        >
                             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                                <div className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 lg:col-span-2">
+                                <div className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl lg:col-span-2 dark:border-white/5 dark:bg-neutral-900/40">
                                     <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
                                         <Award className="h-5 w-5 text-purple-500" />
                                         Grade Distribution
                                     </h3>
                                     <div className="grid grid-cols-5 gap-2">
-                                        {Object.entries(gradeDistribution).map(([label, count]) => (
-                                            <div key={label} className="rounded-xl border border-white/20 bg-white/60 p-3 text-center dark:border-white/5 dark:bg-neutral-800/60">
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Grade {label}</p>
-                                                <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">{count}</p>
-                                            </div>
-                                        ))}
+                                        {Object.entries(gradeDistribution).map(
+                                            ([label, count]) => (
+                                                <div
+                                                    key={label}
+                                                    className="rounded-xl border border-white/20 bg-white/60 p-3 text-center dark:border-white/5 dark:bg-neutral-800/60"
+                                                >
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        Grade {label}
+                                                    </p>
+                                                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
+                                                        {count}
+                                                    </p>
+                                                </div>
+                                            ),
+                                        )}
                                     </div>
                                     <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                                         <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-3 dark:border-emerald-500/30 dark:bg-emerald-900/20">
-                                            <p className="text-xs text-emerald-700 dark:text-emerald-300">Sudah Dinilai</p>
-                                            <p className="text-xl font-bold text-emerald-700 dark:text-emerald-200">{gradedGroups.length}</p>
+                                            <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                                Sudah Dinilai
+                                            </p>
+                                            <p className="text-xl font-bold text-emerald-700 dark:text-emerald-200">
+                                                {gradedGroups.length}
+                                            </p>
                                         </div>
                                         <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-500/30 dark:bg-amber-900/20">
-                                            <p className="text-xs text-amber-700 dark:text-amber-300">Belum Dinilai</p>
-                                            <p className="text-xl font-bold text-amber-700 dark:text-amber-200">{submittedGroups.length - gradedGroups.length}</p>
+                                            <p className="text-xs text-amber-700 dark:text-amber-300">
+                                                Belum Dinilai
+                                            </p>
+                                            <p className="text-xl font-bold text-amber-700 dark:text-amber-200">
+                                                {submittedGroups.length -
+                                                    gradedGroups.length}
+                                            </p>
                                         </div>
                                         <div className="rounded-xl border border-purple-200 bg-purple-50/60 p-3 dark:border-purple-500/30 dark:bg-purple-900/20">
-                                            <p className="text-xs text-purple-700 dark:text-purple-300">Average</p>
-                                            <p className="text-xl font-bold text-purple-700 dark:text-purple-200">{analytics.overview.average_grade.toFixed(1)}</p>
+                                            <p className="text-xs text-purple-700 dark:text-purple-300">
+                                                Average
+                                            </p>
+                                            <p className="text-xl font-bold text-purple-700 dark:text-purple-200">
+                                                {analytics.overview.average_grade.toFixed(
+                                                    1,
+                                                )}
+                                            </p>
                                         </div>
                                         <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-3 dark:border-blue-500/30 dark:bg-blue-900/20">
-                                            <p className="text-xs text-blue-700 dark:text-blue-300">Peer Eval Rate</p>
-                                            <p className="text-xl font-bold text-blue-700 dark:text-blue-200">{peerSummary.completion_rate.toFixed(1)}%</p>
+                                            <p className="text-xs text-blue-700 dark:text-blue-300">
+                                                Peer Eval Rate
+                                            </p>
+                                            <p className="text-xl font-bold text-blue-700 dark:text-blue-200">
+                                                {peerSummary.completion_rate.toFixed(
+                                                    1,
+                                                )}
+                                                %
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -1427,27 +2051,48 @@ export default function AdminTugasKelompokDetail({
                                     <div className="space-y-2 text-sm">
                                         <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                             <span>Total Evaluasi</span>
-                                            <span className="font-semibold">{peerSummary.total_evaluations}</span>
+                                            <span className="font-semibold">
+                                                {peerSummary.total_evaluations}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                             <span>Selesai oleh</span>
-                                            <span className="font-semibold">{peerSummary.completed_by}/{peerSummary.total_expected}</span>
+                                            <span className="font-semibold">
+                                                {peerSummary.completed_by}/
+                                                {peerSummary.total_expected}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                             <span>Avg Contribution</span>
-                                            <span className="font-semibold">{peerSummary.avg_contribution.toFixed(1)}</span>
+                                            <span className="font-semibold">
+                                                {peerSummary.avg_contribution.toFixed(
+                                                    1,
+                                                )}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                             <span>Avg Communication</span>
-                                            <span className="font-semibold">{peerSummary.avg_communication.toFixed(1)}</span>
+                                            <span className="font-semibold">
+                                                {peerSummary.avg_communication.toFixed(
+                                                    1,
+                                                )}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                             <span>Avg Reliability</span>
-                                            <span className="font-semibold">{peerSummary.avg_reliability.toFixed(1)}</span>
+                                            <span className="font-semibold">
+                                                {peerSummary.avg_reliability.toFixed(
+                                                    1,
+                                                )}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                             <span>Avg Quality</span>
-                                            <span className="font-semibold">{peerSummary.avg_quality.toFixed(1)}</span>
+                                            <span className="font-semibold">
+                                                {peerSummary.avg_quality.toFixed(
+                                                    1,
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -1460,22 +2105,32 @@ export default function AdminTugasKelompokDetail({
                                 </h3>
 
                                 {submittedGroups.length === 0 ? (
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada kelompok yang submit tugas.</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                        Belum ada kelompok yang submit tugas.
+                                    </p>
                                 ) : (
                                     <div className="space-y-2">
                                         {submittedGroups.map((group) => (
                                             <div
                                                 key={group.id}
-                                                className="flex flex-col gap-2 rounded-xl border border-white/20 bg-white/60 p-3 dark:border-white/5 dark:bg-neutral-800/60 sm:flex-row sm:items-center sm:justify-between"
+                                                className="flex flex-col gap-2 rounded-xl border border-white/20 bg-white/60 p-3 sm:flex-row sm:items-center sm:justify-between dark:border-white/5 dark:bg-neutral-800/60"
                                             >
                                                 <div>
-                                                    <p className="font-semibold text-slate-900 dark:text-white">{group.name}</p>
+                                                    <p className="font-semibold text-slate-900 dark:text-white">
+                                                        {group.name}
+                                                    </p>
                                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                        {group.member_count} anggota • {group.is_late ? 'Submit terlambat' : 'Submit tepat waktu'}
+                                                        {group.member_count}{' '}
+                                                        anggota •{' '}
+                                                        {group.is_late
+                                                            ? 'Submit terlambat'
+                                                            : 'Submit tepat waktu'}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    {group.grade !== null && group.grade !== undefined ? (
+                                                    {group.grade !== null &&
+                                                    group.grade !==
+                                                        undefined ? (
                                                         <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300">
                                                             {group.grade}
                                                         </span>
@@ -1486,10 +2141,15 @@ export default function AdminTugasKelompokDetail({
                                                     )}
                                                     <Button
                                                         size="sm"
-                                                        onClick={() => openGradeModal(group)}
+                                                        onClick={() =>
+                                                            openGradeModal(
+                                                                group,
+                                                            )
+                                                        }
                                                         className="rounded-lg bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
                                                     >
-                                                        <Award className="mr-2 h-4 w-4" /> Nilai
+                                                        <Award className="mr-2 h-4 w-4" />{' '}
+                                                        Nilai
                                                     </Button>
                                                 </div>
                                             </div>
@@ -1502,7 +2162,13 @@ export default function AdminTugasKelompokDetail({
 
                     {/* Monitoring Tab */}
                     {activeTab === 'monitoring' && (
-                        <motion.div key="monitoring" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} className="space-y-4">
+                        <motion.div
+                            key="monitoring"
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            className="space-y-4"
+                        >
                             <div className="rounded-2xl border border-white/20 bg-white/40 p-4 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
@@ -1511,19 +2177,33 @@ export default function AdminTugasKelompokDetail({
                                             Real-time Group Monitoring
                                         </h3>
                                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                                            Update otomatis progress, aktivitas, dan indikator risiko.
+                                            Update otomatis progress, aktivitas,
+                                            dan indikator risiko.
                                         </p>
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <Select value={refreshMode} onValueChange={(value) => setRefreshMode(value as RefreshMode)}>
+                                        <Select
+                                            value={refreshMode}
+                                            onValueChange={(value) =>
+                                                setRefreshMode(
+                                                    value as RefreshMode,
+                                                )
+                                            }
+                                        >
                                             <SelectTrigger className="w-36 rounded-xl">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="off">Auto Refresh Off</SelectItem>
-                                                <SelectItem value="30s">Refresh 30 detik</SelectItem>
-                                                <SelectItem value="60s">Refresh 60 detik</SelectItem>
+                                                <SelectItem value="off">
+                                                    Auto Refresh Off
+                                                </SelectItem>
+                                                <SelectItem value="30s">
+                                                    Refresh 30 detik
+                                                </SelectItem>
+                                                <SelectItem value="60s">
+                                                    Refresh 60 detik
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <Button
@@ -1532,16 +2212,28 @@ export default function AdminTugasKelompokDetail({
                                             onClick={() => {
                                                 setIsRefreshing(true);
                                                 router.reload({
-                                                    only: ['groups', 'analytics', 'conflictReports'],
+                                                    only: [
+                                                        'groups',
+                                                        'analytics',
+                                                        'conflictReports',
+                                                    ],
                                                     onFinish: () => {
                                                         setIsRefreshing(false);
-                                                        setLastRefreshedAt(new Date());
+                                                        setLastRefreshedAt(
+                                                            new Date(),
+                                                        );
                                                     },
                                                 });
                                             }}
                                             className="rounded-xl"
                                         >
-                                            <RefreshCw className={cn('mr-2 h-4 w-4', isRefreshing && 'animate-spin')} />
+                                            <RefreshCw
+                                                className={cn(
+                                                    'mr-2 h-4 w-4',
+                                                    isRefreshing &&
+                                                        'animate-spin',
+                                                )}
+                                            />
                                             Refresh
                                         </Button>
                                     </div>
@@ -1549,38 +2241,63 @@ export default function AdminTugasKelompokDetail({
 
                                 <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
                                     <div className="rounded-xl border border-cyan-200 bg-cyan-50/60 p-3 dark:border-cyan-500/30 dark:bg-cyan-900/20">
-                                        <p className="text-xs text-cyan-700 dark:text-cyan-300">Active Members</p>
-                                        <p className="text-xl font-bold text-cyan-700 dark:text-cyan-200">{activeMemberCount}</p>
+                                        <p className="text-xs text-cyan-700 dark:text-cyan-300">
+                                            Active Members
+                                        </p>
+                                        <p className="text-xl font-bold text-cyan-700 dark:text-cyan-200">
+                                            {activeMemberCount}
+                                        </p>
                                     </div>
                                     <div className="rounded-xl border border-indigo-200 bg-indigo-50/60 p-3 dark:border-indigo-500/30 dark:bg-indigo-900/20">
-                                        <p className="text-xs text-indigo-700 dark:text-indigo-300">Live Engagement</p>
-                                        <p className="text-xl font-bold text-indigo-700 dark:text-indigo-200">{engagementScore}%</p>
+                                        <p className="text-xs text-indigo-700 dark:text-indigo-300">
+                                            Live Engagement
+                                        </p>
+                                        <p className="text-xl font-bold text-indigo-700 dark:text-indigo-200">
+                                            {engagementScore}%
+                                        </p>
                                     </div>
                                     <div className="rounded-xl border border-purple-200 bg-purple-50/60 p-3 dark:border-purple-500/30 dark:bg-purple-900/20">
-                                        <p className="text-xs text-purple-700 dark:text-purple-300">Timeline Points</p>
-                                        <p className="text-xl font-bold text-purple-700 dark:text-purple-200">{latestTimeline.length}</p>
+                                        <p className="text-xs text-purple-700 dark:text-purple-300">
+                                            Timeline Points
+                                        </p>
+                                        <p className="text-xl font-bold text-purple-700 dark:text-purple-200">
+                                            {latestTimeline.length}
+                                        </p>
                                     </div>
                                     <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 dark:border-white/10 dark:bg-neutral-800/60">
-                                        <p className="text-xs text-slate-600 dark:text-slate-300">Last Refresh</p>
+                                        <p className="text-xs text-slate-600 dark:text-slate-300">
+                                            Last Refresh
+                                        </p>
                                         <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                            {lastRefreshedAt ? lastRefreshedAt.toLocaleTimeString('id-ID') : 'Belum ada'}
+                                            {lastRefreshedAt
+                                                ? lastRefreshedAt.toLocaleTimeString(
+                                                      'id-ID',
+                                                  )
+                                                : 'Belum ada'}
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                                <div className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 xl:col-span-2">
+                                <div className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl xl:col-span-2 dark:border-white/5 dark:bg-neutral-900/40">
                                     <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
                                         <TrendingUp className="h-5 w-5 text-purple-500" />
                                         Progress Heatmap Kelompok
                                     </h3>
                                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         {groups.map((group) => (
-                                            <div key={group.id} className="rounded-xl border border-white/20 bg-white/60 p-3 dark:border-white/5 dark:bg-neutral-800/60">
+                                            <div
+                                                key={group.id}
+                                                className="rounded-xl border border-white/20 bg-white/60 p-3 dark:border-white/5 dark:bg-neutral-800/60"
+                                            >
                                                 <div className="mb-2 flex items-center justify-between text-xs">
-                                                    <span className="font-medium text-slate-700 dark:text-slate-300">{group.name}</span>
-                                                    <span className="text-slate-500 dark:text-slate-400">{group.progress}%</span>
+                                                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                                                        {group.name}
+                                                    </span>
+                                                    <span className="text-slate-500 dark:text-slate-400">
+                                                        {group.progress}%
+                                                    </span>
                                                 </div>
                                                 <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-neutral-700">
                                                     <div
@@ -1588,18 +2305,33 @@ export default function AdminTugasKelompokDetail({
                                                             'h-full rounded-full',
                                                             group.progress >= 80
                                                                 ? 'bg-emerald-500'
-                                                                : group.progress >= 60
-                                                                    ? 'bg-blue-500'
-                                                                    : group.progress >= 40
-                                                                        ? 'bg-amber-500'
-                                                                        : 'bg-rose-500',
+                                                                : group.progress >=
+                                                                    60
+                                                                  ? 'bg-blue-500'
+                                                                  : group.progress >=
+                                                                      40
+                                                                    ? 'bg-amber-500'
+                                                                    : 'bg-rose-500',
                                                         )}
-                                                        style={{ width: `${group.progress}%` }}
+                                                        style={{
+                                                            width: `${group.progress}%`,
+                                                        }}
                                                     />
                                                 </div>
                                                 <div className="mt-2 flex justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                                                    <span>{group.task_stats.completed}/{group.task_stats.total} task</span>
-                                                    <span>{group.message_count} pesan</span>
+                                                    <span>
+                                                        {
+                                                            group.task_stats
+                                                                .completed
+                                                        }
+                                                        /
+                                                        {group.task_stats.total}{' '}
+                                                        task
+                                                    </span>
+                                                    <span>
+                                                        {group.message_count}{' '}
+                                                        pesan
+                                                    </span>
                                                 </div>
                                             </div>
                                         ))}
@@ -1612,20 +2344,32 @@ export default function AdminTugasKelompokDetail({
                                         Contribution Leaderboard
                                     </h3>
                                     {contributionLeaderboard.length === 0 ? (
-                                        <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada data kontribusi anggota.</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            Belum ada data kontribusi anggota.
+                                        </p>
                                     ) : (
                                         <div className="space-y-2">
-                                            {contributionLeaderboard.map((row, index) => (
-                                                <div key={`${row.memberId}-${row.groupName}`} className="flex items-center justify-between rounded-lg bg-white/60 px-3 py-2 text-xs dark:bg-neutral-800/60">
-                                                    <div>
-                                                        <p className="font-semibold text-slate-800 dark:text-slate-200">
-                                                            #{index + 1} {row.memberName}
-                                                        </p>
-                                                        <p className="text-slate-500 dark:text-slate-400">{row.groupName}</p>
+                                            {contributionLeaderboard.map(
+                                                (row, index) => (
+                                                    <div
+                                                        key={`${row.memberId}-${row.groupName}`}
+                                                        className="flex items-center justify-between rounded-lg bg-white/60 px-3 py-2 text-xs dark:bg-neutral-800/60"
+                                                    >
+                                                        <div>
+                                                            <p className="font-semibold text-slate-800 dark:text-slate-200">
+                                                                #{index + 1}{' '}
+                                                                {row.memberName}
+                                                            </p>
+                                                            <p className="text-slate-500 dark:text-slate-400">
+                                                                {row.groupName}
+                                                            </p>
+                                                        </div>
+                                                        <span className="font-bold text-indigo-600 dark:text-indigo-300">
+                                                            {row.points} pts
+                                                        </span>
                                                     </div>
-                                                    <span className="font-bold text-indigo-600 dark:text-indigo-300">{row.points} pts</span>
-                                                </div>
-                                            ))}
+                                                ),
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -1637,22 +2381,34 @@ export default function AdminTugasKelompokDetail({
                                     Live Activity Feed
                                 </h3>
                                 {latestTimeline.length === 0 ? (
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada aktivitas terekam.</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                        Belum ada aktivitas terekam.
+                                    </p>
                                 ) : (
                                     <div className="space-y-2">
                                         {[...latestTimeline]
                                             .reverse()
                                             .slice(0, 10)
                                             .map((day) => (
-                                                <div key={day.date} className="flex items-center justify-between rounded-xl border border-white/20 bg-white/60 px-3 py-2 dark:border-white/5 dark:bg-neutral-800/60">
+                                                <div
+                                                    key={day.date}
+                                                    className="flex items-center justify-between rounded-xl border border-white/20 bg-white/60 px-3 py-2 dark:border-white/5 dark:bg-neutral-800/60"
+                                                >
                                                     <div>
-                                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{formatDate(day.date)}</p>
+                                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                            {formatDate(
+                                                                day.date,
+                                                            )}
+                                                        </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                            {day.messages} pesan • {day.files} file • {day.tasks} task
+                                                            {day.messages} pesan
+                                                            • {day.files} file •{' '}
+                                                            {day.tasks} task
                                                         </p>
                                                     </div>
                                                     <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-900/35 dark:text-indigo-300">
-                                                        {day.activities} aktivitas
+                                                        {day.activities}{' '}
+                                                        aktivitas
                                                     </span>
                                                 </div>
                                             ))}
@@ -1664,19 +2420,37 @@ export default function AdminTugasKelompokDetail({
 
                     {/* Conflicts Tab */}
                     {activeTab === 'conflicts' && (
-                        <motion.div key="conflicts" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} className="space-y-4">
+                        <motion.div
+                            key="conflicts"
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            className="space-y-4"
+                        >
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                 <div className="rounded-xl border border-rose-200 bg-rose-50/60 p-4 dark:border-rose-500/30 dark:bg-rose-900/20">
-                                    <p className="text-xs text-rose-700 dark:text-rose-300">Open</p>
-                                    <p className="text-2xl font-bold text-rose-700 dark:text-rose-200">{conflictSummary.open}</p>
+                                    <p className="text-xs text-rose-700 dark:text-rose-300">
+                                        Open
+                                    </p>
+                                    <p className="text-2xl font-bold text-rose-700 dark:text-rose-200">
+                                        {conflictSummary.open}
+                                    </p>
                                 </div>
                                 <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-500/30 dark:bg-amber-900/20">
-                                    <p className="text-xs text-amber-700 dark:text-amber-300">In Review</p>
-                                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-200">{conflictSummary.inReview}</p>
+                                    <p className="text-xs text-amber-700 dark:text-amber-300">
+                                        In Review
+                                    </p>
+                                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-200">
+                                        {conflictSummary.inReview}
+                                    </p>
                                 </div>
                                 <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-500/30 dark:bg-emerald-900/20">
-                                    <p className="text-xs text-emerald-700 dark:text-emerald-300">Resolved</p>
-                                    <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-200">{conflictSummary.resolved}</p>
+                                    <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                                        Resolved
+                                    </p>
+                                    <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-200">
+                                        {conflictSummary.resolved}
+                                    </p>
                                 </div>
                             </div>
 
@@ -1689,12 +2463,18 @@ export default function AdminTugasKelompokDetail({
                                 {conflictReports.length === 0 ? (
                                     <div className="py-10 text-center">
                                         <CheckCircle className="mx-auto mb-2 h-10 w-10 text-emerald-400" />
-                                        <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada laporan konflik.</p>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            Tidak ada laporan konflik.
+                                        </p>
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
                                         {conflictReports.map((report) => {
-                                            const priority = getConflictPriority(report.status, report.created_at);
+                                            const priority =
+                                                getConflictPriority(
+                                                    report.status,
+                                                    report.created_at,
+                                                );
 
                                             return (
                                                 <div
@@ -1703,24 +2483,43 @@ export default function AdminTugasKelompokDetail({
                                                 >
                                                     <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
                                                         <div>
-                                                            <p className="font-semibold text-slate-900 dark:text-white">{report.group?.name ?? 'Unknown Group'}</p>
+                                                            <p className="font-semibold text-slate-900 dark:text-white">
+                                                                {report.group
+                                                                    ?.name ??
+                                                                    'Unknown Group'}
+                                                            </p>
                                                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                Dilaporkan oleh {report.reporter?.nama ?? 'Unknown'} • {formatDate(report.created_at)}
+                                                                Dilaporkan oleh{' '}
+                                                                {report.reporter
+                                                                    ?.nama ??
+                                                                    'Unknown'}{' '}
+                                                                •{' '}
+                                                                {formatDate(
+                                                                    report.created_at,
+                                                                )}
                                                             </p>
                                                         </div>
 
                                                         <div className="flex items-center gap-2">
-                                                            <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-medium', priority.className)}>
-                                                                Priority: {priority.label}
+                                                            <span
+                                                                className={cn(
+                                                                    'rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                                                    priority.className,
+                                                                )}
+                                                            >
+                                                                Priority:{' '}
+                                                                {priority.label}
                                                             </span>
                                                             <span
                                                                 className={cn(
                                                                     'rounded-full px-2.5 py-0.5 text-xs font-medium',
-                                                                    report.status === 'resolved'
+                                                                    report.status ===
+                                                                        'resolved'
                                                                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300'
-                                                                        : report.status === 'in_review'
-                                                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300'
-                                                                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300',
+                                                                        : report.status ===
+                                                                            'in_review'
+                                                                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300'
+                                                                          : 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300',
                                                                 )}
                                                             >
                                                                 {report.status}
@@ -1728,27 +2527,49 @@ export default function AdminTugasKelompokDetail({
                                                         </div>
                                                     </div>
 
-                                                    <p className="text-sm text-slate-700 dark:text-slate-300">{report.description}</p>
+                                                    <p className="text-sm text-slate-700 dark:text-slate-300">
+                                                        {report.description}
+                                                    </p>
 
-                                                    {report.status !== 'resolved' && (
+                                                    {report.status !==
+                                                        'resolved' && (
                                                         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_auto]">
                                                             <Textarea
                                                                 rows={2}
-                                                                value={resolutionNotes[report.id] ?? ''}
-                                                                onChange={(event) =>
-                                                                    setResolutionNotes((prev) => ({
-                                                                        ...prev,
-                                                                        [report.id]: event.target.value,
-                                                                    }))
+                                                                value={
+                                                                    resolutionNotes[
+                                                                        report
+                                                                            .id
+                                                                    ] ?? ''
+                                                                }
+                                                                onChange={(
+                                                                    event,
+                                                                ) =>
+                                                                    setResolutionNotes(
+                                                                        (
+                                                                            prev,
+                                                                        ) => ({
+                                                                            ...prev,
+                                                                            [report.id]:
+                                                                                event
+                                                                                    .target
+                                                                                    .value,
+                                                                        }),
+                                                                    )
                                                                 }
                                                                 placeholder="Catatan mediasi / resolusi"
                                                                 className="rounded-xl"
                                                             />
                                                             <Button
-                                                                onClick={() => handleResolveConflict(report.id)}
+                                                                onClick={() =>
+                                                                    handleResolveConflict(
+                                                                        report.id,
+                                                                    )
+                                                                }
                                                                 className="rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 text-white"
                                                             >
-                                                                <CheckCircle className="mr-2 h-4 w-4" /> Resolve
+                                                                <CheckCircle className="mr-2 h-4 w-4" />{' '}
+                                                                Resolve
                                                             </Button>
                                                         </div>
                                                     )}
@@ -1758,12 +2579,192 @@ export default function AdminTugasKelompokDetail({
                                     </div>
                                 )}
                             </div>
+
+                            {/* ═══ Group Formation Stats ═══ */}
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                {[
+                                    { label: 'Total Mahasiswa', value: totalStudentsInCourse, icon: Users2, color: 'from-blue-500 to-indigo-500' },
+                                    { label: 'Kelompok Terbentuk', value: `${groups.length}/${calculatedMaxGroups}`, icon: FolderOpen, color: 'from-emerald-500 to-green-500' },
+                                    { label: 'Sudah Tergabung', value: groups.reduce((a, g) => a + g.member_count, 0), icon: UserCheck, color: 'from-purple-500 to-fuchsia-500' },
+                                    { label: 'Belum Tergabung', value: unassignedStudents.length, icon: UserPlus, color: 'from-amber-500 to-orange-500' },
+                                ].map((stat) => (
+                                    <div key={stat.label} className="rounded-xl border border-white/20 bg-white/50 p-3 shadow backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/50">
+                                        <div className={cn('mb-2 inline-flex rounded-lg bg-gradient-to-r p-2 text-white', stat.color)}>
+                                            <stat.icon className="h-4 w-4" />
+                                        </div>
+                                        <p className="text-xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* ═══ Formation Progress Bar ═══ */}
+                            {totalStudentsInCourse > 0 && (
+                                <div className="rounded-xl border border-white/20 bg-white/50 p-4 shadow backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/50">
+                                    <div className="mb-2 flex items-center justify-between text-sm">
+                                        <span className="font-medium text-slate-700 dark:text-slate-300">Progres Pembentukan Kelompok</span>
+                                        <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                                            {Math.round(((totalStudentsInCourse - unassignedStudents.length) / totalStudentsInCourse) * 100)}%
+                                        </span>
+                                    </div>
+                                    <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-neutral-700">
+                                        <div
+                                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-500"
+                                            style={{ width: `${Math.round(((totalStudentsInCourse - unassignedStudents.length) / totalStudentsInCourse) * 100)}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ═══ Unassigned Students ═══ */}
+                            {unassignedStudents.length > 0 && (
+                                <div className="rounded-2xl border border-amber-200/40 bg-amber-50/60 p-4 shadow-lg backdrop-blur-xl dark:border-amber-700/20 dark:bg-amber-950/20">
+                                    <div className="mb-3 flex items-center justify-between">
+                                        <h4 className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                                            <AlertTriangle className="h-4 w-4" />
+                                            Mahasiswa Belum Tergabung ({unassignedStudents.length})
+                                        </h4>
+                                        <Button
+                                            size="sm"
+                                            onClick={handleAutoAssign}
+                                            className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600"
+                                        >
+                                            <Zap className="mr-2 h-4 w-4" />
+                                            Auto-Assign Semua
+                                        </Button>
+                                    </div>
+                                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                        {unassignedStudents.map((student) => (
+                                            <div
+                                                key={student.id}
+                                                className="flex items-center justify-between rounded-xl border border-white/30 bg-white/70 p-3 dark:border-white/5 dark:bg-neutral-800/60"
+                                            >
+                                                <div>
+                                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">{student.nama}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{student.nim}</p>
+                                                </div>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleForceAssign(student.id, student.nama)}
+                                                    className="rounded-lg border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300"
+                                                >
+                                                    <UserPlus className="mr-1 h-3 w-3" />
+                                                    Assign
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ═══ Group Cards with Member Management ═══ */}
+                            <div className="rounded-2xl border border-white/20 bg-white/40 p-4 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                <h4 className="mb-3 flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                                    <FolderOpen className="h-5 w-5 text-emerald-500" />
+                                    Kelola Kelompok ({groups.length})
+                                </h4>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    {groups.map((group) => {
+                                        const isFull = group.member_count >= assignment.max_members;
+                                        const statusColor = group.member_count === 0
+                                            ? 'border-rose-300 dark:border-rose-700'
+                                            : isFull
+                                                ? 'border-emerald-300 dark:border-emerald-700'
+                                                : 'border-amber-300 dark:border-amber-700';
+                                        return (
+                                            <div key={group.id} className={cn('rounded-xl border-2 bg-white/60 p-3 dark:bg-neutral-800/50', statusColor)}>
+                                                <div className="mb-2 flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-sm text-slate-900 dark:text-white">{group.name}</span>
+                                                        <span className={cn(
+                                                            'rounded-full px-2 py-0.5 text-xs font-medium',
+                                                            isFull ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                                : group.member_count === 0 ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
+                                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                                                        )}>
+                                                            {group.member_count}/{assignment.max_members}
+                                                        </span>
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => handleDeleteGroup(group.id)}
+                                                        className="h-7 w-7 p-0 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </div>
+                                                {group.members.length > 0 ? (
+                                                    <div className="space-y-1">
+                                                        {group.members.map((member) => (
+                                                            <div key={member.id} className="flex items-center justify-between rounded-lg px-2 py-1 hover:bg-slate-100 dark:hover:bg-neutral-700/50">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-xs text-slate-700 dark:text-slate-300">{member.nama}</span>
+                                                                    {member.is_leader && (
+                                                                        <Star className="h-3 w-3 text-amber-500" />
+                                                                    )}
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => handleRemoveMember(group.id, member.id)}
+                                                                    className="rounded p-0.5 text-slate-400 hover:bg-rose-100 hover:text-rose-500 dark:hover:bg-rose-900/30"
+                                                                >
+                                                                    <Minus className="h-3 w-3" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-xs italic text-slate-400 dark:text-slate-500">Kosong</p>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* ═══ Force Assign Activity Log ═══ */}
+                            {forceAssignLogs.length > 0 && (
+                                <div className="rounded-2xl border border-white/20 bg-white/40 p-4 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                    <h4 className="mb-3 flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                                        <Shield className="h-5 w-5 text-indigo-500" />
+                                        Riwayat Force Assign
+                                    </h4>
+                                    <div className="max-h-60 space-y-2 overflow-y-auto">
+                                        {forceAssignLogs.map((log) => (
+                                            <div key={log.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/50 p-2 dark:bg-neutral-800/40">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={cn(
+                                                        'rounded-full px-2 py-0.5 text-xs font-medium',
+                                                        log.action === 'force_assign' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300'
+                                                            : log.action === 'auto_assign' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300'
+                                                                : log.action === 'remove' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
+                                                                    : 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300'
+                                                    )}>
+                                                        {log.action.replace('_', ' ')}
+                                                    </span>
+                                                    <span className="text-xs text-slate-700 dark:text-slate-300">
+                                                        <strong>{log.student_name}</strong> → {log.group_name}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs text-slate-400">{log.created_at}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </motion.div>
                     )}
 
                     {/* Settings Tab */}
                     {activeTab === 'settings' && (
-                        <motion.div key="settings" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} className="space-y-4">
+                        <motion.div
+                            key="settings"
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -14 }}
+                            className="space-y-4"
+                        >
                             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                                 <div className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
                                     <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
@@ -1771,25 +2772,132 @@ export default function AdminTugasKelompokDetail({
                                         Konfigurasi Assignment
                                     </h3>
                                     <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Mode Formasi</span><span className="font-semibold">{assignment.formation_mode}</span></div>
-                                        <div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Mode Penilaian</span><span className="font-semibold">{assignment.grading_mode}</span></div>
-                                        <div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Range Anggota</span><span className="font-semibold">{assignment.min_members} - {assignment.max_members}</span></div>
-                                        <div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Peer Weight</span><span className="font-semibold">{Math.round((assignment.peer_evaluation_weight ?? 0) * 100)}%</span></div>
-                                        <div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Resubmission</span><span className="font-semibold">{assignment.allow_resubmission ? 'Aktif' : 'Nonaktif'}</span></div>
-                                        <div className="flex justify-between text-slate-600 dark:text-slate-300"><span>Status Group</span><span className="font-semibold">{assignment.is_locked ? 'Locked' : 'Open'}</span></div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Mode Formasi</span>
+                                            <span className="font-semibold">
+                                                {assignment.formation_mode}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Mode Penilaian</span>
+                                            <span className="font-semibold">
+                                                {assignment.grading_mode}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Range Anggota</span>
+                                            <span className="font-semibold">
+                                                {assignment.min_members} -{' '}
+                                                {assignment.max_members}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Peer Weight</span>
+                                            <span className="font-semibold">
+                                                {Math.round(
+                                                    (assignment.peer_evaluation_weight ??
+                                                        0) * 100,
+                                                )}
+                                                %
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Resubmission</span>
+                                            <span className="font-semibold">
+                                                {assignment.allow_resubmission
+                                                    ? 'Aktif'
+                                                    : 'Nonaktif'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Status Group</span>
+                                            <span className="font-semibold">
+                                                {assignment.is_locked
+                                                    ? 'Locked'
+                                                    : 'Open'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                                            <span>Force Assign</span>
+                                            <span className="font-semibold">
+                                                {assignment.allow_force_assign
+                                                    ? 'Aktif'
+                                                    : 'Nonaktif'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Auto-Calculate Info */}
+                                    <div className="mt-4 rounded-xl border border-indigo-200/40 bg-indigo-50/60 p-3 dark:border-indigo-800/30 dark:bg-indigo-950/20">
+                                        <p className="mb-2 text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-400">
+                                            Auto-Calculate Kelompok
+                                        </p>
+                                        <div className="space-y-1 text-sm">
+                                            <div className="flex justify-between text-indigo-700 dark:text-indigo-300">
+                                                <span>Total Mahasiswa</span>
+                                                <span className="font-bold">{totalStudentsInCourse}</span>
+                                            </div>
+                                            <div className="flex justify-between text-indigo-700 dark:text-indigo-300">
+                                                <span>Min Anggota/Kelompok</span>
+                                                <span className="font-bold">{assignment.min_members}</span>
+                                            </div>
+                                            <div className="flex justify-between text-indigo-700 dark:text-indigo-300">
+                                                <span>Maks Kelompok</span>
+                                                <span className="font-bold text-lg">{calculatedMaxGroups}</span>
+                                            </div>
+                                            <div className="flex justify-between text-indigo-700 dark:text-indigo-300">
+                                                <span>Kelompok Saat Ini</span>
+                                                <span className="font-bold">{groups.length}</span>
+                                            </div>
+                                            {totalStudentsInCourse % assignment.min_members !== 0 && (
+                                                <p className="mt-2 rounded-lg bg-amber-100/60 p-2 text-xs text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+                                                    ⚠️ Sisa {totalStudentsInCourse % assignment.min_members} mahasiswa tidak memenuhi ukuran min kelompok
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Toggle Force Assign */}
+                                    <div className="mt-4 flex items-center justify-between rounded-xl border border-white/20 bg-white/60 p-3 dark:border-white/5 dark:bg-neutral-800/60">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Izinkan Force Assign</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">Admin/dosen dapat memaksa masuk kelompok</p>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant={assignment.allow_force_assign ? 'default' : 'outline'}
+                                            onClick={() => handleToggleForceAssign(!assignment.allow_force_assign)}
+                                            className={cn(
+                                                'rounded-lg',
+                                                assignment.allow_force_assign
+                                                    ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white'
+                                                    : 'border-slate-300 dark:border-slate-600'
+                                            )}
+                                        >
+                                            {assignment.allow_force_assign ? 'Aktif' : 'Nonaktif'}
+                                        </Button>
                                     </div>
 
                                     <div className="mt-4 rounded-xl border border-white/20 bg-white/60 p-3 dark:border-white/5 dark:bg-neutral-800/60">
-                                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Features</p>
+                                        <p className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                                            Features
+                                        </p>
                                         {assignment.features.length === 0 ? (
-                                            <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada fitur tambahan.</p>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                Belum ada fitur tambahan.
+                                            </p>
                                         ) : (
                                             <div className="flex flex-wrap gap-2">
-                                                {assignment.features.map((feature) => (
-                                                    <span key={feature} className="rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                                                        {feature}
-                                                    </span>
-                                                ))}
+                                                {assignment.features.map(
+                                                    (feature) => (
+                                                        <span
+                                                            key={feature}
+                                                            className="rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                        >
+                                                            {feature}
+                                                        </span>
+                                                    ),
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -1802,58 +2910,89 @@ export default function AdminTugasKelompokDetail({
                                     </h3>
                                     <div className="grid grid-cols-1 gap-2">
                                         <Button
-                                            onClick={() => router.post(`/admin/tugas-kelompok/${assignment.id}/toggle-lock`)}
+                                            onClick={() =>
+                                                router.post(
+                                                    `/admin/tugas-kelompok/${assignment.id}/toggle-lock`,
+                                                )
+                                            }
                                             className="justify-start rounded-xl border border-white/20 bg-white/70 text-slate-700 hover:bg-white dark:bg-neutral-800 dark:text-slate-200"
                                         >
                                             {assignment.is_locked ? (
                                                 <>
-                                                    <Unlock className="mr-2 h-4 w-4" /> Unlock Kelompok
+                                                    <Unlock className="mr-2 h-4 w-4" />{' '}
+                                                    Unlock Kelompok
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Lock className="mr-2 h-4 w-4" /> Lock Kelompok
+                                                    <Lock className="mr-2 h-4 w-4" />{' '}
+                                                    Lock Kelompok
                                                 </>
                                             )}
                                         </Button>
 
-                                        {assignment.formation_mode === 'random' && !assignment.is_locked && (
-                                            <Button
-                                                onClick={() => router.post(`/admin/tugas-kelompok/${assignment.id}/random-groups`)}
-                                                className="justify-start rounded-xl border border-white/20 bg-white/70 text-slate-700 hover:bg-white dark:bg-neutral-800 dark:text-slate-200"
-                                            >
-                                                <Shuffle className="mr-2 h-4 w-4" /> Generate Ulang Kelompok Random
-                                            </Button>
-                                        )}
+                                        {assignment.formation_mode ===
+                                            'random' &&
+                                            !assignment.is_locked && (
+                                                <Button
+                                                    onClick={() =>
+                                                        router.post(
+                                                            `/admin/tugas-kelompok/${assignment.id}/random-groups`,
+                                                        )
+                                                    }
+                                                    className="justify-start rounded-xl border border-white/20 bg-white/70 text-slate-700 hover:bg-white dark:bg-neutral-800 dark:text-slate-200"
+                                                >
+                                                    <Shuffle className="mr-2 h-4 w-4" />{' '}
+                                                    Generate Ulang Kelompok
+                                                    Random
+                                                </Button>
+                                            )}
 
-                                        {assignment.formation_mode === 'manual' && (
+                                        {assignment.formation_mode ===
+                                            'manual' && (
                                             <>
                                                 <Button
-                                                    onClick={() => setCreateGroupDialogOpen(true)}
+                                                    onClick={() =>
+                                                        setCreateGroupDialogOpen(
+                                                            true,
+                                                        )
+                                                    }
                                                     className="justify-start rounded-xl border border-white/20 bg-white/70 text-slate-700 hover:bg-white dark:bg-neutral-800 dark:text-slate-200"
                                                 >
-                                                    <Plus className="mr-2 h-4 w-4" /> Buat Kelompok Baru
+                                                    <Plus className="mr-2 h-4 w-4" />{' '}
+                                                    Buat Kelompok Baru
                                                 </Button>
                                                 <Button
-                                                    onClick={() => setAssignDialogOpen(true)}
+                                                    onClick={() =>
+                                                        setAssignDialogOpen(
+                                                            true,
+                                                        )
+                                                    }
                                                     className="justify-start rounded-xl border border-white/20 bg-white/70 text-slate-700 hover:bg-white dark:bg-neutral-800 dark:text-slate-200"
                                                 >
-                                                    <UserPlus className="mr-2 h-4 w-4" /> Assign Mahasiswa ke Kelompok
+                                                    <UserPlus className="mr-2 h-4 w-4" />{' '}
+                                                    Assign Mahasiswa ke Kelompok
                                                 </Button>
                                             </>
                                         )}
 
                                         <Button
-                                            onClick={() => setExportDialogOpen(true)}
+                                            onClick={() =>
+                                                setExportDialogOpen(true)
+                                            }
                                             className="justify-start rounded-xl border border-white/20 bg-white/70 text-slate-700 hover:bg-white dark:bg-neutral-800 dark:text-slate-200"
                                         >
-                                            <Download className="mr-2 h-4 w-4" /> Export Laporan
+                                            <Download className="mr-2 h-4 w-4" />{' '}
+                                            Export Laporan
                                         </Button>
 
                                         <Button
-                                            onClick={() => setDeleteDialogOpen(true)}
+                                            onClick={() =>
+                                                setDeleteDialogOpen(true)
+                                            }
                                             className="justify-start rounded-xl border border-rose-300/30 bg-rose-500/20 text-rose-700 hover:bg-rose-500/30 dark:text-rose-200"
                                         >
-                                            <X className="mr-2 h-4 w-4" /> Hapus Assignment
+                                            <X className="mr-2 h-4 w-4" /> Hapus
+                                            Assignment
                                         </Button>
                                     </div>
                                 </div>
@@ -1866,8 +3005,16 @@ export default function AdminTugasKelompokDetail({
             {/* Grade Modal */}
             <AnimatePresence>
                 {gradeModalOpen && gradeTargetGroup && (
-                    <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={closeGradeModal} />
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <div
+                            className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+                            onClick={closeGradeModal}
+                        />
                         <motion.div
                             initial={{ scale: 0.95, y: 18 }}
                             animate={{ scale: 1, y: 0 }}
@@ -1876,8 +3023,15 @@ export default function AdminTugasKelompokDetail({
                         >
                             <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-4">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-bold">Penilaian {gradeTargetGroup.name}</h3>
-                                    <Button variant="ghost" size="icon" onClick={closeGradeModal} className="h-8 w-8 text-white hover:bg-white/20">
+                                    <h3 className="text-lg font-bold">
+                                        Penilaian {gradeTargetGroup.name}
+                                    </h3>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={closeGradeModal}
+                                        className="h-8 w-8 text-white hover:bg-white/20"
+                                    >
                                         <X className="h-4 w-4" />
                                     </Button>
                                 </div>
@@ -1886,23 +3040,40 @@ export default function AdminTugasKelompokDetail({
                             <div className="space-y-4 p-5">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
-                                        <Label htmlFor="grade-input" className="text-slate-200">Nilai Kelompok (0 - 100)</Label>
+                                        <Label
+                                            htmlFor="grade-input"
+                                            className="text-slate-200"
+                                        >
+                                            Nilai Kelompok (0 - 100)
+                                        </Label>
                                         <Input
                                             id="grade-input"
                                             type="number"
                                             min={0}
                                             max={100}
                                             value={gradeForm.data.grade}
-                                            onChange={(event) => gradeForm.setData('grade', event.target.value)}
+                                            onChange={(event) =>
+                                                gradeForm.setData(
+                                                    'grade',
+                                                    event.target.value,
+                                                )
+                                            }
                                             className="mt-1 rounded-xl border-white/20 bg-white/10 text-white"
                                         />
                                     </div>
 
                                     <div>
-                                        <Label className="text-slate-200">Catatan Penilaian</Label>
+                                        <Label className="text-slate-200">
+                                            Catatan Penilaian
+                                        </Label>
                                         <Input
                                             value={gradeForm.data.notes}
-                                            onChange={(event) => gradeForm.setData('notes', event.target.value)}
+                                            onChange={(event) =>
+                                                gradeForm.setData(
+                                                    'notes',
+                                                    event.target.value,
+                                                )
+                                            }
                                             placeholder="Opsional"
                                             className="mt-1 rounded-xl border-white/20 bg-white/10 text-white"
                                         />
@@ -1911,37 +3082,74 @@ export default function AdminTugasKelompokDetail({
 
                                 {assignment.grading_mode === 'individual' && (
                                     <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                                        <p className="mb-3 text-sm font-semibold text-slate-200">Adjustment Individu</p>
+                                        <p className="mb-3 text-sm font-semibold text-slate-200">
+                                            Adjustment Individu
+                                        </p>
                                         <div className="space-y-2">
-                                            {gradeTargetGroup.members.map((member) => (
-                                                <div key={member.id} className="flex items-center justify-between gap-3">
-                                                    <div className="text-sm text-slate-200">
-                                                        {member.nama}
-                                                        <span className="ml-1 text-xs text-slate-400">({member.contribution_points} pts)</span>
+                                            {gradeTargetGroup.members.map(
+                                                (member) => (
+                                                    <div
+                                                        key={member.id}
+                                                        className="flex items-center justify-between gap-3"
+                                                    >
+                                                        <div className="text-sm text-slate-200">
+                                                            {member.nama}
+                                                            <span className="ml-1 text-xs text-slate-400">
+                                                                (
+                                                                {
+                                                                    member.contribution_points
+                                                                }{' '}
+                                                                pts)
+                                                            </span>
+                                                        </div>
+                                                        <Input
+                                                            type="number"
+                                                            min={-50}
+                                                            max={50}
+                                                            value={
+                                                                gradeForm.data
+                                                                    .adjustments[
+                                                                    member.id
+                                                                ] ?? ''
+                                                            }
+                                                            onChange={(
+                                                                event,
+                                                            ) => {
+                                                                const raw =
+                                                                    event.target
+                                                                        .value;
+                                                                gradeForm.setData(
+                                                                    'adjustments',
+                                                                    {
+                                                                        ...gradeForm
+                                                                            .data
+                                                                            .adjustments,
+                                                                        [member.id]:
+                                                                            raw ===
+                                                                            ''
+                                                                                ? ''
+                                                                                : Number(
+                                                                                      raw,
+                                                                                  ),
+                                                                    },
+                                                                );
+                                                            }}
+                                                            className="h-9 w-28 rounded-lg border-white/20 bg-white/10 text-white"
+                                                            placeholder="-50..50"
+                                                        />
                                                     </div>
-                                                    <Input
-                                                        type="number"
-                                                        min={-50}
-                                                        max={50}
-                                                        value={gradeForm.data.adjustments[member.id] ?? ''}
-                                                        onChange={(event) => {
-                                                            const raw = event.target.value;
-                                                            gradeForm.setData('adjustments', {
-                                                                ...gradeForm.data.adjustments,
-                                                                [member.id]: raw === '' ? '' : Number(raw),
-                                                            });
-                                                        }}
-                                                        className="h-9 w-28 rounded-lg border-white/20 bg-white/10 text-white"
-                                                        placeholder="-50..50"
-                                                    />
-                                                </div>
-                                            ))}
+                                                ),
+                                            )}
                                         </div>
                                     </div>
                                 )}
 
                                 <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                                    <Button variant="outline" onClick={closeGradeModal} className="rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
+                                    <Button
+                                        variant="outline"
+                                        onClick={closeGradeModal}
+                                        className="rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+                                    >
                                         Batal
                                     </Button>
                                     <Button
@@ -1949,7 +3157,9 @@ export default function AdminTugasKelompokDetail({
                                         disabled={gradeForm.processing}
                                         className="rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
                                     >
-                                        {gradeForm.processing ? 'Menyimpan...' : 'Simpan Nilai'}
+                                        {gradeForm.processing
+                                            ? 'Menyimpan...'
+                                            : 'Simpan Nilai'}
                                     </Button>
                                 </div>
                             </div>
@@ -1961,8 +3171,16 @@ export default function AdminTugasKelompokDetail({
             {/* Assign Student Dialog */}
             <AnimatePresence>
                 {assignDialogOpen && (
-                    <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={() => setAssignDialogOpen(false)} />
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <div
+                            className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+                            onClick={() => setAssignDialogOpen(false)}
+                        />
                         <motion.div
                             initial={{ scale: 0.95, y: 18 }}
                             animate={{ scale: 1, y: 0 }}
@@ -1970,20 +3188,37 @@ export default function AdminTugasKelompokDetail({
                             className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0B] text-white shadow-2xl"
                         >
                             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4">
-                                <h3 className="text-lg font-bold">Assign Mahasiswa ke Kelompok</h3>
+                                <h3 className="text-lg font-bold">
+                                    Assign Mahasiswa ke Kelompok
+                                </h3>
                             </div>
 
                             <div className="space-y-4 p-5">
                                 <div>
-                                    <Label className="text-slate-200">Pilih Kelompok</Label>
-                                    <Select value={assignForm.data.group_id} onValueChange={(value) => assignForm.setData('group_id', value)}>
+                                    <Label className="text-slate-200">
+                                        Pilih Kelompok
+                                    </Label>
+                                    <Select
+                                        value={assignForm.data.group_id}
+                                        onValueChange={(value) =>
+                                            assignForm.setData(
+                                                'group_id',
+                                                value,
+                                            )
+                                        }
+                                    >
                                         <SelectTrigger className="mt-1 rounded-xl border-white/20 bg-white/10 text-white">
                                             <SelectValue placeholder="Kelompok" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {groups.map((group) => (
-                                                <SelectItem key={group.id} value={String(group.id)}>
-                                                    {group.name} ({group.member_count} anggota)
+                                                <SelectItem
+                                                    key={group.id}
+                                                    value={String(group.id)}
+                                                >
+                                                    {group.name} (
+                                                    {group.member_count}{' '}
+                                                    anggota)
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -1991,27 +3226,57 @@ export default function AdminTugasKelompokDetail({
                                 </div>
 
                                 <div>
-                                    <Label className="text-slate-200">Pilih Mahasiswa</Label>
-                                    <Select value={assignForm.data.student_id} onValueChange={(value) => assignForm.setData('student_id', value)}>
+                                    <Label className="text-slate-200">
+                                        Pilih Mahasiswa
+                                    </Label>
+                                    <Select
+                                        value={assignForm.data.student_id}
+                                        onValueChange={(value) =>
+                                            assignForm.setData(
+                                                'student_id',
+                                                value,
+                                            )
+                                        }
+                                    >
                                         <SelectTrigger className="mt-1 rounded-xl border-white/20 bg-white/10 text-white">
                                             <SelectValue placeholder="Mahasiswa" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {unassignedStudents.map((student) => (
-                                                <SelectItem key={student.id} value={String(student.id)}>
-                                                    {student.nama} ({student.nim})
-                                                </SelectItem>
-                                            ))}
+                                            {unassignedStudents.map(
+                                                (student) => (
+                                                    <SelectItem
+                                                        key={student.id}
+                                                        value={String(
+                                                            student.id,
+                                                        )}
+                                                    >
+                                                        {student.nama} (
+                                                        {student.nim})
+                                                    </SelectItem>
+                                                ),
+                                            )}
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div className="flex justify-end gap-2">
-                                    <Button variant="outline" onClick={() => setAssignDialogOpen(false)} className="rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() =>
+                                            setAssignDialogOpen(false)
+                                        }
+                                        className="rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+                                    >
                                         Batal
                                     </Button>
-                                    <Button onClick={handleAssignStudent} disabled={assignForm.processing} className="rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                                        {assignForm.processing ? 'Memproses...' : 'Assign'}
+                                    <Button
+                                        onClick={handleAssignStudent}
+                                        disabled={assignForm.processing}
+                                        className="rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
+                                    >
+                                        {assignForm.processing
+                                            ? 'Memproses...'
+                                            : 'Assign'}
                                     </Button>
                                 </div>
                             </div>
@@ -2023,8 +3288,16 @@ export default function AdminTugasKelompokDetail({
             {/* Create Group Dialog */}
             <AnimatePresence>
                 {createGroupDialogOpen && (
-                    <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={() => setCreateGroupDialogOpen(false)} />
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <div
+                            className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+                            onClick={() => setCreateGroupDialogOpen(false)}
+                        />
                         <motion.div
                             initial={{ scale: 0.95, y: 18 }}
                             animate={{ scale: 1, y: 0 }}
@@ -2032,38 +3305,71 @@ export default function AdminTugasKelompokDetail({
                             className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0B] text-white shadow-2xl"
                         >
                             <div className="bg-gradient-to-r from-purple-600 to-fuchsia-600 p-4">
-                                <h3 className="text-lg font-bold">Buat Kelompok Baru</h3>
+                                <h3 className="text-lg font-bold">
+                                    Buat Kelompok Baru
+                                </h3>
                             </div>
 
                             <div className="space-y-4 p-5">
                                 <div>
-                                    <Label className="text-slate-200">Nama Kelompok</Label>
+                                    <Label className="text-slate-200">
+                                        Nama Kelompok
+                                    </Label>
                                     <Input
                                         value={createGroupForm.data.name}
-                                        onChange={(event) => createGroupForm.setData('name', event.target.value)}
+                                        onChange={(event) =>
+                                            createGroupForm.setData(
+                                                'name',
+                                                event.target.value,
+                                            )
+                                        }
                                         placeholder="Contoh: Kelompok Alpha"
                                         className="mt-1 rounded-xl border-white/20 bg-white/10 text-white"
                                     />
                                 </div>
 
                                 <div>
-                                    <Label className="text-slate-200">Ketua Kelompok</Label>
-                                    <Select value={createGroupForm.data.leader_id} onValueChange={(value) => createGroupForm.setData('leader_id', value)}>
+                                    <Label className="text-slate-200">
+                                        Ketua Kelompok
+                                    </Label>
+                                    <Select
+                                        value={createGroupForm.data.leader_id}
+                                        onValueChange={(value) =>
+                                            createGroupForm.setData(
+                                                'leader_id',
+                                                value,
+                                            )
+                                        }
+                                    >
                                         <SelectTrigger className="mt-1 rounded-xl border-white/20 bg-white/10 text-white">
                                             <SelectValue placeholder="Pilih ketua" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {unassignedStudents.map((student) => (
-                                                <SelectItem key={student.id} value={String(student.id)}>
-                                                    {student.nama} ({student.nim})
-                                                </SelectItem>
-                                            ))}
+                                            {unassignedStudents.map(
+                                                (student) => (
+                                                    <SelectItem
+                                                        key={student.id}
+                                                        value={String(
+                                                            student.id,
+                                                        )}
+                                                    >
+                                                        {student.nama} (
+                                                        {student.nim})
+                                                    </SelectItem>
+                                                ),
+                                            )}
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div className="flex justify-end gap-2">
-                                    <Button variant="outline" onClick={() => setCreateGroupDialogOpen(false)} className="rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() =>
+                                            setCreateGroupDialogOpen(false)
+                                        }
+                                        className="rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+                                    >
                                         Batal
                                     </Button>
                                     <Button
@@ -2071,7 +3377,9 @@ export default function AdminTugasKelompokDetail({
                                         disabled={createGroupForm.processing}
                                         className="rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white"
                                     >
-                                        {createGroupForm.processing ? 'Memproses...' : 'Buat Kelompok'}
+                                        {createGroupForm.processing
+                                            ? 'Memproses...'
+                                            : 'Buat Kelompok'}
                                     </Button>
                                 </div>
                             </div>
@@ -2083,8 +3391,16 @@ export default function AdminTugasKelompokDetail({
             {/* Export Dialog */}
             <AnimatePresence>
                 {exportDialogOpen && (
-                    <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={() => setExportDialogOpen(false)} />
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <div
+                            className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+                            onClick={() => setExportDialogOpen(false)}
+                        />
                         <motion.div
                             initial={{ scale: 0.95, y: 18 }}
                             animate={{ scale: 1, y: 0 }}
@@ -2092,29 +3408,141 @@ export default function AdminTugasKelompokDetail({
                             className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0B] text-white shadow-2xl"
                         >
                             <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-4">
-                                <h3 className="text-lg font-bold">Export & Report</h3>
-                                <p className="text-sm text-indigo-100">Pilih format laporan yang ingin dibuat.</p>
+                                <h3 className="text-lg font-bold">
+                                    Export & Report
+                                </h3>
+                                <p className="text-sm text-indigo-100">
+                                    Pilih format laporan yang ingin dibuat.
+                                </p>
                             </div>
 
                             <div className="space-y-2 p-4">
-                                <Button onClick={handleExportCsv} className="w-full justify-start rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20">
-                                    <Table2 className="mr-2 h-4 w-4" /> Export Excel (CSV)
+                                <Button
+                                    onClick={handleExportCsv}
+                                    className="w-full justify-start rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                                >
+                                    <Table2 className="mr-2 h-4 w-4" /> Export
+                                    Excel (CSV)
                                 </Button>
-                                <Button onClick={handlePrintReport} className="w-full justify-start rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20">
-                                    <Printer className="mr-2 h-4 w-4" /> Export PDF (Print)
+                                <Button
+                                    onClick={handlePrintReport}
+                                    className="w-full justify-start rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                                >
+                                    <Printer className="mr-2 h-4 w-4" /> Export
+                                    PDF (Print)
                                 </Button>
                                 <Button
                                     onClick={() => {
-                                        window.open(`/admin/tugas-kelompok/${assignment.id}/export-pdf`, '_blank');
+                                        window.open(
+                                            `/admin/tugas-kelompok/${assignment.id}/export-pdf`,
+                                            '_blank',
+                                        );
                                         setExportDialogOpen(false);
                                     }}
                                     className="w-full justify-start rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-white hover:bg-emerald-500/30"
                                 >
-                                    <FileText className="mr-2 h-4 w-4" /> Export PDF (Laporan Resmi)
+                                    <FileText className="mr-2 h-4 w-4" /> Export
+                                    PDF (Laporan Resmi)
                                 </Button>
-                                <Button variant="outline" onClick={() => setExportDialogOpen(false)} className="w-full rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setExportDialogOpen(false)}
+                                    className="w-full rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+                                >
                                     Tutup
                                 </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Force Assign Modal */}
+            <AnimatePresence>
+                {forceAssignDialogOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                        onClick={() => setForceAssignDialogOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="mx-4 w-full max-w-md rounded-2xl border border-white/20 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-neutral-900"
+                        >
+                            <div className="mb-4 flex items-center justify-between">
+                                <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
+                                    <Zap className="h-5 w-5 text-amber-500" />
+                                    Force Assign Mahasiswa
+                                </h3>
+                                <button
+                                    onClick={() => setForceAssignDialogOpen(false)}
+                                    className="rounded-lg p-1 hover:bg-slate-100 dark:hover:bg-neutral-800"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+
+                            {forceAssignTarget && (
+                                <div className="mb-4 rounded-xl bg-indigo-50 p-3 dark:bg-indigo-950/30">
+                                    <p className="text-sm text-indigo-800 dark:text-indigo-300">
+                                        Masukkan <strong>{forceAssignTarget.studentName}</strong> ke kelompok:
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                <div>
+                                    <Label className="mb-1 text-sm">Pilih Kelompok</Label>
+                                    <Select
+                                        value={forceAssignForm.data.group_id}
+                                        onValueChange={(v) => forceAssignForm.setData('group_id', v)}
+                                    >
+                                        <SelectTrigger className="rounded-xl">
+                                            <SelectValue placeholder="Pilih kelompok tujuan" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {groups.map((group) => (
+                                                <SelectItem key={group.id} value={String(group.id)}>
+                                                    {group.name} ({group.member_count}/{assignment.max_members})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div>
+                                    <Label className="mb-1 text-sm">Alasan (opsional)</Label>
+                                    <Textarea
+                                        value={forceAssignForm.data.reason}
+                                        onChange={(e) => forceAssignForm.setData('reason', e.target.value)}
+                                        placeholder="Alasan force assign..."
+                                        className="rounded-xl"
+                                        rows={2}
+                                    />
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setForceAssignDialogOpen(false)}
+                                        className="flex-1 rounded-xl"
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button
+                                        onClick={submitForceAssign}
+                                        disabled={!forceAssignForm.data.group_id || forceAssignForm.processing}
+                                        className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                                    >
+                                        <Zap className="mr-2 h-4 w-4" />
+                                        Force Assign
+                                    </Button>
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

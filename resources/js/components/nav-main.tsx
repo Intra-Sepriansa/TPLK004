@@ -32,7 +32,11 @@ export function NavMain({
                             tooltip={{ children: item.title }}
                             size="sm"
                         >
-                            <Link href={item.href} prefetch className="group-hover:bg-transparent overflow-hidden">
+                            <Link
+                                href={item.href}
+                                prefetch
+                                className="overflow-hidden group-hover:bg-transparent"
+                            >
                                 {item.iconSrc ? (
                                     <img
                                         src={item.iconSrc}
@@ -40,11 +44,15 @@ export function NavMain({
                                         className="h-4 w-4 shrink-0 object-contain"
                                     />
                                 ) : (
-                                    item.icon && <item.icon className="h-4 w-4 shrink-0" />
+                                    item.icon && (
+                                        <item.icon className="h-4 w-4 shrink-0" />
+                                    )
                                 )}
-                                <span className="flex-1 truncate">{item.title}</span>
+                                <span className="flex-1 truncate">
+                                    {item.title}
+                                </span>
                                 {item.badge && item.badge > 0 && (
-                                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white animate-pulse">
+                                    <span className="flex h-5 min-w-5 animate-pulse items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                                         {item.badge}
                                     </span>
                                 )}

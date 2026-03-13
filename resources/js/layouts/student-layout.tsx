@@ -1,11 +1,11 @@
-import StudentSidebarLayout from '@/layouts/student/student-sidebar-layout';
-import { NetworkQualityAlert } from '@/components/network/NetworkQualityAlert';
+import { NetworkStatusBadge } from '@/components/network/NetworkStatusBadge';
 import { OfflineIndicator } from '@/components/offline/offline-indicator';
 import { InstallPrompt } from '@/components/pwa/install-prompt';
-import { Toaster } from 'sonner';
+import StudentSidebarLayout from '@/layouts/student/student-sidebar-layout';
+import { syncOfflineAttendances } from '@/lib/offline-sync';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode, useEffect } from 'react';
-import { syncOfflineAttendances } from '@/lib/offline-sync';
+import { Toaster } from 'sonner';
 
 interface StudentLayoutProps {
     children: ReactNode;
@@ -39,13 +39,8 @@ export default function StudentLayout({
             <div>{children}</div>
             <OfflineIndicator />
             <InstallPrompt />
-            <NetworkQualityAlert />
-            <Toaster
-                position="top-right"
-                theme="dark"
-                richColors
-                closeButton
-            />
+            <NetworkStatusBadge />
+            <Toaster position="top-right" theme="dark" richColors closeButton />
         </StudentSidebarLayout>
     );
 }

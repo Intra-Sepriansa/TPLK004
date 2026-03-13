@@ -1,15 +1,15 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import ReactFlow, {
-    MiniMap,
-    Controls,
-    Background,
-    useNodesState,
-    useEdgesState,
     addEdge,
+    Background,
     Connection,
+    Controls,
     Edge,
+    MarkerType,
+    MiniMap,
     Node,
-    MarkerType
+    useEdgesState,
+    useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -59,7 +59,7 @@ export default function MindMapView({ notes, courses }: MindMapViewProps) {
 
     courses.forEach((course) => {
         // Check if course has notes
-        const courseNotes = notes.filter(n => n.course_id === course.id);
+        const courseNotes = notes.filter((n) => n.course_id === course.id);
         if (courseNotes.length === 0) return;
 
         // Course Nodes
@@ -121,10 +121,16 @@ export default function MindMapView({ notes, courses }: MindMapViewProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-    const onConnect = useCallback((params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
+    const onConnect = useCallback(
+        (params: Connection | Edge) => setEdges((eds) => addEdge(params, eds)),
+        [setEdges],
+    );
 
     return (
-        <div style={{ width: '100%', height: '600px' }} className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+        <div
+            style={{ width: '100%', height: '600px' }}
+            className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50"
+        >
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -134,7 +140,7 @@ export default function MindMapView({ notes, courses }: MindMapViewProps) {
                 fitView
                 attributionPosition="bottom-right"
             >
-                <Controls className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-lg shadow-sm" />
+                <Controls className="rounded-lg border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800" />
                 <MiniMap
                     nodeStrokeColor={(n) => {
                         if (n.id === 'root') return '#6366f1';
@@ -143,13 +149,17 @@ export default function MindMapView({ notes, courses }: MindMapViewProps) {
                     }}
                     nodeColor={(n) => {
                         if (n.id === 'root') return '#8b5cf6';
-                        if (n.id.startsWith('course')) return theme === 'dark' ? '#1e293b' : '#f8fafc';
+                        if (n.id.startsWith('course'))
+                            return theme === 'dark' ? '#1e293b' : '#f8fafc';
                         return theme === 'dark' ? '#0f172a' : '#ffffff';
                     }}
                     nodeBorderRadius={2}
-                    className="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700"
+                    className="rounded-lg border border-slate-200 bg-white shadow-md dark:border-slate-700 dark:bg-slate-800"
                 />
-                <Background color={theme === 'dark' ? '#334155' : '#cbd5e1'} gap={16} />
+                <Background
+                    color={theme === 'dark' ? '#334155' : '#cbd5e1'}
+                    gap={16}
+                />
             </ReactFlow>
         </div>
     );

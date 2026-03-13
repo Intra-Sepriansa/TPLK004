@@ -3,11 +3,16 @@
  * Requirements: 6.5
  */
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -15,9 +20,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send, Paperclip, X, RefreshCw } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import type { HelpFeedback } from '@/types/documentation';
+import { Paperclip, RefreshCw, Send, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface FeedbackFormProps {
     onSubmit: (feedback: HelpFeedback) => Promise<{ ticketId: string }>;
@@ -32,7 +38,8 @@ const categories = [
 ] as const;
 
 export function FeedbackForm({ onSubmit, userEmail }: FeedbackFormProps) {
-    const [category, setCategory] = useState<HelpFeedback['category']>('question');
+    const [category, setCategory] =
+        useState<HelpFeedback['category']>('question');
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
     const [email, setEmail] = useState(userEmail || '');
@@ -86,16 +93,22 @@ export function FeedbackForm({ onSubmit, userEmail }: FeedbackFormProps) {
         return (
             <Card>
                 <CardContent className="pt-6 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
                         <Send className="h-8 w-8 text-green-600 dark:text-green-400" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Terima Kasih!</h3>
-                    <p className="text-muted-foreground mb-4">
-                        Feedback Anda telah dikirim. Kami akan merespons secepatnya.
+                    <h3 className="mb-2 text-lg font-semibold">
+                        Terima Kasih!
+                    </h3>
+                    <p className="mb-4 text-muted-foreground">
+                        Feedback Anda telah dikirim. Kami akan merespons
+                        secepatnya.
                     </p>
                     {ticketId && (
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Nomor Tiket: <span className="font-mono font-medium">{ticketId}</span>
+                        <p className="mb-4 text-sm text-muted-foreground">
+                            Nomor Tiket:{' '}
+                            <span className="font-mono font-medium">
+                                {ticketId}
+                            </span>
                         </p>
                     )}
                     <Button variant="outline" onClick={handleReset}>
@@ -120,14 +133,19 @@ export function FeedbackForm({ onSubmit, userEmail }: FeedbackFormProps) {
                         <Label htmlFor="category">Kategori</Label>
                         <Select
                             value={category}
-                            onValueChange={(value) => setCategory(value as HelpFeedback['category'])}
+                            onValueChange={(value) =>
+                                setCategory(value as HelpFeedback['category'])
+                            }
                         >
                             <SelectTrigger id="category">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                                 {categories.map((cat) => (
-                                    <SelectItem key={cat.value} value={cat.value}>
+                                    <SelectItem
+                                        key={cat.value}
+                                        value={cat.value}
+                                    >
                                         {cat.label}
                                     </SelectItem>
                                 ))}
@@ -179,10 +197,12 @@ export function FeedbackForm({ onSubmit, userEmail }: FeedbackFormProps) {
                             {attachments.map((file, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted text-sm"
+                                    className="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-sm"
                                 >
                                     <Paperclip className="h-3 w-3" />
-                                    <span className="max-w-[150px] truncate">{file.name}</span>
+                                    <span className="max-w-[150px] truncate">
+                                        {file.name}
+                                    </span>
                                     <button
                                         type="button"
                                         onClick={() => removeAttachment(index)}
@@ -206,9 +226,13 @@ export function FeedbackForm({ onSubmit, userEmail }: FeedbackFormProps) {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => document.getElementById('attachments')?.click()}
+                                    onClick={() =>
+                                        document
+                                            .getElementById('attachments')
+                                            ?.click()
+                                    }
                                 >
-                                    <Paperclip className="h-4 w-4 mr-2" />
+                                    <Paperclip className="mr-2 h-4 w-4" />
                                     Tambah Lampiran
                                 </Button>
                             </div>
@@ -218,15 +242,19 @@ export function FeedbackForm({ onSubmit, userEmail }: FeedbackFormProps) {
                         </p>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isSubmitting}
+                    >
                         {isSubmitting ? (
                             <>
-                                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                                 Mengirim...
                             </>
                         ) : (
                             <>
-                                <Send className="h-4 w-4 mr-2" />
+                                <Send className="mr-2 h-4 w-4" />
                                 Kirim Feedback
                             </>
                         )}

@@ -9,34 +9,28 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-import { useInitials } from '@/hooks/use-initials';
-import { type SharedData, type NavItem } from '@/types';
-import { Link, router, usePage } from '@inertiajs/react';
-import AppLogoIcon from './app-logo-icon';
-import { StudentNavUser } from './student-nav-user';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import {
     Award,
+    BarChart3,
+    Bell,
     BookOpen,
     CalendarCheck,
+    CalendarDays,
     ClipboardList,
+    FileCheck,
     FileText,
     GraduationCap,
     History,
     Home,
-    LogOut,
     MessageCircle,
-    NotebookPen,
     QrCode,
-    UserCircle,
-    Wallet,
-    FileCheck,
-    BarChart3,
-    Bell,
-    Settings,
-    HelpCircle,
-    CalendarDays,
     Shield,
+    Wallet,
 } from 'lucide-react';
+import AppLogoIcon from './app-logo-icon';
+import { StudentNavUser } from './student-nav-user';
 
 const studentNavItems: NavItem[] = [
     {
@@ -114,7 +108,6 @@ const studentNavItems: NavItem[] = [
         href: '/user/docs',
         icon: BookOpen,
     },
-
 ];
 
 type MahasiswaInfo = {
@@ -210,7 +203,6 @@ export function StudentSidebar() {
             href: '/user/docs',
             icon: BookOpen,
         },
-
     ];
 
     return (
@@ -224,10 +216,10 @@ export function StudentSidebar() {
                                     <AppLogoIcon className="size-8" />
                                 </div>
                                 <div className="ml-1 grid flex-1 text-left text-sm">
-                                    <span className="text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/60">
+                                    <span className="text-[10px] tracking-[0.2em] text-sidebar-foreground/60 uppercase">
                                         Mahasiswa
                                     </span>
-                                    <span className="truncate font-semibold leading-tight">
+                                    <span className="truncate leading-tight font-semibold">
                                         Absensi
                                     </span>
                                 </div>

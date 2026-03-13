@@ -18,7 +18,9 @@ axios.defaults.withCredentials = true;
 axios.defaults.xsrfCookieName = 'XSRF-TOKEN';
 axios.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
-const csrfMeta = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+const csrfMeta = document
+    .querySelector('meta[name="csrf-token"]')
+    ?.getAttribute('content');
 if (csrfMeta) {
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfMeta;
 }

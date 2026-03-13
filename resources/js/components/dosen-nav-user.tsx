@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,13 +14,16 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useSidebar as useSidebarHook } from '@/components/ui/sidebar';
 import { useInitials } from '@/hooks/use-initials';
-import { formatShortName } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { formatShortName } from '@/lib/utils';
 import { Link, router } from '@inertiajs/react';
-import { ChevronsUpDown, LogOut, Settings, User as UserIcon } from 'lucide-react';
+import {
+    ChevronsUpDown,
+    LogOut,
+    Settings,
+    User as UserIcon,
+} from 'lucide-react';
 
 type DosenInfo = {
     id: number;
@@ -49,7 +53,7 @@ export function DosenNavUser({ dosen }: DosenNavUserProps) {
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="group text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent border border-sidebar-border/60 bg-sidebar-accent/40"
+                            className="group border border-sidebar-border/60 bg-sidebar-accent/40 text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent"
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
                                 {dosen.avatar_url && (
@@ -59,7 +63,7 @@ export function DosenNavUser({ dosen }: DosenNavUserProps) {
                                         className="object-cover"
                                     />
                                 )}
-                                <AvatarFallback className="rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200 text-xs">
+                                <AvatarFallback className="rounded-lg bg-indigo-100 text-xs text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200">
                                     {dosen.initials || initials(dosen.nama)}
                                 </AvatarFallback>
                             </Avatar>
@@ -99,8 +103,12 @@ export function DosenNavUser({ dosen }: DosenNavUserProps) {
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">{dosen.nama}</span>
-                                    <span className="truncate text-xs text-sidebar-foreground/60">{dosen.nidn}</span>
+                                    <span className="truncate font-semibold">
+                                        {dosen.nama}
+                                    </span>
+                                    <span className="truncate text-xs text-sidebar-foreground/60">
+                                        {dosen.nidn}
+                                    </span>
                                 </div>
                             </div>
                         </DropdownMenuLabel>
@@ -129,7 +137,7 @@ export function DosenNavUser({ dosen }: DosenNavUserProps) {
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            className="text-red-600 focus:text-red-600 cursor-pointer"
+                            className="cursor-pointer text-red-600 focus:text-red-600"
                             onClick={handleLogout}
                         >
                             <LogOut className="mr-2 h-4 w-4" />

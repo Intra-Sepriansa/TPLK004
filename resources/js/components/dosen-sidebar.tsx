@@ -1,6 +1,4 @@
 import { NavMain } from '@/components/nav-main';
-import { DosenNavUser } from './dosen-nav-user';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     Sidebar,
     SidebarContent,
@@ -11,12 +9,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useInitials } from '@/hooks/use-initials';
-import { formatShortName } from '@/lib/utils';
 import { type NavItem } from '@/types';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     BarChart3,
-    Bell,
     BookOpen,
     Calendar,
     CheckCircle,
@@ -26,13 +22,11 @@ import {
     GraduationCap,
     HelpCircle,
     Home,
-    LogOut,
     MessageCircle,
-    Settings,
-    UserCircle,
     Users2,
 } from 'lucide-react';
 import AppLogoIcon from './app-logo-icon';
+import { DosenNavUser } from './dosen-nav-user';
 
 const dosenNavItems: NavItem[] = [
     {

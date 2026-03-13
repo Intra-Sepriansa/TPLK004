@@ -1,31 +1,37 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { Head, router, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import IconMahasiswa from '@/assets/admin/mahasiswa/icon-mahasiswa.png';
-import {
-    User,
-    Mail,
-    Phone,
-    MapPin,
-    Calendar,
-    BookOpen,
-    GraduationCap,
-    Save,
-    X,
-    ChevronLeft,
-    Check,
-    AlertCircle,
-    Loader2,
-    Eye,
-    EyeOff
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
+import { Head, router, useForm } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    AlertCircle,
+    BookOpen,
+    Calendar,
+    Check,
+    ChevronLeft,
+    Eye,
+    EyeOff,
+    GraduationCap,
+    Loader2,
+    Mail,
+    MapPin,
+    Phone,
+    Save,
+    User,
+    X,
+} from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface Student {
     id: number;
@@ -55,7 +61,6 @@ interface Props {
     classes: string[];
 }
 
-
 const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -63,12 +68,17 @@ const containerVariants = {
         y: 0,
         transition: {
             duration: 0.4,
-            staggerChildren: 0.05
-        }
-    }
+            staggerChildren: 0.05,
+        },
+    },
 };
 
-export default function MahasiswaEdit({ student, faculties, majors, classes }: Props) {
+export default function MahasiswaEdit({
+    student,
+    faculties,
+    majors,
+    classes,
+}: Props) {
     const [activeSection, setActiveSection] = useState('personal');
     const [showPassword, setShowPassword] = useState(false);
     const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
@@ -105,7 +115,7 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
             },
             onError: () => {
                 toast.error('Gagal memperbarui data mahasiswa');
-            }
+            },
         });
     };
 
@@ -117,12 +127,15 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                 animate="visible"
                 variants={containerVariants}
                 className="relative min-h-[calc(100svh-4rem)] overflow-x-hidden text-neutral-900 dark:text-neutral-100"
-                style={{ backgroundImage: 'radial-gradient(circle at 10% 10%, rgba(99,102,241,0.05) 0%, transparent 35%), radial-gradient(circle at 85% 0%, rgba(236,72,153,0.05) 0%, transparent 40%)' }}
+                style={{
+                    backgroundImage:
+                        'radial-gradient(circle at 10% 10%, rgba(99,102,241,0.05) 0%, transparent 35%), radial-gradient(circle at 85% 0%, rgba(236,72,153,0.05) 0%, transparent 40%)',
+                }}
             >
                 {/* Animated Background */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="pointer-events-none fixed inset-0 overflow-hidden">
                     <motion.div
-                        className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl"
+                        className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-3xl"
                         animate={{
                             scale: [1, 1.2, 1],
                             opacity: [0.3, 0.5, 0.3],
@@ -130,11 +143,11 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                         transition={{
                             duration: 8,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                     />
                     <motion.div
-                        className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-full blur-3xl"
+                        className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-gradient-to-br from-pink-500/20 to-rose-500/20 blur-3xl"
                         animate={{
                             scale: [1.2, 1, 1.2],
                             opacity: [0.5, 0.3, 0.5],
@@ -142,43 +155,49 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                         transition={{
                             duration: 8,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                     />
                 </div>
 
-                <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+                <div className="relative z-10 container mx-auto max-w-7xl px-4 py-8">
                     {/* Header */}
 
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="relative overflow-hidden rounded-3xl p-8 shadow-2xl mb-8"
+                        className="relative mb-8 overflow-hidden rounded-3xl p-8 shadow-2xl"
                     >
                         <motion.div
                             className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                             animate={{
-                                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                                backgroundPosition: [
+                                    '0% 0%',
+                                    '100% 100%',
+                                    '0% 0%',
+                                ],
                             }}
                             transition={{
                                 duration: 15,
                                 repeat: Infinity,
-                                ease: "linear"
+                                ease: 'linear',
                             }}
                             style={{ backgroundSize: '200% 200%' }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                        <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                         <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                        <div className="relative z-10 flex flex-col md:flex-row gap-6 md:items-center justify-between">
+                        <div className="relative z-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
                             <div>
                                 <Button
                                     type="button"
                                     variant="ghost"
-                                    onClick={() => router.visit('/admin/mahasiswa')}
-                                    className="mb-4 text-white/80 hover:text-white hover:bg-white/10 -ml-4"
+                                    onClick={() =>
+                                        router.visit('/admin/mahasiswa')
+                                    }
+                                    className="mb-4 -ml-4 text-white/80 hover:bg-white/10 hover:text-white"
                                 >
-                                    <ChevronLeft className="h-4 w-4 mr-2" />
+                                    <ChevronLeft className="mr-2 h-4 w-4" />
                                     Kembali ke Daftar
                                 </Button>
                                 <div className="flex items-center gap-4">
@@ -186,14 +205,19 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                         whileHover={{ scale: 1.05, rotate: 5 }}
                                         className="flex h-16 w-16"
                                     >
-                                        <img src={IconMahasiswa} alt="Icon Mahasiswa" className="w-full h-full object-contain drop-shadow-lg" />
+                                        <img
+                                            src={IconMahasiswa}
+                                            alt="Icon Mahasiswa"
+                                            className="h-full w-full object-contain drop-shadow-lg"
+                                        />
                                     </motion.div>
                                     <div>
                                         <h1 className="text-3xl font-bold text-white">
                                             Edit Data Mahasiswa
                                         </h1>
                                         <p className="text-white/70">
-                                            Perbarui informasi mahasiswa dengan lengkap dan akurat
+                                            Perbarui informasi mahasiswa dengan
+                                            lengkap dan akurat
                                         </p>
                                     </div>
                                 </div>
@@ -204,14 +228,19 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                 <motion.div
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    className="bg-rose-500/10 backdrop-blur-md border border-rose-500/30 rounded-2xl p-4 max-w-sm"
+                                    className="max-w-sm rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 backdrop-blur-md"
                                 >
                                     <div className="flex items-start gap-3">
-                                        <AlertCircle className="h-5 w-5 text-rose-300 mt-0.5" />
+                                        <AlertCircle className="mt-0.5 h-5 w-5 text-rose-300" />
                                         <div>
-                                            <h3 className="font-semibold text-rose-100 text-sm">Validasi Gagal</h3>
-                                            <p className="text-xs text-rose-200/80 mt-1">
-                                                Mohon periksa kembali form pengisian. Ada {Object.keys(errors).length} kolom yang tidak valid.
+                                            <h3 className="text-sm font-semibold text-rose-100">
+                                                Validasi Gagal
+                                            </h3>
+                                            <p className="mt-1 text-xs text-rose-200/80">
+                                                Mohon periksa kembali form
+                                                pengisian. Ada{' '}
+                                                {Object.keys(errors).length}{' '}
+                                                kolom yang tidak valid.
                                             </p>
                                         </div>
                                     </div>
@@ -221,7 +250,7 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                     </motion.div>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                             {/* Left Column - Photo Upload */}
                             <motion.div
                                 initial={{ opacity: 0, x: -20 }}
@@ -229,33 +258,36 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                 transition={{ delay: 0.1 }}
                                 className="lg:col-span-1"
                             >
-                                <div className="sticky top-8 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-6 shadow-xl">
-                                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white mb-4">
+                                <div className="sticky top-8 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                    <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
                                         Foto Profil
                                     </h2>
 
                                     {/* Photo Preview (read-only for admin) */}
                                     <motion.div
-                                        className="relative aspect-square rounded-2xl overflow-hidden mb-4 group bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border-4 border-white/20"
+                                        className="group relative mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-4 border-white/20 bg-neutral-100 dark:bg-neutral-800"
                                         whileHover={{ scale: 1.02 }}
                                     >
                                         {student.photo ? (
                                             <img
                                                 src={student.photo}
                                                 alt={data.name || 'Foto Profil'}
-                                                className="w-full h-full object-cover"
+                                                className="h-full w-full object-cover"
                                             />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500/20 to-purple-600/10">
                                                 <span className="font-display text-7xl text-indigo-400/70">
-                                                    {(data.name || 'M').charAt(0).toUpperCase()}
+                                                    {(data.name || 'M')
+                                                        .charAt(0)
+                                                        .toUpperCase()}
                                                 </span>
                                             </div>
                                         )}
                                     </motion.div>
 
-                                    <p className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100/70 dark:bg-neutral-800/40 px-3 py-2 text-xs text-neutral-600 dark:text-neutral-300">
-                                        Foto profil hanya dapat diubah oleh mahasiswa melalui akun masing-masing.
+                                    <p className="rounded-xl border border-neutral-200 bg-neutral-100/70 px-3 py-2 text-xs text-neutral-600 dark:border-neutral-800 dark:bg-neutral-800/40 dark:text-neutral-300">
+                                        Foto profil hanya dapat diubah oleh
+                                        mahasiswa melalui akun masing-masing.
                                     </p>
                                 </div>
                             </motion.div>
@@ -275,40 +307,59 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -20 }}
-                                                className="rounded-3xl border border-white/20 bg-white/40 dark:border-neutral-800 dark:bg-neutral-900/40 p-8 shadow-xl backdrop-blur-xl"
+                                                className="rounded-3xl border border-white/20 bg-white/40 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/40"
                                             >
                                                 <div className="mb-6">
-                                                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                                    <h2 className="flex items-center gap-3 text-2xl font-bold text-neutral-900 dark:text-white">
                                                         <div className="flex h-12 w-12 items-center justify-center">
-                                                            <img src={IconMahasiswa} alt="Icon Data Pribadi" className="w-full h-full object-contain drop-shadow-md" />
+                                                            <img
+                                                                src={
+                                                                    IconMahasiswa
+                                                                }
+                                                                alt="Icon Data Pribadi"
+                                                                className="h-full w-full object-contain drop-shadow-md"
+                                                            />
                                                         </div>
                                                         Data Pribadi
                                                     </h2>
-                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
-                                                        Informasi pribadi mahasiswa
+                                                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                                        Informasi pribadi
+                                                        mahasiswa
                                                     </p>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                     {/* NIM */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="nim" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="nim"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <BookOpen className="h-4 w-4 text-indigo-600" />
                                                             NIM
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="nim"
                                                             value={data.nim}
-                                                            onChange={(e) => setData('nim', e.target.value)}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'nim',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className={cn(
                                                                 'h-12',
-                                                                errors.nim && 'border-red-500'
+                                                                errors.nim &&
+                                                                    'border-red-500',
                                                             )}
                                                             placeholder="Masukkan NIM"
                                                         />
                                                         {errors.nim && (
-                                                            <p className="text-sm text-red-500 flex items-center gap-1">
+                                                            <p className="flex items-center gap-1 text-sm text-red-500">
                                                                 <AlertCircle className="h-4 w-4" />
                                                                 {errors.nim}
                                                             </p>
@@ -317,23 +368,35 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
 
                                                     {/* Nama Lengkap */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="name" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="name"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <User className="h-4 w-4 text-indigo-600" />
                                                             Nama Lengkap
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="name"
                                                             value={data.name}
-                                                            onChange={(e) => setData('name', e.target.value)}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'name',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className={cn(
                                                                 'h-12',
-                                                                errors.name && 'border-red-500'
+                                                                errors.name &&
+                                                                    'border-red-500',
                                                             )}
                                                             placeholder="Masukkan nama lengkap"
                                                         />
                                                         {errors.name && (
-                                                            <p className="text-sm text-red-500 flex items-center gap-1">
+                                                            <p className="flex items-center gap-1 text-sm text-red-500">
                                                                 <AlertCircle className="h-4 w-4" />
                                                                 {errors.name}
                                                             </p>
@@ -342,14 +405,25 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
 
                                                     {/* Tempat Lahir */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="place_of_birth" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="place_of_birth"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <MapPin className="h-4 w-4 text-indigo-600" />
                                                             Tempat Lahir
                                                         </Label>
                                                         <Input
                                                             id="place_of_birth"
-                                                            value={data.place_of_birth}
-                                                            onChange={(e) => setData('place_of_birth', e.target.value)}
+                                                            value={
+                                                                data.place_of_birth
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'place_of_birth',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className="h-12"
                                                             placeholder="Masukkan tempat lahir"
                                                         />
@@ -357,15 +431,26 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
 
                                                     {/* Tanggal Lahir */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="date_of_birth" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="date_of_birth"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <Calendar className="h-4 w-4 text-indigo-600" />
                                                             Tanggal Lahir
                                                         </Label>
                                                         <Input
                                                             id="date_of_birth"
                                                             type="date"
-                                                            value={data.date_of_birth}
-                                                            onChange={(e) => setData('date_of_birth', e.target.value)}
+                                                            value={
+                                                                data.date_of_birth
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'date_of_birth',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className="h-12"
                                                         />
                                                     </div>
@@ -375,65 +460,125 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                         <Label className="flex items-center gap-2">
                                                             <User className="h-4 w-4 text-indigo-600" />
                                                             Jenis Kelamin
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <div className="flex gap-4">
-                                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                            <label className="flex cursor-pointer items-center gap-2">
                                                                 <input
                                                                     type="radio"
                                                                     name="jenis_kelamin"
                                                                     value="L"
-                                                                    checked={data.jenis_kelamin === 'L'}
-                                                                    onChange={(e) => setData('jenis_kelamin', e.target.value as 'L' | 'P')}
+                                                                    checked={
+                                                                        data.jenis_kelamin ===
+                                                                        'L'
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setData(
+                                                                            'jenis_kelamin',
+                                                                            e
+                                                                                .target
+                                                                                .value as
+                                                                                | 'L'
+                                                                                | 'P',
+                                                                        )
+                                                                    }
                                                                     className="h-4 w-4 text-indigo-600"
                                                                 />
-                                                                <span className="text-sm">Laki-laki</span>
+                                                                <span className="text-sm">
+                                                                    Laki-laki
+                                                                </span>
                                                             </label>
-                                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                            <label className="flex cursor-pointer items-center gap-2">
                                                                 <input
                                                                     type="radio"
                                                                     name="jenis_kelamin"
                                                                     value="P"
-                                                                    checked={data.jenis_kelamin === 'P'}
-                                                                    onChange={(e) => setData('jenis_kelamin', e.target.value as 'L' | 'P')}
+                                                                    checked={
+                                                                        data.jenis_kelamin ===
+                                                                        'P'
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setData(
+                                                                            'jenis_kelamin',
+                                                                            e
+                                                                                .target
+                                                                                .value as
+                                                                                | 'L'
+                                                                                | 'P',
+                                                                        )
+                                                                    }
                                                                     className="h-4 w-4 text-indigo-600"
                                                                 />
-                                                                <span className="text-sm">Perempuan</span>
+                                                                <span className="text-sm">
+                                                                    Perempuan
+                                                                </span>
                                                             </label>
                                                         </div>
                                                     </div>
 
                                                     {/* Status */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="status" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="status"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <Check className="h-4 w-4 text-indigo-600" />
                                                             Status
                                                         </Label>
                                                         <select
                                                             id="status"
                                                             value={data.status}
-                                                            onChange={(e) => setData('status', e.target.value as any)}
-                                                            className="h-12 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4"
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'status',
+                                                                    e.target
+                                                                        .value as any,
+                                                                )
+                                                            }
+                                                            className="h-12 w-full rounded-lg border border-neutral-300 bg-white px-4 dark:border-neutral-700 dark:bg-neutral-800"
                                                         >
-                                                            <option value="active">Aktif</option>
-                                                            <option value="inactive">Tidak Aktif</option>
-                                                            <option value="graduated">Lulus</option>
-                                                            <option value="dropout">Dropout</option>
+                                                            <option value="active">
+                                                                Aktif
+                                                            </option>
+                                                            <option value="inactive">
+                                                                Tidak Aktif
+                                                            </option>
+                                                            <option value="graduated">
+                                                                Lulus
+                                                            </option>
+                                                            <option value="dropout">
+                                                                Dropout
+                                                            </option>
                                                         </select>
                                                     </div>
 
                                                     {/* Alamat - Full Width */}
-                                                    <div className="md:col-span-2 space-y-2">
-                                                        <Label htmlFor="address" className="flex items-center gap-2">
+                                                    <div className="space-y-2 md:col-span-2">
+                                                        <Label
+                                                            htmlFor="address"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <MapPin className="h-4 w-4 text-indigo-600" />
                                                             Alamat Lengkap
                                                         </Label>
                                                         <textarea
                                                             id="address"
                                                             value={data.address}
-                                                            onChange={(e) => setData('address', e.target.value)}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'address',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             rows={3}
-                                                            className="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-3"
+                                                            className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-3 dark:border-neutral-700 dark:bg-neutral-800"
                                                             placeholder="Masukkan alamat lengkap"
                                                         />
                                                     </div>
@@ -446,35 +591,57 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.2 }}
-                                            className="lg:col-span-2 space-y-6"
+                                            className="space-y-6 lg:col-span-2"
                                         >
                                             {/* Academic Information Section */}
-                                            <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-6 shadow-xl">
-                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 flex items-center gap-2">
+                                            <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:bg-neutral-900/40">
+                                                <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-neutral-900 dark:text-white">
                                                     <BookOpen className="h-5 w-5 text-purple-500" />
                                                     Informasi Akademik
                                                 </h2>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                     {/* Faculty */}
                                                     <div className="space-y-2">
                                                         <Label htmlFor="faculty">
                                                             Fakultas
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Select
                                                             value={data.faculty}
-                                                            onValueChange={(value) => setData('faculty', value)}
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                setData(
+                                                                    'faculty',
+                                                                    value,
+                                                                )
+                                                            }
                                                         >
-                                                            <SelectTrigger className="bg-white/50 dark:bg-neutral-800/50 bg-white/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 focus:border-emerald-500/50 backdrop-blur-sm transition-all text-neutral-900 dark:text-neutral-100">
+                                                            <SelectTrigger className="border-neutral-200 bg-white/50 text-neutral-900 backdrop-blur-sm transition-all focus:border-emerald-500/50 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {faculties.map((faculty) => (
-                                                                    <SelectItem key={faculty} value={faculty}>
-                                                                        {faculty}
-                                                                    </SelectItem>
-                                                                ))}
+                                                                {faculties.map(
+                                                                    (
+                                                                        faculty,
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                faculty
+                                                                            }
+                                                                            value={
+                                                                                faculty
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                faculty
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
@@ -483,21 +650,41 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="major">
                                                             Program Studi
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Select
                                                             value={data.major}
-                                                            onValueChange={(value) => setData('major', value)}
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                setData(
+                                                                    'major',
+                                                                    value,
+                                                                )
+                                                            }
                                                         >
-                                                            <SelectTrigger className="bg-white/50 dark:bg-neutral-800/50 bg-white/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 focus:border-emerald-500/50 backdrop-blur-sm transition-all text-neutral-900 dark:text-neutral-100">
+                                                            <SelectTrigger className="border-neutral-200 bg-white/50 text-neutral-900 backdrop-blur-sm transition-all focus:border-emerald-500/50 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {majors.map((major) => (
-                                                                    <SelectItem key={major} value={major}>
-                                                                        {major}
-                                                                    </SelectItem>
-                                                                ))}
+                                                                {majors.map(
+                                                                    (major) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                major
+                                                                            }
+                                                                            value={
+                                                                                major
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                major
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
@@ -506,21 +693,41 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="class">
                                                             Kelas
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Select
                                                             value={data.class}
-                                                            onValueChange={(value) => setData('class', value)}
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                setData(
+                                                                    'class',
+                                                                    value,
+                                                                )
+                                                            }
                                                         >
-                                                            <SelectTrigger className="bg-white/50 dark:bg-neutral-800/50 bg-white/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 focus:border-emerald-500/50 backdrop-blur-sm transition-all text-neutral-900 dark:text-neutral-100">
+                                                            <SelectTrigger className="border-neutral-200 bg-white/50 text-neutral-900 backdrop-blur-sm transition-all focus:border-emerald-500/50 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {classes.map((cls) => (
-                                                                    <SelectItem key={cls} value={cls}>
-                                                                        {cls}
-                                                                    </SelectItem>
-                                                                ))}
+                                                                {classes.map(
+                                                                    (cls) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                cls
+                                                                            }
+                                                                            value={
+                                                                                cls
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                cls
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
@@ -529,19 +736,39 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="semester">
                                                             Semester
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Select
                                                             value={data.semester.toString()}
-                                                            onValueChange={(value) => setData('semester', parseInt(value))}
+                                                            onValueChange={(
+                                                                value,
+                                                            ) =>
+                                                                setData(
+                                                                    'semester',
+                                                                    parseInt(
+                                                                        value,
+                                                                    ),
+                                                                )
+                                                            }
                                                         >
-                                                            <SelectTrigger className="bg-white/50 dark:bg-neutral-800/50 bg-white/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 focus:border-emerald-500/50 backdrop-blur-sm transition-all text-neutral-900 dark:text-neutral-100">
+                                                            <SelectTrigger className="border-neutral-200 bg-white/50 text-neutral-900 backdrop-blur-sm transition-all focus:border-emerald-500/50 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                                                                    <SelectItem key={sem} value={sem.toString()}>
-                                                                        Semester {sem}
+                                                                {[
+                                                                    1, 2, 3, 4,
+                                                                    5, 6, 7, 8,
+                                                                ].map((sem) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            sem
+                                                                        }
+                                                                        value={sem.toString()}
+                                                                    >
+                                                                        Semester{' '}
+                                                                        {sem}
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
@@ -552,13 +779,25 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="entry_year">
                                                             Tahun Masuk
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="entry_year"
                                                             type="number"
-                                                            value={data.entry_year}
-                                                            onChange={(e) => setData('entry_year', parseInt(e.target.value))}
+                                                            value={
+                                                                data.entry_year
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'entry_year',
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value,
+                                                                    ),
+                                                                )
+                                                            }
                                                             className="bg-white/50 dark:bg-neutral-800/50"
                                                             placeholder="2023"
                                                         />
@@ -568,13 +807,25 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="status">
                                                             Status
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Select
                                                             value={data.status}
-                                                            onValueChange={(value: 'active' | 'inactive' | 'graduated') => setData('status', value)}
+                                                            onValueChange={(
+                                                                value:
+                                                                    | 'active'
+                                                                    | 'inactive'
+                                                                    | 'graduated',
+                                                            ) =>
+                                                                setData(
+                                                                    'status',
+                                                                    value,
+                                                                )
+                                                            }
                                                         >
-                                                            <SelectTrigger className="bg-white/50 dark:bg-neutral-800/50 bg-white/50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700 focus:border-emerald-500/50 backdrop-blur-sm transition-all text-neutral-900 dark:text-neutral-100">
+                                                            <SelectTrigger className="border-neutral-200 bg-white/50 text-neutral-900 backdrop-blur-sm transition-all focus:border-emerald-500/50 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -587,7 +838,8 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                                 <SelectItem value="inactive">
                                                                     <div className="flex items-center gap-2">
                                                                         <div className="h-2 w-2 rounded-full bg-yellow-500" />
-                                                                        Tidak Aktif
+                                                                        Tidak
+                                                                        Aktif
                                                                     </div>
                                                                 </SelectItem>
                                                                 <SelectItem value="graduated">
@@ -612,11 +864,15 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 <Button
                                                     type="button"
                                                     variant="outline"
-                                                    onClick={() => router.visit('/admin/mahasiswa')}
+                                                    onClick={() =>
+                                                        router.visit(
+                                                            '/admin/mahasiswa',
+                                                        )
+                                                    }
                                                     disabled={processing}
                                                     className="min-w-[120px]"
                                                 >
-                                                    <X className="h-4 w-4 mr-2" />
+                                                    <X className="mr-2 h-4 w-4" />
                                                     Batal
                                                 </Button>
 
@@ -627,12 +883,12 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 >
                                                     {processing ? (
                                                         <>
-                                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                                             Menyimpan...
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Save className="h-4 w-4 mr-2" />
+                                                            <Save className="mr-2 h-4 w-4" />
                                                             Simpan Perubahan
                                                         </>
                                                     )}
@@ -645,21 +901,34 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                             <motion.div
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
-                                                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center"
+                                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
                                             >
                                                 <motion.div
-                                                    initial={{ scale: 0.8, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-2xl"
+                                                    initial={{
+                                                        scale: 0.8,
+                                                        opacity: 0,
+                                                    }}
+                                                    animate={{
+                                                        scale: 1,
+                                                        opacity: 1,
+                                                    }}
+                                                    className="rounded-3xl bg-white p-8 shadow-2xl dark:bg-neutral-900"
                                                 >
                                                     <div className="flex flex-col items-center gap-4">
                                                         <motion.div
-                                                            animate={{ rotate: 360 }}
-                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                            animate={{
+                                                                rotate: 360,
+                                                            }}
+                                                            transition={{
+                                                                duration: 1,
+                                                                repeat: Infinity,
+                                                                ease: 'linear',
+                                                            }}
                                                             className="h-16 w-16 rounded-full border-4 border-indigo-500 border-t-transparent"
                                                         />
                                                         <p className="text-lg font-semibold text-neutral-900 dark:text-white">
-                                                            Menyimpan perubahan...
+                                                            Menyimpan
+                                                            perubahan...
                                                         </p>
                                                     </div>
                                                 </motion.div>
@@ -673,39 +942,61 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -20 }}
-                                                className="rounded-3xl border border-white/20 bg-white/40 dark:border-neutral-800 dark:bg-neutral-900/40 p-8 shadow-xl backdrop-blur-xl"
+                                                className="rounded-3xl border border-white/20 bg-white/40 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/40"
                                             >
                                                 <div className="mb-6">
-                                                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                                    <h2 className="flex items-center gap-3 text-2xl font-bold text-neutral-900 dark:text-white">
                                                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-neutral-900 dark:text-white">
                                                             <GraduationCap className="h-6 w-6" />
                                                         </div>
                                                         Data Akademik
                                                     </h2>
-                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
-                                                        Informasi akademik mahasiswa
+                                                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                                        Informasi akademik
+                                                        mahasiswa
                                                     </p>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                     {/* Fakultas */}
                                                     <div className="space-y-2">
                                                         <Label htmlFor="faculty">
                                                             Fakultas
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <select
                                                             id="faculty"
                                                             value={data.faculty}
-                                                            onChange={(e) => setData('faculty', e.target.value)}
-                                                            className="h-12 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4"
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'faculty',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="h-12 w-full rounded-lg border border-neutral-300 bg-white px-4 dark:border-neutral-700 dark:bg-neutral-800"
                                                         >
-                                                            <option value="">Pilih Fakultas</option>
-                                                            {faculties.map((faculty) => (
-                                                                <option key={faculty} value={faculty}>
-                                                                    {faculty}
-                                                                </option>
-                                                            ))}
+                                                            <option value="">
+                                                                Pilih Fakultas
+                                                            </option>
+                                                            {faculties.map(
+                                                                (faculty) => (
+                                                                    <option
+                                                                        key={
+                                                                            faculty
+                                                                        }
+                                                                        value={
+                                                                            faculty
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            faculty
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
                                                         </select>
                                                     </div>
 
@@ -713,20 +1004,40 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="major">
                                                             Program Studi
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <select
                                                             id="major"
                                                             value={data.major}
-                                                            onChange={(e) => setData('major', e.target.value)}
-                                                            className="h-12 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4"
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'major',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="h-12 w-full rounded-lg border border-neutral-300 bg-white px-4 dark:border-neutral-700 dark:bg-neutral-800"
                                                         >
-                                                            <option value="">Pilih Program Studi</option>
-                                                            {majors.map((major) => (
-                                                                <option key={major} value={major}>
-                                                                    {major}
-                                                                </option>
-                                                            ))}
+                                                            <option value="">
+                                                                Pilih Program
+                                                                Studi
+                                                            </option>
+                                                            {majors.map(
+                                                                (major) => (
+                                                                    <option
+                                                                        key={
+                                                                            major
+                                                                        }
+                                                                        value={
+                                                                            major
+                                                                        }
+                                                                    >
+                                                                        {major}
+                                                                    </option>
+                                                                ),
+                                                            )}
                                                         </select>
                                                     </div>
 
@@ -734,20 +1045,39 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="class">
                                                             Kelas
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <select
                                                             id="class"
                                                             value={data.class}
-                                                            onChange={(e) => setData('class', e.target.value)}
-                                                            className="h-12 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4"
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'class',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="h-12 w-full rounded-lg border border-neutral-300 bg-white px-4 dark:border-neutral-700 dark:bg-neutral-800"
                                                         >
-                                                            <option value="">Pilih Kelas</option>
-                                                            {classes.map((cls) => (
-                                                                <option key={cls} value={cls}>
-                                                                    {cls}
-                                                                </option>
-                                                            ))}
+                                                            <option value="">
+                                                                Pilih Kelas
+                                                            </option>
+                                                            {classes.map(
+                                                                (cls) => (
+                                                                    <option
+                                                                        key={
+                                                                            cls
+                                                                        }
+                                                                        value={
+                                                                            cls
+                                                                        }
+                                                                    >
+                                                                        {cls}
+                                                                    </option>
+                                                                ),
+                                                            )}
                                                         </select>
                                                     </div>
 
@@ -755,15 +1085,27 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="semester">
                                                             Semester
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="semester"
                                                             type="number"
                                                             min="1"
                                                             max="14"
-                                                            value={data.semester}
-                                                            onChange={(e) => setData('semester', parseInt(e.target.value))}
+                                                            value={
+                                                                data.semester
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'semester',
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value,
+                                                                    ),
+                                                                )
+                                                            }
                                                             className="h-12"
                                                             placeholder="Semester"
                                                         />
@@ -773,15 +1115,27 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                     <div className="space-y-2">
                                                         <Label htmlFor="entry_year">
                                                             Tahun Masuk
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="entry_year"
                                                             type="number"
                                                             min="2000"
                                                             max={new Date().getFullYear()}
-                                                            value={data.entry_year}
-                                                            onChange={(e) => setData('entry_year', parseInt(e.target.value))}
+                                                            value={
+                                                                data.entry_year
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'entry_year',
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value,
+                                                                    ),
+                                                                )
+                                                            }
                                                             className="h-12"
                                                             placeholder="Tahun Masuk"
                                                         />
@@ -797,41 +1151,53 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -20 }}
-                                                className="rounded-3xl border border-white/20 bg-white/40 dark:border-neutral-800 dark:bg-neutral-900/40 p-8 shadow-xl backdrop-blur-xl"
+                                                className="rounded-3xl border border-white/20 bg-white/40 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/40"
                                             >
                                                 <div className="mb-6">
-                                                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                                    <h2 className="flex items-center gap-3 text-2xl font-bold text-neutral-900 dark:text-white">
                                                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 text-neutral-900 dark:text-white">
                                                             <Phone className="h-6 w-6" />
                                                         </div>
                                                         Informasi Kontak
                                                     </h2>
-                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
+                                                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
                                                         Data kontak mahasiswa
                                                     </p>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                     {/* Email */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="email" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="email"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <Mail className="h-4 w-4 text-blue-600" />
                                                             Email
-                                                            <span className="text-red-500">*</span>
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="email"
                                                             type="email"
                                                             value={data.email}
-                                                            onChange={(e) => setData('email', e.target.value)}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'email',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className={cn(
                                                                 'h-12',
-                                                                errors.email && 'border-red-500'
+                                                                errors.email &&
+                                                                    'border-red-500',
                                                             )}
                                                             placeholder="email@example.com"
                                                         />
                                                         {errors.email && (
-                                                            <p className="text-sm text-red-500 flex items-center gap-1">
+                                                            <p className="flex items-center gap-1 text-sm text-red-500">
                                                                 <AlertCircle className="h-4 w-4" />
                                                                 {errors.email}
                                                             </p>
@@ -840,7 +1206,10 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
 
                                                     {/* Phone */}
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="phone" className="flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="phone"
+                                                            className="flex items-center gap-2"
+                                                        >
                                                             <Phone className="h-4 w-4 text-blue-600" />
                                                             Nomor Telepon
                                                         </Label>
@@ -848,7 +1217,13 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                             id="phone"
                                                             type="tel"
                                                             value={data.phone}
-                                                            onChange={(e) => setData('phone', e.target.value)}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'phone',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className="h-12"
                                                             placeholder="08xxxxxxxxxx"
                                                         />
@@ -864,21 +1239,22 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -20 }}
-                                                className="rounded-3xl border border-white/20 bg-white/40 dark:border-neutral-800 dark:bg-neutral-900/40 p-8 shadow-xl backdrop-blur-xl"
+                                                className="rounded-3xl border border-white/20 bg-white/40 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/40"
                                             >
                                                 <div className="mb-6">
-                                                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                                    <h2 className="flex items-center gap-3 text-2xl font-bold text-neutral-900 dark:text-white">
                                                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-rose-600 text-neutral-900 dark:text-white">
                                                             <Eye className="h-6 w-6" />
                                                         </div>
                                                         Keamanan Akun
                                                     </h2>
-                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
-                                                        Ubah password akun mahasiswa (opsional)
+                                                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                                        Ubah password akun
+                                                        mahasiswa (opsional)
                                                     </p>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                     {/* Password */}
                                                     <div className="space-y-2">
                                                         <Label htmlFor="password">
@@ -887,16 +1263,32 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                         <div className="relative">
                                                             <Input
                                                                 id="password"
-                                                                type={showPassword ? 'text' : 'password'}
-                                                                value={data.password}
-                                                                onChange={(e) => setData('password', e.target.value)}
+                                                                type={
+                                                                    showPassword
+                                                                        ? 'text'
+                                                                        : 'password'
+                                                                }
+                                                                value={
+                                                                    data.password
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setData(
+                                                                        'password',
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                                }
                                                                 className="h-12 pr-12"
                                                                 placeholder="Kosongkan jika tidak ingin mengubah"
                                                             />
                                                             <button
                                                                 type="button"
-                                                                onClick={() => setShowPassword(!showPassword)}
-                                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
+                                                                onClick={() =>
+                                                                    setShowPassword(
+                                                                        !showPassword,
+                                                                    )
+                                                                }
+                                                                className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-500 hover:text-neutral-700"
                                                             >
                                                                 {showPassword ? (
                                                                     <EyeOff className="h-5 w-5" />
@@ -906,9 +1298,11 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                             </button>
                                                         </div>
                                                         {errors.password && (
-                                                            <p className="text-sm text-red-500 flex items-center gap-1">
+                                                            <p className="flex items-center gap-1 text-sm text-red-500">
                                                                 <AlertCircle className="h-4 w-4" />
-                                                                {errors.password}
+                                                                {
+                                                                    errors.password
+                                                                }
                                                             </p>
                                                         )}
                                                     </div>
@@ -920,25 +1314,43 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                         </Label>
                                                         <Input
                                                             id="password_confirmation"
-                                                            type={showPassword ? 'text' : 'password'}
-                                                            value={data.password_confirmation}
-                                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                            type={
+                                                                showPassword
+                                                                    ? 'text'
+                                                                    : 'password'
+                                                            }
+                                                            value={
+                                                                data.password_confirmation
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    'password_confirmation',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
                                                             className="h-12"
                                                             placeholder="Ulangi password baru"
                                                         />
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                                                <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
                                                     <div className="flex gap-3">
-                                                        <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                                        <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
                                                         <div>
                                                             <h4 className="font-semibold text-amber-900 dark:text-amber-100">
                                                                 Perhatian
                                                             </h4>
-                                                            <p className="text-sm text-amber-700 dark:text-amber-600 dark:text-amber-400 mt-1">
-                                                                Kosongkan field password jika tidak ingin mengubah password mahasiswa.
-                                                                Password minimal 8 karakter.
+                                                            <p className="mt-1 text-sm text-amber-700 dark:text-amber-400 dark:text-amber-600">
+                                                                Kosongkan field
+                                                                password jika
+                                                                tidak ingin
+                                                                mengubah
+                                                                password
+                                                                mahasiswa.
+                                                                Password minimal
+                                                                8 karakter.
                                                             </p>
                                                         </div>
                                                     </div>
@@ -948,7 +1360,6 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                     </AnimatePresence>
                                 </div>
                             </motion.div>
-
                         </div>
                     </form>
                 </div>
@@ -967,9 +1378,16 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                         {Array.from({ length: 20 }).map((_, i) => (
                             <motion.div
                                 key={i}
-                                className="absolute w-3 h-3 rounded-full"
+                                className="absolute h-3 w-3 rounded-full"
                                 style={{
-                                    backgroundColor: ['#6366f1', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#3b82f6'][i % 6],
+                                    backgroundColor: [
+                                        '#6366f1',
+                                        '#8b5cf6',
+                                        '#ec4899',
+                                        '#10b981',
+                                        '#f59e0b',
+                                        '#3b82f6',
+                                    ][i % 6],
                                     left: `${Math.random() * 100}%`,
                                     top: `${Math.random() * 100}%`,
                                 }}
@@ -979,7 +1397,10 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                     opacity: [0, 1, 0],
                                     y: [0, -200 - Math.random() * 300],
                                     x: [(Math.random() - 0.5) * 400],
-                                    rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+                                    rotate: [
+                                        0,
+                                        360 * (Math.random() > 0.5 ? 1 : -1),
+                                    ],
                                 }}
                                 transition={{
                                     duration: 2,
@@ -993,27 +1414,40 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                         <motion.div
                             initial={{ scale: 0.5, opacity: 0, y: 30 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-                            className="relative bg-white dark:bg-neutral-900 rounded-3xl p-10 shadow-2xl border border-white/20 text-center max-w-sm mx-4"
+                            transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 20,
+                                delay: 0.1,
+                            }}
+                            className="relative mx-4 max-w-sm rounded-3xl border border-white/20 bg-white p-10 text-center shadow-2xl dark:bg-neutral-900"
                         >
                             {/* Animated checkmark circle */}
                             <motion.div
                                 className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/30"
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 200,
+                                    damping: 15,
+                                    delay: 0.2,
+                                }}
                             >
                                 <motion.div
                                     initial={{ pathLength: 0, opacity: 0 }}
                                     animate={{ pathLength: 1, opacity: 1 }}
                                     transition={{ delay: 0.5, duration: 0.5 }}
                                 >
-                                    <Check className="h-12 w-12 text-white" strokeWidth={3} />
+                                    <Check
+                                        className="h-12 w-12 text-white"
+                                        strokeWidth={3}
+                                    />
                                 </motion.div>
                             </motion.div>
 
                             <motion.h2
-                                className="text-2xl font-bold text-neutral-900 dark:text-white mb-2"
+                                className="mb-2 text-2xl font-bold text-neutral-900 dark:text-white"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 }}
@@ -1031,7 +1465,7 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
 
                             {/* Progress bar */}
                             <motion.div
-                                className="mt-6 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden"
+                                className="mt-6 h-1.5 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.6 }}
@@ -1040,11 +1474,15 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                     className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                                     initial={{ width: '0%' }}
                                     animate={{ width: '100%' }}
-                                    transition={{ delay: 0.7, duration: 1.8, ease: 'linear' }}
+                                    transition={{
+                                        delay: 0.7,
+                                        duration: 1.8,
+                                        ease: 'linear',
+                                    }}
                                 />
                             </motion.div>
                             <motion.p
-                                className="text-xs text-neutral-400 mt-2"
+                                className="mt-2 text-xs text-neutral-400"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.8 }}

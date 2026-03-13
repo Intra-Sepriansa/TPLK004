@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface DeviceInfo {
     fingerprint: string;
@@ -20,10 +20,10 @@ interface DeviceInfo {
 async function generateFingerprint(): Promise<DeviceInfo> {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl');
-    
+
     let webglVendor: string | null = null;
     let webglRenderer: string | null = null;
-    
+
     if (gl) {
         const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
         if (debugInfo) {
@@ -54,7 +54,9 @@ async function generateFingerprint(): Promise<DeviceInfo> {
     const data = encoder.encode(dataString);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const fingerprint = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const fingerprint = hashArray
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
 
     return {
         ...info,

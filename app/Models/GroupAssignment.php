@@ -15,6 +15,7 @@ class GroupAssignment extends Model
         'formation_deadline', 'submission_deadline', 'max_file_size_mb',
         'allowed_file_types', 'features', 'peer_evaluation_weight',
         'contribution_threshold', 'allow_resubmission', 'is_locked',
+        'allow_force_assign',
         'random_group_count', 'random_group_size',
         'self_form_group_count', 'self_form_group_size',
     ];
@@ -28,6 +29,7 @@ class GroupAssignment extends Model
         'submission_deadline' => 'datetime',
         'is_locked' => 'boolean',
         'allow_resubmission' => 'boolean',
+        'allow_force_assign' => 'boolean',
         'peer_evaluation_weight' => 'decimal:2',
         'contribution_threshold' => 'decimal:2',
         'random_group_count' => 'integer',
@@ -42,6 +44,7 @@ class GroupAssignment extends Model
     public function submissions(): HasMany { return $this->hasMany(GaSubmission::class, 'assignment_id'); }
     public function peerEvaluations(): HasMany { return $this->hasMany(GaPeerEvaluation::class, 'assignment_id'); }
     public function conflictReports(): HasManyThrough { return $this->hasManyThrough(GaConflictReport::class, GaGroup::class, 'assignment_id', 'group_id'); }
+    public function forceAssignLogs(): HasMany { return $this->hasMany(ForceAssignLog::class, 'assignment_id'); }
 
     public function getSubmittedGroupsCountAttribute(): int { return $this->submissions()->count(); }
     public function getTotalGroupsCountAttribute(): int { return $this->groups()->count(); }

@@ -286,6 +286,11 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::post('admin/tugas-kelompok/{id}/grade', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'gradeSubmission'])->name('admin.tugas-kelompok.grade');
     Route::post('admin/tugas-kelompok/{id}/resolve-conflict/{reportId}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'resolveConflict'])->name('admin.tugas-kelompok.resolve-conflict');
     Route::get('admin/tugas-kelompok/{id}/export-pdf', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'exportPdf'])->name('admin.tugas-kelompok.export-pdf');
+    Route::patch('admin/tugas-kelompok/{id}/group-config', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'updateGroupConfig'])->name('admin.tugas-kelompok.group-config');
+    Route::post('admin/tugas-kelompok/{id}/force-assign', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'forceAssign'])->name('admin.tugas-kelompok.force-assign');
+    Route::post('admin/tugas-kelompok/{id}/auto-assign', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'autoAssignRemaining'])->name('admin.tugas-kelompok.auto-assign');
+    Route::delete('admin/tugas-kelompok/{id}/groups/{groupId}/members/{studentId}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'removeGroupMember'])->name('admin.tugas-kelompok.remove-member');
+    Route::delete('admin/tugas-kelompok/{id}/groups/{groupId}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'deleteGroupAction'])->name('admin.tugas-kelompok.delete-group');
     
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
@@ -305,6 +310,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user', [AbsensiController::class, 'dashboard'])->name('user.dashboard');
     Route::get('user/dashboard', [AbsensiController::class, 'dashboard'])->name('user.dashboard.alt');
     Route::get('user/absen', [AbsensiController::class, 'create'])->name('user.absen');
+    Route::post('user/absen/preview-token', [AbsensiController::class, 'previewToken'])->name('user.absen.preview-token');
     Route::post('user/absen', [AbsensiController::class, 'store'])->name('user.absen.store');
     Route::get('user/rekapan', [AbsensiController::class, 'rekapan'])->name('user.rekapan');
     Route::get('user/bukti-masuk', [AbsensiController::class, 'buktiMasuk'])->name('user.bukti-masuk');

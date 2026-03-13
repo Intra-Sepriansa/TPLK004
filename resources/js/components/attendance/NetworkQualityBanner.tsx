@@ -1,35 +1,51 @@
-import { useNetworkQuality, type NetworkQuality } from '@/hooks/use-network-quality';
-import { AnimatePresence, motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { SignalLow, SignalZero, Wifi, WifiOff, ShieldCheck, CheckCircle2, Zap } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
+import {
+    useNetworkQuality,
+    type NetworkQuality,
+} from '@/hooks/use-network-quality';
+import {
+    animate,
+    AnimatePresence,
+    motion,
+    useMotionValue,
+    useTransform,
+} from 'framer-motion';
+import {
+    CheckCircle2,
+    ShieldCheck,
+    SignalLow,
+    SignalZero,
+    Wifi,
+    WifiOff,
+    Zap,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const RECOVERY_DISPLAY_MS = 4000;
 
 // ─── Color palette per state ───────────────────────────────────────
 const STATE_COLORS = {
     slow: {
-        from: '#f59e0b',   // amber-500
-        to: '#f97316',     // orange-500
-        glow: '#fbbf24',   // amber-400
+        from: '#f59e0b', // amber-500
+        to: '#f97316', // orange-500
+        glow: '#fbbf24', // amber-400
         particle: '#fde68a', // amber-200
     },
     unstable: {
-        from: '#ef4444',   // red-500
-        to: '#e11d48',     // rose-600
-        glow: '#f87171',   // red-400
+        from: '#ef4444', // red-500
+        to: '#e11d48', // rose-600
+        glow: '#f87171', // red-400
         particle: '#fecaca', // red-200
     },
     offline: {
-        from: '#334155',   // slate-700
-        to: '#1e293b',     // slate-800
-        glow: '#64748b',   // slate-500
+        from: '#334155', // slate-700
+        to: '#1e293b', // slate-800
+        glow: '#64748b', // slate-500
         particle: '#94a3b8', // slate-400
     },
     recovering: {
-        from: '#10b981',   // emerald-500
-        to: '#059669',     // emerald-600
-        glow: '#34d399',   // emerald-400
+        from: '#10b981', // emerald-500
+        to: '#059669', // emerald-600
+        glow: '#34d399', // emerald-400
         particle: '#a7f3d0', // emerald-200
     },
 };
@@ -44,22 +60,31 @@ const BANNER_CONFIG: Record<Exclude<NetworkQuality, 'good'>, BannerConfig> = {
     slow: {
         icon: SignalLow,
         title: 'Jaringan Lambat',
-        message: 'Koneksi internet kamu lambat. Jangan khawatir — jika pengiriman absen gagal, data akan otomatis tersimpan offline dan dikirim saat sinyal pulih.',
+        message:
+            'Koneksi internet kamu lambat. Jangan khawatir — jika pengiriman absen gagal, data akan otomatis tersimpan offline dan dikirim saat sinyal pulih.',
     },
     unstable: {
         icon: SignalZero,
         title: 'Koneksi Tidak Stabil',
-        message: 'Sinyal internet tidak stabil. Lanjutkan saja absennya — data kamu akan tersimpan otomatis dan dikirim begitu koneksi pulih.',
+        message:
+            'Sinyal internet tidak stabil. Lanjutkan saja absennya — data kamu akan tersimpan otomatis dan dikirim begitu koneksi pulih.',
     },
     offline: {
         icon: WifiOff,
         title: 'Mode Offline',
-        message: 'Tidak ada koneksi internet. Kamu tetap bisa absen — data akan tersimpan di perangkat dan otomatis terkirim saat online kembali.',
+        message:
+            'Tidak ada koneksi internet. Kamu tetap bisa absen — data akan tersimpan di perangkat dan otomatis terkirim saat online kembali.',
     },
 };
 
 // ─── Particle burst effect ─────────────────────────────────────────
-function ParticleBurst({ color, count = 8 }: { color: string; count?: number }) {
+function ParticleBurst({
+    color,
+    count = 8,
+}: {
+    color: string;
+    count?: number;
+}) {
     return (
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
             {Array.from({ length: count }).map((_, i) => {
@@ -73,7 +98,7 @@ function ParticleBurst({ color, count = 8 }: { color: string; count?: number }) 
                 return (
                     <motion.div
                         key={i}
-                        className="absolute left-1/2 top-1/2 rounded-full"
+                        className="absolute top-1/2 left-1/2 rounded-full"
                         style={{
                             width: size,
                             height: size,
@@ -103,7 +128,7 @@ function ParticleBurst({ color, count = 8 }: { color: string; count?: number }) 
 // ─── Scanning wave animation (for offline state) ───────────────────
 function ScanningWaves() {
     return (
-        <div className="pointer-events-none absolute -right-4 top-1/2 -translate-y-1/2">
+        <div className="pointer-events-none absolute top-1/2 -right-4 -translate-y-1/2">
             {[0, 1, 2].map((i) => (
                 <motion.div
                     key={i}
@@ -142,10 +167,14 @@ function AnimatedSignalBars({ quality }: { quality: NetworkQuality }) {
                     className="w-[3px] rounded-full"
                     style={{ height: 6 + i * 3 }}
                     animate={{
-                        backgroundColor: i <= bars ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)',
-                        scaleY: quality === 'unstable' && i > 0
-                            ? [1, 0.3, 1, 0.5, 1]
-                            : 1,
+                        backgroundColor:
+                            i <= bars
+                                ? 'rgba(255,255,255,0.9)'
+                                : 'rgba(255,255,255,0.2)',
+                        scaleY:
+                            quality === 'unstable' && i > 0
+                                ? [1, 0.3, 1, 0.5, 1]
+                                : 1,
                     }}
                     transition={{
                         backgroundColor: { duration: 0.3 },
@@ -164,7 +193,9 @@ function AnimatedSignalBars({ quality }: { quality: NetworkQuality }) {
 // ─── Main Component ────────────────────────────────────────────────
 export function NetworkQualityBanner() {
     const { quality, lastPingMs } = useNetworkQuality();
-    const [displayState, setDisplayState] = useState<'hidden' | 'warning' | 'recovering'>('hidden');
+    const [displayState, setDisplayState] = useState<
+        'hidden' | 'warning' | 'recovering'
+    >('hidden');
     const [dismissed, setDismissed] = useState(false);
     const [prevQuality, setPrevQuality] = useState<NetworkQuality>(quality);
     const [showParticles, setShowParticles] = useState(false);
@@ -185,7 +216,7 @@ export function NetworkQualityBanner() {
 
             // Trigger transition animation if switching between bad states
             if (prevQuality !== 'good' && prevQuality !== quality) {
-                setTransitionKey(k => k + 1);
+                setTransitionKey((k) => k + 1);
                 setShowParticles(true);
                 setTimeout(() => setShowParticles(false), 800);
             }
@@ -220,10 +251,14 @@ export function NetworkQualityBanner() {
 
     const isRecovering = displayState === 'recovering';
     const activeQuality = isRecovering ? prevQuality : quality;
-    const config = activeQuality !== 'good' ? BANNER_CONFIG[activeQuality as Exclude<NetworkQuality, 'good'>] : null;
+    const config =
+        activeQuality !== 'good'
+            ? BANNER_CONFIG[activeQuality as Exclude<NetworkQuality, 'good'>]
+            : null;
     const colors = isRecovering
         ? STATE_COLORS.recovering
-        : STATE_COLORS[quality as keyof typeof STATE_COLORS] ?? STATE_COLORS.offline;
+        : (STATE_COLORS[quality as keyof typeof STATE_COLORS] ??
+          STATE_COLORS.offline);
 
     // ─── Offline → Online (Recovery) banner ────────────────────────
     if (isRecovering) {
@@ -233,7 +268,12 @@ export function NetworkQualityBanner() {
                     key="recovery"
                     initial={{ opacity: 0, y: -30, scale: 0.9, rotateX: 15 }}
                     animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95, filter: 'blur(4px)' }}
+                    exit={{
+                        opacity: 0,
+                        y: -20,
+                        scale: 0.95,
+                        filter: 'blur(4px)',
+                    }}
                     transition={{
                         type: 'spring',
                         stiffness: 350,
@@ -251,7 +291,8 @@ export function NetworkQualityBanner() {
                         <motion.div
                             className="absolute inset-0"
                             style={{
-                                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+                                background:
+                                    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
                             }}
                             animate={{ x: ['-100%', '200%'] }}
                             transition={{ duration: 1.5, ease: 'easeInOut' }}
@@ -259,7 +300,7 @@ export function NetworkQualityBanner() {
 
                         {/* Glow orb */}
                         <motion.div
-                            className="absolute -left-10 -top-10 h-40 w-40 rounded-full blur-3xl"
+                            className="absolute -top-10 -left-10 h-40 w-40 rounded-full blur-3xl"
                             style={{ backgroundColor: colors.glow }}
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 0.25, scale: 1.2 }}
@@ -268,8 +309,11 @@ export function NetworkQualityBanner() {
 
                         {/* Particle burst on recovery */}
                         {showParticles && (
-                            <div className="absolute left-6 top-1/2">
-                                <ParticleBurst color={colors.particle} count={12} />
+                            <div className="absolute top-1/2 left-6">
+                                <ParticleBurst
+                                    color={colors.particle}
+                                    count={12}
+                                />
                             </div>
                         )}
 
@@ -295,7 +339,10 @@ export function NetworkQualityBanner() {
                                 <motion.div
                                     className="absolute inset-0 rounded-full bg-white/20"
                                     initial={{ scale: 1 }}
-                                    animate={{ scale: [1, 2, 2], opacity: [0.4, 0.1, 0] }}
+                                    animate={{
+                                        scale: [1, 2, 2],
+                                        opacity: [0.4, 0.1, 0],
+                                    }}
                                     transition={{ duration: 0.8, delay: 0.3 }}
                                 />
                                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
@@ -311,11 +358,16 @@ export function NetworkQualityBanner() {
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 0.2 }}
                                 >
-                                    <p className="text-sm font-bold">Koneksi Pulih!</p>
+                                    <p className="text-sm font-bold">
+                                        Koneksi Pulih!
+                                    </p>
                                     <motion.div
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
-                                        transition={{ type: 'spring', delay: 0.4 }}
+                                        transition={{
+                                            type: 'spring',
+                                            delay: 0.4,
+                                        }}
                                     >
                                         <CheckCircle2 className="h-4 w-4 text-emerald-200" />
                                     </motion.div>
@@ -326,7 +378,8 @@ export function NetworkQualityBanner() {
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: 0.3 }}
                                 >
-                                    Internet kembali stabil. Absen yang tertunda akan otomatis dikirim.
+                                    Internet kembali stabil. Absen yang tertunda
+                                    akan otomatis dikirim.
                                 </motion.p>
                             </div>
 
@@ -365,7 +418,9 @@ export function NetworkQualityBanner() {
         },
     };
 
-    const variant = entranceVariants[quality as keyof typeof entranceVariants] ?? entranceVariants.slow;
+    const variant =
+        entranceVariants[quality as keyof typeof entranceVariants] ??
+        entranceVariants.slow;
 
     return (
         <AnimatePresence mode="wait">
@@ -400,13 +455,17 @@ export function NetworkQualityBanner() {
                     }
                     transition={
                         quality === 'unstable'
-                            ? { duration: 0.5, repeat: Infinity, repeatDelay: 3 }
+                            ? {
+                                  duration: 0.5,
+                                  repeat: Infinity,
+                                  repeatDelay: 3,
+                              }
                             : {}
                     }
                 >
                     {/* Animated background orbs */}
                     <motion.div
-                        className="absolute -right-8 -top-8 h-32 w-32 rounded-full blur-2xl"
+                        className="absolute -top-8 -right-8 h-32 w-32 rounded-full blur-2xl"
                         style={{ backgroundColor: colors.glow }}
                         animate={{
                             scale: [1, 1.4, 1],
@@ -414,7 +473,11 @@ export function NetworkQualityBanner() {
                             x: [0, 10, 0],
                             y: [0, -5, 0],
                         }}
-                        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                        }}
                     />
                     <motion.div
                         className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full blur-2xl"
@@ -423,7 +486,12 @@ export function NetworkQualityBanner() {
                             scale: [1, 1.3, 1],
                             opacity: [0.08, 0.18, 0.08],
                         }}
-                        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                        transition={{
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                            delay: 1,
+                        }}
                     />
 
                     {/* Scanning waves for offline */}
@@ -431,7 +499,7 @@ export function NetworkQualityBanner() {
 
                     {/* State transition particles */}
                     {showParticles && (
-                        <div className="absolute left-6 top-1/2">
+                        <div className="absolute top-1/2 left-6">
                             <ParticleBurst color={colors.particle} count={10} />
                         </div>
                     )}
@@ -443,7 +511,11 @@ export function NetworkQualityBanner() {
                                 key={`icon-${quality}`}
                                 initial={{ scale: 0, rotate: -90 }}
                                 animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 500,
+                                    damping: 20,
+                                }}
                                 className="relative"
                             >
                                 {/* Pulse ring */}
@@ -466,15 +538,25 @@ export function NetworkQualityBanner() {
                                     <motion.div
                                         animate={
                                             quality === 'unstable'
-                                                ? { rotate: [0, -10, 10, -5, 5, 0] }
+                                                ? {
+                                                      rotate: [
+                                                          0, -10, 10, -5, 5, 0,
+                                                      ],
+                                                  }
                                                 : quality === 'offline'
-                                                    ? { y: [0, -1, 0, 1, 0] }
-                                                    : {}
+                                                  ? { y: [0, -1, 0, 1, 0] }
+                                                  : {}
                                         }
                                         transition={{
-                                            duration: quality === 'unstable' ? 0.6 : 2,
+                                            duration:
+                                                quality === 'unstable'
+                                                    ? 0.6
+                                                    : 2,
                                             repeat: Infinity,
-                                            repeatDelay: quality === 'unstable' ? 2 : 0.5,
+                                            repeatDelay:
+                                                quality === 'unstable'
+                                                    ? 2
+                                                    : 0.5,
                                         }}
                                     >
                                         <Icon className="h-4 w-4" />
@@ -485,7 +567,7 @@ export function NetworkQualityBanner() {
                             {/* Signal bars (for slow/unstable) */}
                             {quality !== 'offline' && (
                                 <motion.div
-                                    className="absolute -bottom-1 -right-1"
+                                    className="absolute -right-1 -bottom-1"
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ delay: 0.3, type: 'spring' }}
@@ -503,13 +585,18 @@ export function NetworkQualityBanner() {
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.1 }}
                             >
-                                <p className="text-sm font-bold">{config.title}</p>
+                                <p className="text-sm font-bold">
+                                    {config.title}
+                                </p>
                                 {lastPingMs !== null && quality === 'slow' && (
                                     <motion.span
                                         className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-medium backdrop-blur-sm"
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
-                                        transition={{ delay: 0.25, type: 'spring' }}
+                                        transition={{
+                                            delay: 0.25,
+                                            type: 'spring',
+                                        }}
                                     >
                                         {lastPingMs}ms
                                     </motion.span>
@@ -534,7 +621,11 @@ export function NetworkQualityBanner() {
                             >
                                 <motion.div
                                     animate={{ rotate: [0, 5, -5, 0] }}
-                                    transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        repeatDelay: 2,
+                                    }}
                                 >
                                     <ShieldCheck className="h-3.5 w-3.5 text-white/70" />
                                 </motion.div>
@@ -552,8 +643,18 @@ export function NetworkQualityBanner() {
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                         >
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                                className="h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2}
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
                             </svg>
                         </motion.button>
                     </div>

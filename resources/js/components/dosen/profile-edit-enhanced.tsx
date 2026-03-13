@@ -1,21 +1,20 @@
-import { motion } from 'framer-motion';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import InputError from '@/components/input-error';
+import { motion } from 'framer-motion';
 import {
-    User,
-    Mail,
-    IdCard,
-    Phone,
     Camera,
-    Upload,
     CheckCircle2,
+    IdCard,
+    Mail,
+    Phone,
     Sparkles,
     Star,
+    Upload,
+    User,
     Zap,
 } from 'lucide-react';
-import { useRef } from 'react';
 
 interface ProfileEditEnhancedProps {
     dosen: {
@@ -55,9 +54,12 @@ export default function ProfileEditEnhanced({
                 className="relative overflow-hidden rounded-3xl border border-indigo-200/50 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 p-8 shadow-2xl backdrop-blur-xl dark:border-indigo-900/50 dark:from-gray-900 dark:via-indigo-950/30 dark:to-purple-950/30"
             >
                 {/* Animated Background Orbs */}
-                <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-indigo-400/20 to-purple-400/20 blur-3xl animate-pulse" />
-                <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-                
+                <div className="absolute -top-20 -right-20 h-40 w-40 animate-pulse rounded-full bg-gradient-to-br from-indigo-400/20 to-purple-400/20 blur-3xl" />
+                <div
+                    className="absolute -bottom-20 -left-20 h-40 w-40 animate-pulse rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 blur-3xl"
+                    style={{ animationDelay: '1s' }}
+                />
+
                 {/* Floating Particles */}
                 {[...Array(10)].map((_, i) => (
                     <motion.div
@@ -82,7 +84,7 @@ export default function ProfileEditEnhanced({
                 <div className="relative z-10">
                     {/* Enhanced Header */}
                     <div className="mb-8">
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="mb-4 flex items-center gap-4">
                             <motion.div
                                 className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg"
                                 whileHover={{ scale: 1.05, rotate: 5 }}
@@ -91,15 +93,21 @@ export default function ProfileEditEnhanced({
                                 <User className="h-7 w-7 text-white" />
                                 <motion.div
                                     className="absolute inset-0 rounded-2xl bg-white/20"
-                                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.5, 0, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                    }}
                                 />
                             </motion.div>
                             <div>
-                                <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-purple-400">
+                                <h2 className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent dark:from-indigo-400 dark:to-purple-400">
                                     Edit Profil
                                 </h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                <p className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
                                     <Sparkles className="h-3 w-3" />
                                     Perbarui informasi akun Anda dengan mudah
                                 </p>
@@ -115,20 +123,28 @@ export default function ProfileEditEnhanced({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 }}
                         >
-                            <Label htmlFor="nama" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <Label
+                                htmlFor="nama"
+                                className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            >
                                 <User className="h-4 w-4 text-indigo-500" />
                                 Nama Lengkap
                             </Label>
-                            <div className="relative group">
-                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur" />
+                            <div className="group relative">
+                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 opacity-0 blur transition-opacity duration-300 group-hover:opacity-100" />
                                 <Input
                                     id="nama"
                                     value={profileForm.data.nama}
-                                    onChange={e => profileForm.setData('nama', e.target.value)}
-                                    className="relative pl-11 h-12 rounded-xl border-2 border-slate-200/50 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-indigo-600"
+                                    onChange={(e) =>
+                                        profileForm.setData(
+                                            'nama',
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="relative h-12 rounded-xl border-2 border-slate-200/50 bg-white/50 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-indigo-600"
                                     placeholder="Masukkan nama lengkap"
                                 />
-                                <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                                <User className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-indigo-500" />
                             </div>
                             <InputError message={profileForm.errors.nama} />
                         </motion.div>
@@ -140,7 +156,10 @@ export default function ProfileEditEnhanced({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 }}
                         >
-                            <Label htmlFor="nidn" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <Label
+                                htmlFor="nidn"
+                                className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            >
                                 <IdCard className="h-4 w-4 text-amber-500" />
                                 NIDN
                             </Label>
@@ -149,14 +168,16 @@ export default function ProfileEditEnhanced({
                                     id="nidn"
                                     value={dosen.nidn}
                                     disabled
-                                    className="pl-11 h-12 rounded-xl border-2 border-slate-200/50 bg-slate-100/80 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/80 cursor-not-allowed"
+                                    className="h-12 cursor-not-allowed rounded-xl border-2 border-slate-200/50 bg-slate-100/80 pl-11 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/80"
                                 />
-                                <IdCard className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">Locked</span>
+                                <IdCard className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                <div className="absolute top-1/2 right-3 -translate-y-1/2 rounded-lg bg-amber-100 px-2 py-1 dark:bg-amber-900/30">
+                                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                                        Locked
+                                    </span>
                                 </div>
                             </div>
-                            <p className="text-xs text-slate-500 flex items-center gap-1">
+                            <p className="flex items-center gap-1 text-xs text-slate-500">
                                 <Zap className="h-3 w-3" />
                                 NIDN tidak dapat diubah untuk keamanan
                             </p>
@@ -169,21 +190,29 @@ export default function ProfileEditEnhanced({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
                         >
-                            <Label htmlFor="email" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <Label
+                                htmlFor="email"
+                                className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            >
                                 <Mail className="h-4 w-4 text-blue-500" />
                                 Email
                             </Label>
-                            <div className="relative group">
-                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur" />
+                            <div className="group relative">
+                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 opacity-0 blur transition-opacity duration-300 group-hover:opacity-100" />
                                 <Input
                                     id="email"
                                     type="email"
                                     value={profileForm.data.email}
-                                    onChange={e => profileForm.setData('email', e.target.value)}
-                                    className="relative pl-11 h-12 rounded-xl border-2 border-slate-200/50 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-blue-600"
+                                    onChange={(e) =>
+                                        profileForm.setData(
+                                            'email',
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="relative h-12 rounded-xl border-2 border-slate-200/50 bg-white/50 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-blue-600"
                                     placeholder="email@example.com"
                                 />
-                                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                                <Mail className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-blue-500" />
                             </div>
                             <InputError message={profileForm.errors.email} />
                         </motion.div>
@@ -195,20 +224,28 @@ export default function ProfileEditEnhanced({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4 }}
                         >
-                            <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <Label
+                                htmlFor="phone"
+                                className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300"
+                            >
                                 <Phone className="h-4 w-4 text-emerald-500" />
                                 No. Telepon
                             </Label>
-                            <div className="relative group">
-                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur" />
+                            <div className="group relative">
+                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 opacity-0 blur transition-opacity duration-300 group-hover:opacity-100" />
                                 <Input
                                     id="phone"
                                     value={profileForm.data.phone}
-                                    onChange={e => profileForm.setData('phone', e.target.value)}
-                                    className="relative pl-11 h-12 rounded-xl border-2 border-slate-200/50 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-emerald-600"
+                                    onChange={(e) =>
+                                        profileForm.setData(
+                                            'phone',
+                                            e.target.value,
+                                        )
+                                    }
+                                    className="relative h-12 rounded-xl border-2 border-slate-200/50 bg-white/50 pl-11 backdrop-blur-sm transition-all duration-300 hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-emerald-600"
                                     placeholder="08xxxxxxxxxx"
                                 />
-                                <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                                <Phone className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-hover:text-emerald-500" />
                             </div>
                             <InputError message={profileForm.errors.phone} />
                         </motion.div>
@@ -220,17 +257,24 @@ export default function ProfileEditEnhanced({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5 }}
                         >
-                            <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <Label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 <Camera className="h-4 w-4 text-pink-500" />
                                 Foto Profil
                             </Label>
-                            <div className="flex items-center gap-5 p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-gray-800/50 dark:to-gray-900/50 border border-slate-200/50 dark:border-gray-700/50">
+                            <div className="flex items-center gap-5 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100/50 p-5 dark:border-gray-700/50 dark:from-gray-800/50 dark:to-gray-900/50">
                                 <motion.div
-                                    className="relative h-20 w-20 rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 shadow-lg"
+                                    className="relative h-20 w-20 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg dark:from-indigo-900/30 dark:to-purple-900/30"
                                     whileHover={{ scale: 1.05 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                    }}
                                 >
-                                    <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover" />
+                                    <img
+                                        src={avatarUrl}
+                                        alt="Preview"
+                                        className="h-full w-full object-cover"
+                                    />
                                     {avatarPreview && (
                                         <motion.div
                                             className="absolute inset-0 flex items-center justify-center bg-indigo-500/90 backdrop-blur-sm"
@@ -240,7 +284,7 @@ export default function ProfileEditEnhanced({
                                             <CheckCircle2 className="h-8 w-8 text-white" />
                                         </motion.div>
                                     )}
-                                    <div className="absolute inset-0 ring-2 ring-indigo-500/20 rounded-2xl" />
+                                    <div className="absolute inset-0 rounded-2xl ring-2 ring-indigo-500/20" />
                                 </motion.div>
                                 <div className="flex-1 space-y-3">
                                     <input
@@ -256,32 +300,45 @@ export default function ProfileEditEnhanced({
                                             type="button"
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => avatarInputRef.current?.click()}
-                                            className="flex items-center gap-2 rounded-xl border-2 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all"
+                                            onClick={() =>
+                                                avatarInputRef.current?.click()
+                                            }
+                                            className="flex items-center gap-2 rounded-xl border-2 transition-all hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
                                         >
                                             <Camera className="h-4 w-4" />
                                             Pilih Foto
                                         </Button>
                                         {avatarPreview && (
                                             <motion.div
-                                                initial={{ scale: 0, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                transition={{ type: 'spring', stiffness: 300 }}
+                                                initial={{
+                                                    scale: 0,
+                                                    opacity: 0,
+                                                }}
+                                                animate={{
+                                                    scale: 1,
+                                                    opacity: 1,
+                                                }}
+                                                transition={{
+                                                    type: 'spring',
+                                                    stiffness: 300,
+                                                }}
                                             >
                                                 <Button
                                                     type="button"
                                                     size="sm"
                                                     onClick={handleAvatarUpload}
                                                     disabled={isUploadingAvatar}
-                                                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg"
+                                                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg hover:from-indigo-600 hover:to-purple-700"
                                                 >
                                                     <Upload className="h-4 w-4" />
-                                                    {isUploadingAvatar ? 'Uploading...' : 'Upload'}
+                                                    {isUploadingAvatar
+                                                        ? 'Uploading...'
+                                                        : 'Upload'}
                                                 </Button>
                                             </motion.div>
                                         )}
                                     </div>
-                                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                                    <p className="flex items-center gap-1 text-xs text-slate-500">
                                         <Star className="h-3 w-3 text-amber-500" />
                                         PNG, JPG max 2MB untuk hasil terbaik
                                     </p>
@@ -297,15 +354,19 @@ export default function ProfileEditEnhanced({
                         >
                             <Button
                                 type="submit"
-                                className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50"
+                                className="h-12 w-full rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-semibold text-white shadow-lg transition-all duration-300 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 hover:shadow-xl disabled:opacity-50"
                                 disabled={profileForm.processing}
                             >
                                 {profileForm.processing ? (
                                     <span className="flex items-center gap-2">
                                         <motion.div
-                                            className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full"
+                                            className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
                                             animate={{ rotate: 360 }}
-                                            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                            transition={{
+                                                duration: 1,
+                                                repeat: Infinity,
+                                                ease: 'linear',
+                                            }}
                                         />
                                         Menyimpan...
                                     </span>
@@ -330,11 +391,14 @@ export default function ProfileEditEnhanced({
                     className="relative overflow-hidden rounded-3xl border border-sky-200/50 bg-gradient-to-br from-white via-sky-50/30 to-cyan-50/30 p-8 shadow-2xl backdrop-blur-xl dark:border-sky-900/50 dark:from-gray-900 dark:via-sky-950/30 dark:to-cyan-950/30"
                 >
                     {/* Animated Background */}
-                    <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-sky-400/20 to-cyan-400/20 blur-3xl animate-pulse" />
-                    <div className="absolute -bottom-20 -left-20 h-40 w-40 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+                    <div className="absolute -top-20 -right-20 h-40 w-40 animate-pulse rounded-full bg-gradient-to-br from-sky-400/20 to-cyan-400/20 blur-3xl" />
+                    <div
+                        className="absolute -bottom-20 -left-20 h-40 w-40 animate-pulse rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 blur-3xl"
+                        style={{ animationDelay: '1.5s' }}
+                    />
 
                     <div className="relative z-10">
-                        <div className="flex items-center gap-4 mb-6">
+                        <div className="mb-6 flex items-center gap-4">
                             <motion.div
                                 className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-600 shadow-lg"
                                 whileHover={{ scale: 1.05, rotate: -5 }}
@@ -343,42 +407,75 @@ export default function ProfileEditEnhanced({
                                 <IdCard className="h-7 w-7 text-white" />
                             </motion.div>
                             <div>
-                                <h2 className="text-2xl font-bold bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent dark:from-sky-400 dark:to-cyan-400">
+                                <h2 className="bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-2xl font-bold text-transparent dark:from-sky-400 dark:to-cyan-400">
                                     Informasi Akun
                                 </h2>
-                                <p className="text-sm text-slate-600 dark:text-slate-400">Data akun Anda</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    Data akun Anda
+                                </p>
                             </div>
                         </div>
 
                         <div className="space-y-3">
                             {[
-                                { label: 'Nama', value: dosen.nama, icon: User, color: 'indigo' },
-                                { label: 'NIDN', value: dosen.nidn, icon: IdCard, color: 'amber' },
-                                { label: 'Email', value: dosen.email, icon: Mail, color: 'blue' },
-                                { label: 'Status', value: 'Aktif', icon: CheckCircle2, color: 'emerald', isStatus: true },
+                                {
+                                    label: 'Nama',
+                                    value: dosen.nama,
+                                    icon: User,
+                                    color: 'indigo',
+                                },
+                                {
+                                    label: 'NIDN',
+                                    value: dosen.nidn,
+                                    icon: IdCard,
+                                    color: 'amber',
+                                },
+                                {
+                                    label: 'Email',
+                                    value: dosen.email,
+                                    icon: Mail,
+                                    color: 'blue',
+                                },
+                                {
+                                    label: 'Status',
+                                    value: 'Aktif',
+                                    icon: CheckCircle2,
+                                    color: 'emerald',
+                                    isStatus: true,
+                                },
                             ].map((item, index) => (
                                 <motion.div
                                     key={item.label}
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 + index * 0.1 }}
-                                    className="group relative overflow-hidden p-4 rounded-2xl bg-white/50 backdrop-blur-sm border border-slate-200/50 dark:bg-gray-900/50 dark:border-gray-700/50 hover:border-sky-300 dark:hover:border-sky-600 transition-all duration-300"
+                                    className="group relative overflow-hidden rounded-2xl border border-slate-200/50 bg-white/50 p-4 backdrop-blur-sm transition-all duration-300 hover:border-sky-300 dark:border-gray-700/50 dark:bg-gray-900/50 dark:hover:border-sky-600"
                                     whileHover={{ scale: 1.02, x: 5 }}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-${item.color}-100 dark:bg-${item.color}-900/30`}>
-                                                <item.icon className={`h-5 w-5 text-${item.color}-600 dark:text-${item.color}-400`} />
+                                            <div
+                                                className={`flex h-10 w-10 items-center justify-center rounded-xl bg-${item.color}-100 dark:bg-${item.color}-900/30`}
+                                            >
+                                                <item.icon
+                                                    className={`h-5 w-5 text-${item.color}-600 dark:text-${item.color}-400`}
+                                                />
                                             </div>
-                                            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{item.label}</span>
+                                            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                {item.label}
+                                            </span>
                                         </div>
                                         {item.isStatus ? (
-                                            <span className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                                                <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                <span className="font-semibold text-emerald-700 dark:text-emerald-400">{item.value}</span>
+                                            <span className="flex items-center gap-2 rounded-lg bg-emerald-100 px-3 py-1 dark:bg-emerald-900/30">
+                                                <div className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                                                <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                                                    {item.value}
+                                                </span>
                                             </span>
                                         ) : (
-                                            <span className="font-semibold text-slate-900 dark:text-white">{item.value}</span>
+                                            <span className="font-semibold text-slate-900 dark:text-white">
+                                                {item.value}
+                                            </span>
                                         )}
                                     </div>
                                 </motion.div>

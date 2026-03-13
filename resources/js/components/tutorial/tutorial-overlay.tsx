@@ -3,10 +3,13 @@
  * Requirements: 5.2
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import type {
+    InteractiveTutorial,
+    InteractiveTutorialStep,
+} from '@/types/documentation';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { TutorialTooltip } from './tutorial-tooltip';
-import type { InteractiveTutorial, InteractiveTutorialStep } from '@/types/documentation';
 
 interface TutorialOverlayProps {
     tutorial: InteractiveTutorial;
@@ -21,9 +24,14 @@ interface HighlightPosition {
     height: number;
 }
 
-export function TutorialOverlay({ tutorial, onComplete, onSkip }: TutorialOverlayProps) {
+export function TutorialOverlay({
+    tutorial,
+    onComplete,
+    onSkip,
+}: TutorialOverlayProps) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [highlightPosition, setHighlightPosition] = useState<HighlightPosition | null>(null);
+    const [highlightPosition, setHighlightPosition] =
+        useState<HighlightPosition | null>(null);
     const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
 
     const currentStep = tutorial.steps[currentStepIndex];
@@ -63,25 +71,47 @@ export function TutorialOverlay({ tutorial, onComplete, onSkip }: TutorialOverla
         switch (step.position) {
             case 'top':
                 top = rect.top - tooltipHeight - gap + window.scrollY;
-                left = rect.left + rect.width / 2 - tooltipWidth / 2 + window.scrollX;
+                left =
+                    rect.left +
+                    rect.width / 2 -
+                    tooltipWidth / 2 +
+                    window.scrollX;
                 break;
             case 'bottom':
                 top = rect.bottom + gap + window.scrollY;
-                left = rect.left + rect.width / 2 - tooltipWidth / 2 + window.scrollX;
+                left =
+                    rect.left +
+                    rect.width / 2 -
+                    tooltipWidth / 2 +
+                    window.scrollX;
                 break;
             case 'left':
-                top = rect.top + rect.height / 2 - tooltipHeight / 2 + window.scrollY;
+                top =
+                    rect.top +
+                    rect.height / 2 -
+                    tooltipHeight / 2 +
+                    window.scrollY;
                 left = rect.left - tooltipWidth - gap + window.scrollX;
                 break;
             case 'right':
-                top = rect.top + rect.height / 2 - tooltipHeight / 2 + window.scrollY;
+                top =
+                    rect.top +
+                    rect.height / 2 -
+                    tooltipHeight / 2 +
+                    window.scrollY;
                 left = rect.right + gap + window.scrollX;
                 break;
         }
 
         // Keep tooltip within viewport
-        top = Math.max(16, Math.min(top, window.innerHeight - tooltipHeight - 16));
-        left = Math.max(16, Math.min(left, window.innerWidth - tooltipWidth - 16));
+        top = Math.max(
+            16,
+            Math.min(top, window.innerHeight - tooltipHeight - 16),
+        );
+        left = Math.max(
+            16,
+            Math.min(left, window.innerWidth - tooltipWidth - 16),
+        );
 
         setTooltipPosition({ top, left });
 
@@ -113,8 +143,12 @@ export function TutorialOverlay({ tutorial, onComplete, onSkip }: TutorialOverla
             }
         };
 
-        const eventType = currentStep.action === 'click' ? 'click' : 
-                         currentStep.action === 'input' ? 'input' : 'mouseenter';
+        const eventType =
+            currentStep.action === 'click'
+                ? 'click'
+                : currentStep.action === 'input'
+                  ? 'input'
+                  : 'mouseenter';
 
         element.addEventListener(eventType, handleAction);
         return () => element.removeEventListener(eventType, handleAction);
@@ -135,12 +169,15 @@ export function TutorialOverlay({ tutorial, onComplete, onSkip }: TutorialOverla
     return createPortal(
         <>
             {/* Overlay backdrop */}
-            <div className="fixed inset-0 z-[90] bg-black/50" onClick={onSkip} />
+            <div
+                className="fixed inset-0 z-[90] bg-black/50"
+                onClick={onSkip}
+            />
 
             {/* Highlight cutout */}
             {highlightPosition && (
                 <div
-                    className="fixed z-[95] rounded-lg ring-4 ring-primary ring-offset-2 pointer-events-none"
+                    className="pointer-events-none fixed z-[95] rounded-lg ring-4 ring-primary ring-offset-2"
                     style={{
                         top: highlightPosition.top,
                         left: highlightPosition.left,
@@ -164,6 +201,6 @@ export function TutorialOverlay({ tutorial, onComplete, onSkip }: TutorialOverla
                 onComplete={onComplete}
             />
         </>,
-        document.body
+        document.body,
     );
 }

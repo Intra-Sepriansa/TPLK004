@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseCameraOptions {
     facingMode?: 'user' | 'environment';
@@ -35,7 +35,9 @@ export function useCamera(options: UseCameraOptions = {}): UseCameraResult {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isActive, setIsActive] = useState(false);
-    const [facingMode, setFacingMode] = useState<'user' | 'environment'>(initialFacingMode);
+    const [facingMode, setFacingMode] = useState<'user' | 'environment'>(
+        initialFacingMode,
+    );
 
     const start = useCallback(async () => {
         setIsLoading(true);
@@ -59,7 +61,8 @@ export function useCamera(options: UseCameraOptions = {}): UseCameraResult {
             setStream(mediaStream);
             setIsActive(true);
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Failed to access camera';
+            const message =
+                err instanceof Error ? err.message : 'Failed to access camera';
             setError(message);
             console.error('Camera error:', err);
         } finally {

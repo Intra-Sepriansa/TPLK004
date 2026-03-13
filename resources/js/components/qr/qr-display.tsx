@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import QRCode from 'qrcode';
-import { useCountdown } from '@/hooks/use-countdown';
 import { Button } from '@/components/ui/button';
-import { Download, RefreshCcw, Clock, Copy, Check } from 'lucide-react';
+import { useCountdown } from '@/hooks/use-countdown';
 import { cn } from '@/lib/utils';
+import { Check, Clock, Copy, Download, RefreshCcw } from 'lucide-react';
+import QRCode from 'qrcode';
+import { useEffect, useRef, useState } from 'react';
 
 interface QRDisplayProps {
     value: string;
@@ -70,28 +70,32 @@ export function QRDisplay({
     return (
         <div className="flex flex-col items-center">
             {title && (
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
+                <h3 className="mb-4 font-semibold text-slate-900 dark:text-white">
                     {title}
                 </h3>
             )}
 
-            <div className={cn(
-                'relative rounded-2xl border-4 p-4 transition-colors',
-                isExpired
-                    ? 'border-rose-300 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30'
-                    : 'border-emerald-300 bg-white dark:border-emerald-800 dark:bg-slate-900'
-            )}>
+            <div
+                className={cn(
+                    'relative rounded-2xl border-4 p-4 transition-colors',
+                    isExpired
+                        ? 'border-rose-300 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30'
+                        : 'border-emerald-300 bg-white dark:border-emerald-800 dark:bg-slate-900',
+                )}
+            >
                 <canvas
                     ref={canvasRef}
                     className={cn(
                         'rounded-lg transition-opacity',
-                        isExpired && 'opacity-30'
+                        isExpired && 'opacity-30',
                     )}
                 />
 
                 {isExpired && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-lg font-bold text-rose-600">QR Expired</p>
+                        <p className="text-lg font-bold text-rose-600">
+                            QR Expired
+                        </p>
                         {onRefresh && (
                             <Button
                                 size="sm"
@@ -99,7 +103,7 @@ export function QRDisplay({
                                 className="mt-2"
                                 onClick={onRefresh}
                             >
-                                <RefreshCcw className="h-4 w-4 mr-2" />
+                                <RefreshCcw className="mr-2 h-4 w-4" />
                                 Generate Baru
                             </Button>
                         )}
@@ -108,7 +112,7 @@ export function QRDisplay({
             </div>
 
             {expiresAt && !isExpired && (
-                <div className="flex items-center gap-2 mt-4 px-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="mt-4 flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 dark:bg-slate-800">
                     <Clock className="h-4 w-4 text-slate-500" />
                     <span className="text-sm text-slate-600 dark:text-slate-400">
                         Berlaku:
@@ -119,7 +123,7 @@ export function QRDisplay({
                 </div>
             )}
 
-            <div className="flex gap-2 mt-4">
+            <div className="mt-4 flex gap-2">
                 {showDownload && (
                     <Button
                         variant="outline"
@@ -127,7 +131,7 @@ export function QRDisplay({
                         onClick={handleDownload}
                         disabled={isExpired}
                     >
-                        <Download className="h-4 w-4 mr-2" />
+                        <Download className="mr-2 h-4 w-4" />
                         Download
                     </Button>
                 )}
@@ -140,24 +144,20 @@ export function QRDisplay({
                     >
                         {copied ? (
                             <>
-                                <Check className="h-4 w-4 mr-2 text-emerald-600" />
+                                <Check className="mr-2 h-4 w-4 text-emerald-600" />
                                 Copied!
                             </>
                         ) : (
                             <>
-                                <Copy className="h-4 w-4 mr-2" />
+                                <Copy className="mr-2 h-4 w-4" />
                                 Copy Link
                             </>
                         )}
                     </Button>
                 )}
                 {onRefresh && !isExpired && (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={onRefresh}
-                    >
-                        <RefreshCcw className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="sm" onClick={onRefresh}>
+                        <RefreshCcw className="mr-2 h-4 w-4" />
                         Refresh
                     </Button>
                 )}

@@ -1,5 +1,5 @@
-import ReadNotifIcon from '@/assets/admin/notification-center/recipients.png';
 import NotifIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
+import ReadNotifIcon from '@/assets/admin/notification-center/recipients.png';
 import UnreadNotifIcon from '@/assets/admin/notification-center/scheduled.png';
 import TotalNotifIcon from '@/assets/admin/notification-center/total.png';
 import SentNotifIcon from '@/assets/admin/notification-center/unread.png';
@@ -44,12 +44,12 @@ interface Notification {
     title: string;
     message: string;
     type:
-    | 'reminder'
-    | 'announcement'
-    | 'alert'
-    | 'achievement'
-    | 'warning'
-    | 'info';
+        | 'reminder'
+        | 'announcement'
+        | 'alert'
+        | 'achievement'
+        | 'warning'
+        | 'info';
     priority: 'normal' | 'high' | 'urgent';
     action_url: string | null;
     action_label: string | null;
@@ -806,7 +806,7 @@ export default function Notifications({
                                         x: 5,
                                         backgroundColor:
                                             !notif.read_at &&
-                                                activeTab === 'inbox'
+                                            activeTab === 'inbox'
                                                 ? 'rgba(99, 102, 241, 0.08)'
                                                 : 'rgba(59, 130, 246, 0.05)',
                                         scale: 1.01,
@@ -964,10 +964,11 @@ export default function Notifications({
                                             : 'sent_page']: page,
                                     })
                                 }
-                                className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-all ${activeNotifications.current_page === page
-                                    ? 'border border-transparent bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30'
-                                    : 'border border-white/20 bg-white/50 text-neutral-600 backdrop-blur-md hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800'
-                                    }`}
+                                className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-all ${
+                                    activeNotifications.current_page === page
+                                        ? 'border border-transparent bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30'
+                                        : 'border border-white/20 bg-white/50 text-neutral-600 backdrop-blur-md hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800'
+                                }`}
                             >
                                 {page}
                             </motion.button>

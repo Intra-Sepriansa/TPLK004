@@ -1,19 +1,20 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useMemo, useRef, useState, type FormEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import StudentLayout from '@/layouts/student-layout';
+import permitIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import StudentLayout from '@/layouts/student-layout';
+import { cn } from '@/lib/utils';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
     AlertCircle,
     ArrowLeft,
     ArrowRight,
     Calendar,
-    ChevronRight,
     Check,
     CheckCircle,
+    ChevronRight,
     ClipboardList,
     Clock,
     FileText,
@@ -25,8 +26,7 @@ import {
     Upload,
     X,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import permitIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
+import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 type Session = {
     id: number;
@@ -61,13 +61,18 @@ export default function PermitCreate({ availableSessions }: Props) {
     const filteredSessions = useMemo(
         () =>
             availableSessions.filter((session) =>
-                `${session.mata_kuliah} ${session.dosen}`.toLowerCase().includes(searchSession.toLowerCase()),
+                `${session.mata_kuliah} ${session.dosen}`
+                    .toLowerCase()
+                    .includes(searchSession.toLowerCase()),
             ),
         [availableSessions, searchSession],
     );
 
     const selectedSession = useMemo(
-        () => availableSessions.find((session) => String(session.id) === data.attendance_session_id),
+        () =>
+            availableSessions.find(
+                (session) => String(session.id) === data.attendance_session_id,
+            ),
         [availableSessions, data.attendance_session_id],
     );
 
@@ -78,9 +83,16 @@ export default function PermitCreate({ availableSessions }: Props) {
             return;
         }
 
-        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        const validTypes = [
+            'image/jpeg',
+            'image/png',
+            'image/jpg',
+            'application/pdf',
+        ];
         if (!validTypes.includes(file.type)) {
-            window.alert('Format file tidak didukung. Gunakan JPG, PNG, atau PDF.');
+            window.alert(
+                'Format file tidak didukung. Gunakan JPG, PNG, atau PDF.',
+            );
             return;
         }
 
@@ -124,7 +136,10 @@ export default function PermitCreate({ availableSessions }: Props) {
     };
 
     const canProceedToStep2 = Boolean(
-        data.attendance_session_id && data.type && data.tanggal_mulai && data.tanggal_selesai,
+        data.attendance_session_id &&
+            data.type &&
+            data.tanggal_mulai &&
+            data.tanggal_selesai,
     );
     const canProceedToStep3 = data.reason.trim().length >= 20;
     const canSubmit = data.attachment !== null;
@@ -147,23 +162,46 @@ export default function PermitCreate({ availableSessions }: Props) {
     };
 
     const steps = [
-        { number: 1, title: 'Pilih Sesi', description: 'Pilih sesi dan jenis pengajuan', icon: Calendar },
-        { number: 2, title: 'Alasan', description: 'Tulis alasan dengan jelas', icon: FileText },
-        { number: 3, title: 'Upload Surat', description: 'Upload surat keterangan', icon: Upload },
+        {
+            number: 1,
+            title: 'Pilih Sesi',
+            description: 'Pilih sesi dan jenis pengajuan',
+            icon: Calendar,
+        },
+        {
+            number: 2,
+            title: 'Alasan',
+            description: 'Tulis alasan dengan jelas',
+            icon: FileText,
+        },
+        {
+            number: 3,
+            title: 'Upload Surat',
+            description: 'Upload surat keterangan',
+            icon: Upload,
+        },
     ];
 
     return (
         <StudentLayout>
             <Head title="Ajukan Izin/Sakit" />
 
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 p-4 md:p-6 lg:p-8">
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between flex-wrap gap-3">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6 p-4 md:p-6 lg:p-8"
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-wrap items-center justify-between gap-3"
+                >
                     <div className="flex items-center gap-3">
                         <Link href="/user/permit">
                             <motion.button
                                 whileHover={{ x: -4 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+                                className="flex items-center gap-2 text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 Kembali ke Izin/Sakit
@@ -175,26 +213,44 @@ export default function PermitCreate({ availableSessions }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    transition={{
+                        duration: 0.6,
+                        type: 'spring',
+                        stiffness: 100,
+                    }}
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative z-10">
                         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
                             <motion.div
                                 className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                initial={{
+                                    opacity: 0,
+                                    scale: 0.5,
+                                    rotate: -10,
+                                }}
                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    delay: 0.2,
+                                }}
                                 whileHover={{ scale: 1.05, rotate: 5 }}
                             >
                                 <img
@@ -205,10 +261,15 @@ export default function PermitCreate({ availableSessions }: Props) {
                             </motion.div>
 
                             <div className="flex-1">
-                                <p className="text-sm font-medium tracking-wide text-indigo-100">Form Pengajuan</p>
-                                <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">Ajukan Izin/Sakit</h1>
+                                <p className="text-sm font-medium tracking-wide text-indigo-100">
+                                    Form Pengajuan
+                                </p>
+                                <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">
+                                    Ajukan Izin/Sakit
+                                </h1>
                                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-indigo-100 sm:text-base">
-                                    Lengkapi formulir di bawah untuk mengajukan izin atau sakit.
+                                    Lengkapi formulir di bawah untuk mengajukan
+                                    izin atau sakit.
                                 </p>
                             </div>
                         </div>
@@ -221,22 +282,31 @@ export default function PermitCreate({ availableSessions }: Props) {
                     transition={{ delay: 0.2 }}
                     className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="w-full overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         <div className="flex w-max min-w-full items-center gap-2 sm:justify-center">
                             {steps.map((step, index) => {
                                 const StepIcon = step.icon;
                                 const isActive = currentStep === step.number;
-                                const isCompleted = step.number < currentStep && completedByStep[step.number];
-                                const canOpen = step.number <= maxUnlockedStep || step.number <= currentStep;
+                                const isCompleted =
+                                    step.number < currentStep &&
+                                    completedByStep[step.number];
+                                const canOpen =
+                                    step.number <= maxUnlockedStep ||
+                                    step.number <= currentStep;
 
                                 return (
-                                    <div key={step.number} className="flex shrink-0 items-center gap-2">
+                                    <div
+                                        key={step.number}
+                                        className="flex shrink-0 items-center gap-2"
+                                    >
                                         <motion.button
                                             whileHover={{ scale: 1.03 }}
                                             whileTap={{ scale: 0.97 }}
                                             onClick={() => {
                                                 if (!canOpen) {
-                                                    window.alert('Lengkapi langkah sebelumnya dulu.');
+                                                    window.alert(
+                                                        'Lengkapi langkah sebelumnya dulu.',
+                                                    );
                                                     return;
                                                 }
                                                 setCurrentStep(step.number);
@@ -250,13 +320,23 @@ export default function PermitCreate({ availableSessions }: Props) {
                                                 !isActive &&
                                                     !isCompleted &&
                                                     'border-slate-200/70 bg-white/70 text-slate-500 dark:border-slate-700 dark:bg-neutral-800/40',
-                                                canOpen ? 'cursor-pointer' : 'cursor-not-allowed opacity-45',
+                                                canOpen
+                                                    ? 'cursor-pointer'
+                                                    : 'cursor-not-allowed opacity-45',
                                             )}
                                         >
-                                            {isCompleted ? <Check className="h-4 w-4" /> : <StepIcon className="h-4 w-4" />}
-                                            <span className="whitespace-nowrap">{step.title}</span>
+                                            {isCompleted ? (
+                                                <Check className="h-4 w-4" />
+                                            ) : (
+                                                <StepIcon className="h-4 w-4" />
+                                            )}
+                                            <span className="whitespace-nowrap">
+                                                {step.title}
+                                            </span>
                                         </motion.button>
-                                        {index < steps.length - 1 && <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />}
+                                        {index < steps.length - 1 && (
+                                            <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
+                                        )}
                                     </div>
                                 );
                             })}
@@ -268,7 +348,7 @@ export default function PermitCreate({ availableSessions }: Props) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8"
+                    className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40"
                 >
                     <form onSubmit={handleSubmit}>
                         <AnimatePresence mode="wait">
@@ -278,7 +358,11 @@ export default function PermitCreate({ availableSessions }: Props) {
                                     initial={{ opacity: 0, x: 50 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -50 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 25,
+                                    }}
                                     className="space-y-6"
                                 >
                                     <div className="space-y-3">
@@ -288,42 +372,79 @@ export default function PermitCreate({ availableSessions }: Props) {
                                         </Label>
                                         <Input
                                             value={searchSession}
-                                            onChange={(event) => setSearchSession(event.target.value)}
+                                            onChange={(event) =>
+                                                setSearchSession(
+                                                    event.target.value,
+                                                )
+                                            }
                                             placeholder="Cari mata kuliah atau dosen..."
                                             className="rounded-xl border-neutral-300 bg-white/60 backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/60"
                                         />
                                         <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl border border-neutral-200 bg-white/40 p-3 dark:border-neutral-700 dark:bg-neutral-800/40">
                                             {filteredSessions.length > 0 ? (
-                                                filteredSessions.map((session) => (
-                                                    <button
-                                                        key={session.id}
-                                                        type="button"
-                                                        onClick={() => setData('attendance_session_id', String(session.id))}
-                                                        className={cn(
-                                                            'w-full rounded-xl p-4 text-left transition-all',
-                                                            data.attendance_session_id === String(session.id)
-                                                                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                                                                : 'bg-white/60 hover:bg-white/80 dark:bg-neutral-800/60 dark:hover:bg-neutral-800/80',
-                                                        )}
-                                                    >
-                                                        <p className="font-semibold">{session.mata_kuliah}</p>
-                                                        <p className={cn('mt-1 text-sm', data.attendance_session_id === String(session.id) ? 'text-white/90' : 'text-neutral-600 dark:text-neutral-400')}>
-                                                            {session.dosen}
-                                                        </p>
-                                                        <div className="mt-2 flex items-center gap-3 text-xs">
-                                                            <span className="inline-flex items-center gap-1">
-                                                                <Calendar className="h-3 w-3" />
-                                                                {session.tanggal_display}
-                                                            </span>
-                                                            <span className="inline-flex items-center gap-1">
-                                                                <Clock className="h-3 w-3" />
-                                                                {session.waktu}
-                                                            </span>
-                                                        </div>
-                                                    </button>
-                                                ))
+                                                filteredSessions.map(
+                                                    (session) => (
+                                                        <button
+                                                            key={session.id}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setData(
+                                                                    'attendance_session_id',
+                                                                    String(
+                                                                        session.id,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            className={cn(
+                                                                'w-full rounded-xl p-4 text-left transition-all',
+                                                                data.attendance_session_id ===
+                                                                    String(
+                                                                        session.id,
+                                                                    )
+                                                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                                                                    : 'bg-white/60 hover:bg-white/80 dark:bg-neutral-800/60 dark:hover:bg-neutral-800/80',
+                                                            )}
+                                                        >
+                                                            <p className="font-semibold">
+                                                                {
+                                                                    session.mata_kuliah
+                                                                }
+                                                            </p>
+                                                            <p
+                                                                className={cn(
+                                                                    'mt-1 text-sm',
+                                                                    data.attendance_session_id ===
+                                                                        String(
+                                                                            session.id,
+                                                                        )
+                                                                        ? 'text-white/90'
+                                                                        : 'text-neutral-600 dark:text-neutral-400',
+                                                                )}
+                                                            >
+                                                                {session.dosen}
+                                                            </p>
+                                                            <div className="mt-2 flex items-center gap-3 text-xs">
+                                                                <span className="inline-flex items-center gap-1">
+                                                                    <Calendar className="h-3 w-3" />
+                                                                    {
+                                                                        session.tanggal_display
+                                                                    }
+                                                                </span>
+                                                                <span className="inline-flex items-center gap-1">
+                                                                    <Clock className="h-3 w-3" />
+                                                                    {
+                                                                        session.waktu
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        </button>
+                                                    ),
+                                                )
                                             ) : (
-                                                <div className="py-8 text-center text-neutral-500 dark:text-neutral-400">Tidak ada sesi yang ditemukan.</div>
+                                                <div className="py-8 text-center text-neutral-500 dark:text-neutral-400">
+                                                    Tidak ada sesi yang
+                                                    ditemukan.
+                                                </div>
                                             )}
                                         </div>
                                         {errors.attendance_session_id && (
@@ -341,8 +462,20 @@ export default function PermitCreate({ availableSessions }: Props) {
                                         </Label>
                                         <div className="grid grid-cols-2 gap-4">
                                             {[
-                                                { value: 'izin', label: 'Izin', icon: ClipboardList, gradient: 'from-blue-500 to-cyan-600' },
-                                                { value: 'sakit', label: 'Sakit', icon: Stethoscope, gradient: 'from-red-500 to-pink-600' },
+                                                {
+                                                    value: 'izin',
+                                                    label: 'Izin',
+                                                    icon: ClipboardList,
+                                                    gradient:
+                                                        'from-blue-500 to-cyan-600',
+                                                },
+                                                {
+                                                    value: 'sakit',
+                                                    label: 'Sakit',
+                                                    icon: Stethoscope,
+                                                    gradient:
+                                                        'from-red-500 to-pink-600',
+                                                },
                                             ].map((item) => {
                                                 const TypeIcon = item.icon;
 
@@ -350,17 +483,27 @@ export default function PermitCreate({ availableSessions }: Props) {
                                                     <button
                                                         key={item.value}
                                                         type="button"
-                                                        onClick={() => setData('type', item.value as 'izin' | 'sakit')}
+                                                        onClick={() =>
+                                                            setData(
+                                                                'type',
+                                                                item.value as
+                                                                    | 'izin'
+                                                                    | 'sakit',
+                                                            )
+                                                        }
                                                         className={cn(
                                                             'relative overflow-hidden rounded-2xl p-6 transition-all',
-                                                            data.type === item.value
+                                                            data.type ===
+                                                                item.value
                                                                 ? `bg-gradient-to-br ${item.gradient} text-white shadow-xl`
                                                                 : 'bg-white/60 hover:bg-white/80 dark:bg-neutral-800/60 dark:hover:bg-neutral-800/80',
                                                         )}
                                                     >
                                                         <div className="text-center">
                                                             <TypeIcon className="mx-auto mb-2 h-10 w-10" />
-                                                            <p className="text-lg font-semibold">{item.label}</p>
+                                                            <p className="text-lg font-semibold">
+                                                                {item.label}
+                                                            </p>
                                                         </div>
                                                     </button>
                                                 );
@@ -370,21 +513,38 @@ export default function PermitCreate({ availableSessions }: Props) {
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Tanggal Mulai</Label>
+                                            <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                Tanggal Mulai
+                                            </Label>
                                             <Input
                                                 type="date"
                                                 value={data.tanggal_mulai}
-                                                onChange={(event) => setData('tanggal_mulai', event.target.value)}
+                                                onChange={(event) =>
+                                                    setData(
+                                                        'tanggal_mulai',
+                                                        event.target.value,
+                                                    )
+                                                }
                                                 className="rounded-xl border-neutral-300 bg-white/60 dark:border-neutral-700 dark:bg-neutral-800/60"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Tanggal Selesai</Label>
+                                            <Label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                Tanggal Selesai
+                                            </Label>
                                             <Input
                                                 type="date"
                                                 value={data.tanggal_selesai}
-                                                min={data.tanggal_mulai || undefined}
-                                                onChange={(event) => setData('tanggal_selesai', event.target.value)}
+                                                min={
+                                                    data.tanggal_mulai ||
+                                                    undefined
+                                                }
+                                                onChange={(event) =>
+                                                    setData(
+                                                        'tanggal_selesai',
+                                                        event.target.value,
+                                                    )
+                                                }
                                                 className="rounded-xl border-neutral-300 bg-white/60 dark:border-neutral-700 dark:bg-neutral-800/60"
                                             />
                                         </div>
@@ -398,27 +558,53 @@ export default function PermitCreate({ availableSessions }: Props) {
                                     initial={{ opacity: 0, x: 50 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -50 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 25,
+                                    }}
                                     className="space-y-6"
                                 >
                                     <div className="space-y-3">
                                         <Label className="inline-flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
                                             <FileText className="h-5 w-5 text-indigo-500" />
-                                            Alasan Pengajuan <span className="text-red-500">*</span>
+                                            Alasan Pengajuan{' '}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
                                         <Textarea
                                             value={data.reason}
-                                            onChange={(event) => setData('reason', event.target.value)}
+                                            onChange={(event) =>
+                                                setData(
+                                                    'reason',
+                                                    event.target.value,
+                                                )
+                                            }
                                             rows={6}
                                             placeholder="Jelaskan alasan izin/sakit secara detail (minimal 20 karakter)..."
                                             className="resize-none rounded-xl border-neutral-300 bg-white/60 backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/60"
                                         />
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className={cn('inline-flex items-center gap-1', data.reason.trim().length >= 20 ? 'text-emerald-600' : 'text-neutral-500')}>
-                                                {data.reason.trim().length >= 20 && <CheckCircle className="h-4 w-4" />}
-                                                {data.reason.trim().length}/20 karakter minimum
+                                            <span
+                                                className={cn(
+                                                    'inline-flex items-center gap-1',
+                                                    data.reason.trim().length >=
+                                                        20
+                                                        ? 'text-emerald-600'
+                                                        : 'text-neutral-500',
+                                                )}
+                                            >
+                                                {data.reason.trim().length >=
+                                                    20 && (
+                                                    <CheckCircle className="h-4 w-4" />
+                                                )}
+                                                {data.reason.trim().length}/20
+                                                karakter minimum
                                             </span>
-                                            <span className="text-neutral-400">{data.reason.length} karakter</span>
+                                            <span className="text-neutral-400">
+                                                {data.reason.length} karakter
+                                            </span>
                                         </div>
                                         {errors.reason && (
                                             <p className="inline-flex items-center gap-1 text-sm text-red-600">
@@ -429,10 +615,17 @@ export default function PermitCreate({ availableSessions }: Props) {
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="text-base font-semibold text-neutral-900 dark:text-white">Keterangan Tambahan (Opsional)</Label>
+                                        <Label className="text-base font-semibold text-neutral-900 dark:text-white">
+                                            Keterangan Tambahan (Opsional)
+                                        </Label>
                                         <Textarea
                                             value={data.keterangan}
-                                            onChange={(event) => setData('keterangan', event.target.value)}
+                                            onChange={(event) =>
+                                                setData(
+                                                    'keterangan',
+                                                    event.target.value,
+                                                )
+                                            }
                                             rows={4}
                                             placeholder="Tambahkan keterangan tambahan jika diperlukan..."
                                             className="resize-none rounded-xl border-neutral-300 bg-white/60 backdrop-blur dark:border-neutral-700 dark:bg-neutral-800/60"
@@ -447,17 +640,26 @@ export default function PermitCreate({ availableSessions }: Props) {
                                     initial={{ opacity: 0, x: 50 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -50 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 25,
+                                    }}
                                     className="space-y-6"
                                 >
                                     <div className="space-y-3">
                                         <Label className="inline-flex items-center gap-2 text-base font-semibold text-neutral-900 dark:text-white">
                                             <Upload className="h-5 w-5 text-indigo-500" />
-                                            Upload Surat Keterangan <span className="text-red-500">*</span>
+                                            Upload Surat Keterangan{' '}
+                                            <span className="text-red-500">
+                                                *
+                                            </span>
                                         </Label>
 
                                         <motion.div
-                                            onClick={() => fileInputRef.current?.click()}
+                                            onClick={() =>
+                                                fileInputRef.current?.click()
+                                            }
                                             onDragEnter={handleDrag}
                                             onDragLeave={handleDrag}
                                             onDragOver={handleDrag}
@@ -465,8 +667,10 @@ export default function PermitCreate({ availableSessions }: Props) {
                                             whileHover={{ scale: 1.01 }}
                                             className={cn(
                                                 'cursor-pointer rounded-2xl border-2 border-dashed p-8 transition-all',
-                                                dragActive && 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20',
-                                                data.attachment && 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20',
+                                                dragActive &&
+                                                    'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20',
+                                                data.attachment &&
+                                                    'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20',
                                                 !dragActive &&
                                                     !data.attachment &&
                                                     'border-neutral-300 hover:border-indigo-400 dark:border-neutral-700',
@@ -476,23 +680,43 @@ export default function PermitCreate({ availableSessions }: Props) {
                                                 ref={fileInputRef}
                                                 type="file"
                                                 accept="image/jpeg,image/png,image/jpg,application/pdf"
-                                                onChange={(event) => handleFileChange(event.target.files?.[0] || null)}
+                                                onChange={(event) =>
+                                                    handleFileChange(
+                                                        event.target
+                                                            .files?.[0] || null,
+                                                    )
+                                                }
                                                 className="hidden"
                                             />
 
                                             {!data.attachment ? (
                                                 <div className="text-center">
                                                     <motion.div
-                                                        animate={{ y: dragActive ? -10 : [0, -10, 0] }}
-                                                        transition={{ duration: 2, repeat: dragActive ? 0 : Infinity, ease: 'easeInOut' }}
+                                                        animate={{
+                                                            y: dragActive
+                                                                ? -10
+                                                                : [0, -10, 0],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: dragActive
+                                                                ? 0
+                                                                : Infinity,
+                                                            ease: 'easeInOut',
+                                                        }}
                                                         className="mx-auto mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30"
                                                     >
                                                         <Upload className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
                                                     </motion.div>
                                                     <p className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">
-                                                        {dragActive ? 'Lepaskan file di sini' : 'Upload Surat Keterangan'}
+                                                        {dragActive
+                                                            ? 'Lepaskan file di sini'
+                                                            : 'Upload Surat Keterangan'}
                                                     </p>
-                                                    <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">Drag & drop file atau klik untuk memilih.</p>
+                                                    <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+                                                        Drag & drop file atau
+                                                        klik untuk memilih.
+                                                    </p>
                                                     <div className="flex items-center justify-center gap-4 text-xs text-neutral-500">
                                                         <span className="inline-flex items-center gap-1">
                                                             <ImageIcon className="h-4 w-4" />
@@ -510,8 +734,12 @@ export default function PermitCreate({ availableSessions }: Props) {
                                                     <div className="mx-auto mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                                                         <CheckCircle className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
                                                     </div>
-                                                    <p className="mb-1 text-lg font-semibold text-emerald-600 dark:text-emerald-400">File berhasil diupload</p>
-                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">{data.attachment.name}</p>
+                                                    <p className="mb-1 text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+                                                        File berhasil diupload
+                                                    </p>
+                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                                        {data.attachment.name}
+                                                    </p>
                                                 </div>
                                             )}
                                         </motion.div>
@@ -522,7 +750,9 @@ export default function PermitCreate({ availableSessions }: Props) {
                                                     <div className="shrink-0">
                                                         {filePreview ? (
                                                             <img
-                                                                src={filePreview}
+                                                                src={
+                                                                    filePreview
+                                                                }
                                                                 alt="Preview surat"
                                                                 className="h-24 w-24 rounded-xl border-2 border-neutral-200 object-cover dark:border-neutral-700"
                                                             />
@@ -533,15 +763,35 @@ export default function PermitCreate({ availableSessions }: Props) {
                                                         )}
                                                     </div>
                                                     <div className="min-w-0 flex-1">
-                                                        <p className="truncate font-semibold text-neutral-900 dark:text-white">{data.attachment.name}</p>
-                                                        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">{data.attachment.type}</p>
+                                                        <p className="truncate font-semibold text-neutral-900 dark:text-white">
+                                                            {
+                                                                data.attachment
+                                                                    .name
+                                                            }
+                                                        </p>
+                                                        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                                                            {
+                                                                data.attachment
+                                                                    .type
+                                                            }
+                                                        </p>
                                                         <p className="mt-1 text-xs text-neutral-500">
-                                                            {(data.attachment.size / 1024 / 1024).toFixed(2)} MB
+                                                            {(
+                                                                data.attachment
+                                                                    .size /
+                                                                1024 /
+                                                                1024
+                                                            ).toFixed(2)}{' '}
+                                                            MB
                                                         </p>
                                                     </div>
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleFileChange(null)}
+                                                        onClick={() =>
+                                                            handleFileChange(
+                                                                null,
+                                                            )
+                                                        }
                                                         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600 transition-colors hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400"
                                                     >
                                                         <X className="h-4 w-4" />
@@ -565,21 +815,33 @@ export default function PermitCreate({ availableSessions }: Props) {
                                         </h3>
                                         <div className="space-y-2 text-sm">
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">Mata Kuliah</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">
+                                                    Mata Kuliah
+                                                </span>
                                                 <span className="font-semibold text-neutral-900 dark:text-white">
-                                                    {selectedSession?.mata_kuliah ?? '-'}
+                                                    {selectedSession?.mata_kuliah ??
+                                                        '-'}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">Jenis</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">
+                                                    Jenis
+                                                </span>
                                                 <span className="font-semibold text-neutral-900 dark:text-white">
-                                                    {data.type === 'sakit' ? 'Sakit' : 'Izin'}
+                                                    {data.type === 'sakit'
+                                                        ? 'Sakit'
+                                                        : 'Izin'}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-neutral-600 dark:text-neutral-400">Periode</span>
+                                                <span className="text-neutral-600 dark:text-neutral-400">
+                                                    Periode
+                                                </span>
                                                 <span className="font-semibold text-neutral-900 dark:text-white">
-                                                    {data.tanggal_mulai || '-'} s/d {data.tanggal_selesai || '-'}
+                                                    {data.tanggal_mulai || '-'}{' '}
+                                                    s/d{' '}
+                                                    {data.tanggal_selesai ||
+                                                        '-'}
                                                 </span>
                                             </div>
                                         </div>
@@ -597,7 +859,11 @@ export default function PermitCreate({ availableSessions }: Props) {
                             {currentStep > 1 ? (
                                 <button
                                     type="button"
-                                    onClick={() => setCurrentStep((step) => Math.max(1, step - 1))}
+                                    onClick={() =>
+                                        setCurrentStep((step) =>
+                                            Math.max(1, step - 1),
+                                        )
+                                    }
                                     className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white/60 px-6 py-3 font-medium text-neutral-700 backdrop-blur transition-all hover:bg-white/80 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-800/80"
                                 >
                                     <ArrowLeft className="h-4 w-4" />
@@ -610,11 +876,23 @@ export default function PermitCreate({ availableSessions }: Props) {
                             {currentStep < 3 ? (
                                 <button
                                     type="button"
-                                    onClick={() => setCurrentStep((step) => Math.min(3, step + 1))}
-                                    disabled={(currentStep === 1 && !canProceedToStep2) || (currentStep === 2 && !canProceedToStep3)}
+                                    onClick={() =>
+                                        setCurrentStep((step) =>
+                                            Math.min(3, step + 1),
+                                        )
+                                    }
+                                    disabled={
+                                        (currentStep === 1 &&
+                                            !canProceedToStep2) ||
+                                        (currentStep === 2 &&
+                                            !canProceedToStep3)
+                                    }
                                     className={cn(
                                         'inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium shadow-lg transition-all',
-                                        (currentStep === 1 && canProceedToStep2) || (currentStep === 2 && canProceedToStep3)
+                                        (currentStep === 1 &&
+                                            canProceedToStep2) ||
+                                            (currentStep === 2 &&
+                                                canProceedToStep3)
                                             ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-xl hover:shadow-purple-500/30'
                                             : 'cursor-not-allowed bg-neutral-300 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400',
                                     )}
@@ -633,8 +911,14 @@ export default function PermitCreate({ availableSessions }: Props) {
                                             : 'cursor-not-allowed bg-neutral-300 text-neutral-500 dark:bg-neutral-700 dark:text-neutral-400',
                                     )}
                                 >
-                                    {processing ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                                    {processing ? 'Mengirim...' : 'Kirim Pengajuan'}
+                                    {processing ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : (
+                                        <Send className="h-5 w-5" />
+                                    )}
+                                    {processing
+                                        ? 'Mengirim...'
+                                        : 'Kirim Pengajuan'}
                                 </Button>
                             )}
                         </motion.div>

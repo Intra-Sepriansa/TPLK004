@@ -1,380 +1,380 @@
 {
-  "guides": [
-    {
-      "id": "intro-dosen",
-      "title": "Pengenalan Dashboard Dosen",
-      "slug": "pengenalan-dashboard-dosen",
-      "difficulty": 1,
-      "estimatedReadTime": 10,
-      "description": "Pelajari fitur-fitur utama dashboard dosen dan cara navigasi",
-      "category": "Memulai",
-      "icon": "Home",
-      "sections": [
+    "guides": [
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Panduan lengkap pengenalan dashboard dosen."
-        }
-      ]
-    },
-    {
-      "id": "first-login-dosen",
-      "title": "Login Pertama Kali",
-      "slug": "login-pertama-kali-dosen",
-      "difficulty": 1,
-      "estimatedReadTime": 5,
-      "description": "Cara login dan setup awal akun dosen",
-      "category": "Memulai",
-      "icon": "Users",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Panduan login..."
-        }
-      ]
-    },
-    {
-      "id": "profile-setup",
-      "title": "Mengatur Profil Dosen",
-      "slug": "mengatur-profil-dosen",
-      "difficulty": 1,
-      "estimatedReadTime": 8,
-      "description": "Lengkapi profil Anda",
-      "category": "Memulai",
-      "icon": "Settings",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Cara mengatur profil..."
-        }
-      ]
-    },
-    {
-      "id": "create-session",
-      "title": "Membuat Sesi Absensi",
-      "slug": "membuat-sesi-absensi",
-      "difficulty": 2,
-      "estimatedReadTime": 12,
-      "description": "Panduan lengkap untuk membuat sesi absensi, generate QR code, dan monitoring kehadiran mahasiswa secara real-time.",
-      "category": "Mengajar",
-      "icon": "Calendar",
-      "sections": [
-        {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Panduan lengkap untuk membuat sesi absensi di sistem TPLK. Anda akan belajar cara membuat sesi, generate QR code, dan monitoring kehadiran mahasiswa secara real-time."
+            "id": "intro-dosen",
+            "title": "Pengenalan Dashboard Dosen",
+            "slug": "pengenalan-dashboard-dosen",
+            "difficulty": 1,
+            "estimatedReadTime": 10,
+            "description": "Pelajari fitur-fitur utama dashboard dosen dan cara navigasi",
+            "category": "Memulai",
+            "icon": "Home",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Panduan lengkap pengenalan dashboard dosen."
+                }
+            ]
         },
         {
-          "id": "steps",
-          "title": "Langkah-Langkah Membuat Sesi Absensi",
-          "type": "tutorial",
-          "content": "Ikuti langkah berikut:",
-          "steps": [
-            {
-              "title": "Buka Menu Sesi Absensi",
-              "description": "Dari dashboard dosen, klik menu 'Sesi Absensi' di sidebar"
-            },
-            {
-              "title": "Pilih Mata Kuliah",
-              "description": "Pilih mata kuliah dari dropdown. Sistem akan menampilkan jadwal kuliah hari ini."
-            },
-            {
-              "title": "Konfigurasi Sesi",
-              "description": "Atur durasi kelas, verifikasi QR Code & Selfie, dan toleransi keterlambatan."
-            },
-            {
-              "title": "Generate QR Code",
-              "description": "Klik tombol 'Generate QR Code'. Tampilkan QR Code di proyektor agar mahasiswa bisa scan."
-            },
-            {
-              "title": "Monitoring Real-time",
-              "description": "Pantau jumlah mahasiswa yang sudah absen secara langsung pada dashboard sesi aktif."
-            }
-          ]
+            "id": "first-login-dosen",
+            "title": "Login Pertama Kali",
+            "slug": "login-pertama-kali-dosen",
+            "difficulty": 1,
+            "estimatedReadTime": 5,
+            "description": "Cara login dan setup awal akun dosen",
+            "category": "Memulai",
+            "icon": "Users",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Panduan login..."
+                }
+            ]
         },
         {
-          "id": "tips",
-          "title": "Tips & Best Practices",
-          "type": "tips",
-          "content": "Buat Sesi 10 Menit Sebelum Kelas agar ada cukup waktu. Gunakan Template Sesi jika memungkinkan."
-        }
-      ]
-    },
-    {
-      "id": "qr-code-generation",
-      "title": "Generate QR Code Absensi",
-      "slug": "generate-qr-code-absensi",
-      "difficulty": 1,
-      "estimatedReadTime": 7,
-      "description": "Mempelajari cara generate QR Code untuk absen",
-      "category": "Mengajar",
-      "icon": "Sparkles",
-      "sections": [
+            "id": "profile-setup",
+            "title": "Mengatur Profil Dosen",
+            "slug": "mengatur-profil-dosen",
+            "difficulty": 1,
+            "estimatedReadTime": 8,
+            "description": "Lengkapi profil Anda",
+            "category": "Memulai",
+            "icon": "Settings",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Cara mengatur profil..."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Cara generate QR Code."
-        }
-      ]
-    },
-    {
-      "id": "monitor-attendance",
-      "title": "Monitoring Kehadiran Real-time",
-      "slug": "monitoring-kehadiran-realtime",
-      "difficulty": 2,
-      "estimatedReadTime": 10,
-      "description": "Cara memantau absen secara langsung",
-      "category": "Mengajar",
-      "icon": "Users",
-      "sections": [
+            "id": "create-session",
+            "title": "Membuat Sesi Absensi",
+            "slug": "membuat-sesi-absensi",
+            "difficulty": 2,
+            "estimatedReadTime": 12,
+            "description": "Panduan lengkap untuk membuat sesi absensi, generate QR code, dan monitoring kehadiran mahasiswa secara real-time.",
+            "category": "Mengajar",
+            "icon": "Calendar",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Panduan lengkap untuk membuat sesi absensi di sistem TPLK. Anda akan belajar cara membuat sesi, generate QR code, dan monitoring kehadiran mahasiswa secara real-time."
+                },
+                {
+                    "id": "steps",
+                    "title": "Langkah-Langkah Membuat Sesi Absensi",
+                    "type": "tutorial",
+                    "content": "Ikuti langkah berikut:",
+                    "steps": [
+                        {
+                            "title": "Buka Menu Sesi Absensi",
+                            "description": "Dari dashboard dosen, klik menu 'Sesi Absensi' di sidebar"
+                        },
+                        {
+                            "title": "Pilih Mata Kuliah",
+                            "description": "Pilih mata kuliah dari dropdown. Sistem akan menampilkan jadwal kuliah hari ini."
+                        },
+                        {
+                            "title": "Konfigurasi Sesi",
+                            "description": "Atur durasi kelas, verifikasi QR Code & Selfie, dan toleransi keterlambatan."
+                        },
+                        {
+                            "title": "Generate QR Code",
+                            "description": "Klik tombol 'Generate QR Code'. Tampilkan QR Code di proyektor agar mahasiswa bisa scan."
+                        },
+                        {
+                            "title": "Monitoring Real-time",
+                            "description": "Pantau jumlah mahasiswa yang sudah absen secara langsung pada dashboard sesi aktif."
+                        }
+                    ]
+                },
+                {
+                    "id": "tips",
+                    "title": "Tips & Best Practices",
+                    "type": "tips",
+                    "content": "Buat Sesi 10 Menit Sebelum Kelas agar ada cukup waktu. Gunakan Template Sesi jika memungkinkan."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Monitoring Realtime."
-        }
-      ]
-    },
-    {
-      "id": "session-templates",
-      "title": "Menggunakan Template Sesi",
-      "slug": "menggunakan-template-sesi",
-      "difficulty": 2,
-      "estimatedReadTime": 8,
-      "description": "Membuat dan memakai template untuk mempermudah pembuatan kelas",
-      "category": "Mengajar",
-      "icon": "FileText",
-      "sections": [
+            "id": "qr-code-generation",
+            "title": "Generate QR Code Absensi",
+            "slug": "generate-qr-code-absensi",
+            "difficulty": 1,
+            "estimatedReadTime": 7,
+            "description": "Mempelajari cara generate QR Code untuk absen",
+            "category": "Mengajar",
+            "icon": "Sparkles",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Cara generate QR Code."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Gunakan template untuk jadwal rutin."
-        }
-      ]
-    },
-    {
-      "id": "create-assignment",
-      "title": "Membuat Tugas",
-      "slug": "membuat-tugas",
-      "difficulty": 2,
-      "estimatedReadTime": 15,
-      "description": "Cara memberikan tugas ke mahasiswa",
-      "category": "Penilaian",
-      "icon": "ClipboardList",
-      "sections": [
+            "id": "monitor-attendance",
+            "title": "Monitoring Kehadiran Real-time",
+            "slug": "monitoring-kehadiran-realtime",
+            "difficulty": 2,
+            "estimatedReadTime": 10,
+            "description": "Cara memantau absen secara langsung",
+            "category": "Mengajar",
+            "icon": "Users",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Monitoring Realtime."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Memberi tugas ke kelas."
-        }
-      ]
-    },
-    {
-      "id": "grading-submissions",
-      "title": "Menilai Pengumpulan Tugas",
-      "slug": "menilai-pengumpulan-tugas",
-      "difficulty": 2,
-      "estimatedReadTime": 12,
-      "description": "Menilai hasil pekerjaan mahasiswa",
-      "category": "Penilaian",
-      "icon": "CheckCircle",
-      "sections": [
+            "id": "session-templates",
+            "title": "Menggunakan Template Sesi",
+            "slug": "menggunakan-template-sesi",
+            "difficulty": 2,
+            "estimatedReadTime": 8,
+            "description": "Membuat dan memakai template untuk mempermudah pembuatan kelas",
+            "category": "Mengajar",
+            "icon": "FileText",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Gunakan template untuk jadwal rutin."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Menilai pengumpulan."
-        }
-      ]
-    },
-    {
-      "id": "bulk-grading",
-      "title": "Penilaian Massal",
-      "slug": "penilaian-massal",
-      "difficulty": 3,
-      "estimatedReadTime": 10,
-      "description": "Menilai beberapa mahasiswa sekaligus",
-      "category": "Penilaian",
-      "icon": "FileCheck",
-      "sections": [
+            "id": "create-assignment",
+            "title": "Membuat Tugas",
+            "slug": "membuat-tugas",
+            "difficulty": 2,
+            "estimatedReadTime": 15,
+            "description": "Cara memberikan tugas ke mahasiswa",
+            "category": "Penilaian",
+            "icon": "ClipboardList",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Memberi tugas ke kelas."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Bulk grading."
-        }
-      ]
-    },
-    {
-      "id": "grade-analytics",
-      "title": "Analisis Nilai Mahasiswa",
-      "slug": "analisis-nilai-mahasiswa",
-      "difficulty": 2,
-      "estimatedReadTime": 8,
-      "description": "Menganalisis hasil dari tugas dan kuis",
-      "category": "Penilaian",
-      "icon": "BarChart3",
-      "sections": [
+            "id": "grading-submissions",
+            "title": "Menilai Pengumpulan Tugas",
+            "slug": "menilai-pengumpulan-tugas",
+            "difficulty": 2,
+            "estimatedReadTime": 12,
+            "description": "Menilai hasil pekerjaan mahasiswa",
+            "category": "Penilaian",
+            "icon": "CheckCircle",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Menilai pengumpulan."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Analisis Penilaian."
-        }
-      ]
-    },
-    {
-      "id": "manage-courses",
-      "title": "Mengelola Mata Kuliah",
-      "slug": "mengelola-mata-kuliah",
-      "difficulty": 2,
-      "estimatedReadTime": 10,
-      "description": "Manajemen kelas dan peserta",
-      "category": "Manajemen",
-      "icon": "BookOpen",
-      "sections": [
+            "id": "bulk-grading",
+            "title": "Penilaian Massal",
+            "slug": "penilaian-massal",
+            "difficulty": 3,
+            "estimatedReadTime": 10,
+            "description": "Menilai beberapa mahasiswa sekaligus",
+            "category": "Penilaian",
+            "icon": "FileCheck",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Bulk grading."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Kelola mata kuliah dan peserta."
-        }
-      ]
-    },
-    {
-      "id": "student-management",
-      "title": "Manajemen Mahasiswa",
-      "slug": "manajemen-mahasiswa",
-      "difficulty": 2,
-      "estimatedReadTime": 12,
-      "description": "Mengelola daftar mahasiswa",
-      "category": "Manajemen",
-      "icon": "Users",
-      "sections": [
+            "id": "grade-analytics",
+            "title": "Analisis Nilai Mahasiswa",
+            "slug": "analisis-nilai-mahasiswa",
+            "difficulty": 2,
+            "estimatedReadTime": 8,
+            "description": "Menganalisis hasil dari tugas dan kuis",
+            "category": "Penilaian",
+            "icon": "BarChart3",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Analisis Penilaian."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Melihat daftar mahasiswa."
-        }
-      ]
-    },
-    {
-      "id": "attendance-reports",
-      "title": "Laporan Kehadiran",
-      "slug": "laporan-kehadiran",
-      "difficulty": 2,
-      "estimatedReadTime": 10,
-      "description": "Melihat dan mengunduh rekapan absen",
-      "category": "Manajemen",
-      "icon": "ClipboardList",
-      "sections": [
+            "id": "manage-courses",
+            "title": "Mengelola Mata Kuliah",
+            "slug": "mengelola-mata-kuliah",
+            "difficulty": 2,
+            "estimatedReadTime": 10,
+            "description": "Manajemen kelas dan peserta",
+            "category": "Manajemen",
+            "icon": "BookOpen",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Kelola mata kuliah dan peserta."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Laporan absen per pertemuan."
-        }
-      ]
-    },
-    {
-      "id": "export-data",
-      "title": "Export Data ke Excel/PDF",
-      "slug": "export-data-excel-pdf",
-      "difficulty": 2,
-      "estimatedReadTime": 8,
-      "description": "Mengekspor data kelas ke format laporan",
-      "category": "Manajemen",
-      "icon": "FileText",
-      "sections": [
+            "id": "student-management",
+            "title": "Manajemen Mahasiswa",
+            "slug": "manajemen-mahasiswa",
+            "difficulty": 2,
+            "estimatedReadTime": 12,
+            "description": "Mengelola daftar mahasiswa",
+            "category": "Manajemen",
+            "icon": "Users",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Melihat daftar mahasiswa."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Cara download laporan akhir."
-        }
-      ]
-    },
-    {
-      "id": "bulk-import",
-      "title": "Import Data Massal",
-      "slug": "import-data-massal",
-      "difficulty": 3,
-      "estimatedReadTime": 15,
-      "description": "Mengunggah data melalui spreadsheet",
-      "category": "Lanjutan",
-      "icon": "FileText",
-      "sections": [
+            "id": "attendance-reports",
+            "title": "Laporan Kehadiran",
+            "slug": "laporan-kehadiran",
+            "difficulty": 2,
+            "estimatedReadTime": 10,
+            "description": "Melihat dan mengunduh rekapan absen",
+            "category": "Manajemen",
+            "icon": "ClipboardList",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Laporan absen per pertemuan."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Import CSV file."
-        }
-      ]
-    },
-    {
-      "id": "custom-notifications",
-      "title": "Notifikasi Kustom",
-      "slug": "notifikasi-kustom",
-      "difficulty": 3,
-      "estimatedReadTime": 12,
-      "description": "Setting pemberitahuan khusus",
-      "category": "Lanjutan",
-      "icon": "Bell",
-      "sections": [
+            "id": "export-data",
+            "title": "Export Data ke Excel/PDF",
+            "slug": "export-data-excel-pdf",
+            "difficulty": 2,
+            "estimatedReadTime": 8,
+            "description": "Mengekspor data kelas ke format laporan",
+            "category": "Manajemen",
+            "icon": "FileText",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Cara download laporan akhir."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Atur jenis notifikasi kelas."
-        }
-      ]
-    },
-    {
-      "id": "api-integration",
-      "title": "Integrasi API",
-      "slug": "integrasi-api",
-      "difficulty": 4,
-      "estimatedReadTime": 20,
-      "description": "Dokumentasi API kampus",
-      "category": "Lanjutan",
-      "icon": "Settings",
-      "sections": [
+            "id": "bulk-import",
+            "title": "Import Data Massal",
+            "slug": "import-data-massal",
+            "difficulty": 3,
+            "estimatedReadTime": 15,
+            "description": "Mengunggah data melalui spreadsheet",
+            "category": "Lanjutan",
+            "icon": "FileText",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Import CSV file."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Pakai API untuk keperluan lanjutan."
-        }
-      ]
-    },
-    {
-      "id": "automation",
-      "title": "Automasi Tugas",
-      "slug": "automasi-tugas",
-      "difficulty": 4,
-      "estimatedReadTime": 18,
-      "description": "Mengatur jadwal otomatis sistem kelas",
-      "category": "Lanjutan",
-      "icon": "Clock",
-      "sections": [
+            "id": "custom-notifications",
+            "title": "Notifikasi Kustom",
+            "slug": "notifikasi-kustom",
+            "difficulty": 3,
+            "estimatedReadTime": 12,
+            "description": "Setting pemberitahuan khusus",
+            "category": "Lanjutan",
+            "icon": "Bell",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Atur jenis notifikasi kelas."
+                }
+            ]
+        },
         {
-          "id": "overview",
-          "title": "Overview",
-          "type": "overview",
-          "content": "Gunakan trigger otomatis di aplikasi."
+            "id": "api-integration",
+            "title": "Integrasi API",
+            "slug": "integrasi-api",
+            "difficulty": 4,
+            "estimatedReadTime": 20,
+            "description": "Dokumentasi API kampus",
+            "category": "Lanjutan",
+            "icon": "Settings",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Pakai API untuk keperluan lanjutan."
+                }
+            ]
+        },
+        {
+            "id": "automation",
+            "title": "Automasi Tugas",
+            "slug": "automasi-tugas",
+            "difficulty": 4,
+            "estimatedReadTime": 18,
+            "description": "Mengatur jadwal otomatis sistem kelas",
+            "category": "Lanjutan",
+            "icon": "Clock",
+            "sections": [
+                {
+                    "id": "overview",
+                    "title": "Overview",
+                    "type": "overview",
+                    "content": "Gunakan trigger otomatis di aplikasi."
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

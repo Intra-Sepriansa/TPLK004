@@ -4,11 +4,17 @@
  */
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { InteractiveTutorialStep } from '@/types/documentation';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface TutorialTooltipProps {
     step: InteractiveTutorialStep;
@@ -56,18 +62,25 @@ export function TutorialTooltip({
             className="fixed z-[100]"
             style={{ top: position.top, left: position.left }}
         >
-            <Card className={cn('w-80 shadow-lg relative', placementStyles[placement])}>
+            <Card
+                className={cn(
+                    'relative w-80 shadow-lg',
+                    placementStyles[placement],
+                )}
+            >
                 {/* Arrow */}
                 <div
                     className={cn(
-                        'absolute w-0 h-0 border-8',
-                        arrowStyles[placement]
+                        'absolute h-0 w-0 border-8',
+                        arrowStyles[placement],
                     )}
                 />
 
                 <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">{step.title}</CardTitle>
+                        <CardTitle className="text-base">
+                            {step.title}
+                        </CardTitle>
                         <Button
                             variant="ghost"
                             size="icon"
@@ -79,7 +92,9 @@ export function TutorialTooltip({
                     </div>
                     <div className="space-y-1">
                         <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Langkah {currentStep} dari {totalSteps}</span>
+                            <span>
+                                Langkah {currentStep} dari {totalSteps}
+                            </span>
                             <span>{Math.round(progress)}%</span>
                         </div>
                         <Progress value={progress} className="h-1" />
@@ -87,17 +102,23 @@ export function TutorialTooltip({
                 </CardHeader>
 
                 <CardContent className="pb-3">
-                    <p className="text-sm text-muted-foreground">{step.content}</p>
+                    <p className="text-sm text-muted-foreground">
+                        {step.content}
+                    </p>
                     {step.action && (
-                        <p className="text-xs text-primary mt-2">
-                            💡 {step.action === 'click' && 'Klik elemen yang ditandai'}
-                            {step.action === 'input' && 'Isi input yang ditandai'}
-                            {step.action === 'hover' && 'Arahkan kursor ke elemen'}
+                        <p className="mt-2 text-xs text-primary">
+                            💡{' '}
+                            {step.action === 'click' &&
+                                'Klik elemen yang ditandai'}
+                            {step.action === 'input' &&
+                                'Isi input yang ditandai'}
+                            {step.action === 'hover' &&
+                                'Arahkan kursor ke elemen'}
                         </p>
                     )}
                 </CardContent>
 
-                <CardFooter className="pt-0 gap-2">
+                <CardFooter className="gap-2 pt-0">
                     <Button
                         variant="outline"
                         size="sm"
@@ -105,17 +126,21 @@ export function TutorialTooltip({
                         disabled={isFirstStep}
                         className="flex-1"
                     >
-                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        <ChevronLeft className="mr-1 h-4 w-4" />
                         Kembali
                     </Button>
                     {isLastStep ? (
-                        <Button size="sm" onClick={onComplete} className="flex-1">
+                        <Button
+                            size="sm"
+                            onClick={onComplete}
+                            className="flex-1"
+                        >
                             Selesai
                         </Button>
                     ) : (
                         <Button size="sm" onClick={onNext} className="flex-1">
                             Lanjut
-                            <ChevronRight className="h-4 w-4 ml-1" />
+                            <ChevronRight className="ml-1 h-4 w-4" />
                         </Button>
                     )}
                 </CardFooter>

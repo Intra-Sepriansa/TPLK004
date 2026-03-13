@@ -1,40 +1,40 @@
-import { useState } from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
 import StudentLayout from '@/layouts/student-layout';
-import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-    ArrowLeft,
-    Calendar,
-    Clock,
-    MapPin,
-    Camera,
-    Smartphone,
-    CheckCircle,
-    XCircle,
+    Activity,
     AlertTriangle,
-    Share2,
-    Printer,
+    ArrowLeft,
+    Brain,
+    Calendar,
+    Camera,
+    Check,
+    CheckCircle,
     ChevronLeft,
     ChevronRight,
-    Maximize2,
-    ZoomIn,
-    ZoomOut,
-    Wifi,
-    Flag,
+    Clock,
+    Copy,
+    Eye,
     FileText,
+    Flag,
+    ImageIcon,
+    MapPin,
+    Maximize2,
+    Printer,
+    Share2,
+    Shield,
+    Smartphone,
     TrendingUp,
     Users,
-    Activity,
+    Wifi,
     X,
-    Brain,
-    Eye,
-    Shield,
-    ImageIcon,
-    Copy,
-    Check,
+    XCircle,
+    ZoomIn,
+    ZoomOut,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 // ── types ──
 interface DeviceInfo {
@@ -134,7 +134,10 @@ const itemVariants = {
     },
 } as const;
 
-const statusConfig: Record<string, { label: string; color: string; gradient: string; icon: typeof CheckCircle }> = {
+const statusConfig: Record<
+    string,
+    { label: string; color: string; gradient: string; icon: typeof CheckCircle }
+> = {
     present: {
         label: 'Hadir',
         color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
@@ -163,7 +166,8 @@ const statusConfig: Record<string, { label: string; color: string; gradient: str
 
 export default function HistoryDetail() {
     const { props } = usePage();
-    const { record, relatedRecords, classAverage, timeline, prevId, nextId } = props as unknown as PageProps;
+    const { record, relatedRecords, classAverage, timeline, prevId, nextId } =
+        props as unknown as PageProps;
 
     const [showFullscreenSelfie, setShowFullscreenSelfie] = useState(false);
     const [selfieZoom, setSelfieZoom] = useState(1);
@@ -176,47 +180,54 @@ export default function HistoryDetail() {
     const scannedAt = new Date(record.scanned_at);
     const scannedAtMobile = `${scannedAt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })} • ${scannedAt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
     const scannedAtDesktop = scannedAt.toLocaleString('id-ID');
-    const selfieStatusLabel = record.selfie_verification.status === 'approved'
-        ? 'Terverifikasi'
-        : record.selfie_verification.status === 'pending'
-            ? 'Menunggu Verifikasi'
-            : 'Ditolak';
-    const distanceLabel = record.distance != null ? `${Number(record.distance).toFixed(0)} meter` : 'Tidak tersedia';
-    const locationLabel = record.lat != null && record.long != null
-        ? `${Number(record.lat).toFixed(6)}, ${Number(record.long).toFixed(6)}`
-        : 'Tidak tersedia';
-    const mapLink = record.lat != null && record.long != null
-        ? `https://www.google.com/maps?q=${record.lat},${record.long}`
-        : null;
-    const buildShareMessage = (detailUrl: string) => ([
-        '*LAPORAN KEHADIRAN MAHASISWA*',
-        'Universitas Pamulang • Yayasan Sasmita Jaya',
-        '',
-        '━━━━━━━━━━━━━━━━━━━━━━━━━━',
-        '*RINGKASAN UTAMA*',
-        `• Status         : *${status.label}*`,
-        `• Mata Kuliah    : *${record.session.course.nama}*`,
-        `• Dosen          : ${record.session.course.dosen.nama}`,
-        `• Pertemuan      : #${record.session.meeting_number}`,
-        `• Waktu Scan     : ${scannedAtDesktop}`,
-        '',
-        '*DETAIL VERIFIKASI*',
-        '```',
-        `Selfie Verifikasi : ${selfieStatusLabel}`,
-        `Jarak Lokasi      : ${distanceLabel}`,
-        `Koordinat         : ${locationLabel}`,
-        `Device            : ${record.device_info.model} (${record.device_info.os})`,
-        `AI Confidence     : ${record.ai_info.ai_confidence !== null ? `${(Number(record.ai_info.ai_confidence) * 100).toFixed(1)}%` : '-'}`,
-        '```',
-        '',
-        '*Catatan*',
-        record.note || 'Tidak ada catatan tambahan.',
-        '',
-        mapLink ? `Lokasi: ${mapLink}` : 'Lokasi: Tidak tersedia',
-        `Detail lengkap: ${detailUrl}`,
-        '',
-        'Dokumen ini dibuat otomatis dari Sistem Absensi Mahasiswa UNPAM.',
-    ]).join('\n');
+    const selfieStatusLabel =
+        record.selfie_verification.status === 'approved'
+            ? 'Terverifikasi'
+            : record.selfie_verification.status === 'pending'
+              ? 'Menunggu Verifikasi'
+              : 'Ditolak';
+    const distanceLabel =
+        record.distance != null
+            ? `${Number(record.distance).toFixed(0)} meter`
+            : 'Tidak tersedia';
+    const locationLabel =
+        record.lat != null && record.long != null
+            ? `${Number(record.lat).toFixed(6)}, ${Number(record.long).toFixed(6)}`
+            : 'Tidak tersedia';
+    const mapLink =
+        record.lat != null && record.long != null
+            ? `https://www.google.com/maps?q=${record.lat},${record.long}`
+            : null;
+    const buildShareMessage = (detailUrl: string) =>
+        [
+            '*LAPORAN KEHADIRAN MAHASISWA*',
+            'Universitas Pamulang • Yayasan Sasmita Jaya',
+            '',
+            '━━━━━━━━━━━━━━━━━━━━━━━━━━',
+            '*RINGKASAN UTAMA*',
+            `• Status         : *${status.label}*`,
+            `• Mata Kuliah    : *${record.session.course.nama}*`,
+            `• Dosen          : ${record.session.course.dosen.nama}`,
+            `• Pertemuan      : #${record.session.meeting_number}`,
+            `• Waktu Scan     : ${scannedAtDesktop}`,
+            '',
+            '*DETAIL VERIFIKASI*',
+            '```',
+            `Selfie Verifikasi : ${selfieStatusLabel}`,
+            `Jarak Lokasi      : ${distanceLabel}`,
+            `Koordinat         : ${locationLabel}`,
+            `Device            : ${record.device_info.model} (${record.device_info.os})`,
+            `AI Confidence     : ${record.ai_info.ai_confidence !== null ? `${(Number(record.ai_info.ai_confidence) * 100).toFixed(1)}%` : '-'}`,
+            '```',
+            '',
+            '*Catatan*',
+            record.note || 'Tidak ada catatan tambahan.',
+            '',
+            mapLink ? `Lokasi: ${mapLink}` : 'Lokasi: Tidak tersedia',
+            `Detail lengkap: ${detailUrl}`,
+            '',
+            'Dokumen ini dibuat otomatis dari Sistem Absensi Mahasiswa UNPAM.',
+        ].join('\n');
 
     const getShareMessage = () => {
         if (typeof window === 'undefined') {
@@ -235,7 +246,9 @@ export default function HistoryDetail() {
         }
     };
 
-    const canUseNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+    const canUseNativeShare =
+        typeof navigator !== 'undefined' &&
+        typeof navigator.share === 'function';
     const handleNativeShare = async () => {
         if (!canUseNativeShare || typeof window === 'undefined') return;
 
@@ -264,13 +277,18 @@ export default function HistoryDetail() {
             facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(detailUrl)}`,
         };
 
-        window.open(shareUrls[platform], '_blank', 'noopener,noreferrer,width=640,height=760');
+        window.open(
+            shareUrls[platform],
+            '_blank',
+            'noopener,noreferrer,width=640,height=760',
+        );
         setShowShareModal(false);
     };
 
     const toAbsoluteUrl = (value: string | null) => {
         if (!value || typeof window === 'undefined') return '';
-        if (value.startsWith('http://') || value.startsWith('https://')) return value;
+        if (value.startsWith('http://') || value.startsWith('https://'))
+            return value;
         if (value.startsWith('/')) return `${window.location.origin}${value}`;
         return `${window.location.origin}/${value}`;
     };
@@ -285,11 +303,26 @@ export default function HistoryDetail() {
     const printTime = new Date().toLocaleString('id-ID');
     const printDateOnly = new Date().toLocaleDateString('id-ID');
     const selfieImage = toAbsoluteUrl(record.selfie_url);
-    const unpamLogo = typeof window !== 'undefined' ? `${window.location.origin}/logo-unpam.png` : '/logo-unpam.png';
-    const sasmitaLogo = typeof window !== 'undefined' ? `${window.location.origin}/sasmita.png` : '/sasmita.png';
-    const aiConfidence = record.ai_info.ai_confidence !== null ? `${(Number(record.ai_info.ai_confidence) * 100).toFixed(1)}%` : '-';
-    const faceMatch = record.ai_info.face_match_score !== null ? `${(Number(record.ai_info.face_match_score) * 100).toFixed(1)}%` : '-';
-    const imageQuality = record.ai_info.image_quality !== null ? `${(Number(record.ai_info.image_quality) * 100).toFixed(1)}%` : '-';
+    const unpamLogo =
+        typeof window !== 'undefined'
+            ? `${window.location.origin}/logo-unpam.png`
+            : '/logo-unpam.png';
+    const sasmitaLogo =
+        typeof window !== 'undefined'
+            ? `${window.location.origin}/sasmita.png`
+            : '/sasmita.png';
+    const aiConfidence =
+        record.ai_info.ai_confidence !== null
+            ? `${(Number(record.ai_info.ai_confidence) * 100).toFixed(1)}%`
+            : '-';
+    const faceMatch =
+        record.ai_info.face_match_score !== null
+            ? `${(Number(record.ai_info.face_match_score) * 100).toFixed(1)}%`
+            : '-';
+    const imageQuality =
+        record.ai_info.image_quality !== null
+            ? `${(Number(record.ai_info.image_quality) * 100).toFixed(1)}%`
+            : '-';
     const sessionTime = record.session.start_at
         ? `${new Date(record.session.start_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}${record.session.end_at ? ` - ${new Date(record.session.end_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}` : ''}`
         : '-';
@@ -298,77 +331,170 @@ export default function HistoryDetail() {
         <StudentLayout>
             <Head title={`Detail Kehadiran - ${record.session.course.nama}`} />
 
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-4 sm:p-6 space-y-6">
-
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-6 p-4 sm:p-6"
+            >
                 {/* ── Breadcrumb & Navigation ── */}
-                <motion.div variants={itemVariants} className="flex items-center justify-between flex-wrap gap-3">
+                <motion.div
+                    variants={itemVariants}
+                    className="flex flex-wrap items-center justify-between gap-3"
+                >
                     <div className="flex items-center gap-3">
                         <Link href="/user/history">
                             <motion.button
                                 whileHover={{ x: -4 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+                                className="flex items-center gap-2 text-sm font-medium text-neutral-600 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 Kembali ke Riwayat
                             </motion.button>
                         </Link>
-                        <div className="text-sm text-neutral-500 hidden sm:block">
-                            <Link href="/user/history" className="hover:text-neutral-700 dark:hover:text-neutral-300">Riwayat</Link>
+                        <div className="hidden text-sm text-neutral-500 sm:block">
+                            <Link
+                                href="/user/history"
+                                className="hover:text-neutral-700 dark:hover:text-neutral-300"
+                            >
+                                Riwayat
+                            </Link>
                             <span className="mx-2">/</span>
-                            <span className="text-neutral-900 dark:text-white font-semibold">Detail</span>
+                            <span className="font-semibold text-neutral-900 dark:text-white">
+                                Detail
+                            </span>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         {prevId ? (
                             <Link href={`/user/history/${prevId}`}>
-                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="p-2 rounded-xl bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 text-neutral-700 dark:text-neutral-300">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="rounded-xl border border-white/20 bg-white/40 p-2 text-neutral-700 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 dark:text-neutral-300"
+                                >
                                     <ChevronLeft className="h-5 w-5" />
                                 </motion.button>
                             </Link>
                         ) : (
-                            <button disabled className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 opacity-40 cursor-not-allowed"><ChevronLeft className="h-5 w-5" /></button>
+                            <button
+                                disabled
+                                className="cursor-not-allowed rounded-xl bg-neutral-100 p-2 opacity-40 dark:bg-neutral-800"
+                            >
+                                <ChevronLeft className="h-5 w-5" />
+                            </button>
                         )}
                         {nextId ? (
                             <Link href={`/user/history/${nextId}`}>
-                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="p-2 rounded-xl bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 text-neutral-700 dark:text-neutral-300">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="rounded-xl border border-white/20 bg-white/40 p-2 text-neutral-700 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 dark:text-neutral-300"
+                                >
                                     <ChevronRight className="h-5 w-5" />
                                 </motion.button>
                             </Link>
                         ) : (
-                            <button disabled className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 opacity-40 cursor-not-allowed"><ChevronRight className="h-5 w-5" /></button>
+                            <button
+                                disabled
+                                className="cursor-not-allowed rounded-xl bg-neutral-100 p-2 opacity-40 dark:bg-neutral-800"
+                            >
+                                <ChevronRight className="h-5 w-5" />
+                            </button>
                         )}
                     </div>
                 </motion.div>
 
                 {/* ── Header Card ── */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
+                <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl p-4 text-white shadow-2xl sm:p-6 lg:p-8"
+                >
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    <motion.div animate={{ y: [0, -15, 0], opacity: [0.15, 0.3, 0.15] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} className="absolute top-10 right-20 hidden sm:block text-white/15">
+                    <motion.div
+                        animate={{ y: [0, -15, 0], opacity: [0.15, 0.3, 0.15] }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                        }}
+                        className="absolute top-10 right-20 hidden text-white/15 sm:block"
+                    >
                         <FileText className="h-14 w-14" />
                     </motion.div>
 
                     <div className="relative">
                         <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
-                            <div className="flex-1 min-w-0">
-                                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }} className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/25 backdrop-blur-xl mb-3 sm:mb-4">
+                            <div className="min-w-0 flex-1">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/25 px-3 py-1.5 backdrop-blur-xl sm:mb-4 sm:px-4 sm:py-2"
+                                >
                                     <StatusIcon className="h-5 w-5" />
-                                    <span className="font-bold">{status.label}</span>
+                                    <span className="font-bold">
+                                        {status.label}
+                                    </span>
                                 </motion.div>
-                                <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="text-2xl sm:text-3xl font-bold mb-2 leading-tight break-words">
+                                <motion.h1
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="mb-2 text-2xl leading-tight font-bold break-words sm:text-3xl"
+                                >
                                     {record.session.course.nama}
                                 </motion.h1>
-                                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} className="grid gap-2 text-xs sm:flex sm:flex-wrap sm:items-center sm:gap-4 sm:text-sm text-indigo-100">
-                                    <span className="flex items-center gap-2 min-w-0"><Users className="h-4 w-4 shrink-0" /><span className="truncate">{record.session.course.dosen.nama}</span></span>
-                                    <span className="flex items-center gap-2"><Calendar className="h-4 w-4" />Pertemuan #{record.session.meeting_number}</span>
-                                    <span className="flex items-center gap-2"><Clock className="h-4 w-4 shrink-0" /><span className="sm:hidden">{scannedAtMobile}</span><span className="hidden sm:inline">{scannedAtDesktop}</span></span>
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="grid gap-2 text-xs text-indigo-100 sm:flex sm:flex-wrap sm:items-center sm:gap-4 sm:text-sm"
+                                >
+                                    <span className="flex min-w-0 items-center gap-2">
+                                        <Users className="h-4 w-4 shrink-0" />
+                                        <span className="truncate">
+                                            {record.session.course.dosen.nama}
+                                        </span>
+                                    </span>
+                                    <span className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4" />
+                                        Pertemuan #
+                                        {record.session.meeting_number}
+                                    </span>
+                                    <span className="flex items-center gap-2">
+                                        <Clock className="h-4 w-4 shrink-0" />
+                                        <span className="sm:hidden">
+                                            {scannedAtMobile}
+                                        </span>
+                                        <span className="hidden sm:inline">
+                                            {scannedAtDesktop}
+                                        </span>
+                                    </span>
                                 </motion.div>
                             </div>
 
-                            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }} className="flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className="flex w-full flex-wrap gap-2 lg:w-auto lg:justify-end"
+                            >
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -377,12 +503,19 @@ export default function HistoryDetail() {
                                         setShowSharePreview(false);
                                         setCopySuccess(false);
                                     }}
-                                    className="flex min-w-[110px] flex-1 items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/20 backdrop-blur-xl border border-white/20 hover:bg-white/30 transition-all text-sm font-semibold lg:min-w-0 lg:flex-none lg:px-4"
+                                    className="flex min-w-[110px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-3 py-2 text-sm font-semibold backdrop-blur-xl transition-all hover:bg-white/30 lg:min-w-0 lg:flex-none lg:px-4"
                                 >
-                                    <Share2 className="h-4 w-4" />Share
+                                    <Share2 className="h-4 w-4" />
+                                    Share
                                 </motion.button>
-                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handlePrint} className="flex min-w-[110px] flex-1 items-center justify-center gap-2 px-3 py-2 rounded-xl bg-white/20 backdrop-blur-xl border border-white/20 hover:bg-white/30 transition-all text-sm font-semibold lg:min-w-0 lg:flex-none lg:px-4">
-                                    <Printer className="h-4 w-4" />Print
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handlePrint}
+                                    className="flex min-w-[110px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-3 py-2 text-sm font-semibold backdrop-blur-xl transition-all hover:bg-white/30 lg:min-w-0 lg:flex-none lg:px-4"
+                                >
+                                    <Printer className="h-4 w-4" />
+                                    Print
                                 </motion.button>
                             </motion.div>
                         </div>
@@ -392,46 +525,153 @@ export default function HistoryDetail() {
                 {/* ── Main Content Grid ── */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* LEFT COLUMN */}
-                    <div className="lg:col-span-2 space-y-6">
-
+                    <div className="space-y-6 lg:col-span-2">
                         {/* Selfie Viewer */}
                         {record.selfie_url && (
-                            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden">
-                                <div className="flex items-center justify-between mb-6">
+                            <motion.div
+                                variants={itemVariants}
+                                className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            >
+                                <div className="mb-6 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                        <motion.div
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 10,
+                                            }}
+                                            className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2"
+                                        >
                                             <Camera className="h-5 w-5 text-emerald-500" />
                                         </motion.div>
                                         <div>
-                                            <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Bukti Selfie</h2>
+                                            <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                Bukti Selfie
+                                            </h2>
                                             <p className="text-xs text-neutral-500">
-                                                Status: {record.selfie_verification.status === 'approved' ? 'Terverifikasi' : record.selfie_verification.status === 'pending' ? 'Menunggu' : 'Ditolak'}
+                                                Status:{' '}
+                                                {record.selfie_verification
+                                                    .status === 'approved'
+                                                    ? 'Terverifikasi'
+                                                    : record.selfie_verification
+                                                            .status ===
+                                                        'pending'
+                                                      ? 'Menunggu'
+                                                      : 'Ditolak'}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setSelfieZoom(Math.min(selfieZoom + 0.5, 3))} className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"><ZoomIn className="h-4 w-4" /></motion.button>
-                                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setSelfieZoom(Math.max(selfieZoom - 0.5, 1))} className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"><ZoomOut className="h-4 w-4" /></motion.button>
-                                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setShowFullscreenSelfie(true)} className="p-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700"><Maximize2 className="h-4 w-4" /></motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() =>
+                                                setSelfieZoom(
+                                                    Math.min(
+                                                        selfieZoom + 0.5,
+                                                        3,
+                                                    ),
+                                                )
+                                            }
+                                            className="rounded-xl bg-neutral-100 p-2 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                                        >
+                                            <ZoomIn className="h-4 w-4" />
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() =>
+                                                setSelfieZoom(
+                                                    Math.max(
+                                                        selfieZoom - 0.5,
+                                                        1,
+                                                    ),
+                                                )
+                                            }
+                                            className="rounded-xl bg-neutral-100 p-2 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                                        >
+                                            <ZoomOut className="h-4 w-4" />
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() =>
+                                                setShowFullscreenSelfie(true)
+                                            }
+                                            className="rounded-xl bg-neutral-100 p-2 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                                        >
+                                            <Maximize2 className="h-4 w-4" />
+                                        </motion.button>
                                     </div>
                                 </div>
-                                <div className="relative rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 cursor-zoom-in" onClick={() => setShowFullscreenSelfie(true)}>
-                                    <motion.img src={record.selfie_url} alt="Selfie" style={{ scale: selfieZoom }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} className="w-full h-auto max-h-[500px] object-contain" />
-                                    <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="absolute top-4 right-4">
-                                        <div className={cn("flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl font-bold shadow-lg text-white",
-                                            record.selfie_verification.status === 'approved' ? "bg-emerald-500/90" : record.selfie_verification.status === 'pending' ? "bg-amber-500/90" : "bg-rose-500/90")
-                                        }>
-                                            {record.selfie_verification.status === 'approved' && <CheckCircle className="h-4 w-4" />}
-                                            {record.selfie_verification.status === 'pending' && <Clock className="h-4 w-4" />}
-                                            {record.selfie_verification.status === 'rejected' && <XCircle className="h-4 w-4" />}
-                                            {record.selfie_verification.status === 'approved' ? 'Terverifikasi' : record.selfie_verification.status === 'pending' ? 'Menunggu' : 'Ditolak'}
+                                <div
+                                    className="relative cursor-zoom-in overflow-hidden rounded-2xl bg-neutral-100 dark:bg-neutral-800"
+                                    onClick={() =>
+                                        setShowFullscreenSelfie(true)
+                                    }
+                                >
+                                    <motion.img
+                                        src={record.selfie_url}
+                                        alt="Selfie"
+                                        style={{ scale: selfieZoom }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 300,
+                                            damping: 20,
+                                        }}
+                                        className="h-auto max-h-[500px] w-full object-contain"
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="absolute top-4 right-4"
+                                    >
+                                        <div
+                                            className={cn(
+                                                'flex items-center gap-2 rounded-full px-4 py-2 font-bold text-white shadow-lg backdrop-blur-xl',
+                                                record.selfie_verification
+                                                    .status === 'approved'
+                                                    ? 'bg-emerald-500/90'
+                                                    : record.selfie_verification
+                                                            .status ===
+                                                        'pending'
+                                                      ? 'bg-amber-500/90'
+                                                      : 'bg-rose-500/90',
+                                            )}
+                                        >
+                                            {record.selfie_verification
+                                                .status === 'approved' && (
+                                                <CheckCircle className="h-4 w-4" />
+                                            )}
+                                            {record.selfie_verification
+                                                .status === 'pending' && (
+                                                <Clock className="h-4 w-4" />
+                                            )}
+                                            {record.selfie_verification
+                                                .status === 'rejected' && (
+                                                <XCircle className="h-4 w-4" />
+                                            )}
+                                            {record.selfie_verification
+                                                .status === 'approved'
+                                                ? 'Terverifikasi'
+                                                : record.selfie_verification
+                                                        .status === 'pending'
+                                                  ? 'Menunggu'
+                                                  : 'Ditolak'}
                                         </div>
                                     </motion.div>
                                 </div>
                                 {record.selfie_verification.notes && (
-                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                                        <p className="text-sm font-semibold text-amber-600 dark:text-amber-400 mb-1">Catatan Verifikator:</p>
-                                        <p className="text-sm text-neutral-700 dark:text-neutral-300">{record.selfie_verification.notes}</p>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4"
+                                    >
+                                        <p className="mb-1 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                                            Catatan Verifikator:
+                                        </p>
+                                        <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                                            {record.selfie_verification.notes}
+                                        </p>
                                     </motion.div>
                                 )}
                             </motion.div>
@@ -439,17 +679,33 @@ export default function HistoryDetail() {
 
                         {/* Location Map (Static fallback — no Leaflet required) */}
                         {record.lat && record.long && (
-                            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            >
+                                <div className="mb-6 flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-2"
+                                    >
                                         <MapPin className="h-5 w-5 text-sky-500" />
                                     </motion.div>
                                     <div>
-                                        <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Lokasi Absen</h2>
-                                        <p className="text-xs text-neutral-500">Jarak: {record.distance != null ? Number(record.distance).toFixed(0) : '?'} meter dari zona</p>
+                                        <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                            Lokasi Absen
+                                        </h2>
+                                        <p className="text-xs text-neutral-500">
+                                            Jarak:{' '}
+                                            {record.distance != null
+                                                ? Number(
+                                                      record.distance,
+                                                  ).toFixed(0)
+                                                : '?'}{' '}
+                                            meter dari zona
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="rounded-2xl overflow-hidden h-[300px] border border-white/20">
+                                <div className="h-[300px] overflow-hidden rounded-2xl border border-white/20">
                                     <iframe
                                         width="100%"
                                         height="100%"
@@ -458,97 +714,251 @@ export default function HistoryDetail() {
                                         style={{ border: 0 }}
                                     />
                                 </div>
-                                <div className="grid grid-cols-3 gap-3 mt-4">
-                                    <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-center">
-                                        <p className="text-xs text-neutral-500 mb-1">Jarak</p>
-                                        <p className="text-lg font-bold text-neutral-900 dark:text-white">{record.distance != null ? Number(record.distance).toFixed(0) : '–'}m</p>
+                                <div className="mt-4 grid grid-cols-3 gap-3">
+                                    <div className="rounded-xl bg-neutral-100 p-3 text-center dark:bg-neutral-800">
+                                        <p className="mb-1 text-xs text-neutral-500">
+                                            Jarak
+                                        </p>
+                                        <p className="text-lg font-bold text-neutral-900 dark:text-white">
+                                            {record.distance != null
+                                                ? Number(
+                                                      record.distance,
+                                                  ).toFixed(0)
+                                                : '–'}
+                                            m
+                                        </p>
                                     </div>
-                                    <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-center">
-                                        <p className="text-xs text-neutral-500 mb-1">Latitude</p>
-                                        <p className="text-sm font-bold text-neutral-900 dark:text-white">{record.lat != null ? Number(record.lat).toFixed(6) : '–'}</p>
+                                    <div className="rounded-xl bg-neutral-100 p-3 text-center dark:bg-neutral-800">
+                                        <p className="mb-1 text-xs text-neutral-500">
+                                            Latitude
+                                        </p>
+                                        <p className="text-sm font-bold text-neutral-900 dark:text-white">
+                                            {record.lat != null
+                                                ? Number(record.lat).toFixed(6)
+                                                : '–'}
+                                        </p>
                                     </div>
-                                    <div className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-center">
-                                        <p className="text-xs text-neutral-500 mb-1">Longitude</p>
-                                        <p className="text-sm font-bold text-neutral-900 dark:text-white">{record.long != null ? Number(record.long).toFixed(6) : '–'}</p>
+                                    <div className="rounded-xl bg-neutral-100 p-3 text-center dark:bg-neutral-800">
+                                        <p className="mb-1 text-xs text-neutral-500">
+                                            Longitude
+                                        </p>
+                                        <p className="text-sm font-bold text-neutral-900 dark:text-white">
+                                            {record.long != null
+                                                ? Number(record.long).toFixed(6)
+                                                : '–'}
+                                        </p>
                                     </div>
                                 </div>
                             </motion.div>
                         )}
 
                         {/* AI Verification Info */}
-                        {record.ai_info && (record.ai_info.face_detected !== null || record.ai_info.ai_confidence !== null) && (
-                            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} animate={{ boxShadow: ['0 0 0 0 rgba(139,92,246,0)', '0 0 0 10px rgba(139,92,246,0.1)', '0 0 0 0 rgba(139,92,246,0)'] }} transition={{ duration: 2, repeat: Infinity }} className="p-2 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white">
-                                        <Brain className="h-5 w-5" />
-                                    </motion.div>
-                                    <div>
-                                        <h2 className="font-bold text-lg text-neutral-900 dark:text-white">AI Verification</h2>
-                                        <p className="text-xs text-neutral-500">Analisis wajah otomatis</p>
+                        {record.ai_info &&
+                            (record.ai_info.face_detected !== null ||
+                                record.ai_info.ai_confidence !== null) && (
+                                <motion.div
+                                    variants={itemVariants}
+                                    className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                                >
+                                    <div className="mb-6 flex items-center gap-3">
+                                        <motion.div
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 10,
+                                            }}
+                                            animate={{
+                                                boxShadow: [
+                                                    '0 0 0 0 rgba(139,92,246,0)',
+                                                    '0 0 0 10px rgba(139,92,246,0.1)',
+                                                    '0 0 0 0 rgba(139,92,246,0)',
+                                                ],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                            className="rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 p-2 text-white"
+                                        >
+                                            <Brain className="h-5 w-5" />
+                                        </motion.div>
+                                        <div>
+                                            <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                AI Verification
+                                            </h2>
+                                            <p className="text-xs text-neutral-500">
+                                                Analisis wajah otomatis
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {record.ai_info.face_detected !== null && (
-                                        <div className="p-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800">
-                                            <div className="flex items-center gap-2 mb-2"><Eye className="h-4 w-4 text-neutral-500" /><span className="text-xs text-neutral-500">Wajah Terdeteksi</span></div>
-                                            <p className={cn("text-lg font-bold", record.ai_info.face_detected ? "text-emerald-600" : "text-rose-600")}>{record.ai_info.face_detected ? 'Ya ✓' : 'Tidak ✗'}</p>
-                                        </div>
-                                    )}
-                                    {record.ai_info.face_match_score !== null && (
-                                        <div className="p-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800">
-                                            <div className="flex items-center gap-2 mb-2"><Shield className="h-4 w-4 text-neutral-500" /><span className="text-xs text-neutral-500">Face Match</span></div>
-                                            <p className="text-lg font-bold text-neutral-900 dark:text-white">{(Number(record.ai_info.face_match_score) * 100).toFixed(1)}%</p>
-                                        </div>
-                                    )}
-                                    {record.ai_info.ai_confidence !== null && (
-                                        <div className="p-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800">
-                                            <div className="flex items-center gap-2 mb-2"><Brain className="h-4 w-4 text-neutral-500" /><span className="text-xs text-neutral-500">AI Confidence</span></div>
-                                            <div>
-                                                <p className="text-lg font-bold text-neutral-900 dark:text-white">{(Number(record.ai_info.ai_confidence) * 100).toFixed(1)}%</p>
-                                                <div className="mt-2 h-1.5 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                                                    <motion.div initial={{ width: 0 }} animate={{ width: `${Number(record.ai_info.ai_confidence) * 100}%` }} transition={{ duration: 1 }} className="h-full bg-gradient-to-r from-violet-500 to-purple-600" />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {record.ai_info.face_detected !==
+                                            null && (
+                                            <div className="rounded-2xl bg-neutral-100 p-4 dark:bg-neutral-800">
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Eye className="h-4 w-4 text-neutral-500" />
+                                                    <span className="text-xs text-neutral-500">
+                                                        Wajah Terdeteksi
+                                                    </span>
+                                                </div>
+                                                <p
+                                                    className={cn(
+                                                        'text-lg font-bold',
+                                                        record.ai_info
+                                                            .face_detected
+                                                            ? 'text-emerald-600'
+                                                            : 'text-rose-600',
+                                                    )}
+                                                >
+                                                    {record.ai_info
+                                                        .face_detected
+                                                        ? 'Ya ✓'
+                                                        : 'Tidak ✗'}
+                                                </p>
+                                            </div>
+                                        )}
+                                        {record.ai_info.face_match_score !==
+                                            null && (
+                                            <div className="rounded-2xl bg-neutral-100 p-4 dark:bg-neutral-800">
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Shield className="h-4 w-4 text-neutral-500" />
+                                                    <span className="text-xs text-neutral-500">
+                                                        Face Match
+                                                    </span>
+                                                </div>
+                                                <p className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                    {(
+                                                        Number(
+                                                            record.ai_info
+                                                                .face_match_score,
+                                                        ) * 100
+                                                    ).toFixed(1)}
+                                                    %
+                                                </p>
+                                            </div>
+                                        )}
+                                        {record.ai_info.ai_confidence !==
+                                            null && (
+                                            <div className="rounded-2xl bg-neutral-100 p-4 dark:bg-neutral-800">
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Brain className="h-4 w-4 text-neutral-500" />
+                                                    <span className="text-xs text-neutral-500">
+                                                        AI Confidence
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                        {(
+                                                            Number(
+                                                                record.ai_info
+                                                                    .ai_confidence,
+                                                            ) * 100
+                                                        ).toFixed(1)}
+                                                        %
+                                                    </p>
+                                                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                                                        <motion.div
+                                                            initial={{
+                                                                width: 0,
+                                                            }}
+                                                            animate={{
+                                                                width: `${Number(record.ai_info.ai_confidence) * 100}%`,
+                                                            }}
+                                                            transition={{
+                                                                duration: 1,
+                                                            }}
+                                                            className="h-full bg-gradient-to-r from-violet-500 to-purple-600"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-                                    {record.ai_info.image_quality !== null && (
-                                        <div className="p-4 rounded-2xl bg-neutral-100 dark:bg-neutral-800">
-                                            <div className="flex items-center gap-2 mb-2"><ImageIcon className="h-4 w-4 text-neutral-500" /><span className="text-xs text-neutral-500">Image Quality</span></div>
-                                            <p className="text-lg font-bold text-neutral-900 dark:text-white">{(Number(record.ai_info.image_quality) * 100).toFixed(1)}%</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
+                                        )}
+                                        {record.ai_info.image_quality !==
+                                            null && (
+                                            <div className="rounded-2xl bg-neutral-100 p-4 dark:bg-neutral-800">
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <ImageIcon className="h-4 w-4 text-neutral-500" />
+                                                    <span className="text-xs text-neutral-500">
+                                                        Image Quality
+                                                    </span>
+                                                </div>
+                                                <p className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                    {(
+                                                        Number(
+                                                            record.ai_info
+                                                                .image_quality,
+                                                        ) * 100
+                                                    ).toFixed(1)}
+                                                    %
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
                     </div>
 
                     {/* RIGHT COLUMN */}
                     <div className="space-y-6">
-
                         {/* Verification Timeline */}
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                            <div className="flex items-center gap-3 mb-6">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mb-6 flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="rounded-xl border border-violet-500/20 bg-violet-500/10 p-2"
+                                >
                                     <Activity className="h-5 w-5 text-violet-500" />
                                 </motion.div>
-                                <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Timeline Verifikasi</h2>
+                                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Timeline Verifikasi
+                                </h2>
                             </div>
                             <div className="space-y-6">
                                 {timeline.map((item, index) => (
-                                    <motion.div key={index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.15 }} className="relative pl-10">
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.15 }}
+                                        className="relative pl-10"
+                                    >
                                         {index < timeline.length - 1 && (
-                                            <div className="absolute left-[15px] top-9 bottom-[-12px] w-0.5 bg-gradient-to-b from-neutral-300 to-neutral-200 dark:from-neutral-600 dark:to-neutral-700" />
+                                            <div className="absolute top-9 bottom-[-12px] left-[15px] w-0.5 bg-gradient-to-b from-neutral-300 to-neutral-200 dark:from-neutral-600 dark:to-neutral-700" />
                                         )}
-                                        <motion.div whileHover={{ scale: 1.15 }} className={cn("absolute left-0 top-0.5 h-8 w-8 rounded-full flex items-center justify-center shadow-lg",
-                                            item.status === 'completed' ? "bg-emerald-500 text-white" : item.status === 'pending' ? "bg-amber-500 text-white" : "bg-rose-500 text-white"
-                                        )}>
-                                            {item.status === 'completed' && <CheckCircle className="h-4 w-4" />}
-                                            {item.status === 'pending' && <Clock className="h-4 w-4" />}
-                                            {item.status === 'rejected' && <XCircle className="h-4 w-4" />}
+                                        <motion.div
+                                            whileHover={{ scale: 1.15 }}
+                                            className={cn(
+                                                'absolute top-0.5 left-0 flex h-8 w-8 items-center justify-center rounded-full shadow-lg',
+                                                item.status === 'completed'
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : item.status === 'pending'
+                                                      ? 'bg-amber-500 text-white'
+                                                      : 'bg-rose-500 text-white',
+                                            )}
+                                        >
+                                            {item.status === 'completed' && (
+                                                <CheckCircle className="h-4 w-4" />
+                                            )}
+                                            {item.status === 'pending' && (
+                                                <Clock className="h-4 w-4" />
+                                            )}
+                                            {item.status === 'rejected' && (
+                                                <XCircle className="h-4 w-4" />
+                                            )}
                                         </motion.div>
                                         <div>
-                                            <p className="font-semibold text-neutral-900 dark:text-white">{item.description}</p>
-                                            {item.time && <p className="text-xs text-neutral-500 mt-1">{new Date(item.time).toLocaleString('id-ID')}</p>}
+                                            <p className="font-semibold text-neutral-900 dark:text-white">
+                                                {item.description}
+                                            </p>
+                                            {item.time && (
+                                                <p className="mt-1 text-xs text-neutral-500">
+                                                    {new Date(
+                                                        item.time,
+                                                    ).toLocaleString('id-ID')}
+                                                </p>
+                                            )}
                                         </div>
                                     </motion.div>
                                 ))}
@@ -556,23 +966,59 @@ export default function HistoryDetail() {
                         </motion.div>
 
                         {/* Device Info */}
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                            <div className="flex items-center gap-3 mb-6">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mb-6 flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2"
+                                >
                                     <Smartphone className="h-5 w-5 text-indigo-500" />
                                 </motion.div>
-                                <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Informasi Perangkat</h2>
+                                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Informasi Perangkat
+                                </h2>
                             </div>
                             <div className="space-y-3">
                                 {[
-                                    { label: 'Model', value: record.device_info.model, icon: Smartphone },
-                                    { label: 'OS', value: record.device_info.os, icon: Activity },
-                                    { label: 'Browser', value: record.device_info.browser, icon: Wifi },
-                                    { label: 'Type', value: record.device_info.type, icon: Flag },
+                                    {
+                                        label: 'Model',
+                                        value: record.device_info.model,
+                                        icon: Smartphone,
+                                    },
+                                    {
+                                        label: 'OS',
+                                        value: record.device_info.os,
+                                        icon: Activity,
+                                    },
+                                    {
+                                        label: 'Browser',
+                                        value: record.device_info.browser,
+                                        icon: Wifi,
+                                    },
+                                    {
+                                        label: 'Type',
+                                        value: record.device_info.type,
+                                        icon: Flag,
+                                    },
                                 ].map((item, index) => (
-                                    <motion.div key={index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} whileHover={{ x: 3 }} className="flex items-center justify-between p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 transition-all">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400 flex items-center gap-2"><item.icon className="h-4 w-4" />{item.label}</span>
-                                        <span className="text-sm font-semibold text-neutral-900 dark:text-white truncate max-w-[150px]">{item.value}</span>
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        whileHover={{ x: 3 }}
+                                        className="flex items-center justify-between rounded-xl bg-neutral-100 p-3 transition-all dark:bg-neutral-800"
+                                    >
+                                        <span className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+                                            <item.icon className="h-4 w-4" />
+                                            {item.label}
+                                        </span>
+                                        <span className="max-w-[150px] truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                                            {item.value}
+                                        </span>
                                     </motion.div>
                                 ))}
                             </div>
@@ -580,67 +1026,163 @@ export default function HistoryDetail() {
 
                         {/* Class Comparison */}
                         {classAverage.total > 0 && (
-                            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            >
+                                <div className="mb-6 flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2"
+                                    >
                                         <TrendingUp className="h-5 w-5 text-amber-500" />
                                     </motion.div>
-                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Perbandingan Kelas</h2>
+                                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                        Perbandingan Kelas
+                                    </h2>
                                 </div>
                                 <div className="space-y-4">
                                     <div>
-                                        <div className="flex justify-between text-sm mb-2">
-                                            <span className="text-neutral-600 dark:text-neutral-400">Jarak Anda</span>
-                                            <span className="font-bold text-neutral-900 dark:text-white">{record.distance != null ? Number(record.distance).toFixed(0) : '–'}m</span>
+                                        <div className="mb-2 flex justify-between text-sm">
+                                            <span className="text-neutral-600 dark:text-neutral-400">
+                                                Jarak Anda
+                                            </span>
+                                            <span className="font-bold text-neutral-900 dark:text-white">
+                                                {record.distance != null
+                                                    ? Number(
+                                                          record.distance,
+                                                      ).toFixed(0)
+                                                    : '–'}
+                                                m
+                                            </span>
                                         </div>
-                                        <div className="flex justify-between text-sm mb-2">
-                                            <span className="text-neutral-600 dark:text-neutral-400">Rata-rata Kelas</span>
-                                            <span className="font-bold text-neutral-900 dark:text-white">{classAverage.avg_distance != null ? Number(classAverage.avg_distance).toFixed(0) : '–'}m</span>
+                                        <div className="mb-2 flex justify-between text-sm">
+                                            <span className="text-neutral-600 dark:text-neutral-400">
+                                                Rata-rata Kelas
+                                            </span>
+                                            <span className="font-bold text-neutral-900 dark:text-white">
+                                                {classAverage.avg_distance !=
+                                                null
+                                                    ? Number(
+                                                          classAverage.avg_distance,
+                                                      ).toFixed(0)
+                                                    : '–'}
+                                                m
+                                            </span>
                                         </div>
                                         {classAverage.avg_distance > 0 && (
-                                            <div className="h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((Number(record.distance) / Math.max(Number(classAverage.avg_distance), 1)) * 100, 100)}%` }} transition={{ duration: 1, delay: 0.5 }} className={cn("h-full", Number(record.distance) <= Number(classAverage.avg_distance) ? "bg-gradient-to-r from-emerald-500 to-teal-600" : "bg-gradient-to-r from-amber-500 to-orange-600")} />
+                                            <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{
+                                                        width: `${Math.min((Number(record.distance) / Math.max(Number(classAverage.avg_distance), 1)) * 100, 100)}%`,
+                                                    }}
+                                                    transition={{
+                                                        duration: 1,
+                                                        delay: 0.5,
+                                                    }}
+                                                    className={cn(
+                                                        'h-full',
+                                                        Number(
+                                                            record.distance,
+                                                        ) <=
+                                                            Number(
+                                                                classAverage.avg_distance,
+                                                            )
+                                                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600'
+                                                            : 'bg-gradient-to-r from-amber-500 to-orange-600',
+                                                    )}
+                                                />
                                             </div>
                                         )}
                                     </div>
-                                    <div className="pt-4 border-t border-white/20 dark:border-white/5">
-                                        <p className="text-xs text-neutral-500 text-center">{classAverage.present_count} dari {classAverage.total} mahasiswa hadir di sesi ini</p>
+                                    <div className="border-t border-white/20 pt-4 dark:border-white/5">
+                                        <p className="text-center text-xs text-neutral-500">
+                                            {classAverage.present_count} dari{' '}
+                                            {classAverage.total} mahasiswa hadir
+                                            di sesi ini
+                                        </p>
                                     </div>
                                 </div>
                             </motion.div>
                         )}
 
                         {/* Session Info */}
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                            <div className="flex items-center gap-3 mb-6">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mb-6 flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-2"
+                                >
                                     <Calendar className="h-5 w-5 text-cyan-500" />
                                 </motion.div>
-                                <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Info Sesi</h2>
+                                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Info Sesi
+                                </h2>
                             </div>
                             <div className="space-y-3">
-                                <div className="flex justify-between p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">Mata Kuliah</span>
-                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">{record.session.course.nama}</span>
+                                <div className="flex justify-between rounded-xl bg-neutral-100 p-3 dark:bg-neutral-800">
+                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        Mata Kuliah
+                                    </span>
+                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                        {record.session.course.nama}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">Dosen</span>
-                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">{record.session.course.dosen.nama}</span>
+                                <div className="flex justify-between rounded-xl bg-neutral-100 p-3 dark:bg-neutral-800">
+                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        Dosen
+                                    </span>
+                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                        {record.session.course.dosen.nama}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">Pertemuan</span>
-                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">#{record.session.meeting_number}</span>
+                                <div className="flex justify-between rounded-xl bg-neutral-100 p-3 dark:bg-neutral-800">
+                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        Pertemuan
+                                    </span>
+                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                        #{record.session.meeting_number}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">SKS</span>
-                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">{record.session.course.sks}</span>
+                                <div className="flex justify-between rounded-xl bg-neutral-100 p-3 dark:bg-neutral-800">
+                                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                                        SKS
+                                    </span>
+                                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                        {record.session.course.sks}
+                                    </span>
                                 </div>
                                 {record.session.start_at && (
-                                    <div className="flex justify-between p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">Waktu Sesi</span>
+                                    <div className="flex justify-between rounded-xl bg-neutral-100 p-3 dark:bg-neutral-800">
+                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                                            Waktu Sesi
+                                        </span>
                                         <span className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                            {new Date(record.session.start_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                                            {record.session.end_at && <> — {new Date(record.session.end_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</>}
+                                            {new Date(
+                                                record.session.start_at,
+                                            ).toLocaleTimeString('id-ID', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                            {record.session.end_at && (
+                                                <>
+                                                    {' '}
+                                                    —{' '}
+                                                    {new Date(
+                                                        record.session.end_at,
+                                                    ).toLocaleTimeString(
+                                                        'id-ID',
+                                                        {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                        },
+                                                    )}
+                                                </>
+                                            )}
                                         </span>
                                     </div>
                                 )}
@@ -649,26 +1191,64 @@ export default function HistoryDetail() {
 
                         {/* Related Records */}
                         {relatedRecords.length > 0 && (
-                            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            >
+                                <div className="mb-6 flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-2"
+                                    >
                                         <FileText className="h-5 w-5 text-rose-500" />
                                     </motion.div>
-                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Kehadiran Lain Hari Ini</h2>
+                                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                        Kehadiran Lain Hari Ini
+                                    </h2>
                                 </div>
                                 <div className="space-y-2">
                                     {relatedRecords.map((related, index) => (
-                                        <Link key={related.id} href={`/user/history/${related.id}`}>
-                                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }} whileHover={{ x: 5, backgroundColor: 'rgba(139, 92, 246, 0.05)' }} className="p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 cursor-pointer transition-all mb-2">
+                                        <Link
+                                            key={related.id}
+                                            href={`/user/history/${related.id}`}
+                                        >
+                                            <motion.div
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{
+                                                    delay: index * 0.1,
+                                                }}
+                                                whileHover={{
+                                                    x: 5,
+                                                    backgroundColor:
+                                                        'rgba(139, 92, 246, 0.05)',
+                                                }}
+                                                className="mb-2 cursor-pointer rounded-xl bg-neutral-100 p-3 transition-all dark:bg-neutral-800"
+                                            >
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white truncate">{related.course}</p>
-                                                        <p className="text-xs text-neutral-500 mt-1">{related.checkInTime}</p>
+                                                        <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                                                            {related.course}
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-500">
+                                                            {
+                                                                related.checkInTime
+                                                            }
+                                                        </p>
                                                     </div>
-                                                    <div className={cn("px-2 py-1 rounded-full text-xs font-semibold",
-                                                        statusConfig[related.status as keyof typeof statusConfig]?.color ?? 'bg-neutral-200 text-neutral-600'
-                                                    )}>
-                                                        {statusConfig[related.status as keyof typeof statusConfig]?.label ?? related.status}
+                                                    <div
+                                                        className={cn(
+                                                            'rounded-full px-2 py-1 text-xs font-semibold',
+                                                            statusConfig[
+                                                                related.status as keyof typeof statusConfig
+                                                            ]?.color ??
+                                                                'bg-neutral-200 text-neutral-600',
+                                                        )}
+                                                    >
+                                                        {statusConfig[
+                                                            related.status as keyof typeof statusConfig
+                                                        ]?.label ??
+                                                            related.status}
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -680,14 +1260,24 @@ export default function HistoryDetail() {
 
                         {/* Note */}
                         {record.note && (
-                            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            >
+                                <div className="mb-4 flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2"
+                                    >
                                         <AlertTriangle className="h-5 w-5 text-amber-500" />
                                     </motion.div>
-                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Catatan</h2>
+                                    <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                        Catatan
+                                    </h2>
                                 </div>
-                                <p className="text-sm text-neutral-700 dark:text-neutral-300">{record.note}</p>
+                                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                                    {record.note}
+                                </p>
                             </motion.div>
                         )}
                     </div>
@@ -695,81 +1285,157 @@ export default function HistoryDetail() {
             </motion.div>
 
             <div className="history-print-root hidden print:block">
-                    <div className="history-print-sheet">
-                        <div className="history-print-header">
-                            <img src={unpamLogo} alt="Logo UNPAM" className="history-print-logo" />
-                            <div className="history-print-title">
-                                <h1>Laporan Detail Kehadiran Mahasiswa</h1>
-                                <p>Universitas Pamulang • Yayasan Sasmita Jaya</p>
-                            </div>
-                            <img src={sasmitaLogo} alt="Logo Sasmita" className="history-print-logo" />
+                <div className="history-print-sheet">
+                    <div className="history-print-header">
+                        <img
+                            src={unpamLogo}
+                            alt="Logo UNPAM"
+                            className="history-print-logo"
+                        />
+                        <div className="history-print-title">
+                            <h1>Laporan Detail Kehadiran Mahasiswa</h1>
+                            <p>Universitas Pamulang • Yayasan Sasmita Jaya</p>
                         </div>
+                        <img
+                            src={sasmitaLogo}
+                            alt="Logo Sasmita"
+                            className="history-print-logo"
+                        />
+                    </div>
 
-                        <div className="history-print-meta">
-                            <span><strong>ID Dokumen:</strong> ABS-{record.id}</span>
-                            <span><strong>Dicetak:</strong> {printTime}</span>
-                            <span className="history-print-status">{status.label}</span>
-                        </div>
+                    <div className="history-print-meta">
+                        <span>
+                            <strong>ID Dokumen:</strong> ABS-{record.id}
+                        </span>
+                        <span>
+                            <strong>Dicetak:</strong> {printTime}
+                        </span>
+                        <span className="history-print-status">
+                            {status.label}
+                        </span>
+                    </div>
 
-                        <div className="history-print-main">
-                            <section className="history-print-panel">
-                                <h3>Data Kehadiran</h3>
-                                <table>
-                                    <tbody>
-                                        <tr><td>Mata Kuliah</td><td>{record.session.course.nama}</td></tr>
-                                        <tr><td>Dosen</td><td>{record.session.course.dosen.nama}</td></tr>
-                                        <tr><td>Pertemuan</td><td>#{record.session.meeting_number}</td></tr>
-                                        <tr><td>Status</td><td>{status.label}</td></tr>
-                                        <tr><td>Waktu Scan</td><td>{scannedAtDesktop}</td></tr>
-                                        <tr><td>Waktu Sesi</td><td>{sessionTime}</td></tr>
-                                        <tr><td>Jarak Lokasi</td><td>{distanceLabel}</td></tr>
-                                        <tr><td>Koordinat</td><td>{locationLabel}</td></tr>
-                                        <tr><td>Lokasi Maps</td><td>{mapLink || '-'}</td></tr>
-                                        <tr><td>Perangkat</td><td>{record.device_info.model} ({record.device_info.os})</td></tr>
-                                        <tr><td>Selfie</td><td>{selfieStatusLabel}</td></tr>
-                                    </tbody>
-                                </table>
-                            </section>
-
-                            <section className="history-print-panel">
-                                <h3>Bukti & AI</h3>
-                                <div className="history-print-selfie">
-                                    {selfieImage ? (
-                                        <img src={selfieImage} alt="Bukti Selfie" />
-                                    ) : (
-                                        <div className="history-print-selfie-placeholder">Bukti selfie tidak tersedia</div>
-                                    )}
-                                </div>
-                                <table className="history-print-ai">
-                                    <tbody>
-                                        <tr><td>Face Match</td><td>{faceMatch}</td></tr>
-                                        <tr><td>AI Confidence</td><td>{aiConfidence}</td></tr>
-                                        <tr><td>Image Quality</td><td>{imageQuality}</td></tr>
-                                        <tr><td>URL Detail</td><td>{typeof window !== 'undefined' ? window.location.href : '-'}</td></tr>
-                                    </tbody>
-                                </table>
-                            </section>
-                        </div>
-
-                        <section className="history-print-note">
-                            <h4>Catatan</h4>
-                            <p>{record.note || 'Tidak ada catatan tambahan.'}</p>
+                    <div className="history-print-main">
+                        <section className="history-print-panel">
+                            <h3>Data Kehadiran</h3>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>Mata Kuliah</td>
+                                        <td>{record.session.course.nama}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dosen</td>
+                                        <td>
+                                            {record.session.course.dosen.nama}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pertemuan</td>
+                                        <td>
+                                            #{record.session.meeting_number}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Status</td>
+                                        <td>{status.label}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Waktu Scan</td>
+                                        <td>{scannedAtDesktop}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Waktu Sesi</td>
+                                        <td>{sessionTime}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Jarak Lokasi</td>
+                                        <td>{distanceLabel}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Koordinat</td>
+                                        <td>{locationLabel}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lokasi Maps</td>
+                                        <td>{mapLink || '-'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Perangkat</td>
+                                        <td>
+                                            {record.device_info.model} (
+                                            {record.device_info.os})
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Selfie</td>
+                                        <td>{selfieStatusLabel}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </section>
 
-                        <div className="history-print-footer">
-                            <div className="history-print-sign">
-                                Mengetahui,<br />Petugas Akademik
-                                <div className="history-print-line" />
-                                (................................)
+                        <section className="history-print-panel">
+                            <h3>Bukti & AI</h3>
+                            <div className="history-print-selfie">
+                                {selfieImage ? (
+                                    <img src={selfieImage} alt="Bukti Selfie" />
+                                ) : (
+                                    <div className="history-print-selfie-placeholder">
+                                        Bukti selfie tidak tersedia
+                                    </div>
+                                )}
                             </div>
-                            <div className="history-print-sign">
-                                Tangerang Selatan, {printDateOnly}<br />Mahasiswa
-                                <div className="history-print-line" />
-                                (................................)
-                            </div>
+                            <table className="history-print-ai">
+                                <tbody>
+                                    <tr>
+                                        <td>Face Match</td>
+                                        <td>{faceMatch}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>AI Confidence</td>
+                                        <td>{aiConfidence}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Image Quality</td>
+                                        <td>{imageQuality}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>URL Detail</td>
+                                        <td>
+                                            {typeof window !== 'undefined'
+                                                ? window.location.href
+                                                : '-'}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </div>
+
+                    <section className="history-print-note">
+                        <h4>Catatan</h4>
+                        <p>{record.note || 'Tidak ada catatan tambahan.'}</p>
+                    </section>
+
+                    <div className="history-print-footer">
+                        <div className="history-print-sign">
+                            Mengetahui,
+                            <br />
+                            Petugas Akademik
+                            <div className="history-print-line" />
+                            (................................)
+                        </div>
+                        <div className="history-print-sign">
+                            Tangerang Selatan, {printDateOnly}
+                            <br />
+                            Mahasiswa
+                            <div className="history-print-line" />
+                            (................................)
                         </div>
                     </div>
                 </div>
+            </div>
 
             <style>{`
                 @media print {
@@ -994,11 +1660,29 @@ export default function HistoryDetail() {
             {/* ── Fullscreen Selfie Modal ── */}
             <AnimatePresence>
                 {showFullscreenSelfie && record.selfie_url && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl" onClick={() => setShowFullscreenSelfie(false)}>
-                        <motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowFullscreenSelfie(false)} className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-xl z-10">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl"
+                        onClick={() => setShowFullscreenSelfie(false)}
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.1, rotate: 90 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setShowFullscreenSelfie(false)}
+                            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-3 backdrop-blur-xl hover:bg-white/20"
+                        >
                             <X className="h-6 w-6 text-white" />
                         </motion.button>
-                        <motion.img initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }} src={record.selfie_url} alt="Selfie Fullscreen" className="max-w-full max-h-full object-contain rounded-2xl" />
+                        <motion.img
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.8 }}
+                            src={record.selfie_url}
+                            alt="Selfie Fullscreen"
+                            className="max-h-full max-w-full rounded-2xl object-contain"
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -1010,24 +1694,31 @@ export default function HistoryDetail() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
                         onClick={() => setShowShareModal(false)}
                     >
                         <motion.div
                             initial={{ opacity: 0, y: 50, scale: 0.96 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 30, scale: 0.96 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 24,
+                            }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full max-h-[88svh] overflow-y-auto rounded-t-3xl bg-white p-4 shadow-2xl dark:bg-neutral-900 sm:mx-4 sm:max-w-2xl sm:rounded-3xl sm:p-6"
+                            className="max-h-[88svh] w-full overflow-y-auto rounded-t-3xl bg-white p-4 shadow-2xl sm:mx-4 sm:max-w-2xl sm:rounded-3xl sm:p-6 dark:bg-neutral-900"
                         >
-                            <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-neutral-300 dark:bg-neutral-700 sm:hidden" />
+                            <div className="mx-auto mb-3 h-1.5 w-14 rounded-full bg-neutral-300 sm:hidden dark:bg-neutral-700" />
 
                             <div className="mb-4 flex items-start justify-between gap-3">
                                 <div>
-                                    <h3 className="text-xl font-bold text-neutral-900 dark:text-white">Share Kehadiran</h3>
-                                    <p className="mt-1 text-xs sm:text-sm text-neutral-500">
-                                        Semua konten share dihasilkan otomatis dari data kehadiran real.
+                                    <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                        Share Kehadiran
+                                    </h3>
+                                    <p className="mt-1 text-xs text-neutral-500 sm:text-sm">
+                                        Semua konten share dihasilkan otomatis
+                                        dari data kehadiran real.
                                     </p>
                                 </div>
                                 <Button
@@ -1068,7 +1759,11 @@ export default function HistoryDetail() {
                                         onClick={handleCopyShareText}
                                         className="flex items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm font-bold text-neutral-700 dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-200"
                                     >
-                                        {copySuccess ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
+                                        {copySuccess ? (
+                                            <Check className="h-5 w-5 text-emerald-500" />
+                                        ) : (
+                                            <Copy className="h-5 w-5" />
+                                        )}
                                         {copySuccess ? 'Tersalin' : 'Copy Teks'}
                                     </motion.button>
                                 )}
@@ -1079,8 +1774,8 @@ export default function HistoryDetail() {
                                     onClick={() => handleShare('twitter')}
                                     className="flex items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-200"
                                 >
-                                    <XBrandIcon className="h-5 w-5" />
-                                    X / Twitter
+                                    <XBrandIcon className="h-5 w-5" />X /
+                                    Twitter
                                 </motion.button>
 
                                 <motion.button
@@ -1099,40 +1794,68 @@ export default function HistoryDetail() {
                                     onClick={handleCopyShareText}
                                     className="col-span-2 flex items-center justify-center gap-2 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-950/40 dark:text-indigo-200"
                                 >
-                                    {copySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                                    {copySuccess ? 'Teks Berhasil Disalin' : 'Salin Format Pesan Lengkap'}
+                                    {copySuccess ? (
+                                        <Check className="h-4 w-4" />
+                                    ) : (
+                                        <Copy className="h-4 w-4" />
+                                    )}
+                                    {copySuccess
+                                        ? 'Teks Berhasil Disalin'
+                                        : 'Salin Format Pesan Lengkap'}
                                 </motion.button>
                             </div>
 
                             <div className="mb-4 rounded-2xl border border-white/20 bg-neutral-50 p-4 dark:border-white/10 dark:bg-neutral-800/60">
-                                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">Ringkasan Data</p>
+                                <p className="mb-2 text-xs font-semibold tracking-wide text-neutral-500 uppercase">
+                                    Ringkasan Data
+                                </p>
                                 <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
                                     <div className="rounded-xl bg-white/80 p-2 dark:bg-neutral-900/60">
-                                        <p className="text-neutral-500">Status</p>
-                                        <p className="font-bold text-neutral-900 dark:text-white">{status.label}</p>
+                                        <p className="text-neutral-500">
+                                            Status
+                                        </p>
+                                        <p className="font-bold text-neutral-900 dark:text-white">
+                                            {status.label}
+                                        </p>
                                     </div>
                                     <div className="rounded-xl bg-white/80 p-2 dark:bg-neutral-900/60">
-                                        <p className="text-neutral-500">Pertemuan</p>
-                                        <p className="font-bold text-neutral-900 dark:text-white">#{record.session.meeting_number}</p>
+                                        <p className="text-neutral-500">
+                                            Pertemuan
+                                        </p>
+                                        <p className="font-bold text-neutral-900 dark:text-white">
+                                            #{record.session.meeting_number}
+                                        </p>
                                     </div>
                                     <div className="col-span-2 rounded-xl bg-white/80 p-2 dark:bg-neutral-900/60">
-                                        <p className="text-neutral-500">Mata Kuliah</p>
-                                        <p className="font-bold text-neutral-900 dark:text-white">{record.session.course.nama}</p>
+                                        <p className="text-neutral-500">
+                                            Mata Kuliah
+                                        </p>
+                                        <p className="font-bold text-neutral-900 dark:text-white">
+                                            {record.session.course.nama}
+                                        </p>
                                     </div>
                                     <div className="rounded-xl bg-white/80 p-2 dark:bg-neutral-900/60">
-                                        <p className="text-neutral-500">Waktu Scan</p>
-                                        <p className="font-bold text-neutral-900 dark:text-white">{scannedAtMobile}</p>
+                                        <p className="text-neutral-500">
+                                            Waktu Scan
+                                        </p>
+                                        <p className="font-bold text-neutral-900 dark:text-white">
+                                            {scannedAtMobile}
+                                        </p>
                                     </div>
                                     <div className="rounded-xl bg-white/80 p-2 dark:bg-neutral-900/60">
-                                        <p className="text-neutral-500">Jarak</p>
-                                        <p className="font-bold text-neutral-900 dark:text-white">{distanceLabel}</p>
+                                        <p className="text-neutral-500">
+                                            Jarak
+                                        </p>
+                                        <p className="font-bold text-neutral-900 dark:text-white">
+                                            {distanceLabel}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-indigo-200/60 bg-indigo-50/60 px-4 py-3 dark:border-indigo-400/20 dark:bg-indigo-950/30">
                                 <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-300">
+                                    <p className="text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-300">
                                         Preview Pesan WhatsApp
                                     </p>
                                     <p className="text-[11px] text-indigo-600/80 dark:text-indigo-300/80">
@@ -1141,7 +1864,9 @@ export default function HistoryDetail() {
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => setShowSharePreview((prev) => !prev)}
+                                    onClick={() =>
+                                        setShowSharePreview((prev) => !prev)
+                                    }
                                     className="rounded-xl border border-indigo-300/60 bg-white/80 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-900/40 dark:text-indigo-200"
                                 >
                                     {showSharePreview ? 'Sembunyikan' : 'Lihat'}
@@ -1156,7 +1881,7 @@ export default function HistoryDetail() {
                                         exit={{ opacity: 0, y: 8 }}
                                         className="mb-4 rounded-2xl border border-indigo-200/60 bg-indigo-50/60 p-4 dark:border-indigo-400/20 dark:bg-indigo-950/30"
                                     >
-                                        <pre className="max-h-52 overflow-y-auto whitespace-pre-wrap font-sans text-xs leading-relaxed text-neutral-700 dark:text-neutral-200">
+                                        <pre className="max-h-52 overflow-y-auto font-sans text-xs leading-relaxed whitespace-pre-wrap text-neutral-700 dark:text-neutral-200">
                                             {getShareMessage()}
                                         </pre>
                                     </motion.div>
@@ -1164,7 +1889,9 @@ export default function HistoryDetail() {
                             </AnimatePresence>
 
                             <p className="mt-4 text-center text-[11px] leading-relaxed text-neutral-500">
-                                Klik salah satu opsi di atas. Untuk WhatsApp, sistem akan langsung membuka chat dengan format laporan yang sudah rapi.
+                                Klik salah satu opsi di atas. Untuk WhatsApp,
+                                sistem akan langsung membuka chat dengan format
+                                laporan yang sudah rapi.
                             </p>
                         </motion.div>
                     </motion.div>

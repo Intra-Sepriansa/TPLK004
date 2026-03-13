@@ -1,8 +1,23 @@
-import React, { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { FileText, Bold, Italic, Underline, List, ListOrdered, Link2, Image as ImageIcon, Code, Paperclip, Upload, X, Target, Plus } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { motion } from 'framer-motion';
+import {
+    Bold,
+    Code,
+    FileText,
+    Image as ImageIcon,
+    Italic,
+    Link2,
+    List,
+    ListOrdered,
+    Paperclip,
+    Plus,
+    Target,
+    Underline,
+    Upload,
+    X,
+} from 'lucide-react';
+import React, { useRef } from 'react';
 import { GlassCard } from './GlassCard';
 
 interface Step2Props {
@@ -46,46 +61,73 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
             className="space-y-6"
         >
             {/* Rich Text Editor */}
-            <GlassCard colorClass="hover:shadow-rose-500/10" gradientClass="from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10" glowClass="bg-rose-500">
-
-                <Label className="flex items-center gap-2 text-white mb-3">
-                    <FileText className="w-5 h-5 text-indigo-400" />
+            <GlassCard
+                colorClass="hover:shadow-rose-500/10"
+                gradientClass="from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10"
+                glowClass="bg-rose-500"
+            >
+                <Label className="mb-3 flex items-center gap-2 text-white">
+                    <FileText className="h-5 w-5 text-indigo-400" />
                     Deskripsi Tugas
                     <span className="text-red-400">*</span>
                 </Label>
 
-                <p className="text-sm text-slate-400 mb-4">
-                    Jelaskan detail tugas, tujuan pembelajaran, dan instruksi pengerjaan
+                <p className="mb-4 text-sm text-slate-400">
+                    Jelaskan detail tugas, tujuan pembelajaran, dan instruksi
+                    pengerjaan
                 </p>
 
                 {/* Rich Text Editor Toolbar */}
-                <div className="flex flex-wrap items-center gap-2 p-3 bg-slate-900/50 
-                    border border-slate-700 rounded-t-xl overflow-x-auto">
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <Bold className="w-4 h-4 text-slate-400" />
+                <div className="flex flex-wrap items-center gap-2 overflow-x-auto rounded-t-xl border border-slate-700 bg-slate-900/50 p-3">
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <Bold className="h-4 w-4 text-slate-400" />
                     </button>
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <Italic className="w-4 h-4 text-slate-400" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <Italic className="h-4 w-4 text-slate-400" />
                     </button>
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <Underline className="w-4 h-4 text-slate-400" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <Underline className="h-4 w-4 text-slate-400" />
                     </button>
-                    <div className="hidden sm:block w-px h-6 bg-slate-700 mx-1" />
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <List className="w-4 h-4 text-slate-400" />
+                    <div className="mx-1 hidden h-6 w-px bg-slate-700 sm:block" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <List className="h-4 w-4 text-slate-400" />
                     </button>
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <ListOrdered className="w-4 h-4 text-slate-400" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <ListOrdered className="h-4 w-4 text-slate-400" />
                     </button>
-                    <div className="hidden sm:block w-px h-6 bg-slate-700 mx-1" />
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <Link2 className="w-4 h-4 text-slate-400" />
+                    <div className="mx-1 hidden h-6 w-px bg-slate-700 sm:block" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <Link2 className="h-4 w-4 text-slate-400" />
                     </button>
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <ImageIcon className="w-4 h-4 text-slate-400" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <ImageIcon className="h-4 w-4 text-slate-400" />
                     </button>
-                    <button type="button" className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-                        <Code className="w-4 h-4 text-slate-400" />
+                    <button
+                        type="button"
+                        className="rounded-lg p-2 transition-colors hover:bg-slate-700"
+                    >
+                        <Code className="h-4 w-4 text-slate-400" />
                     </button>
                 </div>
 
@@ -94,13 +136,10 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
                     placeholder="Tulis deskripsi tugas di sini. Anda dapat menggunakan Markdown."
-                    className="w-full min-h-[300px] px-4 py-3 bg-slate-900/50 
-                        border border-slate-700 border-t-0 rounded-b-xl text-white 
-                        placeholder-slate-500 focus:outline-none focus:ring-2 
-                        focus:ring-indigo-500/50 resize-y"
+                    className="min-h-[300px] w-full resize-y rounded-b-xl border border-t-0 border-slate-700 bg-slate-900/50 px-4 py-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none"
                 />
 
-                <div className="flex items-center justify-between mt-2">
+                <div className="mt-2 flex items-center justify-between">
                     <p className="text-xs text-slate-500">
                         Mendukung Markdown untuk formatting
                     </p>
@@ -111,14 +150,17 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
             </GlassCard>
 
             {/* File Attachments */}
-            <GlassCard colorClass="hover:shadow-teal-500/10" gradientClass="from-teal-500/5 to-emerald-500/5 dark:from-teal-500/10 dark:to-emerald-500/10" glowClass="bg-teal-500">
-
-                <Label className="flex items-center gap-2 text-white mb-3">
-                    <Paperclip className="w-5 h-5 text-indigo-400" />
+            <GlassCard
+                colorClass="hover:shadow-teal-500/10"
+                gradientClass="from-teal-500/5 to-emerald-500/5 dark:from-teal-500/10 dark:to-emerald-500/10"
+                glowClass="bg-teal-500"
+            >
+                <Label className="mb-3 flex items-center gap-2 text-white">
+                    <Paperclip className="h-5 w-5 text-indigo-400" />
                     Lampiran Materi
                 </Label>
 
-                <p className="text-sm text-slate-400 mb-4">
+                <p className="mb-4 text-sm text-slate-400">
                     Upload file pendukung seperti PDF, dokumen, atau gambar
                 </p>
 
@@ -127,9 +169,7 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-600 
-                        hover:border-indigo-500 rounded-xl p-8 text-center 
-                        transition-all cursor-pointer group bg-slate-800/30"
+                    className="group cursor-pointer rounded-xl border-2 border-dashed border-slate-600 bg-slate-800/30 p-8 text-center transition-all hover:border-indigo-500"
                 >
                     <input
                         type="file"
@@ -138,12 +178,11 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
                         ref={fileInputRef}
                         onChange={handleFileChange}
                     />
-                    <Upload className="w-12 h-12 text-slate-500 group-hover:text-indigo-400 
-                        mx-auto mb-3 transition-colors" />
-                    <p className="text-white font-medium mb-1">
+                    <Upload className="mx-auto mb-3 h-12 w-12 text-slate-500 transition-colors group-hover:text-indigo-400" />
+                    <p className="mb-1 font-medium text-white">
                         Drag & drop file di sini
                     </p>
-                    <p className="text-sm text-slate-400 mb-3">
+                    <p className="mb-3 text-sm text-slate-400">
                         atau klik untuk browse
                     </p>
                     <p className="text-xs text-slate-500">
@@ -152,32 +191,38 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
                 </div>
 
                 {/* Uploaded Files List */}
-                {(data.attachments && data.attachments.length > 0) && (
+                {data.attachments && data.attachments.length > 0 && (
                     <div className="mt-4 space-y-2">
                         {data.attachments.map((file: File, index: number) => (
-                            <div key={index}
-                                className="flex items-center justify-between p-3 
-                                    bg-slate-900/50 border border-slate-700 rounded-xl"
+                            <div
+                                key={index}
+                                className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/50 p-3"
                             >
                                 <div className="flex items-center gap-3 overflow-hidden">
-                                    <div className="p-2 bg-indigo-500/10 rounded-lg shrink-0">
-                                        <FileText className="w-4 h-4 text-indigo-400" />
+                                    <div className="shrink-0 rounded-lg bg-indigo-500/10 p-2">
+                                        <FileText className="h-4 w-4 text-indigo-400" />
                                     </div>
                                     <div className="truncate">
-                                        <div className="text-sm text-white font-medium truncate">
+                                        <div className="truncate text-sm font-medium text-white">
                                             {file.name}
                                         </div>
                                         <div className="text-xs text-slate-400">
-                                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                                            {(file.size / 1024 / 1024).toFixed(
+                                                2,
+                                            )}{' '}
+                                            MB
                                         </div>
                                     </div>
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={(e) => { e.stopPropagation(); removeAttachment(index); }}
-                                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors shrink-0 ml-2"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        removeAttachment(index);
+                                    }}
+                                    className="ml-2 shrink-0 rounded-lg p-2 transition-colors hover:bg-red-500/10"
                                 >
-                                    <X className="w-4 h-4 text-red-400" />
+                                    <X className="h-4 w-4 text-red-400" />
                                 </button>
                             </div>
                         ))}
@@ -186,60 +231,77 @@ export const Step2Description: React.FC<Step2Props> = ({ data, setData }) => {
             </GlassCard>
 
             {/* Learning Objectives */}
-            <GlassCard colorClass="hover:shadow-indigo-500/10" gradientClass="from-indigo-500/5 to-blue-500/5 dark:from-indigo-500/10 dark:to-blue-500/10" glowClass="bg-indigo-500">
-
-                <div className="flex items-center justify-between mb-3">
+            <GlassCard
+                colorClass="hover:shadow-indigo-500/10"
+                gradientClass="from-indigo-500/5 to-blue-500/5 dark:from-indigo-500/10 dark:to-blue-500/10"
+                glowClass="bg-indigo-500"
+            >
+                <div className="mb-3 flex items-center justify-between">
                     <Label className="flex items-center gap-2 text-white">
-                        <Target className="w-5 h-5 text-indigo-400" />
+                        <Target className="h-5 w-5 text-indigo-400" />
                         Tujuan Pembelajaran
                     </Label>
                     <button
                         type="button"
                         onClick={() => {
-                            const newObj = [...(data.learning_objectives || []), ''];
+                            const newObj = [
+                                ...(data.learning_objectives || []),
+                                '',
+                            ];
                             setData('learning_objectives', newObj);
                         }}
-                        className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 text-sm font-medium transition-colors"
+                        className="flex items-center gap-1.5 text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="h-4 w-4" />
                         <span className="hidden sm:inline">Tambah Tujuan</span>
                     </button>
                 </div>
 
-                <p className="text-sm text-slate-400 mb-4">
-                    Apa yang diharapkan mahasiswa pelajari dari tugas ini? (Opsional)
+                <p className="mb-4 text-sm text-slate-400">
+                    Apa yang diharapkan mahasiswa pelajari dari tugas ini?
+                    (Opsional)
                 </p>
 
                 <div className="space-y-3">
-                    {(data.learning_objectives || ['']).map((obj: string, index: number) => (
-                        <div key={index} className="flex items-center gap-2">
-                            <Input
-                                value={obj}
-                                onChange={(e) => {
-                                    const newObj = [...data.learning_objectives];
-                                    newObj[index] = e.target.value;
-                                    setData('learning_objectives', newObj);
-                                }}
-                                placeholder={`Tujuan pembelajaran ${index + 1}`}
-                                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 
-                                    rounded-xl text-white placeholder-slate-500
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                            />
-                            {(data.learning_objectives?.length > 1) && (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const newObj = [...data.learning_objectives];
-                                        newObj.splice(index, 1);
+                    {(data.learning_objectives || ['']).map(
+                        (obj: string, index: number) => (
+                            <div
+                                key={index}
+                                className="flex items-center gap-2"
+                            >
+                                <Input
+                                    value={obj}
+                                    onChange={(e) => {
+                                        const newObj = [
+                                            ...data.learning_objectives,
+                                        ];
+                                        newObj[index] = e.target.value;
                                         setData('learning_objectives', newObj);
                                     }}
-                                    className="p-3 bg-slate-900/50 border border-slate-700 hover:border-red-500/50 hover:bg-red-500/10 rounded-xl text-slate-400 hover:text-red-400 transition-colors"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-                    ))}
+                                    placeholder={`Tujuan pembelajaran ${index + 1}`}
+                                    className="w-full rounded-xl border border-slate-700 bg-slate-900/50 px-4 py-3 text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none"
+                                />
+                                {data.learning_objectives?.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const newObj = [
+                                                ...data.learning_objectives,
+                                            ];
+                                            newObj.splice(index, 1);
+                                            setData(
+                                                'learning_objectives',
+                                                newObj,
+                                            );
+                                        }}
+                                        className="rounded-xl border border-slate-700 bg-slate-900/50 p-3 text-slate-400 transition-colors hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                )}
+                            </div>
+                        ),
+                    )}
                 </div>
             </GlassCard>
         </motion.div>

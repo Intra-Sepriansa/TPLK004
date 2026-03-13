@@ -14,14 +14,15 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
+    Bell,
+    BookOpen,
     CalendarCheck,
     ClipboardList,
     Clock,
     FileBarChart,
-    LifeBuoy,
     LayoutGrid,
+    LifeBuoy,
     MapPin,
-    BookOpen,
     MessageCircle,
     QrCode,
     Radar,
@@ -31,8 +32,6 @@ import {
     Trophy,
     Users,
     Wallet,
-    Bell,
-
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -124,7 +123,6 @@ const reportNavItems: NavItem[] = [
         href: '/admin/audit',
         icon: ShieldCheck,
     },
-
 ];
 
 const footerNavItems: NavItem[] = [

@@ -1,22 +1,20 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import {
-    Shield,
-    Search,
-    Filter,
-    Download,
     AlertTriangle,
     CheckCircle,
-    XCircle,
-    Clock,
-    MapPin,
-    Smartphone,
-    Globe,
     ChevronDown,
     ChevronUp,
+    Download,
+    Globe,
+    MapPin,
+    Search,
+    Shield,
+    Smartphone,
+    XCircle,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface AuditLog {
     id: number;
@@ -83,7 +81,9 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
         const matchesSearch =
             log.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            log.details.message?.toLowerCase().includes(searchQuery.toLowerCase());
+            log.details.message
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase());
 
         const matchesStatus =
             statusFilter === 'all' || log.details.status === statusFilter;
@@ -118,12 +118,12 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                         <Input
                             placeholder="Cari log..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 w-64"
+                            className="w-64 pl-9"
                         />
                     </div>
                     <select
@@ -138,7 +138,7 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
                     </select>
                     {onExport && (
                         <Button variant="outline" size="sm" onClick={onExport}>
-                            <Download className="h-4 w-4 mr-2" />
+                            <Download className="mr-2 h-4 w-4" />
                             Export
                         </Button>
                     )}
@@ -146,10 +146,10 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
             </div>
 
             {/* Log List */}
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
+            <div className="max-h-[600px] space-y-2 overflow-y-auto">
                 {filteredLogs.length === 0 ? (
-                    <div className="text-center py-12">
-                        <Shield className="h-12 w-12 mx-auto text-slate-300" />
+                    <div className="py-12 text-center">
+                        <Shield className="mx-auto h-12 w-12 text-slate-300" />
                         <p className="mt-2 text-sm text-slate-500">
                             Tidak ada log yang ditemukan
                         </p>
@@ -162,46 +162,56 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
                         return (
                             <div
                                 key={log.id}
-                                className="rounded-xl border border-slate-200/70 bg-white/80 dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                                className="overflow-hidden rounded-xl border border-slate-200/70 bg-white/80 dark:border-slate-800/70 dark:bg-slate-950/70"
                             >
                                 <button
                                     onClick={() => toggleExpand(log.id)}
-                                    className="w-full p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                                    className="flex w-full items-center gap-4 p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50"
                                 >
-                                    <div className={cn(
-                                        'flex h-10 w-10 items-center justify-center rounded-full',
-                                        statusColors[log.details.status]
-                                    )}>
+                                    <div
+                                        className={cn(
+                                            'flex h-10 w-10 items-center justify-center rounded-full',
+                                            statusColors[log.details.status],
+                                        )}
+                                    >
                                         <StatusIcon className="h-5 w-5" />
                                     </div>
 
                                     <div className="flex-1 text-left">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium text-slate-900 dark:text-white">
-                                                {actionLabels[log.action] || log.action}
+                                                {actionLabels[log.action] ||
+                                                    log.action}
                                             </span>
-                                            <span className={cn(
-                                                'px-2 py-0.5 rounded-full text-[10px] font-medium uppercase',
-                                                log.user.role === 'admin'
-                                                    ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
-                                                    : 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400'
-                                            )}>
+                                            <span
+                                                className={cn(
+                                                    'rounded-full px-2 py-0.5 text-[10px] font-medium uppercase',
+                                                    log.user.role === 'admin'
+                                                        ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+                                                        : 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
+                                                )}
+                                            >
                                                 {log.user.role}
                                             </span>
                                         </div>
                                         <p className="text-sm text-slate-500">
                                             {log.user.name}
-                                            {log.user.nim && ` (${log.user.nim})`}
+                                            {log.user.nim &&
+                                                ` (${log.user.nim})`}
                                         </p>
                                     </div>
 
                                     <div className="flex items-center gap-4">
                                         <div className="text-right">
                                             <p className="text-xs text-slate-500">
-                                                {new Date(log.timestamp).toLocaleDateString('id-ID')}
+                                                {new Date(
+                                                    log.timestamp,
+                                                ).toLocaleDateString('id-ID')}
                                             </p>
                                             <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                                {new Date(log.timestamp).toLocaleTimeString('id-ID')}
+                                                {new Date(
+                                                    log.timestamp,
+                                                ).toLocaleTimeString('id-ID')}
                                             </p>
                                         </div>
                                         {isExpanded ? (
@@ -213,12 +223,14 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
                                 </button>
 
                                 {isExpanded && (
-                                    <div className="px-4 pb-4 pt-0 border-t border-slate-100 dark:border-slate-800">
-                                        <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+                                    <div className="border-t border-slate-100 px-4 pt-0 pb-4 dark:border-slate-800">
+                                        <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                                             {log.details.ip_address && (
                                                 <div className="flex items-center gap-2">
                                                     <Globe className="h-4 w-4 text-slate-400" />
-                                                    <span className="text-slate-500">IP:</span>
+                                                    <span className="text-slate-500">
+                                                        IP:
+                                                    </span>
                                                     <span className="font-mono text-slate-700 dark:text-slate-300">
                                                         {log.details.ip_address}
                                                     </span>
@@ -227,32 +239,49 @@ export function AuditLogViewer({ logs, onExport }: AuditLogViewerProps) {
                                             {log.details.location && (
                                                 <div className="flex items-center gap-2">
                                                     <MapPin className="h-4 w-4 text-slate-400" />
-                                                    <span className="text-slate-500">Lokasi:</span>
+                                                    <span className="text-slate-500">
+                                                        Lokasi:
+                                                    </span>
                                                     <span className="font-mono text-slate-700 dark:text-slate-300">
-                                                        {log.details.location.lat.toFixed(6)}, {log.details.location.lng.toFixed(6)}
+                                                        {log.details.location.lat.toFixed(
+                                                            6,
+                                                        )}
+                                                        ,{' '}
+                                                        {log.details.location.lng.toFixed(
+                                                            6,
+                                                        )}
                                                     </span>
                                                 </div>
                                             )}
                                             {log.details.device_fingerprint && (
-                                                <div className="flex items-center gap-2 col-span-2">
+                                                <div className="col-span-2 flex items-center gap-2">
                                                     <Smartphone className="h-4 w-4 text-slate-400" />
-                                                    <span className="text-slate-500">Device:</span>
-                                                    <span className="font-mono text-xs text-slate-700 dark:text-slate-300 truncate">
-                                                        {log.details.device_fingerprint}
+                                                    <span className="text-slate-500">
+                                                        Device:
+                                                    </span>
+                                                    <span className="truncate font-mono text-xs text-slate-700 dark:text-slate-300">
+                                                        {
+                                                            log.details
+                                                                .device_fingerprint
+                                                        }
                                                     </span>
                                                 </div>
                                             )}
                                             {log.details.user_agent && (
                                                 <div className="col-span-2">
-                                                    <p className="text-xs text-slate-500 mb-1">User Agent:</p>
-                                                    <p className="font-mono text-xs text-slate-600 dark:text-slate-400 break-all">
+                                                    <p className="mb-1 text-xs text-slate-500">
+                                                        User Agent:
+                                                    </p>
+                                                    <p className="font-mono text-xs break-all text-slate-600 dark:text-slate-400">
                                                         {log.details.user_agent}
                                                     </p>
                                                 </div>
                                             )}
                                             {log.details.message && (
                                                 <div className="col-span-2">
-                                                    <p className="text-xs text-slate-500 mb-1">Message:</p>
+                                                    <p className="mb-1 text-xs text-slate-500">
+                                                        Message:
+                                                    </p>
                                                     <p className="text-slate-700 dark:text-slate-300">
                                                         {log.details.message}
                                                     </p>

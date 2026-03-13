@@ -6,7 +6,6 @@ import { Head, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     AlertTriangle,
-    ArrowLeft,
     Award,
     Bell,
     CheckCircle,
@@ -244,8 +243,6 @@ export default function Notifications({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                        
-
                         <div className="flex flex-wrap items-start justify-between gap-6">
                             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
                                 <motion.div
@@ -564,7 +561,7 @@ export default function Notifications({
                                     className={cn(
                                         'group relative overflow-hidden',
                                         !notif.read_at &&
-                                        'bg-indigo-50/30 dark:bg-indigo-900/10',
+                                            'bg-indigo-50/30 dark:bg-indigo-900/10',
                                     )}
                                 >
                                     <motion.div
@@ -738,10 +735,11 @@ export default function Notifications({
                                                 page: i + 1,
                                             })
                                         }
-                                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${notifications.current_page === i + 1
+                                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+                                            notifications.current_page === i + 1
                                                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
                                                 : 'border border-white/20 bg-white/60 text-neutral-700 backdrop-blur-xl hover:bg-white/80 dark:border-white/5 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/70'
-                                            }`}
+                                        }`}
                                     >
                                         {i + 1}
                                     </motion.button>

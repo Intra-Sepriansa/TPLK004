@@ -1,8 +1,12 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+    attendanceVoiceCommands,
+    useTextToSpeech,
+    useVoiceCommands,
+} from '@/hooks/useVoiceAttendance';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Mic, MicOff, Volume2 } from 'lucide-react';
-import { useVoiceCommands, useTextToSpeech, attendanceVoiceCommands } from '@/hooks/useVoiceAttendance';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 interface VoiceAttendanceButtonProps {
     onScanQR: () => void;
@@ -18,7 +22,7 @@ export function VoiceAttendanceButton({
     onCancel,
 }: VoiceAttendanceButtonProps) {
     const [showTranscript, setShowTranscript] = useState(false);
-    
+
     const commands = attendanceVoiceCommands({
         onScanQR: () => {
             speak('Membuka scanner QR code');
@@ -38,9 +42,14 @@ export function VoiceAttendanceButton({
         },
     });
 
-    const { transcript, isListening, startListening, stopListening, isSupported } = 
-        useVoiceCommands(commands);
-    
+    const {
+        transcript,
+        isListening,
+        startListening,
+        stopListening,
+        isSupported,
+    } = useVoiceCommands(commands);
+
     const { speak, isSpeaking } = useTextToSpeech();
 
     const handleToggleListening = () => {
@@ -76,7 +85,7 @@ export function VoiceAttendanceButton({
                 ) : (
                     <Mic className="h-4 w-4" />
                 )}
-                
+
                 {isListening && (
                     <motion.div
                         className="absolute inset-0 rounded-full bg-red-500"
@@ -103,11 +112,13 @@ export function VoiceAttendanceButton({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-full mt-2 right-0 bg-white dark:bg-slate-900 border rounded-lg shadow-lg p-3 min-w-[200px] z-50"
+                        className="absolute top-full right-0 z-50 mt-2 min-w-[200px] rounded-lg border bg-white p-3 shadow-lg dark:bg-slate-900"
                     >
-                        <div className="text-xs text-muted-foreground mb-1">Anda berkata:</div>
+                        <div className="mb-1 text-xs text-muted-foreground">
+                            Anda berkata:
+                        </div>
                         <div className="text-sm font-medium">{transcript}</div>
-                        
+
                         <div className="mt-2 text-xs text-muted-foreground">
                             Perintah tersedia:
                             <ul className="mt-1 space-y-0.5">

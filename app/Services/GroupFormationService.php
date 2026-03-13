@@ -6,6 +6,7 @@ use App\Models\GroupAssignment;
 use App\Models\GaGroup;
 use App\Models\GaGroupMember;
 use App\Models\GaActivityLog;
+use App\Models\ForceAssignLog;
 use App\Models\Mahasiswa;
 use App\Models\MahasiswaCourse;
 use Illuminate\Support\Collection;
@@ -333,17 +334,231 @@ class GroupFormationService
      */
     private function getCourseStudentIds(GroupAssignment $assignment): Collection
     {
-        $courseName = $assignment->course->nama;
-        $enrolled = MahasiswaCourse::where('name', $courseName)
+        $courseName = trim((string) ($assignment->course->nama ?? ''));
+        if (empty($courseName)) {
+            return Mahasiswa::query()->pluck('id')->values();
+        }
+
+        $enrolled = MahasiswaCourse::query()
+            ->where(function ($query) use ($courseName) {
+                $query->where('name', $courseName)
+                    ->orWhere('name', 'like', $courseName); // Handle simple case variations
+            })
             ->pluck('mahasiswa_id')
             ->unique()
             ->values();
 
         $totalMahasiswa = Mahasiswa::count();
-        if ($enrolled->count() <= 2 && $totalMahasiswa >= 10) {
+        $enrolledCount = $enrolled->count();
+
+        // ═══════ Leniency Fallback ═══════
+        // If enrolled count is suspiciously low (e.g. < 10) or represents less than 50%
+        // of total students, we allow all students. This ensures that incomplete
+        // mahasiswa_courses data doesn't block the formation process.
+        $isSuspiciouslyLow = ($enrolledCount < 10) || ($totalMahasiswa >= 10 && $enrolledCount < ($totalMahasiswa * 0.5));
+
+        if ($isSuspiciouslyLow && $totalMahasiswa > 0) {
             return Mahasiswa::query()->pluck('id')->values();
         }
 
         return $enrolled;
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Force Assign & Auto-Assign Methods
+    // ═══════════════════════════════════════════════════════════════════
+
+    /**
+     * Calculate the maximum number of groups for an assignment.
+     */
+    public function calculateMaxGroups(int $totalStudents, int $minMembers): int
+    {
+        if ($minMembers <= 0) return $totalStudents;
+        return (int) ceil($totalStudents / $minMembers);
+    }
+
+    /**
+     * Get the total number of course students for an assignment.
+     */
+    public function getTotalCourseStudents(GroupAssignment $assignment): int
+    {
+        return $this->getCourseStudentIds($assignment)->count();
+    }
+
+    /**
+     * Validate that creating a new group won't exceed the calculated max groups.
+     */
+    public function validateMaxGroupsNotExceeded(GroupAssignment $assignment): void
+    {
+        $totalStudents = $this->getTotalCourseStudents($assignment);
+        $maxGroups = $this->calculateMaxGroups($totalStudents, max(2, (int) $assignment->min_members));
+        $currentGroupCount = $assignment->groups()->count();
+
+        if ($currentGroupCount >= $maxGroups) {
+            throw new \Exception(
+                "Maksimal {$maxGroups} kelompok sudah tercapai. Tidak bisa membuat kelompok baru."
+            );
+        }
+    }
+
+    /**
+     * Force assign a student to a group (admin/dosen action).
+     * If the student is already in another group for this assignment, they are moved.
+     */
+    public function forceAssignStudent(
+        GaGroup $group,
+        int $studentId,
+        int $forcedBy,
+        string $adminType = 'admin',
+        ?string $reason = null
+    ): GaGroupMember {
+        $assignment = $group->assignment;
+        $this->validateGroupCapacity($group);
+
+        // Remove from existing group if already assigned
+        /** @var \App\Models\GaGroupMember|null $existing */
+        $existing = GaGroupMember::whereHas('group', fn (\Illuminate\Database\Eloquent\Builder $q) => $q->where('assignment_id', '=', $assignment->id))
+            ->where('student_id', '=', $studentId)
+            ->first();
+
+        $action = 'force_assign';
+        if ($existing) {
+            $action = 'move';
+            $oldGroup = $existing->group;
+            $wasLeader = $existing->is_leader;
+            /** @var \Illuminate\Database\Eloquent\Model $existingModel */
+            $existingModel = $existing;
+            $existingModel->delete();
+
+            // Handle leader vacancy in old group
+            if ($wasLeader) {
+                $nextMember = GaGroupMember::where('group_id', '=', $oldGroup->id)->first();
+                if ($nextMember) {
+                    $nextMember->update(['is_leader' => true]);
+                    $oldGroup->update(['leader_id' => $nextMember->student_id]);
+                }
+            }
+        }
+
+        // Add to new group
+        $member = GaGroupMember::create([
+            'group_id' => $group->id,
+            'student_id' => $studentId,
+            'is_leader' => false,
+            'is_forced' => true,
+            'forced_by' => $forcedBy,
+            'forced_by_type' => $adminType,
+            'forced_reason' => $reason,
+            'forced_at' => now(),
+        ]);
+
+        // Log the action
+        ForceAssignLog::create([
+            'assignment_id' => $assignment->id,
+            'group_id' => $group->id,
+            'student_id' => $studentId,
+            'admin_id' => $forcedBy,
+            'admin_type' => $adminType,
+            'action' => $action,
+            'reason' => $reason,
+        ]);
+
+        return $member;
+    }
+
+    /**
+     * Auto-assign all unassigned students evenly across groups that aren't full.
+     * Returns the number of students assigned.
+     */
+    public function autoAssignRemaining(
+        GroupAssignment $assignment,
+        int $forcedBy,
+        string $adminType = 'admin'
+    ): array {
+        $unassigned = $this->getUnassignedStudents($assignment);
+        $groups = $assignment->groups()->withCount('members')->get();
+        $config = $assignment;
+
+        $maxMembers = max(2, (int) $config->max_members);
+        $assignedCount = 0;
+
+        foreach ($unassigned as $student) {
+            // Re-sort groups by member count each iteration for even distribution
+            $groups = $groups->sortBy('members_count');
+
+            $targetGroup = $groups->first(function ($g) use ($maxMembers) {
+                return $g->members_count < $maxMembers;
+            });
+
+            if (!$targetGroup) {
+                break; // All groups are full
+            }
+
+            GaGroupMember::create([
+                'group_id' => $targetGroup->id,
+                'student_id' => $student->id,
+                'is_leader' => false,
+                'is_forced' => true,
+                'forced_by' => $forcedBy,
+                'forced_by_type' => $adminType,
+                'forced_reason' => 'Auto-assigned by system',
+                'forced_at' => now(),
+            ]);
+
+            ForceAssignLog::create([
+                'assignment_id' => $assignment->id,
+                'group_id' => $targetGroup->id,
+                'student_id' => $student->id,
+                'admin_id' => $forcedBy,
+                'admin_type' => $adminType,
+                'action' => 'auto_assign',
+                'reason' => 'Auto-assigned by system',
+            ]);
+
+            // Update the local count
+            $targetGroup->members_count++;
+            $assignedCount++;
+        }
+
+        return [
+            'assigned_count' => $assignedCount,
+            'remaining' => $unassigned->count() - $assignedCount,
+        ];
+    }
+
+    /**
+     * Remove a student from a group. Handles leader succession.
+     */
+    public function removeStudentFromGroup(GaGroup $group, int $studentId): void
+    {
+        /** @var \App\Models\GaGroupMember $membership */
+        $membership = GaGroupMember::where('group_id', '=', $group->id)
+            ->where('student_id', '=', $studentId)
+            ->firstOrFail();
+
+        $wasLeader = $membership->is_leader;
+        /** @var \Illuminate\Database\Eloquent\Model $membershipModel */
+        $membershipModel = $membership;
+        $membershipModel->delete();
+
+        if ($wasLeader) {
+            $nextMember = GaGroupMember::where('group_id', '=', $group->id)->first();
+            if ($nextMember) {
+                $nextMember->update(['is_leader' => true]);
+                $group->update(['leader_id' => $nextMember->student_id]);
+            }
+        }
+    }
+
+    /**
+     * Delete a group entirely. Members become unassigned.
+     */
+    public function deleteGroup(GaGroup $group): void
+    {
+        // Members are cascade-deleted by FK, so they automatically become "unassigned"
+        /** @var \Illuminate\Database\Eloquent\Model $groupModel */
+        $groupModel = $group;
+        $groupModel->delete();
+    }
 }
+

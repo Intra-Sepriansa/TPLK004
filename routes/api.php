@@ -129,3 +129,10 @@ Route::middleware(['web', 'auth:mahasiswa'])->prefix('kas')->group(function () {
     Route::post('/export', [UserKasController::class, 'exportData'])->name('api.kas.export');
     Route::post('/reports/generate', [UserKasController::class, 'generateReport'])->name('api.kas.reports.generate');
 });
+
+// Network Diagnostic API (Mahasiswa)
+Route::middleware(['web', 'auth:mahasiswa'])->prefix('network')->group(function () {
+    Route::get('/health', [\App\Http\Controllers\Api\NetworkDiagnosticController::class, 'health'])->name('api.network.health');
+    Route::get('/speed-test/download', [\App\Http\Controllers\Api\NetworkDiagnosticController::class, 'downloadTest'])->name('api.network.download');
+    Route::post('/speed-test/upload', [\App\Http\Controllers\Api\NetworkDiagnosticController::class, 'uploadTest'])->name('api.network.upload');
+});

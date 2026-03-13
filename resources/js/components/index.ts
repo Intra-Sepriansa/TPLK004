@@ -1,14 +1,17 @@
 // UI Components
+export { AchievementBadge, AchievementList } from './ui/achievement-badge';
 export { AnimatedCounter } from './ui/animated-counter';
 export { AttendanceStats } from './ui/attendance-stats';
-export { AchievementBadge, AchievementList } from './ui/achievement-badge';
 export { Calendar } from './ui/calendar';
-export { FloatingActionButton, AdminFloatingActions } from './ui/floating-action';
+export {
+    AdminFloatingActions,
+    FloatingActionButton,
+} from './ui/floating-action';
 export { Heatmap } from './ui/heatmap';
 export { NotificationCenter } from './ui/notification-center';
 export { Progress } from './ui/progress';
 export { StatCard } from './ui/stat-card';
-export { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 export { ToastProvider, useToast } from './ui/toast';
 
 // Analytics Components
@@ -26,7 +29,10 @@ export { AuditLogViewer } from './audit/audit-log-viewer';
 export { PDFGenerator } from './export/pdf-generator';
 
 // Notification Components
-export { SessionReminder, useNotificationPermission } from './notifications/session-reminder';
+export {
+    SessionReminder,
+    useNotificationPermission,
+} from './notifications/session-reminder';
 
 // QR Components
 export { QRDisplay } from './qr/qr-display';
@@ -35,7 +41,7 @@ export { QRDisplay } from './qr/qr-display';
 export { InstallPrompt } from './pwa/install-prompt';
 
 // Offline Components
-export { OfflineIndicator, OfflineBanner } from './offline/offline-indicator';
+export { OfflineBanner, OfflineIndicator } from './offline/offline-indicator';
 
 // Mobile Components
 export { PullToRefresh } from './mobile/pull-to-refresh';

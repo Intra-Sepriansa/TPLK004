@@ -1,15 +1,14 @@
+import DisetujuiSelfieIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
+import DitolakSelfieIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
+import PendingSelfieIcon from '@/assets/admin/verifikasi-selfie/pending.png';
+import VerifikasiSelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import StudentLayout from '@/layouts/student-layout';
 import { cn } from '@/lib/utils';
-import VerifikasiSelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
-import PendingSelfieIcon from '@/assets/admin/verifikasi-selfie/pending.png';
-import DisetujuiSelfieIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
-import DitolakSelfieIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
 import { Head, router } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     AlertTriangle,
-    ArrowLeft,
     Calendar,
     CheckCircle,
     Clock,
@@ -197,8 +196,6 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-
-
                         <div className="flex flex-wrap items-start justify-between gap-6">
                             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
                                 <motion.div
@@ -342,7 +339,10 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
                                                 <div
                                                     className={`absolute inset-0 rounded-xl bg-gradient-to-br ${card.from} ${card.to} shadow-lg`}
                                                 />
-                                                {'icon' in card && card.icon && <card.icon className="relative h-5 w-5 text-white sm:h-7 sm:w-7" />}
+                                                {'icon' in card &&
+                                                    card.icon && (
+                                                        <card.icon className="relative h-5 w-5 text-white sm:h-7 sm:w-7" />
+                                                    )}
                                             </>
                                         )}
                                     </motion.div>
@@ -482,19 +482,19 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
                                                             .selfie_verification
                                                             ?.attendance_log
                                                             ?.scanned_at && (
-                                                                <div className="flex items-center gap-1">
-                                                                    <Eye className="h-3 w-3" />
-                                                                    <span>
-                                                                        Scan:{' '}
-                                                                        {
-                                                                            request
-                                                                                .selfie_verification
-                                                                                .attendance_log
-                                                                                .scanned_at
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                            )}
+                                                            <div className="flex items-center gap-1">
+                                                                <Eye className="h-3 w-3" />
+                                                                <span>
+                                                                    Scan:{' '}
+                                                                    {
+                                                                        request
+                                                                            .selfie_verification
+                                                                            .attendance_log
+                                                                            .scanned_at
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
 
                                                     {request.response_note && (
@@ -563,12 +563,13 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
                                         )
                                     }
                                     disabled={!link.url}
-                                    className={`rounded px-3 py-1 text-sm ${link.active
+                                    className={`rounded px-3 py-1 text-sm ${
+                                        link.active
                                             ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white'
                                             : link.url
-                                                ? 'border border-white/20 bg-white/60 text-neutral-700 hover:bg-white/80 dark:border-white/5 dark:bg-neutral-800/60 dark:text-neutral-300'
-                                                : 'cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500'
-                                        }`}
+                                              ? 'border border-white/20 bg-white/60 text-neutral-700 hover:bg-white/80 dark:border-white/5 dark:bg-neutral-800/60 dark:text-neutral-300'
+                                              : 'cursor-not-allowed bg-neutral-100 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500'
+                                    }`}
                                     dangerouslySetInnerHTML={{
                                         __html: link.label,
                                     }}

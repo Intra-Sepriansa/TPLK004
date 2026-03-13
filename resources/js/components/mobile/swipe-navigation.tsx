@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 
 interface SwipeNavigationProps {
     children: ReactNode;
@@ -28,12 +28,15 @@ export function SwipeNavigation({
         setSwiping(true);
     }, []);
 
-    const onTouchMove = useCallback((e: React.TouchEvent) => {
-        if (!touchStart) return;
-        const currentTouch = e.targetTouches[0].clientX;
-        setTouchEnd(currentTouch);
-        setSwipeDistance(currentTouch - touchStart);
-    }, [touchStart]);
+    const onTouchMove = useCallback(
+        (e: React.TouchEvent) => {
+            if (!touchStart) return;
+            const currentTouch = e.targetTouches[0].clientX;
+            setTouchEnd(currentTouch);
+            setSwipeDistance(currentTouch - touchStart);
+        },
+        [touchStart],
+    );
 
     const onTouchEnd = useCallback(() => {
         if (!touchStart || !touchEnd) {
@@ -67,7 +70,9 @@ export function SwipeNavigation({
             onTouchEnd={onTouchEnd}
             className={cn('touch-pan-y', className)}
             style={{
-                transform: swiping ? `translateX(${swipeDistance * 0.3}px)` : undefined,
+                transform: swiping
+                    ? `translateX(${swipeDistance * 0.3}px)`
+                    : undefined,
                 transition: swiping ? 'none' : 'transform 0.3s ease-out',
             }}
         >

@@ -1,6 +1,9 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import {
+    NotificationDropdownAdvanced,
+    type Notification,
+} from '@/components/ui/notification-dropdown-advanced';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { NotificationDropdownAdvanced, type Notification } from '@/components/ui/notification-dropdown-advanced';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
 import { usePage } from '@inertiajs/react';
 
@@ -14,11 +17,11 @@ export function AppSidebarHeader({
 }: {
     breadcrumbs?: BreadcrumbItemType[];
 }) {
-    const { props } = usePage<{ 
+    const { props } = usePage<{
         headerNotifications?: HeaderNotifications;
         notificationConfig?: { baseUrl: string; allUrl: string };
     }>();
-    
+
     const notifications = props.headerNotifications;
     const config = props.notificationConfig;
 

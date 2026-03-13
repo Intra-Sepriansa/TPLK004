@@ -59,10 +59,7 @@ function asRecord(value: unknown): Record<string, unknown> {
         : {};
 }
 
-function mergeDeep<T>(
-    defaults: T,
-    incoming: Record<string, unknown>,
-): T {
+function mergeDeep<T>(defaults: T, incoming: Record<string, unknown>): T {
     const output: Record<string, unknown> = {
         ...(defaults as Record<string, unknown>),
     };
@@ -128,7 +125,10 @@ function normalizeSettings(raw: unknown): UserSettings {
         ),
         appearance: normalizedAppearance,
         privacy: mergeDeep(defaultSettings.privacy, asRecord(source.privacy)),
-        security: mergeDeep(defaultSettings.security, asRecord(source.security)),
+        security: mergeDeep(
+            defaultSettings.security,
+            asRecord(source.security),
+        ),
         dataManagement: mergeDeep(defaultSettings.dataManagement, dataCategory),
     };
 }

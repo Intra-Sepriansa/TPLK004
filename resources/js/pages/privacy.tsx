@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
                 <Link href="/" className="flex items-center gap-3">
                     <AppLogoIcon className="h-12 w-12" />
                     <div>
-                        <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
+                        <p className="text-xs tracking-[0.25em] text-slate-400 uppercase">
                             TPLK004
                         </p>
                         <h1 className="text-2xl font-semibold">
@@ -27,8 +27,8 @@ export default function PrivacyPolicy() {
                             <p>
                                 Sistem ini memproses kamera dan lokasi untuk
                                 kebutuhan absensi mahasiswa. Data digunakan
-                                hanya untuk kepentingan akademik dan
-                                operasional kampus.
+                                hanya untuk kepentingan akademik dan operasional
+                                kampus.
                             </p>
                         </section>
 
@@ -38,7 +38,9 @@ export default function PrivacyPolicy() {
                             </h2>
                             <ul className="list-disc pl-5">
                                 <li>Identitas mahasiswa (nama, NIM).</li>
-                                <li>Foto selfie atau hasil kamera saat absen.</li>
+                                <li>
+                                    Foto selfie atau hasil kamera saat absen.
+                                </li>
                                 <li>Lokasi (latitude, longitude, akurasi).</li>
                                 <li>Informasi perangkat dan waktu absensi.</li>
                             </ul>
@@ -49,9 +51,13 @@ export default function PrivacyPolicy() {
                                 Tujuan Penggunaan
                             </h2>
                             <ul className="list-disc pl-5">
-                                <li>Validasi kehadiran dan pencegahan fraud.</li>
+                                <li>
+                                    Validasi kehadiran dan pencegahan fraud.
+                                </li>
                                 <li>Audit absensi dan verifikasi manual.</li>
-                                <li>Pelaporan akademik sesuai kebijakan kampus.</li>
+                                <li>
+                                    Pelaporan akademik sesuai kebijakan kampus.
+                                </li>
                             </ul>
                         </section>
 

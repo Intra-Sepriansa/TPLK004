@@ -4,10 +4,20 @@
  */
 
 // Guide Section Types
-export type GuideSectionType = 'overview' | 'features' | 'tutorial' | 'tips' | 'faq';
+export type GuideSectionType =
+    | 'overview'
+    | 'features'
+    | 'tutorial'
+    | 'tips'
+    | 'faq';
 
 // Guide Category
-export type GuideCategory = 'core' | 'academic' | 'analytics' | 'communication' | 'finance';
+export type GuideCategory =
+    | 'core'
+    | 'academic'
+    | 'analytics'
+    | 'communication'
+    | 'finance';
 
 // User Role for Documentation
 export type DocumentationRole = 'dosen' | 'mahasiswa';

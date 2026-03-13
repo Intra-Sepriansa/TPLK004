@@ -1,20 +1,36 @@
-import { useState, useRef, useEffect } from 'react';
-import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProfileCard from '@/components/ui/profile-card';
 import AppLayout from '@/layouts/app-layout';
-import InputError from '@/components/input-error';
-import {
-    Sparkles, X, Camera, Upload, User, Mail, Shield,
-    CheckCircle2, TrendingUp, Settings, CreditCard, KeyRound, AlertCircle,
-    Edit2, Save, XCircle, Eye, EyeOff, LayoutDashboard, LogOut,
-    Lock, ShieldCheck
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import {
+    AlertCircle,
+    Camera,
+    CheckCircle2,
+    CreditCard,
+    Edit2,
+    Eye,
+    EyeOff,
+    KeyRound,
+    LayoutDashboard,
+    Lock,
+    Mail,
+    Save,
+    Shield,
+    ShieldCheck,
+    Sparkles,
+    TrendingUp,
+    Upload,
+    User,
+    X,
+    XCircle,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Profil', href: '/admin/profile' },
@@ -52,17 +68,19 @@ const tabContentVariants: Variants = {
     visible: {
         opacity: 1,
         x: 0,
-        transition: { duration: 0.3, ease: "easeOut" }
+        transition: { duration: 0.3, ease: 'easeOut' },
     },
     exit: {
         opacity: 0,
         x: 10,
-        transition: { duration: 0.2, ease: "easeIn" }
-    }
+        transition: { duration: 0.2, ease: 'easeIn' },
+    },
 };
 
 export default function AdminProfile() {
-    const { auth, flash } = usePage<SharedData & { flash?: { success?: string } }>().props;
+    const { auth, flash } = usePage<
+        SharedData & { flash?: { success?: string } }
+    >().props;
     const [showProfileCard, setShowProfileCard] = useState(false);
     const [activeTab, setActiveTab] = useState<TabType>('card');
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -100,9 +118,11 @@ export default function AdminProfile() {
         }
     }, [flash?.success]);
 
-    const avatarUrl = avatarPreview || ((auth.user as any).avatar_url
-        ? `${(auth.user as any).avatar_url.startsWith('http') ? '' : '/storage/'}${(auth.user as any).avatar_url}`
-        : `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`);
+    const avatarUrl =
+        avatarPreview ||
+        ((auth.user as any).avatar_url
+            ? `${(auth.user as any).avatar_url.startsWith('http') ? '' : '/storage/'}${(auth.user as any).avatar_url}`
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`);
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -173,15 +193,19 @@ export default function AdminProfile() {
             {/* Success Toast */}
             <div
                 className={cn(
-                    "fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-xl backdrop-blur transition-all duration-300 ease-out",
-                    "border-emerald-200/50 bg-emerald-50/90 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-200",
-                    (successMessage || (showFlash && flash?.success)) ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
+                    'fixed top-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-xl backdrop-blur transition-all duration-300 ease-out',
+                    'border-emerald-200/50 bg-emerald-50/90 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-200',
+                    successMessage || (showFlash && flash?.success)
+                        ? 'translate-x-0 opacity-100'
+                        : 'pointer-events-none translate-x-full opacity-0',
                 )}
             >
-                <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500 animate-pulse" />
+                <Sparkles className="mt-0.5 h-5 w-5 animate-pulse text-emerald-500" />
                 <div>
                     <p className="font-bold">Berhasil!</p>
-                    <p className="text-xs opacity-90">{successMessage || flash?.success || ''}</p>
+                    <p className="text-xs opacity-90">
+                        {successMessage || flash?.success || ''}
+                    </p>
                 </div>
             </div>
 
@@ -192,11 +216,11 @@ export default function AdminProfile() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
                     >
                         <button
                             onClick={() => setShowProfileCard(false)}
-                            className="absolute right-6 top-6 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+                            className="absolute top-6 right-6 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
                         >
                             <X className="h-6 w-6" />
                         </button>
@@ -227,7 +251,7 @@ export default function AdminProfile() {
             </AnimatePresence>
 
             <motion.div
-                className="p-6 space-y-8"
+                className="space-y-8 p-6"
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
@@ -235,7 +259,7 @@ export default function AdminProfile() {
                 {/* ═══════ HEADER — Matching Uang Kas Style ═══════ */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl p-5 sm:p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-8"
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
@@ -246,7 +270,7 @@ export default function AdminProfile() {
                         transition={{
                             duration: 15,
                             repeat: Infinity,
-                            ease: "linear"
+                            ease: 'linear',
                         }}
                         style={{
                             backgroundSize: '200% 200%',
@@ -254,58 +278,68 @@ export default function AdminProfile() {
                     />
 
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Animations (Pulses) */}
 
                     <div className="relative z-10">
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
-                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full sm:w-auto">
+                        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row sm:gap-6">
+                            <div className="flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:items-start sm:gap-6">
                                 <motion.button
                                     onClick={() => setShowProfileCard(true)}
-                                    className="group shrink-0 relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg"
+                                    className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/30 bg-white/20 shadow-lg backdrop-blur-xl sm:h-24 sm:w-24"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
-                                    <img src={avatarUrl} alt={auth.user.name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <img
+                                        src={avatarUrl}
+                                        alt={auth.user.name}
+                                        className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                                         <Sparkles className="h-8 w-8 text-white" />
                                     </div>
                                 </motion.button>
-                                <div className="flex flex-col items-center sm:items-start min-w-0 w-full">
-                                    <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-3 w-full">
-                                        <h1 className="text-2xl sm:text-3xl font-bold text-white text-center sm:text-left break-words w-full sm:w-auto px-1 sm:px-0">
+                                <div className="flex w-full min-w-0 flex-col items-center sm:items-start">
+                                    <div className="flex w-full flex-col items-center justify-center gap-2 sm:flex-row sm:justify-start sm:gap-3">
+                                        <h1 className="w-full px-1 text-center text-2xl font-bold break-words text-white sm:w-auto sm:px-0 sm:text-left sm:text-3xl">
                                             {auth.user.name}
                                         </h1>
-                                        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[10px] sm:text-xs font-bold text-emerald-100 border border-emerald-500/30 backdrop-blur-md">
+                                        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/20 px-3 py-1 text-[10px] font-bold text-emerald-100 backdrop-blur-md sm:text-xs">
                                             <CheckCircle2 className="h-3 w-3" />
                                             Verified
                                         </span>
                                     </div>
-                                    <p className="mt-1.5 sm:mt-1 text-indigo-100 flex flex-wrap items-center justify-center sm:justify-start gap-2 w-full text-center sm:text-left text-xs sm:text-base break-all sm:break-normal px-2 sm:px-0">
-                                        <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                                        <span className="truncate w-full sm:w-auto">{auth.user.email}</span>
+                                    <p className="mt-1.5 flex w-full flex-wrap items-center justify-center gap-2 px-2 text-center text-xs break-all text-indigo-100 sm:mt-1 sm:justify-start sm:px-0 sm:text-left sm:text-base sm:break-normal">
+                                        <Mail className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+                                        <span className="w-full truncate sm:w-auto">
+                                            {auth.user.email}
+                                        </span>
                                     </p>
-                                    <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4 mt-3 w-full">
-                                        <div className="flex items-center gap-1 sm:gap-2 rounded-lg bg-white/10 px-2 sm:px-3 py-1 backdrop-blur-sm shrink-0">
-                                            <Shield className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-indigo-200" />
-                                            <span className="text-[10px] sm:text-xs font-medium">Administrator</span>
+                                    <div className="mt-3 flex w-full flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-4">
+                                        <div className="flex shrink-0 items-center gap-1 rounded-lg bg-white/10 px-2 py-1 backdrop-blur-sm sm:gap-2 sm:px-3">
+                                            <Shield className="h-3 w-3 text-indigo-200 sm:h-3.5 sm:w-3.5" />
+                                            <span className="text-[10px] font-medium sm:text-xs">
+                                                Administrator
+                                            </span>
                                         </div>
-                                        <div className="flex items-center gap-1 sm:gap-2 rounded-lg bg-white/10 px-2 sm:px-3 py-1 backdrop-blur-sm shrink-0">
-                                            <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-indigo-200" />
-                                            <span className="text-[10px] sm:text-xs font-medium">Full Access</span>
+                                        <div className="flex shrink-0 items-center gap-1 rounded-lg bg-white/10 px-2 py-1 backdrop-blur-sm sm:gap-2 sm:px-3">
+                                            <TrendingUp className="h-3 w-3 text-indigo-200 sm:h-3.5 sm:w-3.5" />
+                                            <span className="text-[10px] font-medium sm:text-xs">
+                                                Full Access
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex w-full sm:w-auto mt-2 sm:mt-0 px-2 sm:px-0">
+                            <div className="mt-2 flex w-full px-2 sm:mt-0 sm:w-auto sm:px-0">
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => setShowProfileCard(true)}
-                                    className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-5 py-2.5 text-sm font-bold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto"
                                 >
                                     <LayoutDashboard className="h-4 w-4" />
                                     Lihat Kartu
@@ -318,10 +352,10 @@ export default function AdminProfile() {
                 {/* Styled Tabs */}
                 <motion.div
                     variants={itemVariants}
-                    className="flex p-1 rounded-2xl border border-white/20 bg-white/50 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/50 shadow-lg w-full md:max-w-fit mx-auto overflow-x-auto hide-scrollbar"
+                    className="hide-scrollbar mx-auto flex w-full overflow-x-auto rounded-2xl border border-white/20 bg-white/50 p-1 shadow-lg backdrop-blur-xl md:max-w-fit dark:border-white/5 dark:bg-neutral-900/50"
                 >
-                    <div className="flex w-max min-w-full sm:w-auto sm:min-w-0 justify-between sm:justify-start">
-                        {tabs.map(tab => {
+                    <div className="flex w-max min-w-full justify-between sm:w-auto sm:min-w-0 sm:justify-start">
+                        {tabs.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = activeTab === tab.key;
                             return (
@@ -331,14 +365,21 @@ export default function AdminProfile() {
                                     onMouseEnter={() => setHoveredTab(tab.key)}
                                     onMouseLeave={() => setHoveredTab(null)}
                                     className={cn(
-                                        "relative flex flex-1 sm:flex-none items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 rounded-xl text-[11px] sm:text-sm font-semibold transition-all duration-300",
+                                        'relative flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-[11px] font-semibold transition-all duration-300 sm:flex-none sm:gap-2 sm:px-6 sm:text-sm',
                                         isActive
-                                            ? "text-white shadow-md bg-gradient-to-r from-blue-600 to-indigo-600"
-                                            : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                                            : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white',
                                     )}
                                 >
-                                    <Icon className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0", isActive && "animate-pulse")} />
-                                    <span className="relative z-10 whitespace-nowrap">{tab.label}</span>
+                                    <Icon
+                                        className={cn(
+                                            'h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4',
+                                            isActive && 'animate-pulse',
+                                        )}
+                                    />
+                                    <span className="relative z-10 whitespace-nowrap">
+                                        {tab.label}
+                                    </span>
                                     {!isActive && hoveredTab === tab.key && (
                                         <motion.div
                                             layoutId="hoverTab"
@@ -366,7 +407,7 @@ export default function AdminProfile() {
                                 exit="exit"
                                 className="flex flex-col items-center justify-center py-8"
                             >
-                                <div className="p-8 rounded-[40px] bg-gradient-to-br from-neutral-100 to-white dark:from-neutral-900 dark:to-black shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-black/50 border border-white/50 dark:border-white/5">
+                                <div className="rounded-[40px] border border-white/50 bg-gradient-to-br from-neutral-100 to-white p-8 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:border-white/5 dark:from-neutral-900 dark:to-black dark:shadow-black/50">
                                     <ProfileCard
                                         name={auth.user.name}
                                         title="Administrator"
@@ -378,7 +419,9 @@ export default function AdminProfile() {
                                         enableTilt={true}
                                         behindGlowColor="rgba(59, 130, 246, 0.6)"
                                         innerGradient="linear-gradient(145deg, #3b82f644 0%, #8b5cf644 100%)"
-                                        onContactClick={() => setActiveTab('profile')}
+                                        onContactClick={() =>
+                                            setActiveTab('profile')
+                                        }
                                     />
                                 </div>
                             </motion.div>
@@ -393,58 +436,110 @@ export default function AdminProfile() {
                                 exit="exit"
                                 className="grid gap-6 lg:grid-cols-2"
                             >
-                                <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-8 shadow-xl dark:border-neutral-800 dark:bg-neutral-900/50">
-                                    <div className="flex items-center justify-between mb-8">
+                                <div className="rounded-3xl border border-white/20 bg-white/50 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                                    <div className="mb-8 flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
                                                 <User className="h-6 w-6" />
                                             </div>
                                             <div>
-                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Edit Profil</h2>
-                                                <p className="text-sm text-neutral-500">Perbarui informasi dasar</p>
+                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                                    Edit Profil
+                                                </h2>
+                                                <p className="text-sm text-neutral-500">
+                                                    Perbarui informasi dasar
+                                                </p>
                                             </div>
                                         </div>
                                         {!isEditingProfile && (
-                                            <Button variant="outline" onClick={() => setIsEditingProfile(true)} className="flex items-center gap-2 rounded-xl border-neutral-200 dark:border-neutral-700">
-                                                <Edit2 className="h-4 w-4" />Edit
+                                            <Button
+                                                variant="outline"
+                                                onClick={() =>
+                                                    setIsEditingProfile(true)
+                                                }
+                                                className="flex items-center gap-2 rounded-xl border-neutral-200 dark:border-neutral-700"
+                                            >
+                                                <Edit2 className="h-4 w-4" />
+                                                Edit
                                             </Button>
                                         )}
                                     </div>
 
                                     {/* Avatar Upload Section */}
-                                    <div className="mb-8 p-4 rounded-2xl bg-neutral-50/50 dark:bg-black/20 border border-neutral-200/50 dark:border-neutral-800/50">
-                                        <div className="flex flex-col sm:flex-row items-center gap-6">
-                                            <div className="relative group">
-                                                <div className="h-24 w-24 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-neutral-800 shadow-lg">
-                                                    <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                                    <div className="mb-8 rounded-2xl border border-neutral-200/50 bg-neutral-50/50 p-4 dark:border-neutral-800/50 dark:bg-black/20">
+                                        <div className="flex flex-col items-center gap-6 sm:flex-row">
+                                            <div className="group relative">
+                                                <div className="h-24 w-24 overflow-hidden rounded-2xl shadow-lg ring-4 ring-white dark:ring-neutral-800">
+                                                    <img
+                                                        src={avatarUrl}
+                                                        alt="Preview"
+                                                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                                                    />
                                                 </div>
                                                 <button
-                                                    onClick={() => avatarInputRef.current?.click()}
-                                                    className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"
+                                                    onClick={() =>
+                                                        avatarInputRef.current?.click()
+                                                    }
+                                                    className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
                                                 >
                                                     <Camera className="h-8 w-8 text-white drop-shadow-md" />
                                                 </button>
                                                 {avatarPreview && (
-                                                    <div className="absolute -top-2 -right-2 bg-emerald-500 text-white p-1 rounded-full shadow-md border-2 border-white dark:border-neutral-900">
+                                                    <div className="absolute -top-2 -right-2 rounded-full border-2 border-white bg-emerald-500 p-1 text-white shadow-md dark:border-neutral-900">
                                                         <CheckCircle2 className="h-3 w-3" />
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="flex-1 text-center sm:text-left space-y-3">
+                                            <div className="flex-1 space-y-3 text-center sm:text-left">
                                                 <div className="space-y-1">
-                                                    <p className="font-medium text-neutral-900 dark:text-white">Foto Profil</p>
-                                                    <p className="text-xs text-neutral-500">Mendukung format PNG, JPG. Maksimal 2MB.</p>
+                                                    <p className="font-medium text-neutral-900 dark:text-white">
+                                                        Foto Profil
+                                                    </p>
+                                                    <p className="text-xs text-neutral-500">
+                                                        Mendukung format PNG,
+                                                        JPG. Maksimal 2MB.
+                                                    </p>
                                                 </div>
 
-                                                <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
+                                                <input
+                                                    ref={avatarInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={
+                                                        handleAvatarChange
+                                                    }
+                                                    className="hidden"
+                                                />
 
-                                                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                                                    <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="flex items-center gap-2 rounded-lg text-xs">
-                                                        <Camera className="h-3.5 w-3.5" /> Pilih Foto
+                                                <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            avatarInputRef.current?.click()
+                                                        }
+                                                        className="flex items-center gap-2 rounded-lg text-xs"
+                                                    >
+                                                        <Camera className="h-3.5 w-3.5" />{' '}
+                                                        Pilih Foto
                                                     </Button>
                                                     {avatarPreview && (
-                                                        <Button type="button" size="sm" onClick={handleAvatarUpload} disabled={isUploadingAvatar} className="flex items-center gap-2 rounded-lg text-xs bg-indigo-600 hover:bg-indigo-700 text-white">
-                                                            <Upload className="h-3.5 w-3.5" /> {isUploadingAvatar ? 'Uploading...' : 'Simpan Foto'}
+                                                        <Button
+                                                            type="button"
+                                                            size="sm"
+                                                            onClick={
+                                                                handleAvatarUpload
+                                                            }
+                                                            disabled={
+                                                                isUploadingAvatar
+                                                            }
+                                                            className="flex items-center gap-2 rounded-lg bg-indigo-600 text-xs text-white hover:bg-indigo-700"
+                                                        >
+                                                            <Upload className="h-3.5 w-3.5" />{' '}
+                                                            {isUploadingAvatar
+                                                                ? 'Uploading...'
+                                                                : 'Simpan Foto'}
                                                         </Button>
                                                     )}
                                                 </div>
@@ -453,45 +548,86 @@ export default function AdminProfile() {
                                     </div>
 
                                     {/* Profile Form */}
-                                    <form onSubmit={handleProfileUpdate} className="space-y-5">
+                                    <form
+                                        onSubmit={handleProfileUpdate}
+                                        className="space-y-5"
+                                    >
                                         <div className="space-y-2">
-                                            <Label htmlFor="name" className="text-neutral-600 dark:text-neutral-400">Nama Lengkap</Label>
-                                            <div className="relative group">
+                                            <Label
+                                                htmlFor="name"
+                                                className="text-neutral-600 dark:text-neutral-400"
+                                            >
+                                                Nama Lengkap
+                                            </Label>
+                                            <div className="group relative">
                                                 <Input
                                                     id="name"
                                                     type="text"
-                                                    value={profileForm.data.name}
-                                                    onChange={(e) => profileForm.setData('name', e.target.value)}
+                                                    value={
+                                                        profileForm.data.name
+                                                    }
+                                                    onChange={(e) =>
+                                                        profileForm.setData(
+                                                            'name',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     disabled={!isEditingProfile}
                                                     className={cn(
-                                                        "pl-10 h-12 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20 focus:ring-2 focus:ring-indigo-500 transition-all",
-                                                        !isEditingProfile && "opacity-70 cursor-not-allowed bg-neutral-100/50 dark:bg-neutral-800/50"
+                                                        'h-12 rounded-xl border-neutral-200 bg-white/50 pl-10 transition-all focus:ring-2 focus:ring-indigo-500 dark:border-neutral-800 dark:bg-black/20',
+                                                        !isEditingProfile &&
+                                                            'cursor-not-allowed bg-neutral-100/50 opacity-70 dark:bg-neutral-800/50',
                                                     )}
                                                     placeholder="Nama Lengkap Anda"
                                                 />
-                                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-indigo-500 transition-colors" />
+                                                <User className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-indigo-500" />
                                             </div>
-                                            {profileForm.errors.name && <InputError message={profileForm.errors.name} />}
+                                            {profileForm.errors.name && (
+                                                <InputError
+                                                    message={
+                                                        profileForm.errors.name
+                                                    }
+                                                />
+                                            )}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="email" className="text-neutral-600 dark:text-neutral-400">Alamat Email</Label>
-                                            <div className="relative group">
+                                            <Label
+                                                htmlFor="email"
+                                                className="text-neutral-600 dark:text-neutral-400"
+                                            >
+                                                Alamat Email
+                                            </Label>
+                                            <div className="group relative">
                                                 <Input
                                                     id="email"
                                                     type="email"
-                                                    value={profileForm.data.email}
-                                                    onChange={(e) => profileForm.setData('email', e.target.value)}
+                                                    value={
+                                                        profileForm.data.email
+                                                    }
+                                                    onChange={(e) =>
+                                                        profileForm.setData(
+                                                            'email',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     disabled={!isEditingProfile}
                                                     className={cn(
-                                                        "pl-10 h-12 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20 focus:ring-2 focus:ring-indigo-500 transition-all",
-                                                        !isEditingProfile && "opacity-70 cursor-not-allowed bg-neutral-100/50 dark:bg-neutral-800/50"
+                                                        'h-12 rounded-xl border-neutral-200 bg-white/50 pl-10 transition-all focus:ring-2 focus:ring-indigo-500 dark:border-neutral-800 dark:bg-black/20',
+                                                        !isEditingProfile &&
+                                                            'cursor-not-allowed bg-neutral-100/50 opacity-70 dark:bg-neutral-800/50',
                                                     )}
                                                     placeholder="email@example.com"
                                                 />
-                                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-indigo-500 transition-colors" />
+                                                <Mail className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-indigo-500" />
                                             </div>
-                                            {profileForm.errors.email && <InputError message={profileForm.errors.email} />}
+                                            {profileForm.errors.email && (
+                                                <InputError
+                                                    message={
+                                                        profileForm.errors.email
+                                                    }
+                                                />
+                                            )}
                                         </div>
 
                                         {isEditingProfile && (
@@ -500,12 +636,28 @@ export default function AdminProfile() {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 className="flex gap-3 pt-4"
                                             >
-                                                <Button type="submit" disabled={profileForm.processing} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11 shadow-lg shadow-indigo-500/20">
-                                                    <Save className="h-4 w-4 mr-2" />
-                                                    {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                                <Button
+                                                    type="submit"
+                                                    disabled={
+                                                        profileForm.processing
+                                                    }
+                                                    className="h-11 flex-1 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700"
+                                                >
+                                                    <Save className="mr-2 h-4 w-4" />
+                                                    {profileForm.processing
+                                                        ? 'Menyimpan...'
+                                                        : 'Simpan Perubahan'}
                                                 </Button>
-                                                <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={profileForm.processing} className="rounded-xl h-11 border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                                                    <XCircle className="h-4 w-4 mr-2" />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={handleCancelEdit}
+                                                    disabled={
+                                                        profileForm.processing
+                                                    }
+                                                    className="h-11 rounded-xl border-neutral-200 hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                                                >
+                                                    <XCircle className="mr-2 h-4 w-4" />
                                                     Batal
                                                 </Button>
                                             </motion.div>
@@ -514,29 +666,44 @@ export default function AdminProfile() {
                                 </div>
 
                                 <div className="space-y-6">
-                                    <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-8 shadow-xl dark:border-neutral-800 dark:bg-neutral-900/50">
-                                        <div className="flex items-center gap-4 mb-6">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400"><Mail className="h-6 w-6" /></div>
+                                    <div className="rounded-3xl border border-white/20 bg-white/50 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                                        <div className="mb-6 flex items-center gap-4">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
+                                                <Mail className="h-6 w-6" />
+                                            </div>
                                             <div>
-                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Ringkasan Akun</h2>
-                                                <p className="text-sm text-neutral-500">Detail status akun</p>
+                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                                    Ringkasan Akun
+                                                </h2>
+                                                <p className="text-sm text-neutral-500">
+                                                    Detail status akun
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-50 dark:bg-black/30 border border-neutral-100 dark:border-white/5">
-                                                <span className="text-sm text-neutral-500">Nama Pengguna</span>
-                                                <span className="font-semibold text-neutral-900 dark:text-white">{auth.user.name}</span>
+                                            <div className="flex items-center justify-between rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-white/5 dark:bg-black/30">
+                                                <span className="text-sm text-neutral-500">
+                                                    Nama Pengguna
+                                                </span>
+                                                <span className="font-semibold text-neutral-900 dark:text-white">
+                                                    {auth.user.name}
+                                                </span>
                                             </div>
-                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-50 dark:bg-black/30 border border-neutral-100 dark:border-white/5">
-                                                <span className="text-sm text-neutral-500">Role Akses</span>
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 text-xs font-bold border border-indigo-100 dark:border-indigo-500/20">
+                                            <div className="flex items-center justify-between rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-white/5 dark:bg-black/30">
+                                                <span className="text-sm text-neutral-500">
+                                                    Role Akses
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-100 bg-indigo-50 px-2.5 py-0.5 text-xs font-bold text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300">
                                                     Administrator
                                                 </span>
                                             </div>
-                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-50 dark:bg-black/30 border border-neutral-100 dark:border-white/5">
-                                                <span className="text-sm text-neutral-500">Status Akun</span>
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300 text-xs font-bold border border-emerald-100 dark:border-emerald-500/20">
-                                                    <CheckCircle2 className="h-3 w-3" /> Aktif
+                                            <div className="flex items-center justify-between rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-white/5 dark:bg-black/30">
+                                                <span className="text-sm text-neutral-500">
+                                                    Status Akun
+                                                </span>
+                                                <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+                                                    <CheckCircle2 className="h-3 w-3" />{' '}
+                                                    Aktif
                                                 </span>
                                             </div>
                                         </div>
@@ -544,13 +711,19 @@ export default function AdminProfile() {
 
                                     <div className="rounded-3xl border border-amber-200/50 bg-gradient-to-br from-amber-50 to-orange-50 p-6 shadow-lg backdrop-blur dark:border-amber-800/30 dark:from-amber-900/10 dark:to-orange-900/10">
                                         <div className="flex items-start gap-4">
-                                            <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-xl text-amber-600 dark:text-amber-400 shadow-sm">
+                                            <div className="rounded-xl bg-amber-100 p-3 text-amber-600 shadow-sm dark:bg-amber-900/30 dark:text-amber-400">
                                                 <AlertCircle className="h-6 w-6" />
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-amber-900 dark:text-amber-100 mb-1">Informasi Penting</h3>
-                                                <p className="text-sm text-amber-800/80 dark:text-amber-200/80 leading-relaxed">
-                                                    Email yang Anda gunakan akan menjadi saluran utama untuk notifikasi sistem dan pemulihan akun. Pastikan selalu aktif.
+                                                <h3 className="mb-1 font-bold text-amber-900 dark:text-amber-100">
+                                                    Informasi Penting
+                                                </h3>
+                                                <p className="text-sm leading-relaxed text-amber-800/80 dark:text-amber-200/80">
+                                                    Email yang Anda gunakan akan
+                                                    menjadi saluran utama untuk
+                                                    notifikasi sistem dan
+                                                    pemulihan akun. Pastikan
+                                                    selalu aktif.
                                                 </p>
                                             </div>
                                         </div>
@@ -568,99 +741,201 @@ export default function AdminProfile() {
                                 exit="exit"
                                 className="grid gap-6 lg:grid-cols-2"
                             >
-                                <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-8 shadow-xl dark:border-neutral-800 dark:bg-neutral-900/50">
-                                    <div className="flex items-center gap-4 mb-8">
+                                <div className="rounded-3xl border border-white/20 bg-white/50 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                                    <div className="mb-8 flex items-center gap-4">
                                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-fuchsia-600 text-white shadow-lg shadow-violet-500/30">
                                             <KeyRound className="h-6 w-6" />
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Ganti Password</h2>
-                                            <p className="text-sm text-neutral-500">Tingkatkan keamanan akun</p>
+                                            <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                                Ganti Password
+                                            </h2>
+                                            <p className="text-sm text-neutral-500">
+                                                Tingkatkan keamanan akun
+                                            </p>
                                         </div>
                                     </div>
 
-                                    <form onSubmit={handlePasswordUpdate} className="space-y-5">
+                                    <form
+                                        onSubmit={handlePasswordUpdate}
+                                        className="space-y-5"
+                                    >
                                         <div className="space-y-2">
-                                            <Label className="text-neutral-600 dark:text-neutral-400">Password Saat Ini</Label>
-                                            <div className="relative group">
+                                            <Label className="text-neutral-600 dark:text-neutral-400">
+                                                Password Saat Ini
+                                            </Label>
+                                            <div className="group relative">
                                                 <Input
-                                                    type={showCurrentPassword ? "text" : "password"}
-                                                    value={passwordForm.data.current_password}
-                                                    onChange={(e) => passwordForm.setData('current_password', e.target.value)}
-                                                    className="pl-10 pr-10 h-12 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20 focus:ring-2 focus:ring-violet-500 transition-all"
+                                                    type={
+                                                        showCurrentPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    value={
+                                                        passwordForm.data
+                                                            .current_password
+                                                    }
+                                                    onChange={(e) =>
+                                                        passwordForm.setData(
+                                                            'current_password',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="h-12 rounded-xl border-neutral-200 bg-white/50 pr-10 pl-10 transition-all focus:ring-2 focus:ring-violet-500 dark:border-neutral-800 dark:bg-black/20"
                                                     placeholder="••••••••"
                                                 />
-                                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-violet-500 transition-colors" />
+                                                <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-violet-500" />
                                                 <button
                                                     type="button"
-                                                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                                    onClick={() =>
+                                                        setShowCurrentPassword(
+                                                            !showCurrentPassword,
+                                                        )
+                                                    }
+                                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                                                 >
-                                                    {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                    {showCurrentPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
                                                 </button>
                                             </div>
-                                            {passwordForm.errors.current_password && <InputError message={passwordForm.errors.current_password} />}
+                                            {passwordForm.errors
+                                                .current_password && (
+                                                <InputError
+                                                    message={
+                                                        passwordForm.errors
+                                                            .current_password
+                                                    }
+                                                />
+                                            )}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label className="text-neutral-600 dark:text-neutral-400">Password Baru</Label>
-                                            <div className="relative group">
+                                            <Label className="text-neutral-600 dark:text-neutral-400">
+                                                Password Baru
+                                            </Label>
+                                            <div className="group relative">
                                                 <Input
-                                                    type={showNewPassword ? "text" : "password"}
-                                                    value={passwordForm.data.password}
-                                                    onChange={(e) => passwordForm.setData('password', e.target.value)}
-                                                    className="pl-10 pr-10 h-12 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20 focus:ring-2 focus:ring-violet-500 transition-all"
+                                                    type={
+                                                        showNewPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    value={
+                                                        passwordForm.data
+                                                            .password
+                                                    }
+                                                    onChange={(e) =>
+                                                        passwordForm.setData(
+                                                            'password',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="h-12 rounded-xl border-neutral-200 bg-white/50 pr-10 pl-10 transition-all focus:ring-2 focus:ring-violet-500 dark:border-neutral-800 dark:bg-black/20"
                                                     placeholder="Minimal 8 karakter"
                                                 />
-                                                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-violet-500 transition-colors" />
+                                                <KeyRound className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-violet-500" />
                                                 <button
                                                     type="button"
-                                                    onClick={() => setShowNewPassword(!showNewPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                                    onClick={() =>
+                                                        setShowNewPassword(
+                                                            !showNewPassword,
+                                                        )
+                                                    }
+                                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                                                 >
-                                                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                    {showNewPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
                                                 </button>
                                             </div>
-                                            {passwordForm.errors.password && <InputError message={passwordForm.errors.password} />}
+                                            {passwordForm.errors.password && (
+                                                <InputError
+                                                    message={
+                                                        passwordForm.errors
+                                                            .password
+                                                    }
+                                                />
+                                            )}
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label className="text-neutral-600 dark:text-neutral-400">Konfirmasi Password</Label>
-                                            <div className="relative group">
+                                            <Label className="text-neutral-600 dark:text-neutral-400">
+                                                Konfirmasi Password
+                                            </Label>
+                                            <div className="group relative">
                                                 <Input
-                                                    type={showConfirmPassword ? "text" : "password"}
-                                                    value={passwordForm.data.password_confirmation}
-                                                    onChange={(e) => passwordForm.setData('password_confirmation', e.target.value)}
-                                                    className="pl-10 pr-10 h-12 rounded-xl border-neutral-200 dark:border-neutral-800 bg-white/50 dark:bg-black/20 focus:ring-2 focus:ring-violet-500 transition-all"
+                                                    type={
+                                                        showConfirmPassword
+                                                            ? 'text'
+                                                            : 'password'
+                                                    }
+                                                    value={
+                                                        passwordForm.data
+                                                            .password_confirmation
+                                                    }
+                                                    onChange={(e) =>
+                                                        passwordForm.setData(
+                                                            'password_confirmation',
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="h-12 rounded-xl border-neutral-200 bg-white/50 pr-10 pl-10 transition-all focus:ring-2 focus:ring-violet-500 dark:border-neutral-800 dark:bg-black/20"
                                                     placeholder="Ulangi password baru"
                                                 />
-                                                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400 group-focus-within:text-violet-500 transition-colors" />
+                                                <Shield className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-neutral-400 transition-colors group-focus-within:text-violet-500" />
                                                 <button
                                                     type="button"
-                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                                    onClick={() =>
+                                                        setShowConfirmPassword(
+                                                            !showConfirmPassword,
+                                                        )
+                                                    }
+                                                    className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                                                 >
-                                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
                                                 </button>
                                             </div>
                                         </div>
 
                                         <div className="pt-4">
-                                            <Button type="submit" disabled={passwordForm.processing} className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-xl h-11 shadow-lg shadow-violet-500/20">
-                                                <Save className="h-4 w-4 mr-2" />
-                                                {passwordForm.processing ? 'Memperbarui...' : 'Perbarui Password'}
+                                            <Button
+                                                type="submit"
+                                                disabled={
+                                                    passwordForm.processing
+                                                }
+                                                className="h-11 w-full rounded-xl bg-violet-600 text-white shadow-lg shadow-violet-500/20 hover:bg-violet-700"
+                                            >
+                                                <Save className="mr-2 h-4 w-4" />
+                                                {passwordForm.processing
+                                                    ? 'Memperbarui...'
+                                                    : 'Perbarui Password'}
                                             </Button>
                                         </div>
                                     </form>
                                 </div>
 
                                 <div className="space-y-6">
-                                    <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-8 shadow-xl dark:border-neutral-800 dark:bg-neutral-900/50">
-                                        <div className="flex items-center gap-4 mb-6">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"><Shield className="h-6 w-6" /></div>
+                                    <div className="rounded-3xl border border-white/20 bg-white/50 p-8 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                                        <div className="mb-6 flex items-center gap-4">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                                                <Shield className="h-6 w-6" />
+                                            </div>
                                             <div>
-                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Panduan Keamanan</h2>
-                                                <p className="text-sm text-neutral-500">Praktik terbaik</p>
+                                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+                                                    Panduan Keamanan
+                                                </h2>
+                                                <p className="text-sm text-neutral-500">
+                                                    Praktik terbaik
+                                                </p>
                                             </div>
                                         </div>
                                         <ul className="space-y-4">
@@ -669,10 +944,13 @@ export default function AdminProfile() {
                                                 'Kombinasikan huruf besar, kecil, & angka',
                                                 'Gunakan simbol unik (!@#$)',
                                                 'Jangan gunakan data pribadi (tgl lahir)',
-                                                'Ubah password secara berkala'
+                                                'Ubah password secara berkala',
                                             ].map((tip, idx) => (
-                                                <li key={idx} className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-300">
-                                                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                                                <li
+                                                    key={idx}
+                                                    className="flex items-center gap-3 text-sm text-neutral-600 dark:text-neutral-300"
+                                                >
+                                                    <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-500" />
                                                     {tip}
                                                 </li>
                                             ))}
@@ -684,8 +962,12 @@ export default function AdminProfile() {
                                         <div className="relative flex items-center gap-4">
                                             <ShieldCheck className="h-10 w-10 text-emerald-400" />
                                             <div>
-                                                <h3 className="text-lg font-bold">Akun Terlindungi</h3>
-                                                <p className="text-sm text-gray-400">Status keamanan Anda baik.</p>
+                                                <h3 className="text-lg font-bold">
+                                                    Akun Terlindungi
+                                                </h3>
+                                                <p className="text-sm text-gray-400">
+                                                    Status keamanan Anda baik.
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

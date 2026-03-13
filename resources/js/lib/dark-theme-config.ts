@@ -206,12 +206,12 @@ export const animationConfig: AnimationConfig = {
  */
 export function applyThemePreset(preset: ThemePreset): void {
     const root = document.documentElement;
-    
+
     root.style.setProperty('--color-primary', preset.colors.primary);
     root.style.setProperty('--color-secondary', preset.colors.secondary);
     root.style.setProperty('--color-accent', preset.colors.accent);
     root.style.setProperty('--color-background', preset.colors.background);
-    
+
     // Store in localStorage
     localStorage.setItem('theme-preset', preset.id);
 }
@@ -221,24 +221,30 @@ export function applyThemePreset(preset: ThemePreset): void {
  */
 export function getCurrentThemePreset(): ThemePreset {
     const savedPresetId = localStorage.getItem('theme-preset');
-    const preset = themePresets.find(p => p.id === savedPresetId);
+    const preset = themePresets.find((p) => p.id === savedPresetId);
     return preset || themePresets[0]; // Default to Midnight
 }
 
 /**
  * Generate gradient CSS string
  */
-export function generateGradient(colors: string[], angle: number = 135): string {
+export function generateGradient(
+    colors: string[],
+    angle: number = 135,
+): string {
     return `linear-gradient(${angle}deg, ${colors.join(', ')})`;
 }
 
 /**
  * Generate glow shadow CSS string
  */
-export function generateGlowShadow(color: string, intensity: number = 0.3): string {
+export function generateGlowShadow(
+    color: string,
+    intensity: number = 0.3,
+): string {
     const rgb = hexToRgb(color);
     if (!rgb) return '0 0 30px rgba(168, 85, 247, 0.3)';
-    
+
     return `0 0 30px rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${intensity})`;
 }
 
@@ -280,14 +286,18 @@ export function getGlassmorphismClasses(strong: boolean = false): string {
 /**
  * Glow effect CSS class generator
  */
-export function getGlowClasses(color: 'purple' | 'pink' | 'blue' | 'multi'): string {
+export function getGlowClasses(
+    color: 'purple' | 'pink' | 'blue' | 'multi',
+): string {
     return `glow-${color}`;
 }
 
 /**
  * Gradient text CSS class generator
  */
-export function getGradientTextClasses(variant: 'purple' | 'blue' | 'multi'): string {
+export function getGradientTextClasses(
+    variant: 'purple' | 'blue' | 'multi',
+): string {
     return `gradient-text-${variant}`;
 }
 
@@ -305,12 +315,18 @@ export function exportThemeConfig(): string {
     const config = {
         preset: getCurrentThemePreset(),
         customColors: {
-            primary: getComputedStyle(document.documentElement).getPropertyValue('--color-primary'),
-            secondary: getComputedStyle(document.documentElement).getPropertyValue('--color-secondary'),
-            accent: getComputedStyle(document.documentElement).getPropertyValue('--color-accent'),
+            primary: getComputedStyle(
+                document.documentElement,
+            ).getPropertyValue('--color-primary'),
+            secondary: getComputedStyle(
+                document.documentElement,
+            ).getPropertyValue('--color-secondary'),
+            accent: getComputedStyle(document.documentElement).getPropertyValue(
+                '--color-accent',
+            ),
         },
     };
-    
+
     return JSON.stringify(config, null, 2);
 }
 
@@ -320,21 +336,30 @@ export function exportThemeConfig(): string {
 export function importThemeConfig(configJson: string): boolean {
     try {
         const config = JSON.parse(configJson);
-        
+
         if (config.preset) {
-            const preset = themePresets.find(p => p.id === config.preset.id);
+            const preset = themePresets.find((p) => p.id === config.preset.id);
             if (preset) {
                 applyThemePreset(preset);
             }
         }
-        
+
         if (config.customColors) {
             const root = document.documentElement;
-            root.style.setProperty('--color-primary', config.customColors.primary);
-            root.style.setProperty('--color-secondary', config.customColors.secondary);
-            root.style.setProperty('--color-accent', config.customColors.accent);
+            root.style.setProperty(
+                '--color-primary',
+                config.customColors.primary,
+            );
+            root.style.setProperty(
+                '--color-secondary',
+                config.customColors.secondary,
+            );
+            root.style.setProperty(
+                '--color-accent',
+                config.customColors.accent,
+            );
         }
-        
+
         return true;
     } catch (error) {
         console.error('Failed to import theme config:', error);

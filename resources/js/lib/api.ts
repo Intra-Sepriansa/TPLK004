@@ -10,7 +10,11 @@ type FetchOptions = Omit<RequestInit, 'headers'> & {
  * Get CSRF token from meta tag
  */
 export function getCsrfToken(): string {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    return (
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content') || ''
+    );
 }
 
 /**
@@ -18,14 +22,14 @@ export function getCsrfToken(): string {
  */
 export async function apiRequest(
     url: string,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
 ): Promise<Response> {
     const { headers = {}, ...rest } = options;
-    
+
     const defaultHeaders: Record<string, string> = {
         'X-CSRF-TOKEN': getCsrfToken(),
         'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json',
+        Accept: 'application/json',
     };
 
     // Don't set Content-Type for FormData (browser will set it with boundary)
@@ -46,7 +50,10 @@ export async function apiRequest(
 /**
  * Make a GET request
  */
-export async function apiGet(url: string, options: FetchOptions = {}): Promise<Response> {
+export async function apiGet(
+    url: string,
+    options: FetchOptions = {},
+): Promise<Response> {
     return apiRequest(url, { ...options, method: 'GET' });
 }
 
@@ -56,7 +63,7 @@ export async function apiGet(url: string, options: FetchOptions = {}): Promise<R
 export async function apiPost(
     url: string,
     body?: Record<string, unknown> | FormData,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
 ): Promise<Response> {
     return apiRequest(url, {
         ...options,
@@ -71,7 +78,7 @@ export async function apiPost(
 export async function apiPut(
     url: string,
     body?: Record<string, unknown>,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
 ): Promise<Response> {
     return apiRequest(url, {
         ...options,
@@ -83,7 +90,10 @@ export async function apiPut(
 /**
  * Make a DELETE request
  */
-export async function apiDelete(url: string, options: FetchOptions = {}): Promise<Response> {
+export async function apiDelete(
+    url: string,
+    options: FetchOptions = {},
+): Promise<Response> {
     return apiRequest(url, { ...options, method: 'DELETE' });
 }
 

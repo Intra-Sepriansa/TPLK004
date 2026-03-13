@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { send } from '@/routes/verification';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Form, Head, Link, usePage, router } from '@inertiajs/react';
+import { Form, Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -15,7 +15,7 @@ import ProfileCard from '@/components/ui/profile-card';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
-import { Sparkles, X, Camera, Upload, CheckCircle2 } from 'lucide-react';
+import { Camera, CheckCircle2, Sparkles, Upload, X } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -31,7 +31,9 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const { auth, flash } = usePage<SharedData & { flash?: { success?: string } }>().props;
+    const { auth, flash } = usePage<
+        SharedData & { flash?: { success?: string } }
+    >().props;
     const [showProfileCard, setShowProfileCard] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -47,7 +49,9 @@ export default function Profile({
         }
     }, [flash?.success]);
 
-    const avatarUrl = avatarPreview || (auth.user as any).avatar_url ||
+    const avatarUrl =
+        avatarPreview ||
+        (auth.user as any).avatar_url ||
         `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`;
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,13 +86,18 @@ export default function Profile({
 
             {/* Success Toast */}
             <div
-                className={`fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100 transition-all duration-300 ease-out ${(successMessage || (showFlash && flash?.success)) ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
-                    }`}
+                className={`fixed top-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur transition-all duration-300 ease-out dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100 ${
+                    successMessage || (showFlash && flash?.success)
+                        ? 'translate-x-0 opacity-100'
+                        : 'pointer-events-none translate-x-full opacity-0'
+                }`}
             >
                 <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
                 <div>
                     <p className="font-semibold">Berhasil!</p>
-                    <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">{successMessage || flash?.success || ''}</p>
+                    <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
+                        {successMessage || flash?.success || ''}
+                    </p>
                 </div>
             </div>
 
@@ -97,7 +106,7 @@ export default function Profile({
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                     <button
                         onClick={() => setShowProfileCard(false)}
-                        className="absolute right-6 top-6 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+                        className="absolute top-6 right-6 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
                     >
                         <X className="h-6 w-6" />
                     </button>
@@ -137,42 +146,69 @@ export default function Profile({
                     </div>
 
                     {/* Avatar Preview with Upload */}
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-black/20 border border-blue-200/50 dark:border-blue-800/50">
+                    <div className="flex items-center gap-4 rounded-xl border border-blue-200/50 bg-gradient-to-r from-blue-500/10 to-black/20 p-4 dark:border-blue-800/50">
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileCard(true)}
-                                className="group relative h-16 w-16 rounded-xl overflow-hidden transition-transform hover:scale-105"
+                                className="group relative h-16 w-16 overflow-hidden rounded-xl transition-transform hover:scale-105"
                             >
                                 <img
                                     src={avatarUrl}
                                     alt={auth.user.name}
                                     className="h-full w-full object-cover"
                                 />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                                     <Sparkles className="h-5 w-5 text-white" />
                                 </div>
                             </button>
                             {avatarPreview && (
-                                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center">
+                                <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500">
                                     <CheckCircle2 className="h-3 w-3 text-white" />
                                 </div>
                             )}
                         </div>
                         <div className="flex-1">
-                            <p className="font-semibold text-slate-900 dark:text-white">{auth.user.name}</p>
-                            <p className="text-sm text-slate-500">{auth.user.email}</p>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Administrator</p>
+                            <p className="font-semibold text-slate-900 dark:text-white">
+                                {auth.user.name}
+                            </p>
+                            <p className="text-sm text-slate-500">
+                                {auth.user.email}
+                            </p>
+                            <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+                                Administrator
+                            </p>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" id="avatar-upload" />
-                            <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="flex items-center gap-2">
+                            <input
+                                ref={avatarInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAvatarChange}
+                                className="hidden"
+                                id="avatar-upload"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => avatarInputRef.current?.click()}
+                                className="flex items-center gap-2"
+                            >
                                 <Camera className="h-4 w-4" />
                                 Pilih Foto
                             </Button>
                             {avatarPreview && (
-                                <Button type="button" size="sm" onClick={handleAvatarUpload} disabled={isUploadingAvatar} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white">
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={handleAvatarUpload}
+                                    disabled={isUploadingAvatar}
+                                    className="flex items-center gap-2 bg-blue-500 text-white hover:bg-blue-600"
+                                >
                                     <Upload className="h-4 w-4" />
-                                    {isUploadingAvatar ? 'Uploading...' : 'Upload'}
+                                    {isUploadingAvatar
+                                        ? 'Uploading...'
+                                        : 'Upload'}
                                 </Button>
                             )}
                         </div>
@@ -244,12 +280,12 @@ export default function Profile({
 
                                             {status ===
                                                 'verification-link-sent' && (
-                                                    <div className="mt-2 text-sm font-medium text-green-600">
-                                                        A new verification link has
-                                                        been sent to your email
-                                                        address.
-                                                    </div>
-                                                )}
+                                                <div className="mt-2 text-sm font-medium text-green-600">
+                                                    A new verification link has
+                                                    been sent to your email
+                                                    address.
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 

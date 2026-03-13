@@ -3,355 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline — Mentari TPLK004</title>
+    <title>Kamu Sedang Offline | Absensi</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-        *{margin:0;padding:0;box-sizing:border-box}
-
-        :root {
-            --bg: #0a0a0a;
-            --card: rgba(255,255,255,0.04);
-            --border: rgba(255,255,255,0.08);
-            --text: #e5e5e5;
-            --text-dim: #737373;
-            --accent: #ef4444;
-            --accent-glow: rgba(239,68,68,0.15);
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Ambient background glow */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -40%;
-            left: -20%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(239,68,68,0.06) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: drift 12s ease-in-out infinite;
-            pointer-events: none;
-        }
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -30%;
-            right: -15%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(168,85,247,0.05) 0%, transparent 70%);
-            border-radius: 50%;
-            animation: drift 15s ease-in-out infinite reverse;
-            pointer-events: none;
-        }
-
-        @keyframes drift {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(40px, 30px); }
-        }
-
-        .wrapper {
-            max-width: 420px;
-            width: 100%;
             text-align: center;
-            animation: fadeUp 0.6s ease-out both;
         }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .container {
+            max-width: 400px;
+            padding: 2rem;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            margin: 1rem;
         }
-
-        /* Signal icon container */
-        .icon-ring {
-            width: 96px;
-            height: 96px;
-            margin: 0 auto 32px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .icon {
+            color: #ef4444;
+            margin-bottom: 1.5rem;
         }
-
-        .icon-ring::before {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            opacity: 0.3;
-            animation: ping-ring 2.5s ease-out infinite;
-        }
-
-        @keyframes ping-ring {
-            0% { transform: scale(1); opacity: 0.3; }
-            80% { transform: scale(1.4); opacity: 0; }
-            100% { transform: scale(1.4); opacity: 0; }
-        }
-
-        .icon-bg {
-            width: 80px;
-            height: 80px;
-            background: var(--accent-glow);
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(12px);
-        }
-
-        .icon-bg svg {
-            width: 36px;
-            height: 36px;
-            color: var(--accent);
-            opacity: 0.9;
-        }
-
         h1 {
-            font-size: 22px;
+            font-size: 1.5rem;
             font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 10px;
-            color: #fafafa;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
         }
-
-        .subtitle {
-            font-size: 14px;
-            color: var(--text-dim);
-            line-height: 1.7;
-            margin-bottom: 32px;
-            max-width: 320px;
-            margin-left: auto;
-            margin-right: auto;
+        p {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: #64748b;
+            margin-bottom: 1.5rem;
         }
-
-        /* Status card */
-        .status-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 28px;
-            backdrop-filter: blur(16px);
-        }
-
-        .status-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 0;
-        }
-        .status-row:not(:last-child) {
-            border-bottom: 1px solid var(--border);
-        }
-
-        .status-label {
-            font-size: 12px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-dim);
-        }
-
-        .status-value {
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .dot--red {
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            animation: blink 1.5s ease-in-out infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* Signal bars */
-        .signal-bars {
-            display: flex;
-            gap: 3px;
-            align-items: flex-end;
-            height: 16px;
-        }
-        .signal-bar {
-            width: 4px;
-            border-radius: 2px;
-            background: rgba(255,255,255,0.08);
-        }
-        .signal-bar:nth-child(1) { height: 4px; }
-        .signal-bar:nth-child(2) { height: 7px; }
-        .signal-bar:nth-child(3) { height: 10px; }
-        .signal-bar:nth-child(4) { height: 13px; }
-        .signal-bar:nth-child(5) { height: 16px; }
-
-        /* Retry button */
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 14px;
-            background: rgba(255,255,255,0.06);
-            color: #fafafa;
-            font-size: 14px;
+            display: inline-block;
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            text-decoration: none;
             font-weight: 600;
-            font-family: inherit;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            backdrop-filter: blur(8px);
+            border: none;
         }
         .btn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.2);
-            transform: translateY(-1px);
+            background-color: #4338ca;
         }
-        .btn:active {
-            transform: scale(0.98);
-        }
-        .btn svg {
-            width: 16px;
-            height: 16px;
-        }
-        .btn.loading svg {
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .hint {
-            margin-top: 20px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.25);
-            letter-spacing: 0.02em;
-        }
-
-        /* Timestamp */
-        .timestamp {
-            margin-top: 10px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.15);
-            font-variant-numeric: tabular-nums;
+        .warning {
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: #f59e0b;
+            background: #fffbeb;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="wrapper">
-        <!-- Icon -->
-        <div class="icon-ring">
-            <div class="icon-bg">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
-                    <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-            </div>
-        </div>
-
+    <div class="container">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+            <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+            <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+            <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+        
         <h1>Koneksi Terputus</h1>
-        <p class="subtitle">
-            Perangkat Anda tidak terhubung ke internet. Pastikan Wi-Fi atau data seluler aktif, lalu coba muat ulang.
-        </p>
-
-        <!-- Status panel -->
-        <div class="status-card">
-            <div class="status-row">
-                <span class="status-label">Status</span>
-                <span class="status-value">
-                    <span class="dot dot--red"></span>
-                    Offline
-                </span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">Sinyal</span>
-                <span class="status-value">
-                    <div class="signal-bars">
-                        <div class="signal-bar"></div>
-                        <div class="signal-bar"></div>
-                        <div class="signal-bar"></div>
-                        <div class="signal-bar"></div>
-                        <div class="signal-bar"></div>
-                    </div>
-                    Tidak tersedia
-                </span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">Terakhir Online</span>
-                <span class="status-value" id="lastOnline">—</span>
-            </div>
+        <p>Kamu sepertinya sedang tidak terhubung ke internet. Beberapa halaman tidak dapat dimuat offline, tetapi form absensi mungkin masih bisa diakses jika sudah terbuka.</p>
+        
+        <button class="btn" onclick="window.location.reload()">Coba Lagi</button>
+        
+        <div class="warning">
+            <strong>Catatan Absensi Offline:</strong> Jika kamu sedang mengisi absensi, JANGAN tutup aplikasinya. Absensi akan disimpan secara lokal.
         </div>
-
-        <!-- Retry button -->
-        <button class="btn" id="retryBtn" onclick="retryConnection()">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182" />
-            </svg>
-            <span id="retryText">Coba Lagi</span>
-        </button>
-
-        <p class="hint">Halaman akan dimuat ulang secara otomatis saat koneksi tersedia</p>
-        <p class="timestamp" id="clock"></p>
     </div>
-
-    <script>
-        // Show last online time
-        const lastOnline = document.getElementById('lastOnline');
-        const now = new Date();
-        lastOnline.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
-        // Live clock
-        const clock = document.getElementById('clock');
-        function updateClock() {
-            const t = new Date();
-            clock.textContent = t.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-                + ' • ' + t.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        }
-        updateClock();
-        setInterval(updateClock, 1000);
-
-        // Retry with loading state
-        function retryConnection() {
-            const btn = document.getElementById('retryBtn');
-            const text = document.getElementById('retryText');
-            btn.classList.add('loading');
-            text.textContent = 'Memeriksa...';
-            setTimeout(() => window.location.reload(), 800);
-        }
-
-        // Auto-reload when back online
-        window.addEventListener('online', () => {
-            document.getElementById('retryText').textContent = 'Terhubung!';
-            setTimeout(() => window.location.reload(), 500);
-        });
-    </script>
 </body>
 </html>

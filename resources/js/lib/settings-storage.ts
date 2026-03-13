@@ -1,7 +1,7 @@
 /**
  * Settings Storage with localStorage Fallback
  * Requirements: 7.5
- * 
+ *
  * Provides offline support for settings with sync queue for reconnection.
  */
 
@@ -32,7 +32,7 @@ export function getLocalSettings(): Partial<UserSettings> | null {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (!stored) return null;
-        
+
         const state: StorageState = JSON.parse(stored);
         return state.settings;
     } catch {
@@ -64,7 +64,7 @@ export function saveLocalSettings(settings: Partial<UserSettings>): boolean {
  */
 export function updateLocalSettingsCategory(
     category: keyof UserSettings,
-    categorySettings: Record<string, unknown>
+    categorySettings: Record<string, unknown>,
 ): boolean {
     try {
         const current = getLocalSettings() || {};
@@ -109,7 +109,10 @@ export function getSyncQueue(): SyncQueueItem[] {
 /**
  * Add item to sync queue
  */
-export function addToSyncQueue(category: string, settings: Record<string, unknown>): boolean {
+export function addToSyncQueue(
+    category: string,
+    settings: Record<string, unknown>,
+): boolean {
     try {
         const queue = getSyncQueue();
         const item: SyncQueueItem = {
@@ -119,11 +122,11 @@ export function addToSyncQueue(category: string, settings: Record<string, unknow
             timestamp: Date.now(),
             retryCount: 0,
         };
-        
+
         // Remove existing item for same category (keep only latest)
-        const filtered = queue.filter(q => q.category !== category);
+        const filtered = queue.filter((q) => q.category !== category);
         filtered.push(item);
-        
+
         localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(filtered));
         return true;
     } catch {
@@ -138,7 +141,7 @@ export function addToSyncQueue(category: string, settings: Record<string, unknow
 export function removeFromSyncQueue(id: string): boolean {
     try {
         const queue = getSyncQueue();
-        const filtered = queue.filter(q => q.id !== id);
+        const filtered = queue.filter((q) => q.id !== id);
         localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(filtered));
         return true;
     } catch {
@@ -166,8 +169,8 @@ export function clearSyncQueue(): boolean {
 export function updateSyncQueueRetry(id: string): boolean {
     try {
         const queue = getSyncQueue();
-        const updated = queue.map(q => 
-            q.id === id ? { ...q, retryCount: q.retryCount + 1 } : q
+        const updated = queue.map((q) =>
+            q.id === id ? { ...q, retryCount: q.retryCount + 1 } : q,
         );
         localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(updated));
         return true;
@@ -219,12 +222,15 @@ export function getPendingSyncCount(): number {
  * Process sync queue - call this when online
  */
 export async function processSyncQueue(
-    syncFn: (category: string, settings: Record<string, unknown>) => Promise<boolean>
+    syncFn: (
+        category: string,
+        settings: Record<string, unknown>,
+    ) => Promise<boolean>,
 ): Promise<{ success: number; failed: number }> {
     const queue = getSyncQueue();
     let success = 0;
     let failed = 0;
-    
+
     for (const item of queue) {
         try {
             const result = await syncFn(item.category, item.settings);
@@ -240,11 +246,11 @@ export async function processSyncQueue(
             failed++;
         }
     }
-    
+
     if (success > 0) {
         setLastSyncTime();
     }
-    
+
     return { success, failed };
 }
 
@@ -274,21 +280,21 @@ export function createSettingsStorage() {
  */
 export function setupOfflineHandlers(
     onOnline?: () => void,
-    onOffline?: () => void
+    onOffline?: () => void,
 ): () => void {
     const handleOnline = () => {
         console.log('Connection restored');
         onOnline?.();
     };
-    
+
     const handleOffline = () => {
         console.log('Connection lost - using offline mode');
         onOffline?.();
     };
-    
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     // Return cleanup function
     return () => {
         window.removeEventListener('online', handleOnline);
@@ -310,17 +316,17 @@ export function mergeSettings(
     local: Partial<UserSettings> | null,
     remote: Partial<UserSettings> | null,
     localTimestamp: number | null,
-    remoteTimestamp: number | null
+    remoteTimestamp: number | null,
 ): Partial<UserSettings> {
     if (!local && !remote) return {};
     if (!local) return remote || {};
     if (!remote) return local;
-    
+
     // If we have timestamps, use the newer one
     if (localTimestamp && remoteTimestamp) {
         return remoteTimestamp >= localTimestamp ? remote : local;
     }
-    
+
     // Default: remote takes precedence
     return { ...local, ...remote };
 }

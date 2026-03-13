@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
 import type { Message, TypingUser } from '@/types/chat';
+import { useEffect, useState } from 'react';
 
 interface UseChatOptions {
     conversationId: number;
@@ -9,7 +9,13 @@ interface UseChatOptions {
     onMessageRead?: (userId: number, userType: string, readAt: string) => void;
 }
 
-export function useChat({ conversationId, onNewMessage, onMessageDeleted, onTyping, onMessageRead }: UseChatOptions) {
+export function useChat({
+    conversationId,
+    onNewMessage,
+    onMessageDeleted,
+    onTyping,
+    onMessageRead,
+}: UseChatOptions) {
     const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
     const [isConnected, setIsConnected] = useState(false);
 
@@ -34,23 +40,48 @@ export function useChat({ conversationId, onNewMessage, onMessageDeleted, onTypi
         });
 
         // Listen for typing indicator
-        channel.listen('.user.typing', (data: TypingUser & { is_typing: boolean }) => {
-            if (data.is_typing) {
-                setTypingUsers(prev => {
-                    const exists = prev.some(u => u.user_id === data.user_id && u.user_type === data.user_type);
-                    if (exists) return prev;
-                    return [...prev, { user_id: data.user_id, user_type: data.user_type, user_name: data.user_name }];
-                });
-            } else {
-                setTypingUsers(prev => prev.filter(u => !(u.user_id === data.user_id && u.user_type === data.user_type)));
-            }
-            onTyping?.(data, data.is_typing);
-        });
+        channel.listen(
+            '.user.typing',
+            (data: TypingUser & { is_typing: boolean }) => {
+                if (data.is_typing) {
+                    setTypingUsers((prev) => {
+                        const exists = prev.some(
+                            (u) =>
+                                u.user_id === data.user_id &&
+                                u.user_type === data.user_type,
+                        );
+                        if (exists) return prev;
+                        return [
+                            ...prev,
+                            {
+                                user_id: data.user_id,
+                                user_type: data.user_type,
+                                user_name: data.user_name,
+                            },
+                        ];
+                    });
+                } else {
+                    setTypingUsers((prev) =>
+                        prev.filter(
+                            (u) =>
+                                !(
+                                    u.user_id === data.user_id &&
+                                    u.user_type === data.user_type
+                                ),
+                        ),
+                    );
+                }
+                onTyping?.(data, data.is_typing);
+            },
+        );
 
         // Listen for message read
-        channel.listen('.message.read', (data: { user_id: number; user_type: string; read_at: string }) => {
-            onMessageRead?.(data.user_id, data.user_type, data.read_at);
-        });
+        channel.listen(
+            '.message.read',
+            (data: { user_id: number; user_type: string; read_at: string }) => {
+                onMessageRead?.(data.user_id, data.user_type, data.read_at);
+            },
+        );
 
         setIsConnected(true);
 
@@ -58,7 +89,13 @@ export function useChat({ conversationId, onNewMessage, onMessageDeleted, onTypi
             echo.leave(`conversation.${conversationId}`);
             setIsConnected(false);
         };
-    }, [conversationId, onNewMessage, onMessageDeleted, onTyping, onMessageRead]);
+    }, [
+        conversationId,
+        onNewMessage,
+        onMessageDeleted,
+        onTyping,
+        onMessageRead,
+    ]);
 
     // Clear typing users after timeout
     useEffect(() => {

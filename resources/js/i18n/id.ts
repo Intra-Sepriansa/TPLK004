@@ -35,7 +35,7 @@ export const id = {
         saveSuccess: 'Pengaturan berhasil disimpan',
         loadError: 'Gagal memuat pengaturan',
         saveError: 'Gagal menyimpan pengaturan',
-        
+
         // Categories
         categories: {
             general: {
@@ -44,15 +44,18 @@ export const id = {
             },
             teaching: {
                 title: 'Pengajaran',
-                description: 'Pengaturan terkait metode pengajaran dan evaluasi',
+                description:
+                    'Pengaturan terkait metode pengajaran dan evaluasi',
             },
             classManagement: {
                 title: 'Manajemen Kelas',
-                description: 'Kelola preferensi untuk pengelolaan kelas dan mahasiswa',
+                description:
+                    'Kelola preferensi untuk pengelolaan kelas dan mahasiswa',
             },
             notifications: {
                 title: 'Notifikasi',
-                description: 'Kontrol bagaimana dan kapan Anda menerima notifikasi',
+                description:
+                    'Kontrol bagaimana dan kapan Anda menerima notifikasi',
             },
             appearance: {
                 title: 'Tampilan',
@@ -124,7 +127,8 @@ export const id = {
             publicProfile: 'Profil Publik',
             publicProfileDesc: 'Tampilkan profil Anda kepada mahasiswa',
             analytics: 'Analitik Anonim',
-            analyticsDesc: 'Izinkan pengumpulan data anonim untuk peningkatan layanan',
+            analyticsDesc:
+                'Izinkan pengumpulan data anonim untuk peningkatan layanan',
         },
 
         // Security
@@ -133,7 +137,8 @@ export const id = {
             changePassword: 'Ubah Kata Sandi',
             changePasswordDesc: 'Perbarui kata sandi akun Anda',
             twoFactor: 'Autentikasi Dua Faktor',
-            twoFactorDesc: 'Aktifkan autentikasi dua faktor untuk keamanan tambahan',
+            twoFactorDesc:
+                'Aktifkan autentikasi dua faktor untuk keamanan tambahan',
         },
 
         // Data Management

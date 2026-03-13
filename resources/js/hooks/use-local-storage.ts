@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export function useLocalStorage<T>(
     key: string,
-    initialValue: T
+    initialValue: T,
 ): [T, (value: T | ((prev: T) => T)) => void, () => void] {
     // Get initial value from localStorage or use provided initial value
     const readValue = useCallback((): T => {
@@ -26,23 +26,29 @@ export function useLocalStorage<T>(
         (value: T | ((prev: T) => T)) => {
             try {
                 // Allow value to be a function so we have same API as useState
-                const valueToStore = value instanceof Function ? value(storedValue) : value;
-                
+                const valueToStore =
+                    value instanceof Function ? value(storedValue) : value;
+
                 setStoredValue(valueToStore);
-                
+
                 if (typeof window !== 'undefined') {
-                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
-                    // Dispatch storage event for other tabs/windows
-                    window.dispatchEvent(new StorageEvent('storage', {
+                    window.localStorage.setItem(
                         key,
-                        newValue: JSON.stringify(valueToStore),
-                    }));
+                        JSON.stringify(valueToStore),
+                    );
+                    // Dispatch storage event for other tabs/windows
+                    window.dispatchEvent(
+                        new StorageEvent('storage', {
+                            key,
+                            newValue: JSON.stringify(valueToStore),
+                        }),
+                    );
                 }
             } catch (error) {
                 console.warn(`Error setting localStorage key "${key}":`, error);
             }
         },
-        [key, storedValue]
+        [key, storedValue],
     );
 
     // Remove value from localStorage

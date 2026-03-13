@@ -14,7 +14,7 @@ export default function Orb({
     hoverIntensity = 0.2,
     rotateOnHover = true,
     forceHoverState = false,
-    backgroundColor = '#000000'
+    backgroundColor = '#000000',
 }: OrbProps) {
     const ctnDom = useRef<HTMLDivElement>(null);
 
@@ -196,7 +196,10 @@ void main() {
         const container = ctnDom.current;
         if (!container) return;
 
-        const renderer = new Renderer({ alpha: true, premultipliedAlpha: false });
+        const renderer = new Renderer({
+            alpha: true,
+            premultipliedAlpha: false,
+        });
         const gl = renderer.gl;
         gl.clearColor(0, 0, 0, 0);
         container.appendChild(gl.canvas);
@@ -212,15 +215,15 @@ void main() {
                     value: new Vec3(
                         gl.canvas.width,
                         gl.canvas.height,
-                        gl.canvas.width / gl.canvas.height
-                    )
+                        gl.canvas.width / gl.canvas.height,
+                    ),
                 },
                 hue: { value: hue },
                 hover: { value: 0 },
                 rot: { value: 0 },
                 hoverIntensity: { value: hoverIntensity },
-                backgroundColor: { value: hexToVec3(backgroundColor) }
-            }
+                backgroundColor: { value: hexToVec3(backgroundColor) },
+            },
         });
 
         const mesh = new Mesh(gl, { geometry, program });
@@ -238,7 +241,7 @@ void main() {
             program.uniforms.iResolution.value.set(
                 gl.canvas.width,
                 gl.canvas.height,
-                gl.canvas.width / gl.canvas.height
+                gl.canvas.width / gl.canvas.height,
             );
         }
 
@@ -313,7 +316,7 @@ void main() {
         };
     }, [hue, hoverIntensity, rotateOnHover, forceHoverState, backgroundColor]);
 
-    return <div ref={ctnDom} className="w-full h-full" />;
+    return <div ref={ctnDom} className="h-full w-full" />;
 }
 
 function hslToRgb(h: number, s: number, l: number) {
@@ -354,7 +357,7 @@ function hexToVec3(color: string) {
         return new Vec3(
             parseInt(rgbMatch[1]) / 255,
             parseInt(rgbMatch[2]) / 255,
-            parseInt(rgbMatch[3]) / 255
+            parseInt(rgbMatch[3]) / 255,
         );
     }
 

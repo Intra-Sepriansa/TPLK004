@@ -1,29 +1,34 @@
-import { Head } from '@inertiajs/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import StudentLayout from '@/layouts/student-layout';
-import { 
-    Calendar, 
-    Clock, 
-    MapPin, 
-    BookOpen, 
-    TrendingUp,
-    CalendarDays,
-    GraduationCap,
-    Target,
-    CheckCircle,
-    Download,
-    Search,
-    X,
-    ChevronRight,
-    Building2,
-    User
-} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import StudentLayout from '@/layouts/student-layout';
 import { cn } from '@/lib/utils';
+import { Head } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    BookOpen,
+    Building2,
+    Calendar,
+    CalendarDays,
+    CheckCircle,
+    ChevronRight,
+    Clock,
+    Download,
+    GraduationCap,
+    MapPin,
+    Search,
+    Target,
+    TrendingUp,
+    User,
+    X,
+} from 'lucide-react';
 import { useState } from 'react';
 
 interface ScheduleItem {
@@ -54,19 +59,57 @@ interface Props {
 }
 
 const colorVariants: Record<string, { gradient: string; badge: string }> = {
-    blue: { gradient: 'from-blue-500 to-blue-600', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' },
-    green: { gradient: 'from-green-500 to-green-600', badge: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
-    purple: { gradient: 'from-purple-500 to-purple-600', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300' },
-    orange: { gradient: 'from-orange-500 to-orange-600', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' },
-    pink: { gradient: 'from-pink-500 to-pink-600', badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' },
-    indigo: { gradient: 'from-indigo-500 to-indigo-600', badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' },
-    teal: { gradient: 'from-teal-500 to-teal-600', badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300' },
-    cyan: { gradient: 'from-cyan-500 to-cyan-600', badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300' },
-    amber: { gradient: 'from-amber-500 to-amber-600', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' },
-    rose: { gradient: 'from-rose-500 to-rose-600', badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' },
+    blue: {
+        gradient: 'from-blue-500 to-blue-600',
+        badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+    },
+    green: {
+        gradient: 'from-green-500 to-green-600',
+        badge: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300',
+    },
+    purple: {
+        gradient: 'from-purple-500 to-purple-600',
+        badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300',
+    },
+    orange: {
+        gradient: 'from-orange-500 to-orange-600',
+        badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300',
+    },
+    pink: {
+        gradient: 'from-pink-500 to-pink-600',
+        badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300',
+    },
+    indigo: {
+        gradient: 'from-indigo-500 to-indigo-600',
+        badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300',
+    },
+    teal: {
+        gradient: 'from-teal-500 to-teal-600',
+        badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300',
+    },
+    cyan: {
+        gradient: 'from-cyan-500 to-cyan-600',
+        badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300',
+    },
+    amber: {
+        gradient: 'from-amber-500 to-amber-600',
+        badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+    },
+    rose: {
+        gradient: 'from-rose-500 to-rose-600',
+        badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300',
+    },
 };
 
-const daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+const daysOrder = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu',
+];
 
 // Enhanced animations with more dynamic effects
 const containerVariants = {
@@ -81,8 +124,8 @@ const containerVariants = {
 };
 
 const itemVariants = {
-    hidden: { 
-        opacity: 0, 
+    hidden: {
+        opacity: 0,
         y: 30,
         scale: 0.95,
     },
@@ -100,8 +143,8 @@ const itemVariants = {
 };
 
 const headerVariants = {
-    hidden: { 
-        opacity: 0, 
+    hidden: {
+        opacity: 0,
         y: -30,
         scale: 0.9,
     },
@@ -144,43 +187,47 @@ function QuickStatCard({
     return (
         <motion.div
             variants={itemVariants}
-            whileHover={{ 
-                scale: 1.08, 
+            whileHover={{
+                scale: 1.08,
                 y: -8,
-                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                boxShadow:
+                    '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             }}
             whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 cursor-pointer relative overflow-hidden group"
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
         >
             {/* Animated background gradient on hover */}
             <motion.div
                 className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100"
                 transition={{ duration: 0.3 }}
             />
-            
-            <div className="flex items-center gap-3 relative z-10">
+
+            <div className="relative z-10 flex items-center gap-3">
                 <motion.div
-                    whileHover={{ 
-                        scale: 1.3, 
+                    whileHover={{
+                        scale: 1.3,
                         y: -4,
                         rotate: [0, -10, 10, -10, 0],
                     }}
-                    transition={{ 
-                        type: "spring", 
-                        stiffness: 400, 
+                    transition={{
+                        type: 'spring',
+                        stiffness: 400,
                         damping: 10,
                         rotate: {
                             duration: 0.5,
-                            ease: "easeInOut",
-                        }
+                            ease: 'easeInOut',
+                        },
                     }}
-                    className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors[color])}
+                    className={cn(
+                        'flex h-10 w-10 items-center justify-center rounded-xl',
+                        colors[color],
+                    )}
                 >
                     <Icon className="h-5 w-5" />
                 </motion.div>
                 <div>
-                    <motion.p 
+                    <motion.p
                         className="text-xs text-slate-500 dark:text-slate-400"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -188,21 +235,22 @@ function QuickStatCard({
                     >
                         {label}
                     </motion.p>
-                    <motion.p 
+                    <motion.p
                         className="text-xl font-bold text-slate-900 dark:text-white"
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ 
-                            type: "spring",
+                        transition={{
+                            type: 'spring',
                             stiffness: 300,
                             damping: 15,
                             delay: 0.3,
                         }}
                     >
-                        {value}{suffix}
+                        {value}
+                        {suffix}
                     </motion.p>
                     {subtext && (
-                        <motion.p 
+                        <motion.p
                             className="text-[10px] text-slate-400"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -217,19 +265,33 @@ function QuickStatCard({
     );
 }
 
-export default function Schedule({ schedules, todaySchedule, nextClass, stats, currentDay }: Props) {
+export default function Schedule({
+    schedules,
+    todaySchedule,
+    nextClass,
+    stats,
+    currentDay,
+}: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDay, setSelectedDay] = useState(currentDay);
-    const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
+    const [selectedSchedule, setSelectedSchedule] =
+        useState<ScheduleItem | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
 
     // Filter schedules based on search
     const filterSchedules = (daySchedules: ScheduleItem[]) => {
         if (!searchQuery) return daySchedules;
-        return daySchedules.filter(item => 
-            item.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.course_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.dosen_name.toLowerCase().includes(searchQuery.toLowerCase())
+        return daySchedules.filter(
+            (item) =>
+                item.course_name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                item.course_code
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                item.dosen_name
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()),
         );
     };
 
@@ -243,24 +305,27 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
             <Head title="Jadwal Kuliah" />
 
             {/* Subtle Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden bg-gradient-to-br from-emerald-50/30 to-sky-50/30 dark:from-emerald-950/10 dark:to-sky-950/10" />
+            <div className="pointer-events-none fixed inset-0 overflow-hidden bg-gradient-to-br from-emerald-50/30 to-sky-50/30 dark:from-emerald-950/10 dark:to-sky-950/10" />
 
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="space-y-6 p-6 relative z-10"
+                className="relative z-10 space-y-6 p-6"
             >
                 {/* Header Card - ULTRA ADVANCED with Student Theme */}
                 <motion.div
                     variants={headerVariants}
-                    whileHover={{ 
+                    whileHover={{
                         scale: 1.01,
                         rotateY: 1,
                     }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
-                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+                    style={{
+                        transformStyle: 'preserve-3d',
+                        perspective: '1500px',
+                    }}
                 >
                     {/* Ultra Advanced Animated Background Orbs */}
                     <motion.div
@@ -274,9 +339,9 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         transition={{
                             duration: 20,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
+                        className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
                     />
                     <motion.div
                         animate={{
@@ -289,7 +354,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         transition={{
                             duration: 25,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                         className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
                     />
@@ -302,10 +367,10 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         transition={{
                             duration: 18,
                             repeat: Infinity,
-                            ease: "easeInOut",
+                            ease: 'easeInOut',
                             delay: 2,
                         }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
+                        className="absolute top-1/2 left-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
 
                     {/* 20 Floating Particles */}
@@ -317,26 +382,33 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 opacity: [0, 0.8, 1, 0.6, 0],
                                 scale: [0, 1.8, 1.2, 0.8, 0],
                                 y: [0, -50, -100, -150, -200],
-                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                x: [
+                                    0,
+                                    Math.sin(i * 0.5) * 40,
+                                    Math.cos(i * 0.3) * 30,
+                                    Math.sin(i) * 20,
+                                    0,
+                                ],
                                 rotate: [0, 180, 360, 540, 720],
                             }}
                             transition={{
                                 duration: 5 + Math.random() * 3,
                                 repeat: Infinity,
                                 delay: i * 0.3,
-                                ease: "easeOut"
+                                ease: 'easeOut',
                             }}
                             className="absolute rounded-full shadow-lg"
                             style={{
                                 width: `${3 + Math.random() * 10}px`,
                                 height: `${3 + Math.random() * 10}px`,
-                                left: `${10 + (i * 4) % 80}%`,
+                                left: `${10 + ((i * 4) % 80)}%`,
                                 top: `${20 + (i % 4) * 20}%`,
-                                background: i % 3 === 0
-                                    ? 'rgba(255, 255, 255, 0.6)'
-                                    : i % 3 === 1
-                                        ? 'rgba(6, 182, 212, 0.5)'
-                                        : 'rgba(59, 130, 246, 0.5)',
+                                background:
+                                    i % 3 === 0
+                                        ? 'rgba(255, 255, 255, 0.6)'
+                                        : i % 3 === 1
+                                          ? 'rgba(6, 182, 212, 0.5)'
+                                          : 'rgba(59, 130, 246, 0.5)',
                                 filter: 'blur(1px)',
                                 boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
                             }}
@@ -354,7 +426,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         transition={{
                             duration: 6,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'easeInOut',
                         }}
                         className="absolute top-10 right-20 text-white/20"
                     >
@@ -370,7 +442,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         transition={{
                             duration: 7,
                             repeat: Infinity,
-                            ease: "easeInOut",
+                            ease: 'easeInOut',
                             delay: 1,
                         }}
                         className="absolute bottom-10 left-20 text-white/20"
@@ -390,7 +462,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 duration: 4,
                                 repeat: Infinity,
                                 delay: i * 1.3,
-                                ease: "easeOut"
+                                ease: 'easeOut',
                             }}
                             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
                             style={{
@@ -399,18 +471,22 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             }}
                         />
                     ))}
-                    
-                    <div className="relative flex items-center justify-between flex-wrap gap-4">
+
+                    <div className="relative flex flex-wrap items-center justify-between gap-4">
                         <div className="flex items-center gap-5">
                             <motion.div
-                                whileHover={{ 
-                                    scale: 1.2, 
+                                whileHover={{
+                                    scale: 1.2,
                                     rotate: [0, -8, 8, 0],
-                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                    boxShadow: '0 0 40px rgba(255,255,255,0.6)',
                                 }}
                                 whileTap={{ scale: 0.92 }}
-                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
-                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 350,
+                                    damping: 15,
+                                }}
+                                className="relative flex h-20 w-20 cursor-pointer items-center justify-center rounded-2xl bg-white/25 shadow-2xl ring-4 ring-white/40 backdrop-blur-xl"
                             >
                                 {/* Glow effect */}
                                 <motion.div
@@ -421,26 +497,30 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     transition={{
                                         duration: 3,
                                         repeat: Infinity,
-                                        ease: "easeInOut"
+                                        ease: 'easeInOut',
                                     }}
                                     className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
                                 />
-                                <CalendarDays className="h-10 w-10 relative z-10" />
+                                <CalendarDays className="relative z-10 h-10 w-10" />
                             </motion.div>
                             <div>
-                                <motion.p 
-                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
+                                <motion.p
+                                    className="text-sm font-semibold tracking-wide text-cyan-100"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
                                 >
                                     Jadwal Kuliah
                                 </motion.p>
-                                <motion.h1 
+                                <motion.h1
                                     className="text-3xl font-extrabold tracking-tight"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                    transition={{
+                                        delay: 0.4,
+                                        type: 'spring',
+                                        stiffness: 200,
+                                    }}
                                 >
                                     Minggu Ini
                                 </motion.h1>
@@ -448,7 +528,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.5 }}
-                                    className="flex items-center gap-2 mt-1"
+                                    className="mt-1 flex items-center gap-2"
                                 >
                                     <motion.div
                                         animate={{
@@ -461,24 +541,24 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                         }}
                                         className="h-2 w-2 rounded-full bg-cyan-300"
                                     />
-                                    <p className="text-sm text-cyan-100 font-mono">
+                                    <p className="font-mono text-sm text-cyan-100">
                                         {currentDay}
                                     </p>
                                 </motion.div>
                             </div>
                         </div>
-                        
+
                         {stats.classes_today > 0 && (
-                            <motion.div 
-                                className="hidden sm:flex items-center gap-2 rounded-full bg-white/25 px-5 py-3 backdrop-blur-xl shadow-xl ring-2 ring-white/40 relative"
+                            <motion.div
+                                className="relative hidden items-center gap-2 rounded-full bg-white/25 px-5 py-3 shadow-xl ring-2 ring-white/40 backdrop-blur-xl sm:flex"
                                 initial={{ opacity: 0, scale: 0.8, x: 20 }}
                                 animate={{ opacity: 1, scale: 1, x: 0 }}
-                                transition={{ 
+                                transition={{
                                     delay: 0.6,
-                                    type: "spring",
+                                    type: 'spring',
                                     stiffness: 300,
                                 }}
-                                whileHover={{ 
+                                whileHover={{
                                     scale: 1.08,
                                     y: -2,
                                 }}
@@ -496,21 +576,25 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     className="absolute inset-0 rounded-full bg-cyan-300/30"
                                 />
                                 <motion.div
-                                    animate={{ 
+                                    animate={{
                                         rotate: [0, 10, -10, 0],
                                         scale: [1, 1.1, 1],
                                     }}
-                                    transition={{ 
+                                    transition={{
                                         duration: 2,
                                         repeat: Infinity,
-                                        ease: "easeInOut",
+                                        ease: 'easeInOut',
                                     }}
                                     className="relative z-10"
                                 >
                                     <Clock className="h-5 w-5 text-cyan-200" />
                                 </motion.div>
-                                <span className="font-extrabold text-lg relative z-10">{stats.classes_today}</span>
-                                <span className="text-sm text-cyan-100 font-semibold relative z-10">kelas hari ini</span>
+                                <span className="relative z-10 text-lg font-extrabold">
+                                    {stats.classes_today}
+                                </span>
+                                <span className="relative z-10 text-sm font-semibold text-cyan-100">
+                                    kelas hari ini
+                                </span>
                             </motion.div>
                         )}
                     </div>
@@ -554,30 +638,34 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                 {/* Search and Export */}
                 <motion.div
                     variants={itemVariants}
-                    className="flex flex-col sm:flex-row gap-4"
+                    className="flex flex-col gap-4 sm:flex-row"
                 >
                     <div className="flex-1">
-                        <motion.div 
+                        <motion.div
                             className="relative"
                             whileHover={{ scale: 1.01 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 400,
+                                damping: 25,
+                            }}
                         >
                             <motion.div
                                 animate={{ x: [0, 3, 0] }}
-                                transition={{ 
+                                transition={{
                                     duration: 2,
                                     repeat: Infinity,
-                                    ease: "easeInOut",
+                                    ease: 'easeInOut',
                                 }}
                             >
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                                <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
                             </motion.div>
                             <Input
                                 type="text"
                                 placeholder="Cari mata kuliah, kode, atau dosen..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 h-12"
+                                className="h-12 pl-10"
                             />
                             <AnimatePresence>
                                 {searchQuery && (
@@ -588,7 +676,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                         whileHover={{ scale: 1.2, rotate: 90 }}
                                         whileTap={{ scale: 0.8 }}
                                         onClick={() => setSearchQuery('')}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                                        className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                                     >
                                         <X className="h-4 w-4" />
                                     </motion.button>
@@ -597,15 +685,20 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         </motion.div>
                     </div>
                     <motion.button
-                        whileHover={{ 
-                            scale: 1.08, 
+                        whileHover={{
+                            scale: 1.08,
                             y: -4,
-                            boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.3)",
+                            boxShadow:
+                                '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
                         }}
                         whileTap={{ scale: 0.92 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 400,
+                            damping: 17,
+                        }}
                         onClick={exportSchedule}
-                        className="flex items-center justify-center gap-2 px-6 h-12 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors relative overflow-hidden group"
+                        className="group relative flex h-12 items-center justify-center gap-2 overflow-hidden rounded-lg bg-emerald-500 px-6 text-white transition-colors hover:bg-emerald-600"
                     >
                         <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-100"
@@ -613,7 +706,11 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         />
                         <motion.div
                             whileHover={{ y: -2 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 400,
+                                damping: 10,
+                            }}
                             className="relative z-10"
                         >
                             <Download className="h-4 w-4" />
@@ -626,37 +723,42 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                 {nextClass && (
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ 
-                            scale: 1.02, 
+                        whileHover={{
+                            scale: 1.02,
                             y: -4,
-                            boxShadow: "0 20px 25px -5px rgba(245, 158, 11, 0.2)",
+                            boxShadow:
+                                '0 20px 25px -5px rgba(245, 158, 11, 0.2)',
                         }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                        className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30 relative overflow-hidden group"
+                        transition={{
+                            type: 'spring',
+                            stiffness: 300,
+                            damping: 20,
+                        }}
+                        className="group relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30"
                     >
                         {/* Animated shine effect */}
                         <motion.div
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                             animate={{ x: ['-100%', '100%'] }}
-                            transition={{ 
+                            transition={{
                                 duration: 3,
                                 repeat: Infinity,
-                                ease: "linear",
+                                ease: 'linear',
                                 repeatDelay: 2,
                             }}
                         />
-                        
-                        <div className="flex items-center justify-between mb-4 relative z-10">
+
+                        <div className="relative z-10 mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <motion.div
-                                    whileHover={{ 
-                                        scale: 1.3, 
+                                    whileHover={{
+                                        scale: 1.3,
                                         y: -3,
                                         rotate: [0, -10, 10, 0],
                                     }}
-                                    transition={{ 
-                                        type: "spring", 
-                                        stiffness: 400, 
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 400,
                                         damping: 10,
                                     }}
                                 >
@@ -669,22 +771,24 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             <motion.div
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
-                                transition={{ 
-                                    type: "spring",
+                                transition={{
+                                    type: 'spring',
                                     stiffness: 300,
                                     damping: 20,
                                     delay: 0.3,
                                 }}
                             >
                                 <Badge className="bg-amber-500 hover:bg-amber-600">
-                                    {nextClass.is_today ? 'Hari ini' : nextClass.day}
+                                    {nextClass.is_today
+                                        ? 'Hari ini'
+                                        : nextClass.day}
                                 </Badge>
                             </motion.div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                        <div className="relative z-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                             <div className="flex-1">
-                                <motion.h3 
+                                <motion.h3
                                     className="text-lg font-bold text-slate-900 dark:text-white"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -692,28 +796,29 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 >
                                     {nextClass.course_name}
                                 </motion.h3>
-                                <motion.p 
-                                    className="text-sm text-slate-500 mt-1"
+                                <motion.p
+                                    className="mt-1 text-sm text-slate-500"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
                                 >
-                                    {nextClass.course_code} • {nextClass.dosen_name}
+                                    {nextClass.course_code} •{' '}
+                                    {nextClass.dosen_name}
                                 </motion.p>
-                                <motion.div 
-                                    className="flex items-center gap-4 mt-3 text-sm text-slate-600 dark:text-slate-400"
+                                <motion.div
+                                    className="mt-3 flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400"
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.4 }}
                                 >
-                                    <motion.div 
+                                    <motion.div
                                         className="flex items-center gap-1"
                                         whileHover={{ scale: 1.1, x: 3 }}
                                     >
                                         <Clock className="h-4 w-4" />
                                         {nextClass.time_range}
                                     </motion.div>
-                                    <motion.div 
+                                    <motion.div
                                         className="flex items-center gap-1"
                                         whileHover={{ scale: 1.1, x: 3 }}
                                     >
@@ -723,26 +828,31 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 </motion.div>
                             </div>
                             <motion.button
-                                whileHover={{ 
-                                    scale: 1.08, 
+                                whileHover={{
+                                    scale: 1.08,
                                     x: 5,
-                                    boxShadow: "0 10px 20px -5px rgba(245, 158, 11, 0.4)",
+                                    boxShadow:
+                                        '0 10px 20px -5px rgba(245, 158, 11, 0.4)',
                                 }}
                                 whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 400,
+                                    damping: 17,
+                                }}
                                 onClick={() => {
                                     setSelectedSchedule(nextClass);
                                     setIsDetailOpen(true);
                                 }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors relative overflow-hidden group"
+                                className="group relative flex items-center gap-2 overflow-hidden rounded-lg bg-amber-500 px-4 py-2 text-white transition-colors hover:bg-amber-600"
                             >
                                 <span className="relative z-10">Detail</span>
                                 <motion.div
                                     animate={{ x: [0, 3, 0] }}
-                                    transition={{ 
+                                    transition={{
                                         duration: 1.5,
                                         repeat: Infinity,
-                                        ease: "easeInOut",
+                                        ease: 'easeInOut',
                                     }}
                                     className="relative z-10"
                                 >
@@ -761,10 +871,14 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             variants={itemVariants}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                         >
-                            <div className="flex items-center gap-2 mb-4">
+                            <div className="mb-4 flex items-center gap-2">
                                 <motion.div
                                     whileHover={{ scale: 1.2, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 15,
+                                    }}
                                 >
                                     <Calendar className="h-5 w-5 text-emerald-600" />
                                 </motion.div>
@@ -773,109 +887,178 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 </h2>
                             </div>
 
-                            <Tabs value={selectedDay} onValueChange={setSelectedDay} className="w-full">
-                                <TabsList className="grid w-full grid-cols-7 bg-slate-100 dark:bg-slate-900 p-1">
+                            <Tabs
+                                value={selectedDay}
+                                onValueChange={setSelectedDay}
+                                className="w-full"
+                            >
+                                <TabsList className="grid w-full grid-cols-7 bg-slate-100 p-1 dark:bg-slate-900">
                                     {daysOrder.map((day) => (
-                                        <TabsTrigger 
-                                            key={day} 
+                                        <TabsTrigger
+                                            key={day}
                                             value={day}
-                                            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white text-xs"
+                                            className="text-xs data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
                                         >
                                             {day.substring(0, 3)}
                                         </TabsTrigger>
                                     ))}
                                 </TabsList>
                                 {daysOrder.map((day) => {
-                                    const daySchedules = filterSchedules(schedules[day] || []);
+                                    const daySchedules = filterSchedules(
+                                        schedules[day] || [],
+                                    );
                                     return (
-                                        <TabsContent key={day} value={day} className="space-y-3 mt-4">
+                                        <TabsContent
+                                            key={day}
+                                            value={day}
+                                            className="mt-4 space-y-3"
+                                        >
                                             <AnimatePresence mode="popLayout">
                                                 {daySchedules.length > 0 ? (
-                                                    daySchedules.map((schedule, index) => (
-                                                        <motion.div
-                                                            key={schedule.id}
-                                                            initial={{ opacity: 0, x: -20 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            exit={{ opacity: 0, x: 20, scale: 0.9 }}
-                                                            transition={{ duration: 0.2, delay: index * 0.05 }}
-                                                            whileHover={{ 
-                                                                scale: 1.03, 
-                                                                x: 8,
-                                                                boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.1)",
-                                                            }}
-                                                            whileTap={{ scale: 0.98 }}
-                                                            onClick={() => {
-                                                                setSelectedSchedule(schedule);
-                                                                setIsDetailOpen(true);
-                                                            }}
-                                                            className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-emerald-300 dark:border-slate-800 dark:hover:border-emerald-700 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 transition-all cursor-pointer relative overflow-hidden group"
-                                                        >
-                                                            {/* Hover gradient effect */}
+                                                    daySchedules.map(
+                                                        (schedule, index) => (
                                                             <motion.div
-                                                                className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100"
-                                                                transition={{ duration: 0.3 }}
-                                                            />
-                                                            
-                                                            <motion.div 
-                                                                className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colorVariants[schedule.color].badge)}
-                                                                whileHover={{ 
-                                                                    scale: 1.2, 
-                                                                    rotate: [0, -5, 5, 0],
+                                                                key={
+                                                                    schedule.id
+                                                                }
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                    x: -20,
                                                                 }}
-                                                                transition={{ 
-                                                                    type: "spring",
-                                                                    stiffness: 400,
-                                                                    damping: 10,
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                    x: 0,
                                                                 }}
+                                                                exit={{
+                                                                    opacity: 0,
+                                                                    x: 20,
+                                                                    scale: 0.9,
+                                                                }}
+                                                                transition={{
+                                                                    duration: 0.2,
+                                                                    delay:
+                                                                        index *
+                                                                        0.05,
+                                                                }}
+                                                                whileHover={{
+                                                                    scale: 1.03,
+                                                                    x: 8,
+                                                                    boxShadow:
+                                                                        '0 10px 20px -5px rgba(0, 0, 0, 0.1)',
+                                                                }}
+                                                                whileTap={{
+                                                                    scale: 0.98,
+                                                                }}
+                                                                onClick={() => {
+                                                                    setSelectedSchedule(
+                                                                        schedule,
+                                                                    );
+                                                                    setIsDetailOpen(
+                                                                        true,
+                                                                    );
+                                                                }}
+                                                                className="group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/50 p-4 transition-all hover:border-emerald-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-emerald-700 dark:hover:bg-slate-900"
                                                             >
-                                                                <GraduationCap className="h-5 w-5" />
-                                                            </motion.div>
-                                                            <div className="flex-1 min-w-0 relative z-10">
-                                                                <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                                                                    {schedule.course_name}
-                                                                </p>
-                                                                <p className="text-xs text-slate-500 mt-0.5">
-                                                                    {schedule.course_code}
-                                                                </p>
-                                                                <div className="flex items-center gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
-                                                                    <motion.div 
-                                                                        className="flex items-center gap-1"
-                                                                        whileHover={{ scale: 1.1 }}
-                                                                    >
-                                                                        <Clock className="h-3 w-3" />
-                                                                        {schedule.time_range}
-                                                                    </motion.div>
-                                                                    <motion.div 
-                                                                        className="flex items-center gap-1"
-                                                                        whileHover={{ scale: 1.1 }}
-                                                                    >
-                                                                        <MapPin className="h-3 w-3" />
-                                                                        {schedule.ruangan}
-                                                                    </motion.div>
+                                                                {/* Hover gradient effect */}
+                                                                <motion.div
+                                                                    className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100"
+                                                                    transition={{
+                                                                        duration: 0.3,
+                                                                    }}
+                                                                />
+
+                                                                <motion.div
+                                                                    className={cn(
+                                                                        'flex h-10 w-10 items-center justify-center rounded-xl',
+                                                                        colorVariants[
+                                                                            schedule
+                                                                                .color
+                                                                        ].badge,
+                                                                    )}
+                                                                    whileHover={{
+                                                                        scale: 1.2,
+                                                                        rotate: [
+                                                                            0,
+                                                                            -5,
+                                                                            5,
+                                                                            0,
+                                                                        ],
+                                                                    }}
+                                                                    transition={{
+                                                                        type: 'spring',
+                                                                        stiffness: 400,
+                                                                        damping: 10,
+                                                                    }}
+                                                                >
+                                                                    <GraduationCap className="h-5 w-5" />
+                                                                </motion.div>
+                                                                <div className="relative z-10 min-w-0 flex-1">
+                                                                    <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">
+                                                                        {
+                                                                            schedule.course_name
+                                                                        }
+                                                                    </p>
+                                                                    <p className="mt-0.5 text-xs text-slate-500">
+                                                                        {
+                                                                            schedule.course_code
+                                                                        }
+                                                                    </p>
+                                                                    <div className="mt-2 flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
+                                                                        <motion.div
+                                                                            className="flex items-center gap-1"
+                                                                            whileHover={{
+                                                                                scale: 1.1,
+                                                                            }}
+                                                                        >
+                                                                            <Clock className="h-3 w-3" />
+                                                                            {
+                                                                                schedule.time_range
+                                                                            }
+                                                                        </motion.div>
+                                                                        <motion.div
+                                                                            className="flex items-center gap-1"
+                                                                            whileHover={{
+                                                                                scale: 1.1,
+                                                                            }}
+                                                                        >
+                                                                            <MapPin className="h-3 w-3" />
+                                                                            {
+                                                                                schedule.ruangan
+                                                                            }
+                                                                        </motion.div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <motion.div
-                                                                animate={{ x: [0, 3, 0] }}
-                                                                transition={{ 
-                                                                    duration: 1.5,
-                                                                    repeat: Infinity,
-                                                                    ease: "easeInOut",
-                                                                }}
-                                                                className="relative z-10"
-                                                            >
-                                                                <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-500" />
+                                                                <motion.div
+                                                                    animate={{
+                                                                        x: [
+                                                                            0,
+                                                                            3,
+                                                                            0,
+                                                                        ],
+                                                                    }}
+                                                                    transition={{
+                                                                        duration: 1.5,
+                                                                        repeat: Infinity,
+                                                                        ease: 'easeInOut',
+                                                                    }}
+                                                                    className="relative z-10"
+                                                                >
+                                                                    <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-500" />
+                                                                </motion.div>
                                                             </motion.div>
-                                                        </motion.div>
-                                                    ))
+                                                        ),
+                                                    )
                                                 ) : (
-                                                    <motion.div 
+                                                    <motion.div
                                                         initial={{ opacity: 0 }}
                                                         animate={{ opacity: 1 }}
-                                                        className="text-center py-12"
+                                                        className="py-12 text-center"
                                                     >
-                                                        <Calendar className="h-12 w-12 mx-auto text-slate-300 mb-3" />
+                                                        <Calendar className="mx-auto mb-3 h-12 w-12 text-slate-300" />
                                                         <p className="text-sm text-slate-500">
-                                                            {searchQuery ? 'Tidak ada hasil pencarian' : `Tidak ada kelas pada hari ${day}`}
+                                                            {searchQuery
+                                                                ? 'Tidak ada hasil pencarian'
+                                                                : `Tidak ada kelas pada hari ${day}`}
                                                         </p>
                                                     </motion.div>
                                                 )}
@@ -894,10 +1077,14 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             variants={itemVariants}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                         >
-                            <div className="flex items-center gap-2 mb-4">
+                            <div className="mb-4 flex items-center gap-2">
                                 <motion.div
                                     whileHover={{ scale: 1.2, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 15,
+                                    }}
                                 >
                                     <CheckCircle className="h-5 w-5 text-emerald-600" />
                                 </motion.div>
@@ -914,46 +1101,52 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            whileHover={{ 
-                                                scale: 1.04, 
+                                            whileHover={{
+                                                scale: 1.04,
                                                 y: -3,
-                                                boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.1)",
+                                                boxShadow:
+                                                    '0 10px 20px -5px rgba(0, 0, 0, 0.1)',
                                             }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => {
                                                 setSelectedSchedule(schedule);
                                                 setIsDetailOpen(true);
                                             }}
-                                            className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer relative overflow-hidden group"
+                                            className="group relative flex cursor-pointer items-start gap-3 overflow-hidden rounded-xl bg-slate-50 p-3 transition-colors hover:bg-slate-100 dark:bg-slate-900/50 dark:hover:bg-slate-900"
                                         >
                                             {/* Animated border on hover */}
                                             <motion.div
-                                                className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-sky-500 opacity-0 group-hover:opacity-100"
+                                                className="absolute top-0 bottom-0 left-0 w-1 bg-gradient-to-b from-emerald-500 to-sky-500 opacity-0 group-hover:opacity-100"
                                                 transition={{ duration: 0.3 }}
                                             />
-                                            
-                                            <motion.div 
-                                                className={cn('flex h-8 w-8 items-center justify-center rounded-lg', colorVariants[schedule.color].badge)}
-                                                whileHover={{ 
+
+                                            <motion.div
+                                                className={cn(
+                                                    'flex h-8 w-8 items-center justify-center rounded-lg',
+                                                    colorVariants[
+                                                        schedule.color
+                                                    ].badge,
+                                                )}
+                                                whileHover={{
                                                     scale: 1.2,
                                                     rotate: [0, -10, 10, 0],
                                                 }}
-                                                transition={{ 
-                                                    type: "spring",
+                                                transition={{
+                                                    type: 'spring',
                                                     stiffness: 400,
                                                     damping: 10,
                                                 }}
                                             >
                                                 <BookOpen className="h-4 w-4" />
                                             </motion.div>
-                                            <div className="flex-1 min-w-0">
+                                            <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                                                     {schedule.course_name}
                                                 </p>
-                                                <p className="text-xs text-slate-500 mt-1">
+                                                <p className="mt-1 text-xs text-slate-500">
                                                     {schedule.time_range}
                                                 </p>
-                                                <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                                                <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
                                                     <MapPin className="h-3 w-3" />
                                                     {schedule.ruangan}
                                                 </p>
@@ -961,8 +1154,8 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                         </motion.div>
                                     ))
                                 ) : (
-                                    <div className="text-center py-8">
-                                        <CheckCircle className="h-10 w-10 mx-auto text-slate-300 mb-2" />
+                                    <div className="py-8 text-center">
+                                        <CheckCircle className="mx-auto mb-2 h-10 w-10 text-slate-300" />
                                         <p className="text-sm text-slate-500">
                                             Tidak ada kelas hari ini
                                         </p>
@@ -976,26 +1169,42 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             variants={itemVariants}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                         >
-                            <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
                                 <Target className="h-5 w-5 text-violet-600" />
                                 Informasi
                             </h3>
                             <div className="space-y-3 text-sm">
-                                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                                    <span className="text-slate-500">Total Mata Kuliah</span>
-                                    <span className="font-semibold text-slate-900 dark:text-white">{stats.total_courses}</span>
+                                <div className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                    <span className="text-slate-500">
+                                        Total Mata Kuliah
+                                    </span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                        {stats.total_courses}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                                    <span className="text-slate-500">Kelas Minggu Ini</span>
-                                    <span className="font-semibold text-slate-900 dark:text-white">{stats.total_classes_per_week}</span>
+                                <div className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                    <span className="text-slate-500">
+                                        Kelas Minggu Ini
+                                    </span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                        {stats.total_classes_per_week}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                                    <span className="text-slate-500">Kelas Hari Ini</span>
-                                    <span className="font-semibold text-slate-900 dark:text-white">{stats.classes_today}</span>
+                                <div className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                    <span className="text-slate-500">
+                                        Kelas Hari Ini
+                                    </span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                        {stats.classes_today}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
-                                    <span className="text-slate-500">Hari Tersibuk</span>
-                                    <span className="font-semibold text-slate-900 dark:text-white">{stats.busiest_day}</span>
+                                <div className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                    <span className="text-slate-500">
+                                        Hari Tersibuk
+                                    </span>
+                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                        {stats.busiest_day}
+                                    </span>
                                 </div>
                             </div>
                         </motion.div>
@@ -1007,7 +1216,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
                 <DialogContent className="max-w-2xl overflow-hidden border-2 border-cyan-200 dark:border-cyan-800">
                     {/* Animated Background */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden">
                         <motion.div
                             animate={{
                                 scale: [1, 1.2, 1],
@@ -1017,9 +1226,9 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             transition={{
                                 duration: 20,
                                 repeat: Infinity,
-                                ease: "easeInOut"
+                                ease: 'easeInOut',
                             }}
-                            className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 blur-3xl"
+                            className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 blur-3xl"
                         />
                         <motion.div
                             animate={{
@@ -1030,7 +1239,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             transition={{
                                 duration: 25,
                                 repeat: Infinity,
-                                ease: "easeInOut",
+                                ease: 'easeInOut',
                                 delay: 2,
                             }}
                             className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 blur-3xl"
@@ -1041,17 +1250,24 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                            transition={{
+                                duration: 0.6,
+                                type: 'spring',
+                                stiffness: 100,
+                            }}
                         >
                             <DialogTitle className="flex items-center gap-3 text-2xl">
                                 <motion.div
-                                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                                    whileHover={{
+                                        rotate: [0, -10, 10, 0],
+                                        scale: 1.1,
+                                    }}
                                     transition={{ duration: 0.5 }}
-                                    className="p-2 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg"
+                                    className="rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 p-2 shadow-lg"
                                 >
                                     <BookOpen className="h-6 w-6 text-white" />
                                 </motion.div>
-                                <span className="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent font-extrabold">
+                                <span className="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text font-extrabold text-transparent">
                                     Detail Jadwal Kuliah
                                 </span>
                             </DialogTitle>
@@ -1061,14 +1277,14 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="space-y-6 py-4 relative z-10"
+                            className="relative z-10 space-y-6 py-4"
                         >
                             {/* Course Info - Enhanced */}
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.1 }}
-                                className="space-y-4 p-5 rounded-2xl bg-gradient-to-br from-white to-cyan-50/30 dark:from-gray-900 dark:to-cyan-950/20 border-2 border-cyan-200 dark:border-cyan-800 shadow-lg relative overflow-hidden"
+                                className="relative space-y-4 overflow-hidden rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-white to-cyan-50/30 p-5 shadow-lg dark:border-cyan-800 dark:from-gray-900 dark:to-cyan-950/20"
                             >
                                 {/* Shimmer effect */}
                                 <motion.div
@@ -1078,7 +1294,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     transition={{
                                         duration: 3,
                                         repeat: Infinity,
-                                        ease: "linear",
+                                        ease: 'linear',
                                     }}
                                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
                                 />
@@ -1086,15 +1302,25 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {selectedSchedule.course_name}
                                     </h3>
-                                    <p className="text-sm text-slate-500 mt-2 font-mono font-semibold">
+                                    <p className="mt-2 font-mono text-sm font-semibold text-slate-500">
                                         {selectedSchedule.course_code}
                                     </p>
                                     <motion.div
                                         whileHover={{ scale: 1.05 }}
                                         className="mt-3 inline-block"
                                     >
-                                        <Badge className={cn('text-sm px-4 py-1.5 shadow-lg', colorVariants[selectedSchedule.color].badge)}>
-                                            {selectedSchedule.color.charAt(0).toUpperCase() + selectedSchedule.color.slice(1)}
+                                        <Badge
+                                            className={cn(
+                                                'px-4 py-1.5 text-sm shadow-lg',
+                                                colorVariants[
+                                                    selectedSchedule.color
+                                                ].badge,
+                                            )}
+                                        >
+                                            {selectedSchedule.color
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                                selectedSchedule.color.slice(1)}
                                         </Badge>
                                     </motion.div>
                                 </div>
@@ -1106,29 +1332,35 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 <motion.div
                                     initial={{ opacity: 0, x: -20, scale: 0.9 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
-                                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                    transition={{
+                                        delay: 0.2,
+                                        type: 'spring',
+                                        stiffness: 200,
+                                    }}
                                     whileHover={{ scale: 1.03, y: -4 }}
-                                    className="p-5 rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 dark:border-cyan-700 dark:from-cyan-950/30 dark:to-blue-950/30 shadow-lg relative overflow-hidden group"
+                                    className="group relative overflow-hidden rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 p-5 shadow-lg dark:border-cyan-700 dark:from-cyan-950/30 dark:to-blue-950/30"
                                 >
                                     {/* Glow effect on hover */}
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100"
                                         transition={{ duration: 0.3 }}
                                     />
-                                    <div className="flex items-center gap-3 mb-3 relative z-10">
-                                        <motion.div 
+                                    <div className="relative z-10 mb-3 flex items-center gap-3">
+                                        <motion.div
                                             whileHover={{ rotate: 360 }}
                                             transition={{ duration: 0.6 }}
-                                            className="p-2.5 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl shadow-lg"
+                                            className="rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 p-2.5 shadow-lg"
                                         >
                                             <Clock className="h-5 w-5 text-white" />
                                         </motion.div>
-                                        <h4 className="font-bold text-slate-900 dark:text-white">Waktu</h4>
+                                        <h4 className="font-bold text-slate-900 dark:text-white">
+                                            Waktu
+                                        </h4>
                                     </div>
-                                    <p className="text-2xl font-extrabold text-slate-900 dark:text-white relative z-10">
+                                    <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {selectedSchedule.time_range}
                                     </p>
-                                    <p className="text-xs text-slate-500 mt-2 font-semibold relative z-10">
+                                    <p className="relative z-10 mt-2 text-xs font-semibold text-slate-500">
                                         Durasi: {selectedSchedule.duration}
                                     </p>
                                 </motion.div>
@@ -1137,26 +1369,32 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 <motion.div
                                     initial={{ opacity: 0, x: 20, scale: 0.9 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
-                                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                    transition={{
+                                        delay: 0.3,
+                                        type: 'spring',
+                                        stiffness: 200,
+                                    }}
                                     whileHover={{ scale: 1.03, y: -4 }}
-                                    className="p-5 rounded-2xl border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50 dark:border-teal-700 dark:from-teal-950/30 dark:to-cyan-950/30 shadow-lg relative overflow-hidden group"
+                                    className="group relative overflow-hidden rounded-2xl border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50 p-5 shadow-lg dark:border-teal-700 dark:from-teal-950/30 dark:to-cyan-950/30"
                                 >
                                     {/* Glow effect on hover */}
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100"
                                         transition={{ duration: 0.3 }}
                                     />
-                                    <div className="flex items-center gap-3 mb-3 relative z-10">
-                                        <motion.div 
+                                    <div className="relative z-10 mb-3 flex items-center gap-3">
+                                        <motion.div
                                             whileHover={{ rotate: 360 }}
                                             transition={{ duration: 0.6 }}
-                                            className="p-2.5 bg-gradient-to-br from-teal-400 to-cyan-600 rounded-xl shadow-lg"
+                                            className="rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 p-2.5 shadow-lg"
                                         >
                                             <Building2 className="h-5 w-5 text-white" />
                                         </motion.div>
-                                        <h4 className="font-bold text-slate-900 dark:text-white">Ruangan</h4>
+                                        <h4 className="font-bold text-slate-900 dark:text-white">
+                                            Ruangan
+                                        </h4>
                                     </div>
-                                    <p className="text-2xl font-extrabold text-slate-900 dark:text-white relative z-10">
+                                    <p className="relative z-10 text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {selectedSchedule.ruangan}
                                     </p>
                                 </motion.div>
@@ -1166,9 +1404,13 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             <motion.div
                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                transition={{
+                                    delay: 0.4,
+                                    type: 'spring',
+                                    stiffness: 200,
+                                }}
                                 whileHover={{ scale: 1.02, y: -2 }}
-                                className="p-5 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border-2 border-violet-200 dark:border-violet-800 shadow-lg relative overflow-hidden group"
+                                className="group relative overflow-hidden rounded-2xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-5 shadow-lg dark:border-violet-800 dark:from-violet-950/30 dark:to-purple-950/30"
                             >
                                 {/* Animated background */}
                                 <motion.div
@@ -1182,17 +1424,20 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     }}
                                     className="absolute inset-0 bg-gradient-to-br from-violet-400/10 to-purple-400/10"
                                 />
-                                <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3 relative z-10">
+                                <h4 className="relative z-10 mb-3 flex items-center gap-2 font-bold text-slate-900 dark:text-white">
                                     <motion.div
-                                        whileHover={{ scale: 1.2, rotate: [0, -10, 10, 0] }}
+                                        whileHover={{
+                                            scale: 1.2,
+                                            rotate: [0, -10, 10, 0],
+                                        }}
                                         transition={{ duration: 0.5 }}
-                                        className="p-2 bg-gradient-to-br from-violet-400 to-purple-600 rounded-lg shadow-lg"
+                                        className="rounded-lg bg-gradient-to-br from-violet-400 to-purple-600 p-2 shadow-lg"
                                     >
                                         <User className="h-5 w-5 text-white" />
                                     </motion.div>
                                     Dosen Pengampu
                                 </h4>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white relative z-10">
+                                <p className="relative z-10 text-xl font-bold text-slate-900 dark:text-white">
                                     {selectedSchedule.dosen_name}
                                 </p>
                             </motion.div>
@@ -1202,9 +1447,13 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 <motion.div
                                     initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                                    transition={{
+                                        delay: 0.5,
+                                        type: 'spring',
+                                        stiffness: 200,
+                                    }}
                                     whileHover={{ scale: 1.02, y: -2 }}
-                                    className="p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-2 border-amber-200 dark:border-amber-800 shadow-lg relative overflow-hidden"
+                                    className="relative overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-5 shadow-lg dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30"
                                 >
                                     {/* Animated shine */}
                                     <motion.div
@@ -1214,12 +1463,12 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                         transition={{
                                             duration: 2,
                                             repeat: Infinity,
-                                            ease: "linear",
+                                            ease: 'linear',
                                             repeatDelay: 1,
                                         }}
                                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                                     />
-                                    <h4 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2 relative z-10">
+                                    <h4 className="relative z-10 mb-3 flex items-center gap-2 font-bold text-slate-900 dark:text-white">
                                         <motion.div
                                             animate={{
                                                 rotate: [0, 10, -10, 0],
@@ -1233,7 +1482,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                         </motion.div>
                                         Catatan
                                     </h4>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed relative z-10">
+                                    <p className="relative z-10 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                                         {selectedSchedule.notes}
                                     </p>
                                 </motion.div>
@@ -1249,7 +1498,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                             >
                                 <Button
                                     onClick={() => setIsDetailOpen(false)}
-                                    className="w-full h-14 text-base font-bold bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-600 hover:from-cyan-600 hover:via-blue-700 hover:to-teal-700 shadow-xl relative overflow-hidden group"
+                                    className="group relative h-14 w-full overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-600 text-base font-bold shadow-xl hover:from-cyan-600 hover:via-blue-700 hover:to-teal-700"
                                 >
                                     {/* Shimmer effect */}
                                     <motion.div
@@ -1259,7 +1508,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                         transition={{
                                             duration: 2,
                                             repeat: Infinity,
-                                            ease: "linear",
+                                            ease: 'linear',
                                         }}
                                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                                     />

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface GeolocationState {
     latitude: number | null;
@@ -90,11 +90,15 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
         }
 
         if (watch) {
-            const watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
-                enableHighAccuracy,
-                timeout,
-                maximumAge,
-            });
+            const watchId = navigator.geolocation.watchPosition(
+                onSuccess,
+                onError,
+                {
+                    enableHighAccuracy,
+                    timeout,
+                    maximumAge,
+                },
+            );
             return () => navigator.geolocation.clearWatch(watchId);
         } else {
             navigator.geolocation.getCurrentPosition(onSuccess, onError, {
@@ -107,7 +111,8 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
 
     const calculateDistance = useCallback(
         (targetLat: number, targetLng: number): number | null => {
-            if (state.latitude === null || state.longitude === null) return null;
+            if (state.latitude === null || state.longitude === null)
+                return null;
 
             const R = 6371e3; // Earth's radius in meters
             const φ1 = (state.latitude * Math.PI) / 180;
@@ -117,20 +122,27 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
 
             const a =
                 Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-                Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+                Math.cos(φ1) *
+                    Math.cos(φ2) *
+                    Math.sin(Δλ / 2) *
+                    Math.sin(Δλ / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
             return R * c;
         },
-        [state.latitude, state.longitude]
+        [state.latitude, state.longitude],
     );
 
     const isWithinRadius = useCallback(
-        (targetLat: number, targetLng: number, radiusMeters: number): boolean => {
+        (
+            targetLat: number,
+            targetLng: number,
+            radiusMeters: number,
+        ): boolean => {
             const distance = calculateDistance(targetLat, targetLng);
             return distance !== null && distance <= radiusMeters;
         },
-        [calculateDistance]
+        [calculateDistance],
     );
 
     return {

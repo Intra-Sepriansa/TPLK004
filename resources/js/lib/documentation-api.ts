@@ -3,15 +3,15 @@
  * Requirements: 2.1, 2.2, 2.3, 2.5
  */
 
-import { apiGet, apiPost, apiPut } from './api';
 import type {
-    MenuGuide,
-    GuideSummary,
-    ReadProgress,
-    SearchResult,
     DocumentationRole,
     GuideCategory,
+    GuideSummary,
+    MenuGuide,
+    ReadProgress,
+    SearchResult,
 } from '@/types/documentation';
+import { apiGet, apiPost, apiPut } from './api';
 
 const BASE_URL = '/api/docs';
 
@@ -32,18 +32,18 @@ interface GuidesResponse {
  */
 export async function getGuides(
     role: DocumentationRole,
-    category?: GuideCategory
+    category?: GuideCategory,
 ): Promise<GuideSummary[]> {
     const params = new URLSearchParams({ role });
     if (category) params.append('category', category);
-    
+
     const response = await apiGet(`${BASE_URL}/guides?${params}`);
     const data: ApiResponse<GuidesResponse> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch guides');
     }
-    
+
     return data.data!.guides;
 }
 
@@ -53,11 +53,11 @@ export async function getGuides(
 export async function getGuide(guideId: string): Promise<MenuGuide> {
     const response = await apiGet(`${BASE_URL}/guides/${guideId}`);
     const data: ApiResponse<MenuGuide> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch guide');
     }
-    
+
     return data.data!;
 }
 
@@ -66,18 +66,18 @@ export async function getGuide(guideId: string): Promise<MenuGuide> {
  */
 export async function searchGuides(
     query: string,
-    role?: DocumentationRole
+    role?: DocumentationRole,
 ): Promise<SearchResult[]> {
     const params = new URLSearchParams({ q: query });
     if (role) params.append('role', role);
-    
+
     const response = await apiGet(`${BASE_URL}/search?${params}`);
     const data: ApiResponse<SearchResult[]> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to search guides');
     }
-    
+
     return data.data!;
 }
 
@@ -87,11 +87,11 @@ export async function searchGuides(
 export async function getAllProgress(): Promise<ReadProgress[]> {
     const response = await apiGet(`${BASE_URL}/progress`);
     const data: ApiResponse<ReadProgress[]> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch progress');
     }
-    
+
     return data.data!;
 }
 
@@ -101,11 +101,11 @@ export async function getAllProgress(): Promise<ReadProgress[]> {
 export async function getGuideProgress(guideId: string): Promise<ReadProgress> {
     const response = await apiGet(`${BASE_URL}/progress/${guideId}`);
     const data: ApiResponse<ReadProgress> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch guide progress');
     }
-    
+
     return data.data!;
 }
 
@@ -115,32 +115,34 @@ export async function getGuideProgress(guideId: string): Promise<ReadProgress> {
 export async function updateProgress(
     guideId: string,
     sectionId: string,
-    completed: boolean
+    completed: boolean,
 ): Promise<ReadProgress> {
     const response = await apiPut(`${BASE_URL}/progress/${guideId}`, {
         sectionId,
         completed,
     });
     const data: ApiResponse<ReadProgress> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to update progress');
     }
-    
+
     return data.data!;
 }
 
 /**
  * Mark guide as completed
  */
-export async function markGuideCompleted(guideId: string): Promise<ReadProgress> {
+export async function markGuideCompleted(
+    guideId: string,
+): Promise<ReadProgress> {
     const response = await apiPost(`${BASE_URL}/progress/${guideId}/complete`);
     const data: ApiResponse<ReadProgress> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to mark guide as completed');
     }
-    
+
     return data.data!;
 }
 
@@ -150,7 +152,7 @@ export async function markGuideCompleted(guideId: string): Promise<ReadProgress>
 export async function resetGuideProgress(guideId: string): Promise<void> {
     const response = await apiPost(`${BASE_URL}/progress/${guideId}/reset`);
     const data: ApiResponse<void> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to reset progress');
     }
@@ -172,10 +174,10 @@ export async function getProgressStats(role: DocumentationRole): Promise<{
         inProgressGuides: number;
         overallProgress: number;
     }> = await response.json();
-    
+
     if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to fetch stats');
     }
-    
+
     return data.data!;
 }

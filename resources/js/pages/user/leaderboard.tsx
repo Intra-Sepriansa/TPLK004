@@ -210,7 +210,6 @@ export default function Leaderboard({
                                 ))}
                             </motion.div>
                         </div>
-
                     </div>
                 </motion.div>
 
@@ -376,7 +375,7 @@ export default function Leaderboard({
                                             stiffness: 200,
                                         }}
                                         whileHover={{ scale: 1.05, y: -6 }}
-                                        className="group w-[30%] sm:w-auto flex flex-col items-center"
+                                        className="group flex w-[30%] flex-col items-center sm:w-auto"
                                         onMouseEnter={() => setHoveredRank(2)}
                                         onMouseLeave={() =>
                                             setHoveredRank(null)
@@ -387,23 +386,23 @@ export default function Leaderboard({
                                                 animate={
                                                     hoveredRank === 2
                                                         ? {
-                                                            rotate: [
-                                                                0, -8, 8, -8,
-                                                                0,
-                                                            ],
-                                                            scale: [
-                                                                1, 1.15, 1,
-                                                            ],
-                                                        }
+                                                              rotate: [
+                                                                  0, -8, 8, -8,
+                                                                  0,
+                                                              ],
+                                                              scale: [
+                                                                  1, 1.15, 1,
+                                                              ],
+                                                          }
                                                         : {}
                                                 }
                                                 transition={{ duration: 0.6 }}
                                                 className="relative"
                                             >
-                                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 opacity-60 blur-md sm:blur-xl transition-opacity group-hover:opacity-90" />
+                                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 opacity-60 blur-md transition-opacity group-hover:opacity-90 sm:blur-xl" />
                                                 <div
                                                     className={cn(
-                                                        'relative mx-auto flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-gradient-to-br text-xl sm:text-2xl font-bold text-white shadow-xl sm:shadow-2xl ring-2 sm:ring-4 ring-white/50 transition-all duration-300',
+                                                        'relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br text-xl font-bold text-white shadow-xl ring-2 ring-white/50 transition-all duration-300 sm:h-24 sm:w-24 sm:text-2xl sm:shadow-2xl sm:ring-4',
                                                         rankColors[2],
                                                     )}
                                                 >
@@ -441,7 +440,7 @@ export default function Leaderboard({
                                                     rotate: 360,
                                                     scale: 1.2,
                                                 }}
-                                                className="absolute -right-1 -bottom-1 sm:-right-2 sm:-bottom-2 flex h-6 w-6 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gradient-to-br from-slate-300 to-slate-400 text-xs sm:text-base font-black text-slate-700 shadow-xl ring-2 ring-white"
+                                                className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-slate-300 to-slate-400 text-xs font-black text-slate-700 shadow-xl ring-2 ring-white sm:-right-2 sm:-bottom-2 sm:h-10 sm:w-10 sm:text-base"
                                             >
                                                 2
                                             </motion.div>
@@ -450,20 +449,23 @@ export default function Leaderboard({
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 1 }}
-                                            className="mb-1 sm:mb-2 w-full truncate text-center text-[10px] sm:text-base font-bold text-white px-1 sm:px-0"
+                                            className="mb-1 w-full truncate px-1 text-center text-[10px] font-bold text-white sm:mb-2 sm:px-0 sm:text-base"
                                             title={podium[1]?.nama}
                                         >
                                             {podium[1]?.nama}
                                         </motion.p>
-                                        <div className="mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2 rounded-full bg-white/20 px-2 sm:px-3 py-0.5 sm:py-1 backdrop-blur-sm">
-                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 text-slate-200" />
-                                            <span className="text-[10px] sm:text-sm font-bold text-white">
+                                        <div className="mb-2 flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 backdrop-blur-sm sm:mb-3 sm:gap-2 sm:px-3 sm:py-1">
+                                            <Star className="h-3 w-3 text-slate-200 sm:h-4 sm:w-4" />
+                                            <span className="text-[10px] font-bold text-white sm:text-sm">
                                                 <AnimatedCounter
                                                     value={
                                                         podium[1]?.points || 0
                                                     }
                                                 />
-                                                <span className="hidden sm:inline"> pts</span>
+                                                <span className="hidden sm:inline">
+                                                    {' '}
+                                                    pts
+                                                </span>
                                             </span>
                                         </div>
                                         <motion.div
@@ -474,8 +476,10 @@ export default function Leaderboard({
                                                 duration: 0.6,
                                                 type: 'spring',
                                             }}
-                                            style={{ transformOrigin: 'bottom' }}
-                                            className="relative flex w-full sm:w-32 h-[160px] sm:h-[205px] items-center justify-center overflow-hidden rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 shadow-2xl"
+                                            style={{
+                                                transformOrigin: 'bottom',
+                                            }}
+                                            className="relative flex h-[160px] w-full items-center justify-center overflow-hidden rounded-t-xl bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 shadow-2xl sm:h-[205px] sm:w-32 sm:rounded-t-2xl"
                                         >
                                             <motion.div
                                                 animate={{
@@ -487,7 +491,7 @@ export default function Leaderboard({
                                                     repeat: Infinity,
                                                 }}
                                             >
-                                                <Medal className="h-6 w-6 sm:h-10 sm:w-10 text-slate-600" />
+                                                <Medal className="h-6 w-6 text-slate-600 sm:h-10 sm:w-10" />
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
@@ -506,7 +510,7 @@ export default function Leaderboard({
                                             stiffness: 200,
                                         }}
                                         whileHover={{ scale: 1.05, y: -6 }}
-                                        className="group w-[36%] sm:w-auto -mt-6 sm:-mt-12 flex flex-col items-center z-10"
+                                        className="group z-10 -mt-6 flex w-[36%] flex-col items-center sm:-mt-12 sm:w-auto"
                                         onMouseEnter={() => setHoveredRank(1)}
                                         onMouseLeave={() =>
                                             setHoveredRank(null)
@@ -516,40 +520,40 @@ export default function Leaderboard({
                                             animate={
                                                 hoveredRank === 1
                                                     ? {
-                                                        rotate: [
-                                                            0, -12, 12, -12,
-                                                            0,
-                                                        ],
-                                                    }
+                                                          rotate: [
+                                                              0, -12, 12, -12,
+                                                              0,
+                                                          ],
+                                                      }
                                                     : { rotate: 0 }
                                             }
                                             transition={{ duration: 0.6 }}
                                             className="mb-1 sm:mb-3"
                                         >
-                                            <Crown className="h-8 w-8 sm:h-14 sm:w-14 text-yellow-300 drop-shadow-2xl" />
+                                            <Crown className="h-8 w-8 text-yellow-300 drop-shadow-2xl sm:h-14 sm:w-14" />
                                         </motion.div>
                                         <div className="relative mb-2 sm:mb-4">
                                             <motion.div
                                                 animate={
                                                     hoveredRank === 1
                                                         ? {
-                                                            rotate: [
-                                                                0, -8, 8, -8,
-                                                                0,
-                                                            ],
-                                                            scale: [
-                                                                1, 1.15, 1,
-                                                            ],
-                                                        }
+                                                              rotate: [
+                                                                  0, -8, 8, -8,
+                                                                  0,
+                                                              ],
+                                                              scale: [
+                                                                  1, 1.15, 1,
+                                                              ],
+                                                          }
                                                         : {}
                                                 }
                                                 transition={{ duration: 0.6 }}
                                                 className="relative"
                                             >
-                                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 opacity-70 blur-lg sm:blur-2xl transition-opacity group-hover:opacity-100" />
+                                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 opacity-70 blur-lg transition-opacity group-hover:opacity-100 sm:blur-2xl" />
                                                 <div
                                                     className={cn(
-                                                        'relative flex h-20 w-20 sm:h-28 sm:w-28 items-center justify-center rounded-full bg-gradient-to-br text-2xl sm:text-3xl font-bold text-white shadow-xl sm:shadow-2xl ring-2 sm:ring-4 ring-white/60 transition-all duration-300',
+                                                        'relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br text-2xl font-bold text-white shadow-xl ring-2 ring-white/60 transition-all duration-300 sm:h-28 sm:w-28 sm:text-3xl sm:shadow-2xl sm:ring-4',
                                                         rankColors[1],
                                                     )}
                                                 >
@@ -587,7 +591,7 @@ export default function Leaderboard({
                                                     rotate: 360,
                                                     scale: 1.2,
                                                 }}
-                                                className="absolute -right-1 -bottom-1 sm:-right-2 sm:-bottom-2 flex h-7 w-7 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-sm sm:text-lg font-black text-yellow-900 shadow-2xl ring-2 ring-white"
+                                                className="absolute -right-1 -bottom-1 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-sm font-black text-yellow-900 shadow-2xl ring-2 ring-white sm:-right-2 sm:-bottom-2 sm:h-12 sm:w-12 sm:text-lg"
                                             >
                                                 1
                                             </motion.div>
@@ -596,20 +600,23 @@ export default function Leaderboard({
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 1.1 }}
-                                            className="mb-1 sm:mb-2 w-full truncate text-center text-xs sm:text-lg font-black text-white px-1 sm:px-0"
+                                            className="mb-1 w-full truncate px-1 text-center text-xs font-black text-white sm:mb-2 sm:px-0 sm:text-lg"
                                             title={podium[0]?.nama}
                                         >
                                             {podium[0]?.nama}
                                         </motion.p>
-                                        <div className="mb-2 sm:mb-4 flex items-center gap-1 sm:gap-2 rounded-full bg-white/30 px-2 sm:px-4 py-0.5 sm:py-1.5 backdrop-blur-sm">
-                                            <Star className="h-3 w-3 sm:h-5 sm:w-5 text-yellow-300" />
-                                            <span className="text-xs sm:text-base font-black text-white">
+                                        <div className="mb-2 flex items-center gap-1 rounded-full bg-white/30 px-2 py-0.5 backdrop-blur-sm sm:mb-4 sm:gap-2 sm:px-4 sm:py-1.5">
+                                            <Star className="h-3 w-3 text-yellow-300 sm:h-5 sm:w-5" />
+                                            <span className="text-xs font-black text-white sm:text-base">
                                                 <AnimatedCounter
                                                     value={
                                                         podium[0]?.points || 0
                                                     }
                                                 />
-                                                <span className="hidden sm:inline"> pts</span>
+                                                <span className="hidden sm:inline">
+                                                    {' '}
+                                                    pts
+                                                </span>
                                             </span>
                                         </div>
                                         <motion.div
@@ -620,8 +627,10 @@ export default function Leaderboard({
                                                 duration: 0.6,
                                                 type: 'spring',
                                             }}
-                                            style={{ transformOrigin: 'bottom' }}
-                                            className="relative flex w-full sm:w-36 h-[205px] sm:h-[250px] items-center justify-center overflow-hidden rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 shadow-2xl"
+                                            style={{
+                                                transformOrigin: 'bottom',
+                                            }}
+                                            className="relative flex h-[205px] w-full items-center justify-center overflow-hidden rounded-t-xl bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 shadow-2xl sm:h-[250px] sm:w-36 sm:rounded-t-2xl"
                                         >
                                             <motion.div
                                                 animate={{
@@ -633,7 +642,7 @@ export default function Leaderboard({
                                                     repeat: Infinity,
                                                 }}
                                             >
-                                                <Trophy className="h-7 w-7 sm:h-14 sm:w-14 text-yellow-700" />
+                                                <Trophy className="h-7 w-7 text-yellow-700 sm:h-14 sm:w-14" />
                                             </motion.div>
                                             {/* Shimmer effect */}
                                             <motion.div
@@ -664,7 +673,7 @@ export default function Leaderboard({
                                             stiffness: 200,
                                         }}
                                         whileHover={{ scale: 1.05, y: -6 }}
-                                        className="group w-[30%] sm:w-auto flex flex-col items-center"
+                                        className="group flex w-[30%] flex-col items-center sm:w-auto"
                                         onMouseEnter={() => setHoveredRank(3)}
                                         onMouseLeave={() =>
                                             setHoveredRank(null)
@@ -675,23 +684,23 @@ export default function Leaderboard({
                                                 animate={
                                                     hoveredRank === 3
                                                         ? {
-                                                            rotate: [
-                                                                0, -8, 8, -8,
-                                                                0,
-                                                            ],
-                                                            scale: [
-                                                                1, 1.15, 1,
-                                                            ],
-                                                        }
+                                                              rotate: [
+                                                                  0, -8, 8, -8,
+                                                                  0,
+                                                              ],
+                                                              scale: [
+                                                                  1, 1.15, 1,
+                                                              ],
+                                                          }
                                                         : {}
                                                 }
                                                 transition={{ duration: 0.6 }}
                                                 className="relative"
                                             >
-                                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-600 to-orange-700 opacity-60 blur-md sm:blur-xl transition-opacity group-hover:opacity-90" />
+                                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-600 to-orange-700 opacity-60 blur-md transition-opacity group-hover:opacity-90 sm:blur-xl" />
                                                 <div
                                                     className={cn(
-                                                        'relative mx-auto flex h-16 w-16 sm:h-24 sm:w-24 items-center justify-center rounded-full bg-gradient-to-br text-xl sm:text-2xl font-bold text-white shadow-xl sm:shadow-2xl ring-2 sm:ring-4 ring-white/50 transition-all duration-300',
+                                                        'relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br text-xl font-bold text-white shadow-xl ring-2 ring-white/50 transition-all duration-300 sm:h-24 sm:w-24 sm:text-2xl sm:shadow-2xl sm:ring-4',
                                                         rankColors[3],
                                                     )}
                                                 >
@@ -729,7 +738,7 @@ export default function Leaderboard({
                                                     rotate: 360,
                                                     scale: 1.2,
                                                 }}
-                                                className="absolute -right-1 -bottom-1 sm:-right-2 sm:-bottom-2 flex h-6 w-6 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-600 to-orange-700 text-xs sm:text-base font-black text-white shadow-xl ring-2 ring-white"
+                                                className="absolute -right-1 -bottom-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-amber-600 to-orange-700 text-xs font-black text-white shadow-xl ring-2 ring-white sm:-right-2 sm:-bottom-2 sm:h-10 sm:w-10 sm:text-base"
                                             >
                                                 3
                                             </motion.div>
@@ -738,20 +747,23 @@ export default function Leaderboard({
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 1.2 }}
-                                            className="mb-1 sm:mb-2 w-full truncate text-center text-[10px] sm:text-base font-bold text-white px-1 sm:px-0"
+                                            className="mb-1 w-full truncate px-1 text-center text-[10px] font-bold text-white sm:mb-2 sm:px-0 sm:text-base"
                                             title={podium[2]?.nama}
                                         >
                                             {podium[2]?.nama}
                                         </motion.p>
-                                        <div className="mb-2 sm:mb-3 flex items-center gap-1 sm:gap-2 rounded-full bg-white/20 px-2 sm:px-3 py-0.5 sm:py-1 backdrop-blur-sm">
-                                            <Star className="h-3 w-3 sm:h-4 sm:w-4 text-amber-200" />
-                                            <span className="text-[10px] sm:text-sm font-bold text-white">
+                                        <div className="mb-2 flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 backdrop-blur-sm sm:mb-3 sm:gap-2 sm:px-3 sm:py-1">
+                                            <Star className="h-3 w-3 text-amber-200 sm:h-4 sm:w-4" />
+                                            <span className="text-[10px] font-bold text-white sm:text-sm">
                                                 <AnimatedCounter
                                                     value={
                                                         podium[2]?.points || 0
                                                     }
                                                 />
-                                                <span className="hidden sm:inline"> pts</span>
+                                                <span className="hidden sm:inline">
+                                                    {' '}
+                                                    pts
+                                                </span>
                                             </span>
                                         </div>
                                         <motion.div
@@ -762,8 +774,10 @@ export default function Leaderboard({
                                                 duration: 0.6,
                                                 type: 'spring',
                                             }}
-                                            style={{ transformOrigin: 'bottom' }}
-                                            className="relative flex w-full sm:w-32 h-[140px] sm:h-[165px] items-center justify-center overflow-hidden rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b from-amber-500 via-orange-600 to-orange-700 shadow-2xl"
+                                            style={{
+                                                transformOrigin: 'bottom',
+                                            }}
+                                            className="relative flex h-[140px] w-full items-center justify-center overflow-hidden rounded-t-xl bg-gradient-to-b from-amber-500 via-orange-600 to-orange-700 shadow-2xl sm:h-[165px] sm:w-32 sm:rounded-t-2xl"
                                         >
                                             <motion.div
                                                 animate={{
@@ -775,7 +789,7 @@ export default function Leaderboard({
                                                     repeat: Infinity,
                                                 }}
                                             >
-                                                <Award className="h-5 w-5 sm:h-8 sm:w-8 text-amber-200" />
+                                                <Award className="h-5 w-5 text-amber-200 sm:h-8 sm:w-8" />
                                             </motion.div>
                                         </motion.div>
                                     </motion.div>
@@ -1009,10 +1023,10 @@ export default function Leaderboard({
                                                     rank === 1
                                                         ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-yellow-500/30'
                                                         : rank === 2
-                                                            ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700'
-                                                            : rank === 3
-                                                                ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-amber-500/30'
-                                                                : 'bg-slate-100 text-slate-600 dark:bg-neutral-800/70 dark:text-slate-300',
+                                                          ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700'
+                                                          : rank === 3
+                                                            ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-amber-500/30'
+                                                            : 'bg-slate-100 text-slate-600 dark:bg-neutral-800/70 dark:text-slate-300',
                                                 )}
                                             >
                                                 {rank <= 3 ? (
@@ -1060,7 +1074,7 @@ export default function Leaderboard({
                                                                 delay:
                                                                     1 +
                                                                     index *
-                                                                    0.03,
+                                                                        0.03,
                                                                 type: 'spring',
                                                                 stiffness: 300,
                                                             }}

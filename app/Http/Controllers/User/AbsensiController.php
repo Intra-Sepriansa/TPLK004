@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
+use App\Models\AttendanceSession;
 use App\Models\AttendanceToken;
 use App\Models\AppNotification;
 use App\Models\AuditLog;
@@ -11,8 +12,10 @@ use App\Models\MahasiswaCourse;
 use App\Models\MataKuliah;
 use App\Models\SelfieVerification;
 use App\Models\Setting;
+use App\Services\AttendanceSessionAutomationService;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Response as HttpResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -1361,6 +1364,8 @@ class AbsensiController extends Controller
 
     public function create(): Response
     {
+        $this->syncAttendanceSessionStates();
+
         $mahasiswa = Auth::guard('mahasiswa')->user();
         $selfieRequired = Setting::getValue('selfie_required', '1') === '1';
         $geofence = [
@@ -1460,11 +1465,27 @@ class AbsensiController extends Controller
         // === REAL SOCIAL PROOF DATA ===
         // Find active sessions today
         $today = now()->toDateString();
-        $activeSessionModels = \App\Models\AttendanceSession::with('course')
+        $activeSessionModels = AttendanceSession::with('course.dosen')
             ->whereDate('start_at', $today)
             ->where('is_active', true)
+            ->orderBy('start_at')
             ->get();
         $activeSessions = $activeSessionModels->pluck('id');
+        $studentActiveLogs = AttendanceLog::query()
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->whereIn('attendance_session_id', $activeSessions)
+            ->latest('scanned_at')
+            ->get()
+            ->keyBy('attendance_session_id');
+        $activeSessionPayloads = $activeSessionModels
+            ->map(fn (AttendanceSession $session) => $this->transformActiveSession(
+                $session,
+                $studentActiveLogs->get($session->id),
+            ))
+            ->values();
+        $featuredActiveSession = $activeSessionPayloads
+            ->first(fn (array $session) => !$session['alreadySubmitted'])
+            ?? $activeSessionPayloads->first();
 
         $todayLogs = AttendanceLog::whereIn('attendance_session_id', $activeSessions)
             ->whereIn('status', ['present', 'late'])
@@ -1521,13 +1542,8 @@ class AbsensiController extends Controller
             'locationSampleCount' => $locationSampleCount,
             'locationSampleWindowSeconds' => $locationSampleWindowSeconds,
             // Active session info
-            'activeSession' => $activeSessionModels->first() ? [
-                'courseName' => $activeSessionModels->first()->course?->nama ?? 'Mata Kuliah',
-                'meetingNumber' => $activeSessionModels->first()->meeting_number,
-                'title' => $activeSessionModels->first()->title,
-                'startAt' => $activeSessionModels->first()->start_at?->format('H:i'),
-                'endAt' => $activeSessionModels->first()->end_at?->format('H:i'),
-            ] : null,
+            'activeSession' => $featuredActiveSession,
+            'activeSessions' => $activeSessionPayloads->all(),
             // Gamification data
             'gamification' => [
                 'xpGained' => $xpGained,
@@ -1549,8 +1565,65 @@ class AbsensiController extends Controller
         ]);
     }
 
+    public function previewToken(Request $request): JsonResponse
+    {
+        $this->syncAttendanceSessionStates();
+
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $validated = $request->validate([
+            'token' => ['required', 'string'],
+        ]);
+
+        $tokenValue = Str::upper(trim((string) $validated['token']));
+        $token = AttendanceToken::query()
+            ->with('session.course.dosen')
+            ->where('token', $tokenValue)
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+
+        if (! $token) {
+            return response()->json([
+                'message' => 'Token tidak valid atau sudah kadaluarsa.',
+            ], 422);
+        }
+
+        $session = $token->session;
+        if (! $this->isAttendanceSessionOpen($session)) {
+            return response()->json([
+                'message' => 'Sesi tidak aktif.',
+            ], 422);
+        }
+
+        if ($session->end_at && now()->greaterThan($session->end_at)) {
+            return response()->json([
+                'message' => 'Sesi sudah berakhir.',
+            ], 422);
+        }
+
+        $existingLog = AttendanceLog::query()
+            ->where('attendance_session_id', $session->id)
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->latest('scanned_at')
+            ->first();
+
+        $sessionPayload = $this->transformActiveSession($session, $existingLog);
+        if ($existingLog) {
+            return response()->json([
+                'message' => 'Kamu sudah absen untuk ' . $sessionPayload['courseName'] . ' pertemuan ' . $sessionPayload['meetingNumber'] . '.',
+                'session' => $sessionPayload,
+            ], 409);
+        }
+
+        return response()->json([
+            'session' => $sessionPayload,
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
+        $this->syncAttendanceSessionStates();
+
         $mahasiswa = Auth::guard('mahasiswa')->user();
         $selfieRequired = Setting::getValue('selfie_required', '1') === '1';
         $locationSampleCount = (int) config('attendance.location.sample_count', 3);
@@ -1572,13 +1645,26 @@ class AbsensiController extends Controller
             'location_samples.*.accuracy_m' => ['required', 'numeric'],
             'location_samples.*.captured_at' => ['required', 'date'],
             'device_info' => ['nullable', 'string'],
+            'offline_mode' => ['nullable', 'boolean'],
+            'client_timestamp' => ['nullable', 'date'],
         ]);
 
-        $token = AttendanceToken::query()
+        $isOffline = filter_var($request->input('offline_mode'), FILTER_VALIDATE_BOOLEAN);
+        $clientTime = $isOffline && $request->has('client_timestamp')
+            ? Carbon::parse($request->input('client_timestamp'))
+            : now();
+
+        $tokenQuery = AttendanceToken::query()
             ->where('token', $validated['token'])
-            ->where('expires_at', '>', now())
-            ->latest()
-            ->first();
+            ->latest();
+
+        if ($isOffline) {
+            $tokenQuery->where('expires_at', '>', $clientTime);
+        } else {
+            $tokenQuery->where('expires_at', '>', now());
+        }
+
+        $token = $tokenQuery->first();
 
         if (! $token) {
             $this->logAudit('token_expired', 'Token tidak valid atau sudah kadaluarsa.', $mahasiswa?->id, null);
@@ -1589,15 +1675,18 @@ class AbsensiController extends Controller
         }
 
         $session = $token->session;
-        if (! $session || ! $session->is_active) {
-            $this->logAudit('session_inactive', 'Sesi tidak aktif.', $mahasiswa?->id, $session?->id);
+        if (! $this->isAttendanceSessionOpen($session)) {
+            // Only reject if it's NOT offline sync, or if it was closed before the scan time
+            if (! $isOffline || ($session->end_at && $clientTime->greaterThan($session->end_at))) {
+                $this->logAudit('session_inactive', 'Sesi tidak aktif.', $mahasiswa?->id, $session?->id);
 
-            return back()->withErrors([
-                'token' => 'Sesi tidak aktif.',
-            ]);
+                return back()->withErrors([
+                    'token' => 'Sesi tidak aktif.',
+                ]);
+            }
         }
 
-        if ($session->end_at && now()->greaterThan($session->end_at)) {
+        if ($session->end_at && clone $clientTime->greaterThan($session->end_at)) {
             $this->logAudit('session_closed', 'Sesi sudah berakhir.', $mahasiswa?->id, $session->id);
 
             return back()->withErrors([
@@ -1706,7 +1795,9 @@ class AbsensiController extends Controller
                 'attendance_session_id' => $session->id,
                 'mahasiswa_id' => $mahasiswa->id,
                 'attendance_token_id' => $token->id,
-                'scanned_at' => now(),
+                'scanned_at' => $clientTime,
+                'is_offline_sync' => $isOffline,
+                'synced_at' => $isOffline ? now() : null,
                 'status' => 'rejected',
                 'distance_m' => $distance,
                 'latitude' => $latitude,
@@ -1759,7 +1850,7 @@ class AbsensiController extends Controller
             $path = $request->file('selfie')->store('selfies', 'public');
         }
         $lateMinutes = (int) Setting::getValue('late_minutes', '10');
-        $status = now()->greaterThan($session->start_at->copy()->addMinutes($lateMinutes))
+        $status = clone $clientTime->greaterThan($session->start_at->copy()->addMinutes($lateMinutes))
             ? 'late'
             : 'present';
 
@@ -1813,7 +1904,9 @@ class AbsensiController extends Controller
             'attendance_session_id' => $session->id,
             'mahasiswa_id' => $mahasiswa->id,
             'attendance_token_id' => $token->id,
-            'scanned_at' => now(),
+            'scanned_at' => clone $clientTime,
+            'is_offline_sync' => $isOffline,
+            'synced_at' => $isOffline ? now() : null,
             'status' => $status,
             'distance_m' => $distance,
             'selfie_path' => $path,
@@ -1849,10 +1942,13 @@ class AbsensiController extends Controller
         }
 
         $statusLabel = $status === 'late' ? 'Terlambat' : 'Hadir';
+        $sessionLabel = ($session->course?->nama ?? 'Mata Kuliah')
+            . ' - Pertemuan '
+            . $session->meeting_number;
 
         return back()->with(
             'success',
-            "Absensi berhasil terkirim. Status: {$statusLabel}.",
+            "Absensi {$sessionLabel} berhasil terkirim. Status: {$statusLabel}.",
         );
     }
 
@@ -2243,6 +2339,45 @@ class AbsensiController extends Controller
         }
 
         return 'Lainnya';
+    }
+
+    private function syncAttendanceSessionStates(): void
+    {
+        app(AttendanceSessionAutomationService::class)->syncActiveStates();
+    }
+
+    private function isAttendanceSessionOpen(?AttendanceSession $session): bool
+    {
+        return app(AttendanceSessionAutomationService::class)->isSessionOpen($session);
+    }
+
+    private function transformActiveSession(AttendanceSession $session, ?AttendanceLog $studentLog = null): array
+    {
+        return [
+            'id' => $session->id,
+            'courseName' => $session->course?->nama ?? 'Mata Kuliah',
+            'meetingNumber' => (int) $session->meeting_number,
+            'title' => $session->title,
+            'startAt' => $session->start_at?->format('H:i'),
+            'endAt' => $session->end_at?->format('H:i'),
+            'dosenName' => $session->course?->dosen?->nama,
+            'attendanceStatus' => $studentLog?->status,
+            'attendanceLabel' => $studentLog
+                ? $this->formatAttendanceStatusLabel($studentLog->status)
+                : null,
+            'alreadySubmitted' => (bool) $studentLog,
+        ];
+    }
+
+    private function formatAttendanceStatusLabel(?string $status): ?string
+    {
+        return match ($status) {
+            'present' => 'Sudah hadir',
+            'late' => 'Sudah hadir terlambat',
+            'pending' => 'Menunggu verifikasi',
+            'rejected' => 'Ditolak',
+            default => null,
+        };
     }
 
     private function logAudit(string $event, string $message, ?int $mahasiswaId, ?int $sessionId): void

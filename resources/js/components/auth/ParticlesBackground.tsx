@@ -57,14 +57,16 @@ export function ParticlesBackground() {
                 particle.y += particle.vy;
 
                 // Bounce off edges
-                if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-                if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+                if (particle.x < 0 || particle.x > canvas.width)
+                    particle.vx *= -1;
+                if (particle.y < 0 || particle.y > canvas.height)
+                    particle.vy *= -1;
 
                 // Mouse interaction
                 const dx = mouseRef.current.x - particle.x;
                 const dy = mouseRef.current.y - particle.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 if (distance < 150) {
                     const force = (150 - distance) / 150;
                     particle.x -= dx * force * 0.01;
@@ -73,7 +75,13 @@ export function ParticlesBackground() {
 
                 // Draw particle
                 ctx.beginPath();
-                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                ctx.arc(
+                    particle.x,
+                    particle.y,
+                    particle.radius,
+                    0,
+                    Math.PI * 2,
+                );
                 ctx.fillStyle = `rgba(99, 102, 241, ${particle.opacity})`;
                 ctx.fill();
 
@@ -111,7 +119,7 @@ export function ParticlesBackground() {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 pointer-events-none"
+            className="pointer-events-none absolute inset-0"
             style={{ opacity: 0.6 }}
         />
     );

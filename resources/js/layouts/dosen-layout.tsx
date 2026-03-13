@@ -1,10 +1,17 @@
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { DosenSidebar } from '@/components/dosen-sidebar';
-import { NetworkQualityAlert } from '@/components/network/NetworkQualityAlert';
-import { NotificationDropdownAdvanced, type Notification } from '@/components/ui/notification-dropdown-advanced';
+import { NetworkStatusBadge } from '@/components/network/NetworkStatusBadge';
+import {
+    NotificationDropdownAdvanced,
+    type Notification,
+} from '@/components/ui/notification-dropdown-advanced';
+import {
+    SidebarInset,
+    SidebarProvider,
+    SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { type BreadcrumbItem } from '@/types';
-import { type ReactNode } from 'react';
 import { usePage } from '@inertiajs/react';
+import { type ReactNode } from 'react';
 
 interface HeaderNotifications {
     items: Notification[];
@@ -17,7 +24,11 @@ interface DosenLayoutProps {
     dosen?: { id: number; nama: string };
 }
 
-export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayoutProps) {
+export default function DosenLayout({
+    children,
+    breadcrumbs,
+    dosen,
+}: DosenLayoutProps) {
     const { props } = usePage<{
         headerNotifications?: HeaderNotifications;
         notificationConfig?: { baseUrl: string; allUrl: string };
@@ -32,10 +43,12 @@ export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayou
             <SidebarInset>
                 <div className="flex min-h-screen flex-col bg-slate-50/50 dark:bg-black">
                     {/* Mobile Header with Sidebar Trigger */}
-                    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-4 backdrop-blur-sm dark:border-gray-800/60 dark:bg-black/80 md:hidden">
+                    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-4 backdrop-blur-sm md:hidden dark:border-gray-800/60 dark:bg-black/80">
                         <div className="flex items-center gap-4">
                             <SidebarTrigger className="-ml-1" />
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Panel Dosen</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                Panel Dosen
+                            </span>
                         </div>
                         {notifications && config && (
                             <NotificationDropdownAdvanced
@@ -47,10 +60,12 @@ export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayou
                         )}
                     </header>
                     {/* Desktop Header */}
-                    <header className="sticky top-0 z-40 hidden h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-6 backdrop-blur-sm dark:border-gray-800/60 dark:bg-black/80 md:flex">
+                    <header className="sticky top-0 z-40 hidden h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-6 backdrop-blur-sm md:flex dark:border-gray-800/60 dark:bg-black/80">
                         <div className="flex items-center gap-4">
                             <SidebarTrigger className="-ml-1" />
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Panel Dosen</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                Panel Dosen
+                            </span>
                         </div>
                         {notifications && config && (
                             <NotificationDropdownAdvanced
@@ -64,7 +79,7 @@ export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayou
                     <main className="flex-1">{children}</main>
                 </div>
             </SidebarInset>
-            <NetworkQualityAlert />
+            <NetworkStatusBadge />
         </SidebarProvider>
     );
 }

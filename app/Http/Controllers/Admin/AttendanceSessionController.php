@@ -38,6 +38,7 @@ class AttendanceSessionController extends Controller
             'course_id' => ['required', 'exists:mata_kuliah,id'],
             'meeting_number' => $meetingRules,
             'title' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
             'start_at' => ['required', 'date'],
             'end_at' => ['required', 'date', 'after:start_at'],
             'auto_activate' => ['nullable', 'boolean'],
@@ -57,6 +58,7 @@ class AttendanceSessionController extends Controller
             'course_id' => $validated['course_id'],
             'meeting_number' => $validated['meeting_number'],
             'title' => $validated['title'] ?? null,
+            'description' => $validated['description'] ?? null,
             'start_at' => $validated['start_at'],
             'end_at' => $validated['end_at'],
             'is_active' => $validated['auto_activate'] ?? false,
@@ -101,6 +103,7 @@ class AttendanceSessionController extends Controller
             'course_id' => ['required', 'exists:mata_kuliah,id'],
             'meeting_number' => $meetingRules,
             'title' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
             'start_at' => ['required', 'date'],
             'end_at' => ['required', 'date', 'after:start_at'],
         ]);

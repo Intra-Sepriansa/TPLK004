@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -31,6 +30,7 @@ import {
     User,
     X,
 } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -176,7 +176,8 @@ const getPasswordStrength = (password: string) => {
     const score = checks.filter(Boolean).length;
 
     if (score <= 1) return { label: 'Lemah', value: 25, color: 'text-red-500' };
-    if (score <= 3) return { label: 'Sedang', value: 65, color: 'text-amber-500' };
+    if (score <= 3)
+        return { label: 'Sedang', value: 65, color: 'text-amber-500' };
     return { label: 'Kuat', value: 100, color: 'text-emerald-500' };
 };
 
@@ -345,13 +346,38 @@ export default function StudentProfile() {
 
     const passwordStrength = getPasswordStrength(passwordForm.data.password);
 
-    const unlockedBadgesCount = badges.filter(badge => badge.unlocked).length;
+    const unlockedBadgesCount = badges.filter((badge) => badge.unlocked).length;
 
-    const tabs: Array<{ key: TabType; label: string; icon: typeof User; desc: string }> = [
-        { key: 'overview', label: 'Overview', icon: User, desc: 'Ringkasan profil' },
-        { key: 'card', label: 'Kartu Profil', icon: CreditCard, desc: 'Kartu interaktif' },
-        { key: 'edit', label: 'Edit Profil', icon: Edit3, desc: 'Ubah data diri' },
-        { key: 'security', label: 'Keamanan', icon: Shield, desc: 'Password & akses' },
+    const tabs: Array<{
+        key: TabType;
+        label: string;
+        icon: typeof User;
+        desc: string;
+    }> = [
+        {
+            key: 'overview',
+            label: 'Overview',
+            icon: User,
+            desc: 'Ringkasan profil',
+        },
+        {
+            key: 'card',
+            label: 'Kartu Profil',
+            icon: CreditCard,
+            desc: 'Kartu interaktif',
+        },
+        {
+            key: 'edit',
+            label: 'Edit Profil',
+            icon: Edit3,
+            desc: 'Ubah data diri',
+        },
+        {
+            key: 'security',
+            label: 'Keamanan',
+            icon: Shield,
+            desc: 'Password & akses',
+        },
     ];
 
     const handleProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -368,15 +394,25 @@ export default function StudentProfile() {
     const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (passwordForm.data.password !== passwordForm.data.password_confirmation) {
-            passwordForm.setError('password_confirmation', 'Konfirmasi password tidak sama.');
+        if (
+            passwordForm.data.password !==
+            passwordForm.data.password_confirmation
+        ) {
+            passwordForm.setError(
+                'password_confirmation',
+                'Konfirmasi password tidak sama.',
+            );
             return;
         }
 
         passwordForm.patch('/user/password', {
             preserveScroll: true,
             onSuccess: () => {
-                passwordForm.reset('current_password', 'password', 'password_confirmation');
+                passwordForm.reset(
+                    'current_password',
+                    'password',
+                    'password_confirmation',
+                );
                 setSuccessMessage('Password berhasil diperbarui.');
                 setTimeout(() => setSuccessMessage(null), 3000);
             },
@@ -400,7 +436,8 @@ export default function StudentProfile() {
         }
 
         const reader = new FileReader();
-        reader.onload = event => setAvatarPreview(event.target?.result as string);
+        reader.onload = (event) =>
+            setAvatarPreview(event.target?.result as string);
         reader.readAsDataURL(file);
 
         // Auto-upload immediately after a valid file is selected.
@@ -428,8 +465,11 @@ export default function StudentProfile() {
                 setSuccessMessage('Foto profil berhasil diperbarui.');
                 setTimeout(() => setSuccessMessage(null), 3000);
             },
-            onError: errors => {
-                const message = typeof errors.avatar === 'string' ? errors.avatar : 'Upload foto gagal.';
+            onError: (errors) => {
+                const message =
+                    typeof errors.avatar === 'string'
+                        ? errors.avatar
+                        : 'Upload foto gagal.';
                 setAvatarError(message);
             },
             onFinish: () => setIsUploadingAvatar(false),
@@ -455,7 +495,8 @@ export default function StudentProfile() {
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
-        const onPopState = () => setActiveTab(getTabFromQuery(window.location.search));
+        const onPopState = () =>
+            setActiveTab(getTabFromQuery(window.location.search));
         window.addEventListener('popstate', onPopState);
 
         return () => window.removeEventListener('popstate', onPopState);
@@ -471,14 +512,16 @@ export default function StudentProfile() {
                         initial={{ opacity: 0, y: -20, x: 20 }}
                         animate={{ opacity: 1, y: 0, x: 0 }}
                         exit={{ opacity: 0, y: -20, x: 20 }}
-                        className="fixed right-4 top-4 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-2xl backdrop-blur dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-200"
+                        className="fixed top-4 right-4 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-2xl backdrop-blur dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-200"
                     >
                         <div className="rounded-lg bg-emerald-100 p-1 dark:bg-emerald-800/50">
                             <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
                         </div>
                         <div>
                             <p className="font-bold">Berhasil</p>
-                            <p className="text-xs opacity-80">{successMessage || flash?.success}</p>
+                            <p className="text-xs opacity-80">
+                                {successMessage || flash?.success}
+                            </p>
                         </div>
                     </motion.div>
                 )}
@@ -497,8 +540,18 @@ export default function StudentProfile() {
                     <div className="relative h-44 overflow-hidden md:h-56">
                         <motion.div
                             className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-500 to-fuchsia-500"
-                            animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                            transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+                            animate={{
+                                backgroundPosition: [
+                                    '0% 0%',
+                                    '100% 100%',
+                                    '0% 0%',
+                                ],
+                            }}
+                            transition={{
+                                duration: 12,
+                                repeat: Infinity,
+                                ease: 'linear',
+                            }}
                             style={{ backgroundSize: '200% 200%' }}
                         />
 
@@ -511,11 +564,11 @@ export default function StudentProfile() {
                             }}
                         />
 
-                        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
-                        <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-pink-400/20 blur-3xl" />
-                        <div className="absolute right-1/3 top-1/3 h-32 w-32 rounded-full bg-indigo-300/15 blur-3xl" />
+                        <div className="absolute -top-16 -right-16 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
+                        <div className="absolute bottom-0 -left-10 h-40 w-40 rounded-full bg-pink-400/20 blur-3xl" />
+                        <div className="absolute top-1/3 right-1/3 h-32 w-32 rounded-full bg-indigo-300/15 blur-3xl" />
 
-                        {[0, 1, 2].map(i => (
+                        {[0, 1, 2].map((i) => (
                             <motion.div
                                 key={i}
                                 className="absolute rounded-full bg-white/10"
@@ -525,7 +578,10 @@ export default function StudentProfile() {
                                     left: `${20 + i * 30}%`,
                                     top: `${30 + i * 15}%`,
                                 }}
-                                animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
+                                animate={{
+                                    y: [0, -20, 0],
+                                    opacity: [0.3, 0.6, 0.3],
+                                }}
                                 transition={{
                                     duration: 3 + i,
                                     repeat: Infinity,
@@ -534,20 +590,28 @@ export default function StudentProfile() {
                                 }}
                             />
                         ))}
-
                     </div>
 
                     <div className="relative px-4 pb-6 md:px-8">
                         <div className="-mt-16 flex flex-col items-center md:-mt-20">
-                            <motion.div className="group relative" whileHover={{ scale: 1.02 }}>
+                            <motion.div
+                                className="group relative"
+                                whileHover={{ scale: 1.02 }}
+                            >
                                 <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 opacity-75 blur-sm transition-opacity group-hover:opacity-100" />
 
-                                <div className="relative h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-2xl dark:border-neutral-950 md:h-36 md:w-36">
-                                    <img src={avatarUrl} alt={mahasiswa.nama} className="h-full w-full object-cover" />
+                                <div className="relative h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-2xl md:h-36 md:w-36 dark:border-neutral-950">
+                                    <img
+                                        src={avatarUrl}
+                                        alt={mahasiswa.nama}
+                                        className="h-full w-full object-cover"
+                                    />
                                     <button
                                         type="button"
                                         className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
-                                        onClick={() => avatarInputRef.current?.click()}
+                                        onClick={() =>
+                                            avatarInputRef.current?.click()
+                                        }
                                     >
                                         <Camera className="h-6 w-6 text-white" />
                                     </button>
@@ -556,8 +620,13 @@ export default function StudentProfile() {
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    transition={{ delay: 0.4, type: 'spring', stiffness: 280, damping: 18 }}
-                                    className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg dark:border-neutral-950 md:h-10 md:w-10"
+                                    transition={{
+                                        delay: 0.4,
+                                        type: 'spring',
+                                        stiffness: 280,
+                                        damping: 18,
+                                    }}
+                                    className="absolute -right-1 -bottom-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg md:h-10 md:w-10 dark:border-neutral-950"
                                 >
                                     <CheckCircle2 className="h-5 w-5 text-white" />
                                 </motion.div>
@@ -586,36 +655,55 @@ export default function StudentProfile() {
                                             className="bg-gradient-to-r from-violet-600 to-purple-600 text-white"
                                         >
                                             <Upload className="mr-1.5 h-3.5 w-3.5" />
-                                            {isUploadingAvatar ? 'Mengunggah...' : 'Simpan Foto'}
+                                            {isUploadingAvatar
+                                                ? 'Mengunggah...'
+                                                : 'Simpan Foto'}
                                         </Button>
-                                        <Button size="sm" variant="outline" onClick={resetAvatarPreview}>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={resetAvatarPreview}
+                                        >
                                             <X className="h-3.5 w-3.5" />
                                         </Button>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
 
-                            {avatarError && <p className="mt-2 text-center text-xs text-rose-500">{avatarError}</p>}
+                            {avatarError && (
+                                <p className="mt-2 text-center text-xs text-rose-500">
+                                    {avatarError}
+                                </p>
+                            )}
 
                             <div className="mt-4 space-y-2 text-center">
                                 <div className="flex items-center justify-center gap-2">
-                                    <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-white md:text-3xl">
+                                    <h1 className="text-2xl font-extrabold tracking-tight text-neutral-900 md:text-3xl dark:text-white">
                                         {mahasiswa.nama}
                                     </h1>
                                     <motion.div
                                         animate={{ rotate: [0, 10, -10, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: 'easeInOut',
+                                        }}
                                     >
                                         <Sparkles className="h-5 w-5 text-amber-500" />
                                     </motion.div>
                                 </div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">@{mahasiswa.nim}</p>
-                                <p className="text-sm text-neutral-600 dark:text-neutral-300">Mahasiswa Aktif</p>
+                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                    @{mahasiswa.nim}
+                                </p>
+                                <p className="text-sm text-neutral-600 dark:text-neutral-300">
+                                    Mahasiswa Aktif
+                                </p>
 
                                 <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                                     <div className="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                                         <Mail className="h-3 w-3" />
-                                        {mahasiswa.email || 'Email belum diatur'}
+                                        {mahasiswa.email ||
+                                            'Email belum diatur'}
                                     </div>
                                     <div className="flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                                         <IdCard className="h-3 w-3" />
@@ -628,20 +716,30 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="mt-4 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-                                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                                    <motion.div
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
+                                    >
                                         <Button
-                                            onClick={() => handleTabChange('edit')}
+                                            onClick={() =>
+                                                handleTabChange('edit')
+                                            }
                                             className="w-full bg-gradient-to-r from-violet-600 to-purple-600 px-6 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 sm:w-auto"
                                         >
                                             <Edit3 className="mr-2 h-4 w-4" />
                                             Edit Profil
                                         </Button>
                                     </motion.div>
-                                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                                    <motion.div
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
+                                    >
                                         <Button
                                             variant="outline"
-                                            className="w-full border-neutral-300 px-6 dark:border-neutral-700 sm:w-auto"
-                                            onClick={() => avatarInputRef.current?.click()}
+                                            className="w-full border-neutral-300 px-6 sm:w-auto dark:border-neutral-700"
+                                            onClick={() =>
+                                                avatarInputRef.current?.click()
+                                            }
                                         >
                                             <Camera className="mr-2 h-4 w-4" />
                                             Ganti Foto
@@ -653,7 +751,10 @@ export default function StudentProfile() {
                     </div>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <motion.div
+                    variants={itemVariants}
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+                >
                     {[
                         {
                             label: 'Total Kehadiran',
@@ -679,23 +780,40 @@ export default function StudentProfile() {
                             color: 'from-amber-400 to-orange-600',
                             textColor: 'text-amber-600',
                         },
-                    ].map(stat => (
+                    ].map((stat) => (
                         <motion.div
                             key={stat.label}
                             whileHover={{ scale: 1.04, y: -4 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 400,
+                                damping: 15,
+                            }}
                             className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                         >
                             <div className="mb-2 flex items-center justify-between">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                                <p className="text-xs font-semibold tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
                                     {stat.label}
                                 </p>
-                                <div className={cn('rounded-xl bg-gradient-to-r p-2', stat.color)}>
+                                <div
+                                    className={cn(
+                                        'rounded-xl bg-gradient-to-r p-2',
+                                        stat.color,
+                                    )}
+                                >
                                     <stat.icon className="h-4 w-4 text-white" />
                                 </div>
                             </div>
-                            <p className={cn('text-2xl font-bold dark:text-white', stat.textColor)}>
-                                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                            <p
+                                className={cn(
+                                    'text-2xl font-bold dark:text-white',
+                                    stat.textColor,
+                                )}
+                            >
+                                <AnimatedCounter
+                                    value={stat.value}
+                                    suffix={stat.suffix}
+                                />
                             </p>
                         </motion.div>
                     ))}
@@ -703,7 +821,7 @@ export default function StudentProfile() {
 
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-6"
+                    className="rounded-3xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40"
                 >
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
@@ -711,9 +829,12 @@ export default function StudentProfile() {
                                 <Trophy className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="text-base font-semibold text-neutral-900 dark:text-white sm:text-lg">Pencapaian</h2>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">
-                                    {unlockedBadgesCount} dari {badges.length} badge terbuka
+                                <h2 className="text-base font-semibold text-neutral-900 sm:text-lg dark:text-white">
+                                    Pencapaian
+                                </h2>
+                                <p className="text-xs text-neutral-500 sm:text-sm dark:text-neutral-400">
+                                    {unlockedBadgesCount} dari {badges.length}{' '}
+                                    badge terbuka
                                 </p>
                             </div>
                         </div>
@@ -729,7 +850,9 @@ export default function StudentProfile() {
                     {badges.length > 0 ? (
                         <div className="flex flex-wrap gap-3">
                             {badges.slice(0, 8).map((badge, index) => {
-                                const visibleBadge = badge.unlocked || badge.progress >= badge.target;
+                                const visibleBadge =
+                                    badge.unlocked ||
+                                    badge.progress >= badge.target;
 
                                 return (
                                     <motion.button
@@ -744,19 +867,30 @@ export default function StudentProfile() {
                                             damping: 18,
                                         }}
                                         whileHover={{ scale: 1.08, rotate: 5 }}
-                                        onClick={() => router.get(`/user/achievements/${badge.type}`)}
-                                        className={cn('group relative h-14 w-14', !visibleBadge && 'opacity-40 grayscale')}
+                                        onClick={() =>
+                                            router.get(
+                                                `/user/achievements/${badge.type}`,
+                                            )
+                                        }
+                                        className={cn(
+                                            'group relative h-14 w-14',
+                                            !visibleBadge &&
+                                                'opacity-40 grayscale',
+                                        )}
                                         title={`${badge.name} - Lv ${badge.level}/${badge.maxLevel}`}
                                     >
                                         {visibleBadge ? (
-                                            <BadgeImageProfile icon={badge.icon} name={badge.name} />
+                                            <BadgeImageProfile
+                                                icon={badge.icon}
+                                                name={badge.name}
+                                            />
                                         ) : (
                                             <div className="flex h-full w-full items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700">
                                                 <Lock className="h-4 w-4 text-neutral-400" />
                                             </div>
                                         )}
 
-                                        <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100">
+                                        <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 rounded bg-black px-2 py-1 text-[10px] whitespace-nowrap text-white opacity-0 transition-opacity group-hover:opacity-100">
                                             {badge.name}
                                         </span>
                                     </motion.button>
@@ -775,7 +909,7 @@ export default function StudentProfile() {
                     className="rounded-3xl border border-white/20 bg-white/40 p-1.5 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
                     <div className="flex gap-1 overflow-x-auto [&::-webkit-scrollbar]:hidden">
-                        {tabs.map(tab => {
+                        {tabs.map((tab) => {
                             const Icon = tab.icon;
                             return (
                                 <motion.button
@@ -789,12 +923,14 @@ export default function StudentProfile() {
                                         'flex items-center justify-center gap-2',
                                         activeTab === tab.key
                                             ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-purple-500/20'
-                                            : 'text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800'
+                                            : 'text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800',
                                     )}
                                     title={tab.desc}
                                 >
                                     <Icon className="h-4 w-4" />
-                                    <span className="hidden sm:inline">{tab.label}</span>
+                                    <span className="hidden sm:inline">
+                                        {tab.label}
+                                    </span>
                                 </motion.button>
                             );
                         })}
@@ -817,24 +953,71 @@ export default function StudentProfile() {
                                         <User className="h-4 w-4 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Informasi Personal</h3>
-                                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Data profil mahasiswa</p>
+                                        <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                            Informasi Personal
+                                        </h3>
+                                        <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                            Data profil mahasiswa
+                                        </p>
                                     </div>
                                 </div>
 
                                 <div className="space-y-3 p-5">
                                     {[
-                                        { icon: User, label: 'Nama Lengkap', value: mahasiswa.nama || 'Belum diatur' },
-                                        { icon: IdCard, label: 'NIM', value: mahasiswa.nim || 'Belum diatur' },
-                                        { icon: Mail, label: 'Email', value: mahasiswa.email || 'Belum diatur' },
-                                        { icon: Phone, label: 'Telepon', value: mahasiswa.phone || 'Belum diatur' },
-                                        { icon: BookOpen, label: 'Program Studi', value: mahasiswa.prodi || 'Belum diatur' },
-                                        { icon: Activity, label: 'Kelas', value: mahasiswa.kelas || 'Belum diatur' },
-                                        { icon: Clock, label: 'Semester', value: mahasiswa.semester || 'Belum diatur' },
+                                        {
+                                            icon: User,
+                                            label: 'Nama Lengkap',
+                                            value:
+                                                mahasiswa.nama ||
+                                                'Belum diatur',
+                                        },
+                                        {
+                                            icon: IdCard,
+                                            label: 'NIM',
+                                            value:
+                                                mahasiswa.nim || 'Belum diatur',
+                                        },
+                                        {
+                                            icon: Mail,
+                                            label: 'Email',
+                                            value:
+                                                mahasiswa.email ||
+                                                'Belum diatur',
+                                        },
+                                        {
+                                            icon: Phone,
+                                            label: 'Telepon',
+                                            value:
+                                                mahasiswa.phone ||
+                                                'Belum diatur',
+                                        },
+                                        {
+                                            icon: BookOpen,
+                                            label: 'Program Studi',
+                                            value:
+                                                mahasiswa.prodi ||
+                                                'Belum diatur',
+                                        },
+                                        {
+                                            icon: Activity,
+                                            label: 'Kelas',
+                                            value:
+                                                mahasiswa.kelas ||
+                                                'Belum diatur',
+                                        },
+                                        {
+                                            icon: Clock,
+                                            label: 'Semester',
+                                            value:
+                                                mahasiswa.semester ||
+                                                'Belum diatur',
+                                        },
                                         {
                                             icon: Clock,
                                             label: 'Jenis Reguler',
-                                            value: mahasiswa.jenis_reguler || 'Belum diatur',
+                                            value:
+                                                mahasiswa.jenis_reguler ||
+                                                'Belum diatur',
                                         },
                                     ].map((item, index) => (
                                         <div
@@ -845,7 +1028,7 @@ export default function StudentProfile() {
                                                 <item.icon className="h-4 w-4" />
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                                                <p className="text-[10px] font-bold tracking-wider text-neutral-400 uppercase">
                                                     {item.label}
                                                 </p>
                                                 <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
@@ -864,8 +1047,12 @@ export default function StudentProfile() {
                                             <TrendingUp className="h-4 w-4 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Statistik Akademik</h3>
-                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Data kehadiran real-time</p>
+                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                                Statistik Akademik
+                                            </h3>
+                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                Data kehadiran real-time
+                                            </p>
                                         </div>
                                     </div>
 
@@ -899,27 +1086,54 @@ export default function StudentProfile() {
                                                 color: 'text-violet-500',
                                                 bg: 'bg-violet-50 dark:bg-violet-900/20',
                                             },
-                                        ].map(item => (
-                                            <div key={item.label} className={cn('flex items-center gap-4 rounded-2xl p-3', item.bg)}>
-                                                <item.icon className={cn('h-5 w-5', item.color)} />
+                                        ].map((item) => (
+                                            <div
+                                                key={item.label}
+                                                className={cn(
+                                                    'flex items-center gap-4 rounded-2xl p-3',
+                                                    item.bg,
+                                                )}
+                                            >
+                                                <item.icon
+                                                    className={cn(
+                                                        'h-5 w-5',
+                                                        item.color,
+                                                    )}
+                                                />
                                                 <div className="flex-1">
                                                     <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
                                                         {item.label}
                                                     </p>
                                                 </div>
-                                                <span className={cn('text-sm font-bold', item.color)}>{item.value}</span>
+                                                <span
+                                                    className={cn(
+                                                        'text-sm font-bold',
+                                                        item.color,
+                                                    )}
+                                                >
+                                                    {item.value}
+                                                </span>
                                             </div>
                                         ))}
 
                                         <div className="rounded-2xl border border-blue-200/60 bg-blue-50 p-4 dark:border-blue-800/30 dark:bg-blue-900/20">
                                             <div className="mb-2 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300">
-                                                <span className="font-semibold">Kelengkapan Profil</span>
-                                                <span className="font-bold">{profileCompletion}%</span>
+                                                <span className="font-semibold">
+                                                    Kelengkapan Profil
+                                                </span>
+                                                <span className="font-bold">
+                                                    {profileCompletion}%
+                                                </span>
                                             </div>
-                                            <Progress value={profileCompletion} className="h-2" />
+                                            <Progress
+                                                value={profileCompletion}
+                                                className="h-2"
+                                            />
                                             {profileCompletion < 100 && (
                                                 <p className="mt-2 text-xs text-blue-600/80 dark:text-blue-300/80">
-                                                    Lengkapi data profil agar pengalaman penggunaan lebih optimal.
+                                                    Lengkapi data profil agar
+                                                    pengalaman penggunaan lebih
+                                                    optimal.
                                                 </p>
                                             )}
                                         </div>
@@ -932,8 +1146,12 @@ export default function StudentProfile() {
                                             <Shield className="h-4 w-4 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Status Akun</h3>
-                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">Keamanan dan aktivitas akun</p>
+                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                                Status Akun
+                                            </h3>
+                                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                Keamanan dan aktivitas akun
+                                            </p>
                                         </div>
                                     </div>
 
@@ -945,7 +1163,9 @@ export default function StudentProfile() {
                                                     Akun Terverifikasi
                                                 </span>
                                             </div>
-                                            <Badge className="border-0 bg-emerald-500 text-white">Active</Badge>
+                                            <Badge className="border-0 bg-emerald-500 text-white">
+                                                Active
+                                            </Badge>
                                         </div>
 
                                         <div className="flex items-center justify-between rounded-2xl bg-neutral-50 p-3 dark:bg-neutral-800/50">
@@ -955,7 +1175,14 @@ export default function StudentProfile() {
                                                     Password
                                                 </span>
                                             </div>
-                                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleTabChange('security')}>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-7 text-xs"
+                                                onClick={() =>
+                                                    handleTabChange('security')
+                                                }
+                                            >
                                                 Ubah
                                             </Button>
                                         </div>
@@ -968,7 +1195,9 @@ export default function StudentProfile() {
                                                 </span>
                                             </div>
                                             <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                {formatDateTime(mahasiswa.last_activity_at)}
+                                                {formatDateTime(
+                                                    mahasiswa.last_activity_at,
+                                                )}
                                             </span>
                                         </div>
                                     </div>
@@ -980,46 +1209,68 @@ export default function StudentProfile() {
                                             <Activity className="h-4 w-4 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Aktivitas Terkini</h3>
+                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                                                Aktivitas Terkini
+                                            </h3>
                                             <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                                Data aktivitas real dari histori absensi
+                                                Data aktivitas real dari histori
+                                                absensi
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="space-y-3 p-5">
                                         {recentActivities.length > 0 ? (
-                                            recentActivities.map(activity => {
-                                                const meta = getActivityMeta(activity.status);
+                                            recentActivities.map((activity) => {
+                                                const meta = getActivityMeta(
+                                                    activity.status,
+                                                );
                                                 const ActivityIcon = meta.icon;
 
                                                 return (
-                                                    <div key={activity.id} className={cn('rounded-2xl p-3', meta.bg)}>
+                                                    <div
+                                                        key={activity.id}
+                                                        className={cn(
+                                                            'rounded-2xl p-3',
+                                                            meta.bg,
+                                                        )}
+                                                    >
                                                         <div className="mb-2 flex items-start justify-between gap-3">
                                                             <div className="flex items-start gap-3">
                                                                 <div className="rounded-xl bg-white/80 p-2 dark:bg-neutral-900/60">
-                                                                    <ActivityIcon className={cn('h-4 w-4', meta.iconColor)} />
+                                                                    <ActivityIcon
+                                                                        className={cn(
+                                                                            'h-4 w-4',
+                                                                            meta.iconColor,
+                                                                        )}
+                                                                    />
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                                                        {activity.title}
+                                                                        {
+                                                                            activity.title
+                                                                        }
                                                                     </p>
                                                                     <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                                        {activity.description}
+                                                                        {
+                                                                            activity.description
+                                                                        }
                                                                     </p>
                                                                 </div>
                                                             </div>
                                                             <span
                                                                 className={cn(
                                                                     'rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                                                                    meta.badgeClass
+                                                                    meta.badgeClass,
                                                                 )}
                                                             >
                                                                 {meta.label}
                                                             </span>
                                                         </div>
                                                         <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                                            {formatActivityTime(activity.occurred_at)}
+                                                            {formatActivityTime(
+                                                                activity.occurred_at,
+                                                            )}
                                                         </p>
                                                     </div>
                                                 );
@@ -1058,7 +1309,8 @@ export default function StudentProfile() {
                                 onContactClick={() => handleTabChange('edit')}
                             />
                             <p className="mt-6 max-w-md text-center text-sm text-neutral-500 dark:text-neutral-400">
-                                Gerakkan mouse di atas kartu untuk efek 3D interaktif. Klik tombol untuk mengedit profil.
+                                Gerakkan mouse di atas kartu untuk efek 3D
+                                interaktif. Klik tombol untuk mengedit profil.
                             </p>
                         </motion.div>
                     )}
@@ -1077,38 +1329,54 @@ export default function StudentProfile() {
                                         <Edit3 className="h-5 w-5 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Edit Profil</h3>
+                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                            Edit Profil
+                                        </h3>
                                         <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                             Perbarui informasi profil mahasiswa
                                         </p>
                                     </div>
                                 </div>
 
-                                <form onSubmit={handleProfileSubmit} className="space-y-6 p-6">
-                                    <div className="flex flex-col gap-5 rounded-2xl border border-neutral-200/60 bg-neutral-50 p-5 dark:border-neutral-800 dark:bg-neutral-900 sm:flex-row sm:items-center">
+                                <form
+                                    onSubmit={handleProfileSubmit}
+                                    className="space-y-6 p-6"
+                                >
+                                    <div className="flex flex-col gap-5 rounded-2xl border border-neutral-200/60 bg-neutral-50 p-5 sm:flex-row sm:items-center dark:border-neutral-800 dark:bg-neutral-900">
                                         <div className="group relative">
                                             <div className="h-20 w-20 overflow-hidden rounded-2xl border-2 border-neutral-200 shadow-lg dark:border-neutral-700">
-                                                <img src={avatarUrl} alt={mahasiswa.nama} className="h-full w-full object-cover" />
+                                                <img
+                                                    src={avatarUrl}
+                                                    alt={mahasiswa.nama}
+                                                    className="h-full w-full object-cover"
+                                                />
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() => avatarInputRef.current?.click()}
+                                                onClick={() =>
+                                                    avatarInputRef.current?.click()
+                                                }
                                                 className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
                                             >
                                                 <Camera className="h-5 w-5 text-white" />
                                             </button>
                                         </div>
                                         <div>
-                                            <p className="font-bold text-neutral-900 dark:text-white">Foto Profil</p>
+                                            <p className="font-bold text-neutral-900 dark:text-white">
+                                                Foto Profil
+                                            </p>
                                             <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                                                JPG/PNG maksimal 2MB. Disarankan rasio 1:1.
+                                                JPG/PNG maksimal 2MB. Disarankan
+                                                rasio 1:1.
                                             </p>
                                             <Button
                                                 type="button"
                                                 size="sm"
                                                 variant="outline"
                                                 className="mt-2 h-8 text-xs"
-                                                onClick={() => avatarInputRef.current?.click()}
+                                                onClick={() =>
+                                                    avatarInputRef.current?.click()
+                                                }
                                             >
                                                 <Upload className="mr-1.5 h-3.5 w-3.5" />
                                                 Pilih Foto
@@ -1118,28 +1386,45 @@ export default function StudentProfile() {
 
                                     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                                         <div className="space-y-2">
-                                            <Label htmlFor="nama" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                            <Label
+                                                htmlFor="nama"
+                                                className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                            >
                                                 Nama Lengkap
                                             </Label>
                                             <div className="relative">
-                                                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                <User className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                                 <Input
                                                     id="nama"
-                                                    value={profileForm.data.nama}
-                                                    onChange={e => profileForm.setData('nama', e.target.value)}
+                                                    value={
+                                                        profileForm.data.nama
+                                                    }
+                                                    onChange={(e) =>
+                                                        profileForm.setData(
+                                                            'nama',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="h-11 border-neutral-200 bg-white pl-10 dark:border-neutral-700 dark:bg-neutral-900"
                                                     placeholder="Nama lengkap"
                                                 />
                                             </div>
-                                            <InputError message={profileForm.errors.nama} />
+                                            <InputError
+                                                message={
+                                                    profileForm.errors.nama
+                                                }
+                                            />
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="nim" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                            <Label
+                                                htmlFor="nim"
+                                                className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                            >
                                                 NIM
                                             </Label>
                                             <div className="relative">
-                                                <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                <IdCard className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                                 <Input
                                                     id="nim"
                                                     value={mahasiswa.nim}
@@ -1150,32 +1435,45 @@ export default function StudentProfile() {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                            <Label
+                                                htmlFor="email"
+                                                className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                            >
                                                 Email
                                             </Label>
                                             <div className="relative">
-                                                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                                 <Input
                                                     id="email"
-                                                    value={mahasiswa.email || 'Belum diatur'}
+                                                    value={
+                                                        mahasiswa.email ||
+                                                        'Belum diatur'
+                                                    }
                                                     disabled
                                                     className="h-11 cursor-not-allowed border-neutral-200 bg-neutral-100 pl-10 opacity-70 dark:border-neutral-700 dark:bg-neutral-800"
                                                 />
                                             </div>
                                             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                Email dikelola oleh sistem autentikasi.
+                                                Email dikelola oleh sistem
+                                                autentikasi.
                                             </p>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="prodi" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                            <Label
+                                                htmlFor="prodi"
+                                                className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                            >
                                                 Program Studi
                                             </Label>
                                             <div className="relative">
-                                                <Activity className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                <Activity className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                                 <Input
                                                     id="prodi"
-                                                    value={mahasiswa.prodi || 'Belum diatur'}
+                                                    value={
+                                                        mahasiswa.prodi ||
+                                                        'Belum diatur'
+                                                    }
                                                     disabled
                                                     className="h-11 cursor-not-allowed border-neutral-200 bg-neutral-100 pl-10 opacity-70 dark:border-neutral-700 dark:bg-neutral-800"
                                                 />
@@ -1183,7 +1481,7 @@ export default function StudentProfile() {
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col gap-3 border-t border-white/20 pt-4 dark:border-white/5 sm:flex-row sm:justify-end">
+                                    <div className="flex flex-col gap-3 border-t border-white/20 pt-4 sm:flex-row sm:justify-end dark:border-white/5">
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -1200,7 +1498,9 @@ export default function StudentProfile() {
                                             className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white sm:w-auto"
                                         >
                                             <Save className="mr-2 h-4 w-4" />
-                                            {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                            {profileForm.processing
+                                                ? 'Menyimpan...'
+                                                : 'Simpan Perubahan'}
                                         </Button>
                                     </div>
                                 </form>
@@ -1223,100 +1523,200 @@ export default function StudentProfile() {
                                         <Shield className="h-5 w-5 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Keamanan Akun</h3>
+                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                            Keamanan Akun
+                                        </h3>
                                         <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                            Ubah password untuk menjaga keamanan akun
+                                            Ubah password untuk menjaga keamanan
+                                            akun
                                         </p>
                                     </div>
                                 </div>
 
-                                <form onSubmit={handlePasswordSubmit} className="space-y-5 p-6">
+                                <form
+                                    onSubmit={handlePasswordSubmit}
+                                    className="space-y-5 p-6"
+                                >
                                     <div className="space-y-2">
-                                        <Label htmlFor="current_password" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                        <Label
+                                            htmlFor="current_password"
+                                            className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                        >
                                             Password Saat Ini
                                         </Label>
                                         <div className="relative">
-                                            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                            <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                             <Input
                                                 id="current_password"
-                                                type={showCurrent ? 'text' : 'password'}
-                                                value={passwordForm.data.current_password}
-                                                onChange={e => passwordForm.setData('current_password', e.target.value)}
-                                                className="h-11 border-neutral-200 bg-white pl-10 pr-10 dark:border-neutral-700 dark:bg-neutral-900"
+                                                type={
+                                                    showCurrent
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                value={
+                                                    passwordForm.data
+                                                        .current_password
+                                                }
+                                                onChange={(e) =>
+                                                    passwordForm.setData(
+                                                        'current_password',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="h-11 border-neutral-200 bg-white pr-10 pl-10 dark:border-neutral-700 dark:bg-neutral-900"
                                                 placeholder="Masukkan password saat ini"
                                             />
                                             <button
                                                 type="button"
-                                                onClick={() => setShowCurrent(value => !value)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                                onClick={() =>
+                                                    setShowCurrent(
+                                                        (value) => !value,
+                                                    )
+                                                }
+                                                className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                                             >
-                                                {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                {showCurrent ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
                                             </button>
                                         </div>
-                                        <InputError message={passwordForm.errors.current_password} />
+                                        <InputError
+                                            message={
+                                                passwordForm.errors
+                                                    .current_password
+                                            }
+                                        />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                        <Label
+                                            htmlFor="password"
+                                            className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                        >
                                             Password Baru
                                         </Label>
                                         <div className="relative">
-                                            <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                            <KeyRound className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                             <Input
                                                 id="password"
-                                                type={showNew ? 'text' : 'password'}
-                                                value={passwordForm.data.password}
-                                                onChange={e => passwordForm.setData('password', e.target.value)}
-                                                className="h-11 border-neutral-200 bg-white pl-10 pr-10 dark:border-neutral-700 dark:bg-neutral-900"
+                                                type={
+                                                    showNew
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                value={
+                                                    passwordForm.data.password
+                                                }
+                                                onChange={(e) =>
+                                                    passwordForm.setData(
+                                                        'password',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="h-11 border-neutral-200 bg-white pr-10 pl-10 dark:border-neutral-700 dark:bg-neutral-900"
                                                 placeholder="Masukkan password baru"
                                             />
                                             <button
                                                 type="button"
-                                                onClick={() => setShowNew(value => !value)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                                onClick={() =>
+                                                    setShowNew(
+                                                        (value) => !value,
+                                                    )
+                                                }
+                                                className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                                             >
-                                                {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                {showNew ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
                                             </button>
                                         </div>
-                                        <InputError message={passwordForm.errors.password} />
+                                        <InputError
+                                            message={
+                                                passwordForm.errors.password
+                                            }
+                                        />
                                     </div>
 
                                     {passwordForm.data.password && (
                                         <div className="rounded-2xl border border-blue-200/60 bg-blue-50 p-4 dark:border-blue-800/30 dark:bg-blue-900/20">
                                             <div className="mb-2 flex items-center justify-between text-xs">
-                                                <span className="font-medium text-blue-700 dark:text-blue-300">Kekuatan Password</span>
-                                                <span className={cn('font-bold', passwordStrength.color)}>{passwordStrength.label}</span>
+                                                <span className="font-medium text-blue-700 dark:text-blue-300">
+                                                    Kekuatan Password
+                                                </span>
+                                                <span
+                                                    className={cn(
+                                                        'font-bold',
+                                                        passwordStrength.color,
+                                                    )}
+                                                >
+                                                    {passwordStrength.label}
+                                                </span>
                                             </div>
-                                            <Progress value={passwordStrength.value} className="h-2" />
+                                            <Progress
+                                                value={passwordStrength.value}
+                                                className="h-2"
+                                            />
                                         </div>
                                     )}
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="password_confirmation" className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                                        <Label
+                                            htmlFor="password_confirmation"
+                                            className="text-xs font-bold tracking-wider text-neutral-500 uppercase"
+                                        >
                                             Konfirmasi Password Baru
                                         </Label>
                                         <div className="relative">
-                                            <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                            <KeyRound className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                                             <Input
                                                 id="password_confirmation"
-                                                type={showConfirm ? 'text' : 'password'}
-                                                value={passwordForm.data.password_confirmation}
-                                                onChange={e => passwordForm.setData('password_confirmation', e.target.value)}
-                                                className="h-11 border-neutral-200 bg-white pl-10 pr-10 dark:border-neutral-700 dark:bg-neutral-900"
+                                                type={
+                                                    showConfirm
+                                                        ? 'text'
+                                                        : 'password'
+                                                }
+                                                value={
+                                                    passwordForm.data
+                                                        .password_confirmation
+                                                }
+                                                onChange={(e) =>
+                                                    passwordForm.setData(
+                                                        'password_confirmation',
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="h-11 border-neutral-200 bg-white pr-10 pl-10 dark:border-neutral-700 dark:bg-neutral-900"
                                                 placeholder="Konfirmasi password baru"
                                             />
                                             <button
                                                 type="button"
-                                                onClick={() => setShowConfirm(value => !value)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                                onClick={() =>
+                                                    setShowConfirm(
+                                                        (value) => !value,
+                                                    )
+                                                }
+                                                className="absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                                             >
-                                                {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                {showConfirm ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
                                             </button>
                                         </div>
-                                        <InputError message={passwordForm.errors.password_confirmation} />
+                                        <InputError
+                                            message={
+                                                passwordForm.errors
+                                                    .password_confirmation
+                                            }
+                                        />
                                     </div>
 
-                                    <div className="flex flex-col gap-3 border-t border-white/20 pt-4 dark:border-white/5 sm:flex-row sm:justify-end">
+                                    <div className="flex flex-col gap-3 border-t border-white/20 pt-4 sm:flex-row sm:justify-end dark:border-white/5">
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -1333,7 +1733,9 @@ export default function StudentProfile() {
                                             className="w-full bg-gradient-to-r from-red-500 to-rose-600 text-white sm:w-auto"
                                         >
                                             <Shield className="mr-2 h-4 w-4" />
-                                            {passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
+                                            {passwordForm.processing
+                                                ? 'Menyimpan...'
+                                                : 'Ubah Password'}
                                         </Button>
                                     </div>
                                 </form>
@@ -1346,9 +1748,12 @@ export default function StudentProfile() {
                                             <AlertCircle className="h-5 w-5 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Tips Keamanan</h3>
+                                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                Tips Keamanan
+                                            </h3>
                                             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                Praktik terbaik untuk menjaga akun
+                                                Praktik terbaik untuk menjaga
+                                                akun
                                             </p>
                                         </div>
                                     </div>
@@ -1360,9 +1765,14 @@ export default function StudentProfile() {
                                             'Simpan password di password manager, bukan catatan terbuka.',
                                             'Ubah password secara berkala jika merasa akun pernah diakses pihak lain.',
                                         ].map((tip, index) => (
-                                            <div key={`${tip}-${index}`} className="flex items-start gap-3 rounded-2xl bg-neutral-50 p-3 dark:bg-neutral-800/50">
+                                            <div
+                                                key={`${tip}-${index}`}
+                                                className="flex items-start gap-3 rounded-2xl bg-neutral-50 p-3 dark:bg-neutral-800/50"
+                                            >
                                                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
-                                                <p className="text-sm text-neutral-700 dark:text-neutral-300">{tip}</p>
+                                                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                                                    {tip}
+                                                </p>
                                             </div>
                                         ))}
                                     </div>
@@ -1374,8 +1784,12 @@ export default function StudentProfile() {
                                             <Shield className="h-5 w-5 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Ringkasan Keamanan</h3>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Status keamanan akun saat ini</p>
+                                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                                Ringkasan Keamanan
+                                            </h3>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                Status keamanan akun saat ini
+                                            </p>
                                         </div>
                                     </div>
 
@@ -1384,16 +1798,26 @@ export default function StudentProfile() {
                                             <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                                                 Verifikasi Akun
                                             </span>
-                                            <Badge className="border-0 bg-emerald-500 text-white">Aktif</Badge>
+                                            <Badge className="border-0 bg-emerald-500 text-white">
+                                                Aktif
+                                            </Badge>
                                         </div>
                                         <div className="flex items-center justify-between rounded-2xl bg-neutral-50 p-3 dark:bg-neutral-800/50">
-                                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Update Password</span>
-                                            <span className="text-xs text-neutral-500 dark:text-neutral-400">Disarankan rutin</span>
-                                        </div>
-                                        <div className="flex items-center justify-between rounded-2xl bg-neutral-50 p-3 dark:bg-neutral-800/50">
-                                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Aktivitas Terakhir</span>
+                                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                Update Password
+                                            </span>
                                             <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                                                {formatDateTime(mahasiswa.last_activity_at)}
+                                                Disarankan rutin
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center justify-between rounded-2xl bg-neutral-50 p-3 dark:bg-neutral-800/50">
+                                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                Aktivitas Terakhir
+                                            </span>
+                                            <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                                                {formatDateTime(
+                                                    mahasiswa.last_activity_at,
+                                                )}
                                             </span>
                                         </div>
                                     </div>

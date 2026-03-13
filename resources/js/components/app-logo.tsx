@@ -7,7 +7,7 @@ export default function AppLogo() {
                 <AppLogoIcon className="size-8" />
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-sidebar-foreground/60">
+                <span className="text-[10px] tracking-[0.2em] text-sidebar-foreground/60 uppercase">
                     Absensi
                 </span>
                 <span className="truncate leading-tight font-semibold">

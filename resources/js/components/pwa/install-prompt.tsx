@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Download, Smartphone } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Download, Smartphone, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
@@ -9,7 +8,8 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPrompt() {
-    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const [deferredPrompt, setDeferredPrompt] =
+        useState<BeforeInstallPromptEvent | null>(null);
     const [showPrompt, setShowPrompt] = useState(false);
     const [dismissed, setDismissed] = useState(false);
 
@@ -55,7 +55,7 @@ export function InstallPrompt() {
     if (!showPrompt || dismissed) return null;
 
     return (
-        <div className="fixed bottom-20 left-4 right-4 z-50 mx-auto max-w-md animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed right-4 bottom-20 left-4 z-50 mx-auto max-w-md animate-in duration-300 fade-in slide-in-from-bottom-4">
             <div className="rounded-2xl border border-slate-200/70 bg-white/95 p-4 shadow-xl backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/95">
                 <button
                     onClick={handleDismiss}
@@ -72,15 +72,20 @@ export function InstallPrompt() {
                         <h3 className="font-semibold text-slate-900 dark:text-white">
                             Install Aplikasi
                         </h3>
-                        <p className="text-sm text-slate-500 mt-1">
-                            Install aplikasi untuk akses lebih cepat dan pengalaman seperti native app.
+                        <p className="mt-1 text-sm text-slate-500">
+                            Install aplikasi untuk akses lebih cepat dan
+                            pengalaman seperti native app.
                         </p>
-                        <div className="flex gap-2 mt-3">
+                        <div className="mt-3 flex gap-2">
                             <Button size="sm" onClick={handleInstall}>
-                                <Download className="h-4 w-4 mr-1" />
+                                <Download className="mr-1 h-4 w-4" />
                                 Install
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={handleDismiss}>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={handleDismiss}
+                            >
                                 Nanti saja
                             </Button>
                         </div>

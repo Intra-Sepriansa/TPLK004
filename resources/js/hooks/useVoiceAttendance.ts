@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface VoiceAttendanceOptions {
     language?: string;
@@ -21,8 +21,8 @@ export function useVoiceAttendance(options: VoiceAttendanceOptions = {}) {
 
     useEffect(() => {
         // Check if browser supports Speech Recognition
-        const SpeechRecognition = 
-            (window as any).SpeechRecognition || 
+        const SpeechRecognition =
+            (window as any).SpeechRecognition ||
             (window as any).webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
@@ -106,8 +106,13 @@ export function useVoiceAttendance(options: VoiceAttendanceOptions = {}) {
  * Voice Commands Hook for Attendance
  */
 export function useVoiceCommands(commands: VoiceCommand[]) {
-    const { transcript, isListening, startListening, stopListening, isSupported } = 
-        useVoiceAttendance({ language: 'id-ID', continuous: true });
+    const {
+        transcript,
+        isListening,
+        startListening,
+        stopListening,
+        isSupported,
+    } = useVoiceAttendance({ language: 'id-ID', continuous: true });
 
     useEffect(() => {
         if (!transcript) return;
@@ -116,8 +121,8 @@ export function useVoiceCommands(commands: VoiceCommand[]) {
 
         // Check each command
         for (const command of commands) {
-            const matched = command.keywords.some(keyword => 
-                lowerTranscript.includes(keyword.toLowerCase())
+            const matched = command.keywords.some((keyword) =>
+                lowerTranscript.includes(keyword.toLowerCase()),
             );
 
             if (matched) {
@@ -179,23 +184,29 @@ export function useTextToSpeech() {
         setIsSupported('speechSynthesis' in window);
     }, []);
 
-    const speak = useCallback((text: string, options: { lang?: string; rate?: number; pitch?: number } = {}) => {
-        if (!isSupported) {
-            console.warn('Text-to-speech not supported');
-            return;
-        }
+    const speak = useCallback(
+        (
+            text: string,
+            options: { lang?: string; rate?: number; pitch?: number } = {},
+        ) => {
+            if (!isSupported) {
+                console.warn('Text-to-speech not supported');
+                return;
+            }
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = options.lang || 'id-ID';
-        utterance.rate = options.rate || 1;
-        utterance.pitch = options.pitch || 1;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = options.lang || 'id-ID';
+            utterance.rate = options.rate || 1;
+            utterance.pitch = options.pitch || 1;
 
-        utterance.onstart = () => setIsSpeaking(true);
-        utterance.onend = () => setIsSpeaking(false);
-        utterance.onerror = () => setIsSpeaking(false);
+            utterance.onstart = () => setIsSpeaking(true);
+            utterance.onend = () => setIsSpeaking(false);
+            utterance.onerror = () => setIsSpeaking(false);
 
-        window.speechSynthesis.speak(utterance);
-    }, [isSupported]);
+            window.speechSynthesis.speak(utterance);
+        },
+        [isSupported],
+    );
 
     const stop = useCallback(() => {
         if (isSupported) {

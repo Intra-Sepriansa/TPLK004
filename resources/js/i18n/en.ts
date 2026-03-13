@@ -37,7 +37,7 @@ export const en: TranslationKeys = {
         saveSuccess: 'Settings successfully saved',
         loadError: 'Failed to load settings',
         saveError: 'Failed to save settings',
-        
+
         // Categories
         categories: {
             general: {
@@ -46,11 +46,13 @@ export const en: TranslationKeys = {
             },
             teaching: {
                 title: 'Teaching',
-                description: 'Settings related to teaching methods and evaluation',
+                description:
+                    'Settings related to teaching methods and evaluation',
             },
             classManagement: {
                 title: 'Class Management',
-                description: 'Manage preferences for class and student management',
+                description:
+                    'Manage preferences for class and student management',
             },
             notifications: {
                 title: 'Notifications',
@@ -108,7 +110,8 @@ export const en: TranslationKeys = {
             newAttendance: 'New Attendance',
             newAttendanceDesc: 'Notify when students check attendance',
             permitRequest: 'Permit Requests',
-            permitRequestDesc: 'Notify when there are permit/sick leave requests',
+            permitRequestDesc:
+                'Notify when there are permit/sick leave requests',
         },
 
         // Appearance
@@ -126,7 +129,8 @@ export const en: TranslationKeys = {
             publicProfile: 'Public Profile',
             publicProfileDesc: 'Display your profile to students',
             analytics: 'Anonymous Analytics',
-            analyticsDesc: 'Allow anonymous data collection for service improvement',
+            analyticsDesc:
+                'Allow anonymous data collection for service improvement',
         },
 
         // Security
@@ -135,7 +139,8 @@ export const en: TranslationKeys = {
             changePassword: 'Change Password',
             changePasswordDesc: 'Update your account password',
             twoFactor: 'Two-Factor Authentication',
-            twoFactorDesc: 'Enable two-factor authentication for additional security',
+            twoFactorDesc:
+                'Enable two-factor authentication for additional security',
         },
 
         // Data Management

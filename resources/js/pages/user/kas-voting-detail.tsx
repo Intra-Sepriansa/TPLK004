@@ -16,8 +16,8 @@ import {
     PartyPopper,
     ThumbsDown,
     ThumbsUp,
-    UtensilsCrossed,
     Users,
+    UtensilsCrossed,
     Vote,
     XCircle,
     type LucideIcon,
@@ -78,11 +78,36 @@ const categories: Array<{
     icon: LucideIcon;
     color: string;
 }> = [
-    { value: 'kegiatan', label: 'Kegiatan Kelas', icon: PartyPopper, color: 'bg-purple-100 text-purple-700' },
-    { value: 'perlengkapan', label: 'Perlengkapan', icon: Package, color: 'bg-blue-100 text-blue-700' },
-    { value: 'konsumsi', label: 'Konsumsi', icon: UtensilsCrossed, color: 'bg-orange-100 text-orange-700' },
-    { value: 'donasi', label: 'Donasi/Sosial', icon: Heart, color: 'bg-pink-100 text-pink-700' },
-    { value: 'lainnya', label: 'Lainnya', icon: ClipboardList, color: 'bg-neutral-100 text-neutral-700' },
+    {
+        value: 'kegiatan',
+        label: 'Kegiatan Kelas',
+        icon: PartyPopper,
+        color: 'bg-purple-100 text-purple-700',
+    },
+    {
+        value: 'perlengkapan',
+        label: 'Perlengkapan',
+        icon: Package,
+        color: 'bg-blue-100 text-blue-700',
+    },
+    {
+        value: 'konsumsi',
+        label: 'Konsumsi',
+        icon: UtensilsCrossed,
+        color: 'bg-orange-100 text-orange-700',
+    },
+    {
+        value: 'donasi',
+        label: 'Donasi/Sosial',
+        icon: Heart,
+        color: 'bg-pink-100 text-pink-700',
+    },
+    {
+        value: 'lainnya',
+        label: 'Lainnya',
+        icon: ClipboardList,
+        color: 'bg-neutral-100 text-neutral-700',
+    },
 ];
 
 const formatCurrency = (amount: number): string =>
@@ -98,39 +123,47 @@ const getStatusConfig = (status: string) => {
             return {
                 icon: Clock,
                 label: 'Voting Aktif',
-                badgeClass: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                badgeClass:
+                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
             };
         case 'approved':
             return {
                 icon: CheckCircle,
                 label: 'Disetujui',
-                badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+                badgeClass:
+                    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
             };
         case 'rejected':
             return {
                 icon: XCircle,
                 label: 'Ditolak',
-                badgeClass: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+                badgeClass:
+                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
             };
         default:
             return {
                 icon: Vote,
                 label: 'Ditutup',
-                badgeClass: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+                badgeClass:
+                    'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
             };
     }
 };
 
 export default function KasVotingDetail({ voting, relatedVotings }: Props) {
     const [comment, setComment] = useState(voting.my_comment ?? '');
-    const categoryConfig = categories.find((c) => c.value === voting.category) ?? categories[4];
+    const categoryConfig =
+        categories.find((c) => c.value === voting.category) ?? categories[4];
     const CategoryIcon = categoryConfig.icon;
     const statusConfig = getStatusConfig(voting.status);
     const StatusIcon = statusConfig.icon;
 
     const canVote = voting.status === 'open' && !voting.is_expired;
     const rejectPercentage = useMemo(
-        () => (voting.stats.total > 0 ? Math.max(0, 100 - voting.stats.approval_percentage) : 0),
+        () =>
+            voting.stats.total > 0
+                ? Math.max(0, 100 - voting.stats.approval_percentage)
+                : 0,
         [voting.stats.approval_percentage, voting.stats.total],
     );
 
@@ -149,17 +182,27 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    transition={{
+                        duration: 0.6,
+                        type: 'spring',
+                        stiffness: 100,
+                    }}
                     className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
                 >
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
@@ -176,9 +219,17 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
                             <motion.div
                                 className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                initial={{
+                                    opacity: 0,
+                                    scale: 0.5,
+                                    rotate: -10,
+                                }}
                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    delay: 0.2,
+                                }}
                             >
                                 <img
                                     src={VotingKasIcon}
@@ -189,17 +240,23 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
 
                             <div className="flex-1">
                                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                                    <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold ${statusConfig.badgeClass}`}>
+                                    <span
+                                        className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold ${statusConfig.badgeClass}`}
+                                    >
                                         <StatusIcon className="h-3.5 w-3.5" />
                                         {statusConfig.label}
                                     </span>
-                                    <span className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium ${categoryConfig.color}`}>
+                                    <span
+                                        className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium ${categoryConfig.color}`}
+                                    >
                                         <CategoryIcon className="h-3.5 w-3.5" />
                                         {categoryConfig.label}
                                     </span>
                                 </div>
 
-                                <h1 className="text-2xl font-bold sm:text-3xl">{voting.title}</h1>
+                                <h1 className="text-2xl font-bold sm:text-3xl">
+                                    {voting.title}
+                                </h1>
                                 <p className="mt-2 max-w-3xl text-sm leading-relaxed text-indigo-100 sm:text-base">
                                     {voting.description}
                                 </p>
@@ -223,40 +280,55 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="xl:col-span-2 rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40"
+                        className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 xl:col-span-2 dark:border-white/5 dark:bg-neutral-900/40"
                     >
                         <div className="mb-4 flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
                                 <Vote className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Hasil Voting</h2>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Pantau progres keputusan pengeluaran</p>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Hasil Voting
+                                </h2>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                    Pantau progres keputusan pengeluaran
+                                </p>
                             </div>
                         </div>
 
                         <div className="mb-4 rounded-2xl border border-white/20 bg-white/50 p-4 dark:border-white/10 dark:bg-neutral-800/50">
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Nominal Usulan</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                Nominal Usulan
+                            </p>
                             <p className="mt-1 bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-3xl font-bold text-transparent">
                                 {formatCurrency(voting.amount)}
                             </p>
-                            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Dibuat: {voting.created_at}</p>
+                            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                Dibuat: {voting.created_at}
+                            </p>
                         </div>
 
                         <div className="space-y-3 rounded-2xl border border-white/20 bg-white/50 p-4 dark:border-white/10 dark:bg-neutral-800/50">
                             <div className="flex items-center justify-between text-sm">
                                 <span className="font-medium text-neutral-700 dark:text-neutral-300">
-                                    {voting.stats.total} vote masuk (min. {voting.min_votes})
+                                    {voting.stats.total} vote masuk (min.{' '}
+                                    {voting.min_votes})
                                 </span>
                                 <span className="font-bold text-neutral-900 dark:text-white">
-                                    <AnimatedCounter value={voting.stats.approval_percentage} suffix="%" /> setuju
+                                    <AnimatedCounter
+                                        value={voting.stats.approval_percentage}
+                                        suffix="%"
+                                    />{' '}
+                                    setuju
                                 </span>
                             </div>
 
                             <div className="flex h-4 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    animate={{ width: `${voting.stats.approval_percentage}%` }}
+                                    animate={{
+                                        width: `${voting.stats.approval_percentage}%`,
+                                    }}
                                     transition={{ duration: 0.9 }}
                                     className="bg-gradient-to-r from-emerald-400 to-emerald-600"
                                 />
@@ -270,14 +342,20 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
 
                             <div className="flex flex-col gap-2 text-sm sm:flex-row sm:justify-between">
                                 <p className="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
-                                    <ThumbsUp className="h-4 w-4" /> {voting.stats.approve} Setuju
+                                    <ThumbsUp className="h-4 w-4" />{' '}
+                                    {voting.stats.approve} Setuju
                                 </p>
                                 <p className="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
-                                    <ThumbsDown className="h-4 w-4" /> {voting.stats.reject} Tolak
+                                    <ThumbsDown className="h-4 w-4" />{' '}
+                                    {voting.stats.reject} Tolak
                                 </p>
-                                <p className={`inline-flex items-center gap-1 font-medium ${voting.stats.is_valid ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                <p
+                                    className={`inline-flex items-center gap-1 font-medium ${voting.stats.is_valid ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+                                >
                                     <CheckCircle className="h-4 w-4" />
-                                    {voting.stats.is_valid ? 'Valid' : 'Belum valid'}
+                                    {voting.stats.is_valid
+                                        ? 'Valid'
+                                        : 'Belum valid'}
                                 </p>
                             </div>
                         </div>
@@ -285,7 +363,9 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                         <div className="mt-4 rounded-2xl border border-white/20 bg-white/50 p-4 dark:border-white/10 dark:bg-neutral-800/50">
                             <div className="mb-3 flex items-center gap-2">
                                 <MessageCircle className="h-4 w-4 text-indigo-500" />
-                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">Komentar Vote Anda</p>
+                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                    Komentar Vote Anda
+                                </p>
                             </div>
                             <Input
                                 value={comment}
@@ -306,18 +386,24 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                                         onClick={() => handleVote('approve')}
                                     >
                                         <ThumbsUp className="mr-2 h-4 w-4" />
-                                        {voting.my_vote === 'approve' ? 'Sudah Setuju' : 'Setuju'}
+                                        {voting.my_vote === 'approve'
+                                            ? 'Sudah Setuju'
+                                            : 'Setuju'}
                                     </Button>
                                     <Button
                                         variant="destructive"
                                         className={`h-11 w-full ${
-                                            voting.my_vote === 'reject' ? 'cursor-not-allowed' : 'shadow-lg shadow-red-500/30'
+                                            voting.my_vote === 'reject'
+                                                ? 'cursor-not-allowed'
+                                                : 'shadow-lg shadow-red-500/30'
                                         }`}
                                         disabled={voting.my_vote === 'reject'}
                                         onClick={() => handleVote('reject')}
                                     >
                                         <ThumbsDown className="mr-2 h-4 w-4" />
-                                        {voting.my_vote === 'reject' ? 'Sudah Tolak' : 'Tolak'}
+                                        {voting.my_vote === 'reject'
+                                            ? 'Sudah Tolak'
+                                            : 'Tolak'}
                                     </Button>
                                 </div>
                             )}
@@ -341,8 +427,12 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                                 <Users className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Partisipasi</h2>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">Daftar suara terbaru</p>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Partisipasi
+                                </h2>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                    Daftar suara terbaru
+                                </p>
                             </div>
                         </div>
 
@@ -364,15 +454,23 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
                                                         : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                                                 }`}
                                             >
-                                                {voteRow.vote === 'approve' ? 'Setuju' : 'Tolak'}
+                                                {voteRow.vote === 'approve'
+                                                    ? 'Setuju'
+                                                    : 'Tolak'}
                                             </span>
                                         </div>
                                         {voteRow.comment ? (
-                                            <p className="line-clamp-2 text-xs text-neutral-600 dark:text-neutral-300">{voteRow.comment}</p>
+                                            <p className="line-clamp-2 text-xs text-neutral-600 dark:text-neutral-300">
+                                                {voteRow.comment}
+                                            </p>
                                         ) : (
-                                            <p className="text-xs text-neutral-400">Tanpa komentar</p>
+                                            <p className="text-xs text-neutral-400">
+                                                Tanpa komentar
+                                            </p>
                                         )}
-                                        <p className="mt-1 text-[10px] text-neutral-400">{voteRow.created_at}</p>
+                                        <p className="mt-1 text-[10px] text-neutral-400">
+                                            {voteRow.created_at}
+                                        </p>
                                     </div>
                                 ))
                             ) : (
@@ -384,17 +482,27 @@ export default function KasVotingDetail({ voting, relatedVotings }: Props) {
 
                         {relatedVotings.length > 0 && (
                             <div className="mt-4 border-t border-white/10 pt-4">
-                                <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-white">Voting Aktif Lainnya</p>
+                                <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                    Voting Aktif Lainnya
+                                </p>
                                 <div className="space-y-2">
                                     {relatedVotings.map((item) => (
                                         <button
                                             key={item.id}
-                                            onClick={() => router.visit(`/user/kas-voting/${item.id}`)}
+                                            onClick={() =>
+                                                router.visit(
+                                                    `/user/kas-voting/${item.id}`,
+                                                )
+                                            }
                                             className="w-full rounded-xl border border-white/20 bg-white/50 p-3 text-left transition hover:bg-white/70 dark:border-white/10 dark:bg-neutral-800/50 dark:hover:bg-neutral-800"
                                         >
-                                            <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">{item.title}</p>
+                                            <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {item.title}
+                                            </p>
                                             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                                                {formatCurrency(item.amount)} • {item.approval_percentage}% setuju • {item.total_votes} vote
+                                                {formatCurrency(item.amount)} •{' '}
+                                                {item.approval_percentage}%
+                                                setuju • {item.total_votes} vote
                                             </p>
                                         </button>
                                     ))}

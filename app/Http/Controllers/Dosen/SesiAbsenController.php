@@ -7,6 +7,8 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\MataKuliah;
 use App\Models\AppNotification;
+use App\Services\AttendanceSessionAutomationService;
+use App\Services\MeetingQuickFillService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -17,8 +19,10 @@ use Inertia\Response;
 
 class SesiAbsenController extends Controller
 {
-    public function index(): Response
+    public function index(AttendanceSessionAutomationService $automationService): Response
     {
+        $automationService->syncActiveStates();
+
         $dosen = Auth::guard('dosen')->user();
 
         $courses = MataKuliah::where('dosen_id', $dosen->id)->select('id', 'nama', 'sks')->get();
@@ -79,18 +83,35 @@ class SesiAbsenController extends Controller
     /**
      * Show the ultra-advanced create session page
      */
-    public function create(): Response
+    public function create(MeetingQuickFillService $meetingQuickFillService): Response
     {
         $dosen = Auth::guard('dosen')->user();
 
-        // Fetch courses for the grid selection, along with their highest existing meeting number
-        $courses = MataKuliah::where('dosen_id', $dosen->id)->select('id', 'nama', 'sks')->get();
+        $scheduledMeetingsByCourse = AttendanceSession::query()
+            ->select('course_id', 'meeting_number')
+            ->whereHas('course', fn ($query) => $query->where('dosen_id', $dosen->id))
+            ->get()
+            ->groupBy('course_id')
+            ->map(fn ($sessions) => $sessions
+                ->pluck('meeting_number')
+                ->map(fn ($meetingNumber) => (int) $meetingNumber)
+                ->values()
+                ->all());
+
+        // Fetch courses for the grid selection
+        $courses = MataKuliah::where('dosen_id', $dosen->id)
+            ->with('meetingPlans')
+            ->select('id', 'nama', 'sks')
+            ->get();
         
-        // Calculate the next meeting number for each course
-        $coursesWithNextMeeting = $courses->map(function ($course) {
-            $maxMeeting = \App\Models\AttendanceSession::where('course_id', $course->id)->max('meeting_number');
-            $course->next_meeting_number = $maxMeeting ? $maxMeeting + 1 : 1;
-            return $course;
+        $coursesWithNextMeeting = $courses->map(function ($course) use ($meetingQuickFillService, $scheduledMeetingsByCourse) {
+            return [
+                'id' => $course->id,
+                'nama' => $course->nama,
+                'sks' => $course->sks,
+                'scheduled_meetings' => $scheduledMeetingsByCourse->get($course->id, []),
+                ...$meetingQuickFillService->buildCoursePayload($course),
+            ];
         });
 
         return Inertia::render('dosen/sesi-absen-create', [

@@ -12,6 +12,7 @@ class AttendanceSession extends Model
         'course_id',
         'meeting_number',
         'title',
+        'description',
         'start_at',
         'end_at',
         'is_active',

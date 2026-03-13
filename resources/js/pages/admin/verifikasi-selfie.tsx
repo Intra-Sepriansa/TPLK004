@@ -10,7 +10,6 @@ import {
     RefreshCw,
     ScanFace,
     TrendingUp,
-    XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -24,11 +23,11 @@ import {
 } from 'recharts';
 
 // Asset Icons
-import VerifikasiSelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
-import TotalSelfieIcon from '@/assets/admin/verifikasi-selfie/total-selfie.png';
-import PendingIcon from '@/assets/admin/verifikasi-selfie/pending.png';
 import DisetujuiIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
 import DitolakIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
+import PendingIcon from '@/assets/admin/verifikasi-selfie/pending.png';
+import TotalSelfieIcon from '@/assets/admin/verifikasi-selfie/total-selfie.png';
+import VerifikasiSelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
 
 interface Mahasiswa {
     id: number;
@@ -251,19 +250,35 @@ export default function VerifikasiSelfie({
 
                     <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
                         <div className="text-center sm:text-left">
-                            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-3 mb-2">
+                            <div className="mb-2 flex flex-col items-center gap-4 sm:flex-row sm:gap-3">
                                 <motion.div
-                                    className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 relative items-center justify-center"
-                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    className="relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20"
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 0.5,
+                                        rotate: -10,
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        scale: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        delay: 0.2,
+                                    }}
                                     whileHover={{ scale: 1.1, rotate: 10 }}
                                 >
-                                    <img src={VerifikasiSelfieIcon} alt="Verifikasi Selfie" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                    <img
+                                        src={VerifikasiSelfieIcon}
+                                        alt="Verifikasi Selfie"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
                                 </motion.div>
-                                <div className="flex-1 mt-1 sm:mt-0">
+                                <div className="mt-1 flex-1 sm:mt-0">
                                     <motion.p
-                                        className="text-xs sm:text-sm text-indigo-200 font-medium tracking-wide uppercase"
+                                        className="text-xs font-medium tracking-wide text-indigo-200 uppercase sm:text-sm"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
@@ -271,7 +286,7 @@ export default function VerifikasiSelfie({
                                         Validasi Foto
                                     </motion.p>
                                     <motion.h1
-                                        className="text-2xl sm:text-3xl font-bold"
+                                        className="text-2xl font-bold sm:text-3xl"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
@@ -281,21 +296,23 @@ export default function VerifikasiSelfie({
                                 </div>
                             </div>
                             <motion.p
-                                className="text-indigo-100 max-w-xl mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed"
+                                className="mt-3 max-w-xl text-sm leading-relaxed text-indigo-100 sm:mt-4 sm:text-base"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.5 }}
                             >
-                                Validasi foto selfie mahasiswa untuk kehadiran. Pastikan wajah terlihat jelas dan sesuai dengan data mahasiswa.
+                                Validasi foto selfie mahasiswa untuk kehadiran.
+                                Pastikan wajah terlihat jelas dan sesuai dengan
+                                data mahasiswa.
                             </motion.p>
                         </div>
 
-                        <div className="flex justify-center w-full md:w-auto md:justify-end gap-3 mt-4 md:mt-0">
+                        <div className="mt-4 flex w-full justify-center gap-3 md:mt-0 md:w-auto md:justify-end">
                             <button
                                 onClick={() =>
                                     router.visit('/admin/verifikasi-selfie')
                                 }
-                                className="flex shrink-0 w-full sm:w-auto justify-center items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 font-medium text-white backdrop-blur-md transition-all hover:bg-white/20"
+                                className="flex w-full shrink-0 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 sm:w-auto"
                             >
                                 <RefreshCw className="h-4 w-4" />
                                 <span>Refresh Data</span>
@@ -547,10 +564,11 @@ export default function VerifikasiSelfie({
                                         <button
                                             key={s}
                                             onClick={() => handleFilter(s)}
-                                            className={`relative rounded-lg px-4 py-2 text-xs font-semibold transition-all ${filter === s
-                                                ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 dark:bg-neutral-700 dark:text-indigo-400'
-                                                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-                                                } `}
+                                            className={`relative rounded-lg px-4 py-2 text-xs font-semibold transition-all ${
+                                                filter === s
+                                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 dark:bg-neutral-700 dark:text-indigo-400'
+                                                    : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+                                            } `}
                                         >
                                             {s === 'all'
                                                 ? 'Semua'
@@ -668,7 +686,7 @@ export default function VerifikasiSelfie({
                                                 {/* Top Badges */}
                                                 <div className="absolute top-3 right-3 left-3 flex items-start justify-between">
                                                     {item.status ===
-                                                        'pending' ? (
+                                                    'pending' ? (
                                                         <div
                                                             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/30 bg-white/20 backdrop-blur-md transition-colors hover:bg-white/40"
                                                             onClick={(e) => {
@@ -683,7 +701,7 @@ export default function VerifikasiSelfie({
                                                                 checked={selectedIds.includes(
                                                                     item.id,
                                                                 )}
-                                                                onChange={() => { }}
+                                                                onChange={() => {}}
                                                                 className="h-4 w-4 cursor-pointer rounded border-white/50 bg-transparent checked:bg-indigo-500 focus:ring-0"
                                                             />
                                                         </div>
@@ -887,38 +905,46 @@ function StatCard({
                     transition: { delay, duration: 0.5 },
                 },
             }}
-            className="group relative cursor-default overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 p-3 sm:p-5 shadow-xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-white/5 dark:bg-neutral-900/40"
+            className="group relative cursor-default overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-3 shadow-xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:rounded-3xl sm:p-5 dark:border-white/5 dark:bg-neutral-900/40"
         >
             <div className={`absolute inset-0 bg-gradient-to-br ${g.bg}`} />
             <div
                 className={`absolute -top-6 -right-6 h-24 w-24 rounded-full bg-gradient-to-br ${g.from} ${g.to} opacity-10 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-20`}
             />
 
-            <div className="relative flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
+            <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
                 {imageIcon ? (
                     <motion.div
-                        className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                        className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-14 sm:w-14"
                         whileHover={{ scale: 1.1, rotate: 10 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
-                        <img src={imageIcon} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" alt={label} />
+                        <img
+                            src={imageIcon}
+                            className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]"
+                            alt={label}
+                        />
                     </motion.div>
                 ) : (
                     <motion.div
-                        className={`relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${g.from} ${g.to} text-white shadow-lg ${g.shadow}`}
+                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br sm:h-14 sm:w-14 sm:rounded-2xl ${g.from} ${g.to} text-white shadow-lg ${g.shadow}`}
                         whileHover={{ scale: 1.15, rotate: 5 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 300,
+                            damping: 15,
+                        }}
                     >
                         {Icon && <Icon className="h-4 w-4 sm:h-7 sm:w-7" />}
                     </motion.div>
                 )}
                 <div className="flex flex-col items-center sm:items-start">
-                    <p className="text-[10px] sm:text-sm font-medium text-neutral-500 dark:text-neutral-400 text-center sm:text-left">
+                    <p className="text-center text-[10px] font-medium text-neutral-500 sm:text-left sm:text-sm dark:text-neutral-400">
                         {label}
                     </p>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 w-full">
+                    <div className="flex w-full items-center justify-center gap-2 sm:justify-start">
                         <motion.p
-                            className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white"
+                            className="text-lg font-bold text-neutral-900 sm:text-2xl dark:text-white"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{

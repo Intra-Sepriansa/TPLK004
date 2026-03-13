@@ -83,7 +83,7 @@ function FormSection({
                 className={cn(
                     'flex w-full items-center gap-4 p-6 text-left',
                     collapsible &&
-                    'cursor-pointer transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30',
+                        'cursor-pointer transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30',
                 )}
             >
                 <div
@@ -259,17 +259,17 @@ function PasswordStrength({ password }: { password: string }) {
     const level =
         score < 40
             ? {
-                label: 'Lemah',
-                color: 'from-red-500 to-rose-600',
-                text: 'text-red-600 dark:text-red-400',
-            }
+                  label: 'Lemah',
+                  color: 'from-red-500 to-rose-600',
+                  text: 'text-red-600 dark:text-red-400',
+              }
             : score < 70
-                ? {
+              ? {
                     label: 'Sedang',
                     color: 'from-amber-500 to-orange-600',
                     text: 'text-amber-600 dark:text-amber-400',
                 }
-                : {
+              : {
                     label: 'Kuat',
                     color: 'from-emerald-500 to-teal-600',
                     text: 'text-emerald-600 dark:text-emerald-400',
@@ -737,7 +737,10 @@ export default function CreateMahasiswa({
                                     <select
                                         value={form.data.jenis_kelamin}
                                         onChange={(e) =>
-                                            form.setData('jenis_kelamin', e.target.value)
+                                            form.setData(
+                                                'jenis_kelamin',
+                                                e.target.value,
+                                            )
                                         }
                                         className={selectClass}
                                     >
@@ -981,8 +984,8 @@ export default function CreateMahasiswa({
                                                     form.data
                                                         .password_confirmation &&
                                                     form.data.password !==
-                                                    form.data
-                                                        .password_confirmation && (
+                                                        form.data
+                                                            .password_confirmation && (
                                                         <motion.p
                                                             initial={{
                                                                 opacity: 0,

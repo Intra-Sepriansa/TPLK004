@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import Echo from '@/lib/echo';
+import { useEffect, useState } from 'react';
 
 interface AttendanceUpdate {
     id: number;
@@ -24,9 +24,9 @@ export function useLiveAttendance(sessionId: number) {
         const channel = Echo.private(channelName);
 
         channel.listen('.attendance.scanned', (data: AttendanceUpdate) => {
-            setAttendances(prev => [data, ...prev]);
-            setTotalCount(prev => prev + 1);
-            
+            setAttendances((prev) => [data, ...prev]);
+            setTotalCount((prev) => prev + 1);
+
             // Play sound notification
             playNotificationSound();
         });
@@ -50,7 +50,7 @@ export function useLiveAttendance(sessionId: number) {
     const playNotificationSound = () => {
         const audio = new Audio('/sounds/notification.mp3');
         audio.volume = 0.5;
-        audio.play().catch(err => console.log('Audio play failed:', err));
+        audio.play().catch((err) => console.log('Audio play failed:', err));
     };
 
     return {

@@ -41,15 +41,23 @@ function parseLegacyCache(raw: string | null): Record<string, unknown> {
 
 function readLegacyCache(): Record<string, unknown> {
     if (!isBrowser()) return {};
-    return parseLegacyCache(window.localStorage.getItem(LEGACY_OFFLINE_CACHE_KEY));
+    return parseLegacyCache(
+        window.localStorage.getItem(LEGACY_OFFLINE_CACHE_KEY),
+    );
 }
 
 function writeLegacyCache(cache: Record<string, unknown>): void {
     if (!isBrowser()) return;
-    window.localStorage.setItem(LEGACY_OFFLINE_CACHE_KEY, JSON.stringify(cache));
+    window.localStorage.setItem(
+        LEGACY_OFFLINE_CACHE_KEY,
+        JSON.stringify(cache),
+    );
 }
 
-function toLegacyRecord(value: unknown, guideId: string): OfflineGuideCacheRecord | null {
+function toLegacyRecord(
+    value: unknown,
+    guideId: string,
+): OfflineGuideCacheRecord | null {
     if (typeof value !== 'object' || value === null) return null;
 
     const legacy = value as { guide?: unknown; cached_at?: string };
@@ -61,7 +69,10 @@ function toLegacyRecord(value: unknown, guideId: string): OfflineGuideCacheRecor
             ? String((payload as { title?: unknown }).title ?? '')
             : '';
 
-    const sizeKb = Math.max(1, Math.ceil(JSON.stringify(payload).length / 1024));
+    const sizeKb = Math.max(
+        1,
+        Math.ceil(JSON.stringify(payload).length / 1024),
+    );
 
     return {
         guideId,
@@ -80,19 +91,25 @@ function openOfflineDocsDb(): Promise<IDBDatabase> {
             return;
         }
 
-        const request = window.indexedDB.open(OFFLINE_DOCS_DB_NAME, OFFLINE_DOCS_DB_VERSION);
+        const request = window.indexedDB.open(
+            OFFLINE_DOCS_DB_NAME,
+            OFFLINE_DOCS_DB_VERSION,
+        );
 
         request.onupgradeneeded = () => {
             const database = request.result;
 
             if (!database.objectStoreNames.contains(OFFLINE_DOCS_STORE)) {
-                const store = database.createObjectStore(OFFLINE_DOCS_STORE, { keyPath: 'guideId' });
+                const store = database.createObjectStore(OFFLINE_DOCS_STORE, {
+                    keyPath: 'guideId',
+                });
                 store.createIndex('cachedAt', 'cachedAt', { unique: false });
             }
         };
 
         request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error ?? new Error('Failed to open IndexedDB'));
+        request.onerror = () =>
+            reject(request.error ?? new Error('Failed to open IndexedDB'));
     });
 }
 
@@ -125,39 +142,64 @@ export async function migrateLegacyOfflineDocsCache(): Promise<void> {
     }
 }
 
-export async function getOfflineGuideFromCache(guideId: string): Promise<OfflineGuideCacheRecord | null> {
+export async function getOfflineGuideFromCache(
+    guideId: string,
+): Promise<OfflineGuideCacheRecord | null> {
     if (!guideId) return null;
 
     if (!hasIndexedDb()) {
-        const legacyRecord = toLegacyRecord(readLegacyCache()[guideId], guideId);
+        const legacyRecord = toLegacyRecord(
+            readLegacyCache()[guideId],
+            guideId,
+        );
         return legacyRecord;
     }
 
     try {
         const database = await openOfflineDocsDb();
 
-        const value = await new Promise<OfflineGuideCacheRecord | null>((resolve, reject) => {
-            const transaction = database.transaction(OFFLINE_DOCS_STORE, 'readonly');
-            const store = transaction.objectStore(OFFLINE_DOCS_STORE);
-            const request = store.get(guideId);
+        const value = await new Promise<OfflineGuideCacheRecord | null>(
+            (resolve, reject) => {
+                const transaction = database.transaction(
+                    OFFLINE_DOCS_STORE,
+                    'readonly',
+                );
+                const store = transaction.objectStore(OFFLINE_DOCS_STORE);
+                const request = store.get(guideId);
 
-            request.onsuccess = () => {
-                const result = request.result as OfflineGuideCacheRecord | undefined;
-                resolve(result ?? null);
-            };
-            request.onerror = () => reject(request.error ?? new Error('Failed to read cache record'));
-            transaction.oncomplete = () => database.close();
-            transaction.onerror = () => reject(transaction.error ?? new Error('Failed to read cache record'));
-        });
+                request.onsuccess = () => {
+                    const result = request.result as
+                        | OfflineGuideCacheRecord
+                        | undefined;
+                    resolve(result ?? null);
+                };
+                request.onerror = () =>
+                    reject(
+                        request.error ??
+                            new Error('Failed to read cache record'),
+                    );
+                transaction.oncomplete = () => database.close();
+                transaction.onerror = () =>
+                    reject(
+                        transaction.error ??
+                            new Error('Failed to read cache record'),
+                    );
+            },
+        );
 
         return value;
     } catch {
-        const legacyRecord = toLegacyRecord(readLegacyCache()[guideId], guideId);
+        const legacyRecord = toLegacyRecord(
+            readLegacyCache()[guideId],
+            guideId,
+        );
         return legacyRecord;
     }
 }
 
-export async function getAllOfflineGuidesFromCache(): Promise<OfflineGuideCacheRecord[]> {
+export async function getAllOfflineGuidesFromCache(): Promise<
+    OfflineGuideCacheRecord[]
+> {
     if (!hasIndexedDb()) {
         const legacyCache = readLegacyCache();
         return Object.entries(legacyCache)
@@ -168,19 +210,34 @@ export async function getAllOfflineGuidesFromCache(): Promise<OfflineGuideCacheR
     try {
         const database = await openOfflineDocsDb();
 
-        return await new Promise<OfflineGuideCacheRecord[]>((resolve, reject) => {
-            const transaction = database.transaction(OFFLINE_DOCS_STORE, 'readonly');
-            const store = transaction.objectStore(OFFLINE_DOCS_STORE);
-            const request = store.getAll();
+        return await new Promise<OfflineGuideCacheRecord[]>(
+            (resolve, reject) => {
+                const transaction = database.transaction(
+                    OFFLINE_DOCS_STORE,
+                    'readonly',
+                );
+                const store = transaction.objectStore(OFFLINE_DOCS_STORE);
+                const request = store.getAll();
 
-            request.onsuccess = () => {
-                const result = Array.isArray(request.result) ? (request.result as OfflineGuideCacheRecord[]) : [];
-                resolve(result);
-            };
-            request.onerror = () => reject(request.error ?? new Error('Failed to read cache records'));
-            transaction.oncomplete = () => database.close();
-            transaction.onerror = () => reject(transaction.error ?? new Error('Failed to read cache records'));
-        });
+                request.onsuccess = () => {
+                    const result = Array.isArray(request.result)
+                        ? (request.result as OfflineGuideCacheRecord[])
+                        : [];
+                    resolve(result);
+                };
+                request.onerror = () =>
+                    reject(
+                        request.error ??
+                            new Error('Failed to read cache records'),
+                    );
+                transaction.oncomplete = () => database.close();
+                transaction.onerror = () =>
+                    reject(
+                        transaction.error ??
+                            new Error('Failed to read cache records'),
+                    );
+            },
+        );
     } catch {
         const legacyCache = readLegacyCache();
         return Object.entries(legacyCache)
@@ -189,13 +246,17 @@ export async function getAllOfflineGuidesFromCache(): Promise<OfflineGuideCacheR
     }
 }
 
-export async function saveOfflineGuideToCache(input: SaveOfflineGuideCacheInput): Promise<OfflineGuideCacheRecord> {
+export async function saveOfflineGuideToCache(
+    input: SaveOfflineGuideCacheInput,
+): Promise<OfflineGuideCacheRecord> {
     const record: OfflineGuideCacheRecord = {
         guideId: input.guideId,
         payload: input.payload,
         title: input.title ?? null,
         version: input.version ?? null,
-        sizeKb: input.sizeKb ?? Math.max(1, Math.ceil(JSON.stringify(input.payload).length / 1024)),
+        sizeKb:
+            input.sizeKb ??
+            Math.max(1, Math.ceil(JSON.stringify(input.payload).length / 1024)),
         cachedAt: new Date().toISOString(),
     };
 
@@ -212,20 +273,29 @@ export async function saveOfflineGuideToCache(input: SaveOfflineGuideCacheInput)
     const database = await openOfflineDocsDb();
 
     await new Promise<void>((resolve, reject) => {
-        const transaction = database.transaction(OFFLINE_DOCS_STORE, 'readwrite');
+        const transaction = database.transaction(
+            OFFLINE_DOCS_STORE,
+            'readwrite',
+        );
         const store = transaction.objectStore(OFFLINE_DOCS_STORE);
         const request = store.put(record);
 
         request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error ?? new Error('Failed to save cache record'));
+        request.onerror = () =>
+            reject(request.error ?? new Error('Failed to save cache record'));
         transaction.oncomplete = () => database.close();
-        transaction.onerror = () => reject(transaction.error ?? new Error('Failed to save cache record'));
+        transaction.onerror = () =>
+            reject(
+                transaction.error ?? new Error('Failed to save cache record'),
+            );
     });
 
     return record;
 }
 
-export async function removeOfflineGuideFromCache(guideId: string): Promise<void> {
+export async function removeOfflineGuideFromCache(
+    guideId: string,
+): Promise<void> {
     if (!guideId) return;
 
     if (!hasIndexedDb()) {
@@ -238,13 +308,20 @@ export async function removeOfflineGuideFromCache(guideId: string): Promise<void
     const database = await openOfflineDocsDb();
 
     await new Promise<void>((resolve, reject) => {
-        const transaction = database.transaction(OFFLINE_DOCS_STORE, 'readwrite');
+        const transaction = database.transaction(
+            OFFLINE_DOCS_STORE,
+            'readwrite',
+        );
         const store = transaction.objectStore(OFFLINE_DOCS_STORE);
         const request = store.delete(guideId);
 
         request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error ?? new Error('Failed to delete cache record'));
+        request.onerror = () =>
+            reject(request.error ?? new Error('Failed to delete cache record'));
         transaction.oncomplete = () => database.close();
-        transaction.onerror = () => reject(transaction.error ?? new Error('Failed to delete cache record'));
+        transaction.onerror = () =>
+            reject(
+                transaction.error ?? new Error('Failed to delete cache record'),
+            );
     });
 }

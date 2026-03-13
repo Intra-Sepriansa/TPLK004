@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import Echo from '@/lib/echo';
+import { useEffect, useState } from 'react';
 
 interface Notification {
     id: string;
@@ -10,13 +10,16 @@ interface Notification {
     timestamp: string;
 }
 
-export function useRealTimeNotifications(userId: number, userType: 'mahasiswa' | 'dosen' | 'admin') {
+export function useRealTimeNotifications(
+    userId: number,
+    userType: 'mahasiswa' | 'dosen' | 'admin',
+) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
         const channelName = `${userType}.${userId}`;
-        
+
         const channel = Echo.private(channelName);
 
         // Listen for QR Code Generated
@@ -67,9 +70,9 @@ export function useRealTimeNotifications(userId: number, userType: 'mahasiswa' |
     }, [userId, userType]);
 
     const addNotification = (notification: Notification) => {
-        setNotifications(prev => [notification, ...prev].slice(0, 50)); // Keep last 50
-        setUnreadCount(prev => prev + 1);
-        
+        setNotifications((prev) => [notification, ...prev].slice(0, 50)); // Keep last 50
+        setUnreadCount((prev) => prev + 1);
+
         // Show browser notification if permitted
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(notification.title, {
@@ -81,14 +84,14 @@ export function useRealTimeNotifications(userId: number, userType: 'mahasiswa' |
     };
 
     const markAsRead = (id: string) => {
-        setNotifications(prev => 
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
+        setNotifications((prev) =>
+            prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
         );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
     };
 
     const markAllAsRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
         setUnreadCount(0);
     };
 

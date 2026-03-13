@@ -163,6 +163,13 @@ type Invitation = {
     group_members?: { nama: string; is_leader: boolean }[];
     created_at: string;
 };
+type SentInvitation = {
+    id: number;
+    invitee_id: number;
+    invitee_name: string;
+    invitee_nim?: string | null;
+    created_at: string;
+};
 type ActivityLog = {
     id: number;
     type: string;
@@ -182,6 +189,7 @@ type Props = {
     leaderTools?: LeaderTools;
     mahasiswa: { id: number; nama: string };
     pendingInvitations?: Invitation[];
+    sentInvitations?: SentInvitation[];
     stats?: {
         total_students: number;
         students_with_group: number;
@@ -327,6 +335,7 @@ export default function UserTugasKelompokDetail({
     leaderTools = { can_manage: false, unassigned_students: [] },
     mahasiswa,
     pendingInvitations = [],
+    sentInvitations = [],
     stats = {
         total_students: 0,
         students_with_group: 0,
@@ -362,7 +371,10 @@ export default function UserTugasKelompokDetail({
     const conflictForm = useForm({ description: '' });
     const leaderForm = useForm({ student_id: '' });
 
-    const normalizedMembers: Member[] = myGroup?.members ?? [];
+    const normalizedMembers = useMemo<Member[]>(
+        () => myGroup?.members ?? [],
+        [myGroup?.members],
+    );
     const normalizedMessages: Message[] = (
         messages.length > 0 ? messages : (myGroup?.messages ?? [])
     ).map((msg) => ({
@@ -400,16 +412,27 @@ export default function UserTugasKelompokDetail({
               : null;
     const effectiveHasSubmitted = Boolean(hasSubmitted || myGroup?.submission);
     const isOverdue = assignment.is_overdue ?? false;
+    const pendingInviteeIds = useMemo(
+        () => new Set(sentInvitations.map((inv) => inv.invitee_id)),
+        [sentInvitations],
+    );
+    const inviteableStudents = useMemo(
+        () =>
+            leaderTools.unassigned_students.filter(
+                (student) => !pendingInviteeIds.has(student.id),
+            ),
+        [leaderTools.unassigned_students, pendingInviteeIds],
+    );
 
     const filteredStudents = useMemo(() => {
-        if (!inviteSearch.trim()) return leaderTools.unassigned_students;
+        if (!inviteSearch.trim()) return inviteableStudents;
         const q = inviteSearch.toLowerCase();
-        return leaderTools.unassigned_students.filter(
+        return inviteableStudents.filter(
             (s) =>
                 s.nama.toLowerCase().includes(q) ||
                 s.nim?.toLowerCase().includes(q),
         );
-    }, [inviteSearch, leaderTools.unassigned_students]);
+    }, [inviteSearch, inviteableStudents]);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -1437,6 +1460,11 @@ export default function UserTugasKelompokDetail({
                                         >
                                             <UserPlus className="mr-1 h-3 w-3" />
                                             Undang
+                                            {sentInvitations.length > 0 && (
+                                                <span className="ml-2 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                                                    {sentInvitations.length}
+                                                </span>
+                                            )}
                                         </Button>
                                     )}
                                     {!assignment.is_locked && (
@@ -2358,6 +2386,52 @@ export default function UserTugasKelompokDetail({
                                             </div>
                                         </div>
                                     )}
+                                    {leaderTools.can_manage &&
+                                        sentInvitations.length > 0 && (
+                                            <div className="mt-4 space-y-2 rounded-xl border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-700/40 dark:bg-amber-900/20">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-200">
+                                                        Undangan pending
+                                                    </p>
+                                                    <span className="rounded-full border border-amber-300/80 bg-white/70 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-neutral-900/40 dark:text-amber-200">
+                                                        {sentInvitations.length}{' '}
+                                                        aktif
+                                                    </span>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {sentInvitations.map(
+                                                        (invitation) => (
+                                                            <div
+                                                                key={
+                                                                    invitation.id
+                                                                }
+                                                                className="flex items-center justify-between gap-3 rounded-lg border border-amber-200/70 bg-white/80 px-3 py-2 dark:border-amber-800/40 dark:bg-neutral-900/40"
+                                                            >
+                                                                <div className="min-w-0">
+                                                                    <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                                                                        {
+                                                                            invitation.invitee_name
+                                                                        }
+                                                                    </p>
+                                                                    <p className="text-[11px] text-slate-500">
+                                                                        {invitation.invitee_nim
+                                                                            ? `${invitation.invitee_nim} • `
+                                                                            : ''}
+                                                                        Dikirim{' '}
+                                                                        {
+                                                                            invitation.created_at
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                                <span className="shrink-0 rounded-full border border-amber-300/80 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/40 dark:text-amber-200">
+                                                                    Menunggu
+                                                                </span>
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     {/* Actions */}
                                     <div className="mt-4 flex flex-wrap gap-2">
                                         <Button
@@ -2466,12 +2540,63 @@ export default function UserTugasKelompokDetail({
                                         className="pl-9"
                                     />
                                 </div>
+                                {sentInvitations.length > 0 && (
+                                    <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/70 p-3 dark:border-amber-700/40 dark:bg-amber-900/20">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-200">
+                                                Undangan masih menunggu jawaban
+                                            </p>
+                                            <span className="rounded-full border border-amber-300/80 bg-white/80 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-neutral-900/40 dark:text-amber-200">
+                                                {sentInvitations.length}
+                                            </span>
+                                        </div>
+                                        <div className="mt-2 space-y-2">
+                                            {sentInvitations
+                                                .slice(0, 3)
+                                                .map((invitation) => (
+                                                    <div
+                                                        key={invitation.id}
+                                                        className="flex items-center justify-between gap-3 rounded-lg border border-amber-200/70 bg-white/80 px-3 py-2 dark:border-amber-800/40 dark:bg-neutral-900/40"
+                                                    >
+                                                        <div className="min-w-0">
+                                                            <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                                                                {
+                                                                    invitation.invitee_name
+                                                                }
+                                                            </p>
+                                                            <p className="text-[11px] text-slate-500">
+                                                                {invitation.invitee_nim
+                                                                    ? `${invitation.invitee_nim} • `
+                                                                    : ''}
+                                                                Dikirim{' '}
+                                                                {
+                                                                    invitation.created_at
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                        <span className="shrink-0 rounded-full border border-amber-300/80 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:border-amber-700/50 dark:bg-amber-900/40 dark:text-amber-200">
+                                                            Pending
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            {sentInvitations.length > 3 && (
+                                                <p className="text-[11px] text-amber-700/80 dark:text-amber-200/80">
+                                                    +{sentInvitations.length - 3}{' '}
+                                                    undangan lain masih aktif.
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="max-h-[50vh] space-y-2 overflow-y-auto">
                                     {filteredStudents.length === 0 ? (
                                         <div className="py-8 text-center">
                                             <Users className="mx-auto mb-2 h-10 w-10 text-slate-300" />
                                             <p className="text-sm text-slate-400">
-                                                Tidak ada mahasiswa ditemukan
+                                                {inviteableStudents.length ===
+                                                0
+                                                    ? 'Semua mahasiswa yang tersedia sudah diundang atau sudah berkelompok.'
+                                                    : 'Tidak ada mahasiswa ditemukan.'}
                                             </p>
                                         </div>
                                     ) : (

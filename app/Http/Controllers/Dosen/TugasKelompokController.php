@@ -7,6 +7,7 @@ use App\Models\GroupAssignment;
 use App\Models\GaGroup;
 use App\Models\GaSubmission;
 use App\Models\GaConflictReport;
+use App\Models\ForceAssignLog;
 use App\Models\MahasiswaCourse;
 use App\Services\GroupFormationService;
 use App\Services\GroupGradingService;
@@ -241,6 +242,29 @@ class TugasKelompokController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // Group monitoring data
+        $totalStudentsInCourse = $this->formationService->getTotalCourseStudents($assignment);
+        $calculatedMaxGroups = $this->formationService->calculateMaxGroups(
+            $totalStudentsInCourse,
+            max(2, (int) $assignment->min_members)
+        );
+
+        $forceAssignLogs = ForceAssignLog::where('assignment_id', $assignment->id)
+            ->with(['student', 'group'])
+            ->orderByDesc('created_at')
+            ->take(50)
+            ->get()
+            ->map(fn ($log) => [
+                'id' => $log->id,
+                'student_name' => $log->student->nama ?? 'Unknown',
+                'student_nim' => $log->student->nim ?? '',
+                'group_name' => $log->group->name ?? 'Deleted',
+                'action' => $log->action,
+                'reason' => $log->reason,
+                'admin_type' => $log->admin_type,
+                'created_at' => $log->created_at?->format('d M Y H:i'),
+            ]);
+
         return Inertia::render('dosen/tugas-kelompok-detail', [
             'assignment' => [
                 'id' => $assignment->id,
@@ -259,6 +283,7 @@ class TugasKelompokController extends Controller
                 'submission_deadline' => $assignment->submission_deadline?->toISOString(),
                 'submission_deadline_display' => $assignment->submission_deadline?->format('d M Y H:i'),
                 'is_locked' => $assignment->is_locked,
+                'allow_force_assign' => $assignment->allow_force_assign ?? true,
                 'course' => ['id' => $assignment->course->id, 'nama' => $assignment->course->nama],
                 'features' => $assignment->features ?? [],
                 'peer_evaluation_weight' => $assignment->peer_evaluation_weight,
@@ -269,6 +294,9 @@ class TugasKelompokController extends Controller
             'unassignedStudents' => $unassigned->map(fn ($s) => ['id' => $s->id, 'nama' => $s->nama, 'nim' => $s->nim ?? '']),
             'peerEvalSummary' => $peerEvalSummary,
             'conflictReports' => $conflictReports,
+            'totalStudentsInCourse' => $totalStudentsInCourse,
+            'calculatedMaxGroups' => $calculatedMaxGroups,
+            'forceAssignLogs' => $forceAssignLogs,
             'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
         ]);
     }
@@ -570,9 +598,118 @@ class TugasKelompokController extends Controller
     public function destroy(int $id)
     {
         $dosen = auth()->guard('dosen')->user();
-        $assignment = GroupAssignment::where('dosen_id', $dosen->id)->findOrFail($id);
+        $assignment = GroupAssignment::where('dosen_id', '=', $dosen->id)->findOrFail($id);
         $assignment->delete();
         return redirect()->route('dosen.tugas-kelompok')
             ->with('success', 'Tugas kelompok berhasil dihapus.');
+    }
+
+    /**
+     * Update group configuration
+     */
+    public function updateGroupConfig(Request $request, int $id)
+    {
+        $dosen = auth()->guard('dosen')->user();
+        $assignment = GroupAssignment::where('dosen_id', '=', $dosen->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'allow_force_assign' => 'required|boolean',
+        ]);
+
+        $assignment->update($validated);
+
+        return back()->with('success', 'Konfigurasi kelompok berhasil diperbarui.');
+    }
+
+    /**
+     * Force assign a student to a group
+     */
+    public function forceAssign(Request $request, int $id)
+    {
+        $dosen = auth()->guard('dosen')->user();
+        $assignment = GroupAssignment::where('dosen_id', '=', $dosen->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'group_id' => 'required|exists:ga_groups,id',
+            'student_id' => 'required|exists:mahasiswa,id',
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $group = GaGroup::where('assignment_id', '=', $assignment->id)->findOrFail($validated['group_id']);
+
+        try {
+            $this->formationService->forceAssignStudent(
+                $group,
+                $validated['student_id'],
+                $dosen->id,
+                'dosen',
+                $validated['reason'] ?? null
+            );
+            return back()->with('success', 'Mahasiswa berhasil dipaksa masuk kelompok.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Auto-assign all unassigned students
+     */
+    public function autoAssignRemaining(int $id)
+    {
+        $dosen = auth()->guard('dosen')->user();
+        $assignment = GroupAssignment::where('dosen_id', '=', $dosen->id)->findOrFail($id);
+
+        try {
+            $result = $this->formationService->autoAssignRemaining(
+                $assignment,
+                $dosen->id,
+                'dosen'
+            );
+            return back()->with('success', "Berhasil menempatkan {$result['assigned_count']} mahasiswa. Sisa: {$result['remaining']}.");
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove a student from a group
+     */
+    public function removeGroupMember(int $id, int $groupId, int $studentId)
+    {
+        $dosen = auth()->guard('dosen')->user();
+        $assignment = GroupAssignment::where('dosen_id', '=', $dosen->id)->findOrFail($id);
+        $group = GaGroup::where('assignment_id', '=', $assignment->id)->findOrFail($groupId);
+
+        try {
+            $this->formationService->removeStudentFromGroup($group, $studentId);
+
+            ForceAssignLog::create([
+                'assignment_id' => $assignment->id,
+                'group_id' => $group->id,
+                'student_id' => $studentId,
+                'admin_id' => $dosen->id,
+                'admin_type' => 'dosen',
+                'action' => 'remove',
+                'reason' => 'Removed by dosen',
+            ]);
+
+            return back()->with('success', 'Mahasiswa berhasil dikeluarkan dari kelompok.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a group entirely
+     */
+    public function deleteGroupAction(int $id, int $groupId)
+    {
+        $dosen = auth()->guard('dosen')->user();
+        $assignment = GroupAssignment::where('dosen_id', '=', $dosen->id)->findOrFail($id);
+        $group = GaGroup::where('assignment_id', $assignment->id)->findOrFail($groupId);
+
+        $this->formationService->deleteGroup($group);
+
+        return back()->with('success', 'Kelompok berhasil dihapus.');
     }
 }

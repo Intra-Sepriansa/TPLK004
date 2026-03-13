@@ -3,20 +3,32 @@
  * Requirements: 2.3, 2.4
  */
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
-import { ArrowLeft, Clock, CheckCircle2, BookOpen, List, Lightbulb, HelpCircle } from 'lucide-react';
-import type { MenuGuide, GuideSection, ReadProgress } from '@/types/documentation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type {
+    GuideSection,
+    MenuGuide,
+    ReadProgress,
+} from '@/types/documentation';
+import {
+    ArrowLeft,
+    BookOpen,
+    CheckCircle2,
+    Clock,
+    HelpCircle,
+    Lightbulb,
+    List,
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface GuideDetailProps {
     guide: MenuGuide;
@@ -46,19 +58,26 @@ export function GuideDetail({
             case 'overview':
                 return (
                     <div className="prose dark:prose-invert max-w-none">
-                        <p className="text-muted-foreground leading-relaxed">{section.content}</p>
+                        <p className="leading-relaxed text-muted-foreground">
+                            {section.content}
+                        </p>
                     </div>
                 );
 
             case 'features':
                 return (
                     <div className="space-y-4">
-                        <p className="text-muted-foreground">{section.content}</p>
+                        <p className="text-muted-foreground">
+                            {section.content}
+                        </p>
                         {section.items && (
                             <ul className="space-y-2">
                                 {section.items.map((item, index) => (
-                                    <li key={index} className="flex items-start gap-2">
-                                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                                    <li
+                                        key={index}
+                                        className="flex items-start gap-2"
+                                    >
+                                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
                                         <span>{item}</span>
                                     </li>
                                 ))}
@@ -70,23 +89,30 @@ export function GuideDetail({
             case 'tutorial':
                 return (
                     <div className="space-y-6">
-                        <p className="text-muted-foreground">{section.content}</p>
+                        <p className="text-muted-foreground">
+                            {section.content}
+                        </p>
                         {section.steps && (
                             <div className="space-y-4">
                                 {section.steps.map((step) => (
                                     <Card key={step.step}>
                                         <CardHeader className="pb-2">
-                                            <CardTitle className="text-base flex items-center gap-2">
-                                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm">
+                                            <CardTitle className="flex items-center gap-2 text-base">
+                                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-sm text-primary-foreground">
                                                     {step.step}
                                                 </span>
                                                 {step.title}
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent>
-                                            <p className="text-muted-foreground">{step.description}</p>
+                                            <p className="text-muted-foreground">
+                                                {step.description}
+                                            </p>
                                             {step.action && (
-                                                <Badge variant="outline" className="mt-2">
+                                                <Badge
+                                                    variant="outline"
+                                                    className="mt-2"
+                                                >
                                                     {step.action}
                                                 </Badge>
                                             )}
@@ -101,15 +127,17 @@ export function GuideDetail({
             case 'tips':
                 return (
                     <div className="space-y-4">
-                        <p className="text-muted-foreground">{section.content}</p>
+                        <p className="text-muted-foreground">
+                            {section.content}
+                        </p>
                         {section.items && (
                             <div className="space-y-3">
                                 {section.items.map((tip, index) => (
                                     <div
                                         key={index}
-                                        className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800"
+                                        className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-900/20"
                                     >
-                                        <Lightbulb className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />
+                                        <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600 dark:text-yellow-400" />
                                         <span>{tip}</span>
                                     </div>
                                 ))}
@@ -121,11 +149,20 @@ export function GuideDetail({
             case 'faq':
                 return (
                     <div className="space-y-4">
-                        <p className="text-muted-foreground">{section.content}</p>
+                        <p className="text-muted-foreground">
+                            {section.content}
+                        </p>
                         {section.faqs && (
-                            <Accordion type="single" collapsible className="w-full">
+                            <Accordion
+                                type="single"
+                                collapsible
+                                className="w-full"
+                            >
                                 {section.faqs.map((faq, index) => (
-                                    <AccordionItem key={index} value={`faq-${index}`}>
+                                    <AccordionItem
+                                        key={index}
+                                        value={`faq-${index}`}
+                                    >
                                         <AccordionTrigger className="text-left">
                                             {faq.question}
                                         </AccordionTrigger>
@@ -216,9 +253,11 @@ export function GuideDetail({
                                 className="flex items-center gap-1"
                             >
                                 <Icon className="h-4 w-4" />
-                                <span className="hidden sm:inline">{getTabLabel(section.type)}</span>
+                                <span className="hidden sm:inline">
+                                    {getTabLabel(section.type)}
+                                </span>
                                 {isSectionCompleted(section.id) && (
-                                    <CheckCircle2 className="h-3 w-3 text-green-500 ml-1" />
+                                    <CheckCircle2 className="ml-1 h-3 w-3 text-green-500" />
                                 )}
                             </TabsTrigger>
                         );
@@ -226,17 +265,25 @@ export function GuideDetail({
                 </TabsList>
 
                 {guide.sections.map((section) => (
-                    <TabsContent key={section.id} value={section.type} className="mt-6">
+                    <TabsContent
+                        key={section.id}
+                        value={section.type}
+                        className="mt-6"
+                    >
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-semibold">{section.title}</h2>
+                                <h2 className="text-xl font-semibold">
+                                    {section.title}
+                                </h2>
                                 {!isSectionCompleted(section.id) && (
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => onSectionComplete(section.id)}
+                                        onClick={() =>
+                                            onSectionComplete(section.id)
+                                        }
                                     >
-                                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                                        <CheckCircle2 className="mr-1 h-4 w-4" />
                                         Tandai Selesai
                                     </Button>
                                 )}
