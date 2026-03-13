@@ -165,7 +165,7 @@ const ERROR_MESSAGES = {
         'Browser ini belum mendukung akses kamera untuk absensi.',
     CAMERA_PLAYBACK:
         'Kamera terbuka tetapi video gagal diputar. Coba ulangi sekali lagi.',
-    CAMERA_GENERIC: 'Gagal mengakses kamera. Coba ulangi beberapa saat lagi.',
+    CAMERA_GENERIC: 'Gagal mengakses kamera. Pastikan memberikan izin kamera di pengaturan browser (Site Settings/Permissions) atau pastikan jaringan Anda mendukung.',
     QR_SCAN_FAILED:
         'QR code belum terbaca. Pastikan QR terlihat jelas dan tetap di dalam frame.',
     SELFIE_FAILED: 'Gagal mengambil selfie. Silakan coba lagi.',

@@ -1463,10 +1463,8 @@ class AbsensiController extends Controller
         }
 
         // === REAL SOCIAL PROOF DATA ===
-        // Find active sessions today
-        $today = now()->toDateString();
+        // Find active sessions regardless of exact date match to avoid VPS timezone issues
         $activeSessionModels = AttendanceSession::with('course.dosen')
-            ->whereDate('start_at', $today)
             ->where('is_active', true)
             ->orderBy('start_at')
             ->get();

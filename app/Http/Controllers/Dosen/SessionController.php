@@ -100,14 +100,13 @@ class SessionController extends Controller
             ->where('meeting_number', $meetingNumber)
             ->exists();
 
-        $message = 'Sesi berhasil dibuat.';
-
         if ($isDuplicate) {
-            // Find the highest existing meeting number for this course and add 1
-            $maxMeetingNumber = AttendanceSession::where('course_id', $validated['course_id'])->max('meeting_number');
-            $meetingNumber = $maxMeetingNumber + 1;
-            $message = "Pertemuan {$validated['meeting_number']} sudah ada. Sistem otomatis membuat Pertemuan {$meetingNumber}.";
+            return back()->withErrors([
+                'meeting_number' => "Pertemuan {$meetingNumber} sudah ada untuk mata kuliah ini.",
+            ])->withInput();
         }
+
+        $message = 'Sesi berhasil dibuat.';
 
         $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
             $course,
