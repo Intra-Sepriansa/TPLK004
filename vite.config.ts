@@ -7,6 +7,11 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { compression } from 'vite-plugin-compression2';
 
 export default defineConfig({
+    resolve: {
+        alias: {
+            'qs-esm': 'qs-esm/lib/index.js',
+        },
+    },
     assetsInclude: ['**/*.glb'],
     server: {
         host: 'localhost',
