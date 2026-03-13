@@ -3395,20 +3395,20 @@ export default function UserAbsensi() {
             'message' in error && typeof error.message === 'string'
                 ? error.message.toLowerCase()
                 : '';
-        const name = (error as DOMException).name;
-        if (name === 'NotAllowedError') return ERROR_MESSAGES.CAMERA_DENIED;
-        if (name === 'NotFoundError') return ERROR_MESSAGES.CAMERA_NOT_FOUND;
-        if (name === 'NotReadableError') return ERROR_MESSAGES.CAMERA_IN_USE;
+        const name = (error as DOMException).name || 'Unknown';
+        if (name === 'NotAllowedError') return `${ERROR_MESSAGES.CAMERA_DENIED} (Err: ${name} - ${rawMessage})`;
+        if (name === 'NotFoundError') return `${ERROR_MESSAGES.CAMERA_NOT_FOUND} (Err: ${name} - ${rawMessage})`;
+        if (name === 'NotReadableError') return `${ERROR_MESSAGES.CAMERA_IN_USE} (Err: ${name} - ${rawMessage})`;
         if (name === 'OverconstrainedError')
-            return 'Perangkat tidak mendukung konfigurasi kamera yang diminta.';
+            return `Perangkat tidak mendukung konfigurasi kamera yang diminta. (Err: ${name} - ${rawMessage})`;
         if (name === 'AbortError')
-            return 'Akses kamera terputus sebelum proses selesai.';
+            return `Akses kamera terputus sebelum proses selesai. (Err: ${name} - ${rawMessage})`;
         if (
             rawMessage.includes('permission') ||
             rawMessage.includes('notallowed') ||
             rawMessage.includes('denied')
         ) {
-            return ERROR_MESSAGES.CAMERA_DENIED;
+            return `${ERROR_MESSAGES.CAMERA_DENIED} (Err: ${name} - ${rawMessage})`;
         }
         if (
             rawMessage.includes('notfound') ||
@@ -3416,7 +3416,7 @@ export default function UserAbsensi() {
             rawMessage.includes('no camera') ||
             rawMessage.includes('camera not found')
         ) {
-            return ERROR_MESSAGES.CAMERA_NOT_FOUND;
+            return `${ERROR_MESSAGES.CAMERA_NOT_FOUND} (Err: ${name} - ${rawMessage})`;
         }
         if (
             rawMessage.includes('notreadable') ||
@@ -3424,15 +3424,15 @@ export default function UserAbsensi() {
             rawMessage.includes('device in use') ||
             rawMessage.includes('could not start video source')
         ) {
-            return ERROR_MESSAGES.CAMERA_IN_USE;
+            return `${ERROR_MESSAGES.CAMERA_IN_USE} (Err: ${name} - ${rawMessage})`;
         }
         if (
             rawMessage.includes('secure context') ||
             rawMessage.includes('https')
         ) {
-            return 'Akses kamera membutuhkan koneksi HTTPS yang aman.';
+            return `Akses kamera membutuhkan koneksi HTTPS yang aman. (Err: ${name} - ${rawMessage})`;
         }
-        return ERROR_MESSAGES.CAMERA_GENERIC;
+        return `${ERROR_MESSAGES.CAMERA_GENERIC} (Err: ${name} - ${rawMessage})`;
     }
 
     function getLocationErrorMessage(error: GeolocationPositionError | null) {
