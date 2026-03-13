@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tplk004-v1';
+const CACHE_NAME = 'tplk004-v2-camera-fix';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache immediately
