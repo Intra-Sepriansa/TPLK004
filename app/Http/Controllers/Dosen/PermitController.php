@@ -140,7 +140,7 @@ class PermitController extends Controller
 
         // Verify this permit belongs to dosen's course
         $permit->load(['mahasiswa', 'session.course']);
-        if ($permit->session->course->dosen_id !== $dosen->id) {
+        if ($permit->session?->course?->dosen_id !== $dosen->id) {
             abort(403);
         }
 
@@ -214,7 +214,7 @@ class PermitController extends Controller
 
         // Verify this permit belongs to dosen's course
         $session = $permit->session;
-        if ($session->course->dosen_id !== $dosen->id) {
+        if ($session?->course?->dosen_id !== $dosen->id) {
             abort(403);
         }
 
@@ -250,7 +250,7 @@ class PermitController extends Controller
 
         // Verify this permit belongs to dosen's course
         $session = $permit->session;
-        if ($session->course->dosen_id !== $dosen->id) {
+        if ($session?->course?->dosen_id !== $dosen->id) {
             abort(403);
         }
 
@@ -299,7 +299,7 @@ class PermitController extends Controller
         $approved = 0;
         foreach ($permits as $permit) {
             // Verify ownership
-            if ($permit->session->course->dosen_id !== $dosen->id) {
+            if ($permit->session?->course?->dosen_id !== $dosen->id) {
                 continue;
             }
 
@@ -322,7 +322,7 @@ class PermitController extends Controller
         $dosen = auth('dosen')->user();
 
         $session = $permit->session;
-        if ($session->course->dosen_id !== $dosen->id) {
+        if ($session?->course?->dosen_id !== $dosen->id) {
             abort(403);
         }
 

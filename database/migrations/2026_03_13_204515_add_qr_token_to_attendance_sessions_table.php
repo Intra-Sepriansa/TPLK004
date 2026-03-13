@@ -12,14 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('attendance_sessions', function (Blueprint $table) {
-            if (!Schema::hasColumn('attendance_sessions', 'metode')) {
-                $table->string('metode')->nullable()->after('is_active');
-            }
-            if (!Schema::hasColumn('attendance_sessions', 'zona')) {
-                $table->string('zona')->nullable()->after('metode');
-            }
             if (!Schema::hasColumn('attendance_sessions', 'qr_token')) {
-                $table->string('qr_token')->nullable()->after('zona');
+                $table->string('qr_token', 64)->nullable()->after('is_active');
             }
         });
     }
@@ -30,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('attendance_sessions', function (Blueprint $table) {
-            $table->dropColumn(['metode', 'zona', 'qr_token']);
+            $table->dropColumn('qr_token');
         });
     }
 };

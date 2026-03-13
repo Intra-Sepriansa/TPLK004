@@ -71,6 +71,12 @@ class AttendanceSessionController extends Controller
 
     public function activate(AttendanceSession $attendanceSession): RedirectResponse
     {
+        // Safety check: Only offline sessions can be activated
+        $isOnlineByTitle = stripos($attendanceSession->title ?? '', 'Online') !== false;
+        if ($attendanceSession->metode !== 'offline' || $isOnlineByTitle) {
+            return back()->with('error', 'Sesi online tidak dapat diaktifkan untuk pemindaian QR.');
+        }
+
         AttendanceSession::query()->update(['is_active' => false]);
         $attendanceSession->update(['is_active' => true]);
 

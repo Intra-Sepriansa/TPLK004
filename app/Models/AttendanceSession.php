@@ -16,6 +16,8 @@ class AttendanceSession extends Model
         'start_at',
         'end_at',
         'is_active',
+        'metode',
+        'zona',
         'qr_token',
         'created_by',
         'created_by_dosen_id',

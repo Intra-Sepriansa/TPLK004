@@ -1466,6 +1466,8 @@ class AbsensiController extends Controller
         // Find active sessions regardless of exact date match to avoid VPS timezone issues
         $activeSessionModels = AttendanceSession::with('course.dosen')
             ->where('is_active', true)
+            ->where('metode', 'offline')
+            ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
             ->orderBy('start_at')
             ->get();
         $activeSessions = $activeSessionModels->pluck('id');

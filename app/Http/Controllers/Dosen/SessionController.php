@@ -35,8 +35,8 @@ class SessionController extends Controller
             ->get()
             ->map(fn($log) => [
                 'id' => $log->id,
-                'mahasiswa' => $log->mahasiswa->nama ?? '-',
-                'nim' => $log->mahasiswa->nim ?? '-',
+                'mahasiswa' => $log->mahasiswa?->nama ?? '-',
+                'nim' => $log->mahasiswa?->nim ?? '-',
                 'status' => $log->status,
                 'scanned_at' => $log->scanned_at?->format('H:i'),
                 'selfie_url' => $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
@@ -60,7 +60,7 @@ class SessionController extends Controller
                 'id' => $session->id,
                 'title' => $session->title,
                 'meeting_number' => $session->meeting_number,
-                'course' => $session->course->nama ?? '-',
+                'course' => $session->course?->nama ?? '-',
                 'course_id' => $session->course_id,
                 'start_at' => $session->start_at?->format('d M Y H:i'),
                 'end_at' => $session->end_at?->format('H:i'),
@@ -133,6 +133,7 @@ class SessionController extends Controller
             'start_at' => $validated['start_at'],
             'end_at' => $validated['end_at'],
             'qr_token' => Str::random(32),
+            'metode' => $resolvedContent['template']['mode'] ?? 'offline',
             'is_active' => false,
             'created_by_dosen_id' => $dosen->id,
         ]);
@@ -149,6 +150,12 @@ class SessionController extends Controller
         $course = MataKuliah::find($session->course_id);
         if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403);
+        }
+
+        // Safety check: Only offline sessions can be activated
+        $isOnlineByTitle = stripos($session->title ?? '', 'Online') !== false;
+        if ($session->metode !== 'offline' || $isOnlineByTitle) {
+            return back()->with('error', 'Sesi online tidak dapat diaktifkan untuk pemindaian QR.');
         }
 
         $session->update(['is_active' => true]);

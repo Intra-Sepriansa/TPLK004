@@ -57,7 +57,10 @@ class TugasKelompokController extends Controller
                 'random_group_size' => $a->random_group_size,
                 'self_form_group_count' => $a->self_form_group_count,
                 'self_form_group_size' => $a->self_form_group_size,
-                'course' => ['id' => $a->course->id, 'nama' => $a->course->nama],
+                'course' => [
+                    'id' => $a->course?->id,
+                    'nama' => $a->course?->nama ?? 'Course Managed'
+                ],
                 'min_members' => $a->min_members,
                 'max_members' => $a->max_members,
                 'formation_deadline' => $a->formation_deadline?->toISOString(),
@@ -284,7 +287,10 @@ class TugasKelompokController extends Controller
                 'submission_deadline_display' => $assignment->submission_deadline?->format('d M Y H:i'),
                 'is_locked' => $assignment->is_locked,
                 'allow_force_assign' => $assignment->allow_force_assign ?? true,
-                'course' => ['id' => $assignment->course->id, 'nama' => $assignment->course->nama],
+                'course' => [
+                    'id' => $assignment->course?->id,
+                    'nama' => $assignment->course?->nama ?? 'Course Managed'
+                ],
                 'features' => $assignment->features ?? [],
                 'peer_evaluation_weight' => $assignment->peer_evaluation_weight,
                 'allow_resubmission' => $assignment->allow_resubmission,
@@ -562,7 +568,10 @@ class TugasKelompokController extends Controller
             'assignment' => [
                 'id' => $assignment->id,
                 'title' => $assignment->title,
-                'course' => ['id' => $assignment->course->id, 'nama' => $assignment->course->nama],
+                'course' => [
+                    'id' => $assignment->course?->id,
+                    'nama' => $assignment->course?->nama ?? 'Course Managed'
+                ],
                 'formation_mode' => $assignment->formation_mode,
                 'grading_mode' => $assignment->grading_mode,
                 'submission_deadline' => $assignment->submission_deadline?->toISOString(),

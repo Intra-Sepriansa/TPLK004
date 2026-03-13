@@ -32,7 +32,9 @@ class JadwalController extends Controller
         }
         
         if ($status === 'active') {
-            $query->where('is_active', true);
+            $query->where('is_active', true)
+                  ->where('metode', 'offline')
+                  ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%']);
         } elseif ($status === 'completed') {
             $query->where('is_active', false)->where('end_at', '<', now());
         } elseif ($status === 'scheduled') {
@@ -188,6 +190,8 @@ class JadwalController extends Controller
             'description' => $resolvedContent['description'],
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
+            'metode' => $resolvedContent['template']['mode'] ?? 'offline',
+            'qr_token' => \Illuminate\Support\Str::random(32),
             'is_active' => false,
             'created_by' => auth()->id(),
         ]);
@@ -239,6 +243,8 @@ class JadwalController extends Controller
             'description' => $resolvedContent['description'],
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
+            'metode' => $resolvedContent['template']['mode'] ?? $session->metode ?? 'offline',
+            'qr_token' => $session->qr_token ?? \Illuminate\Support\Str::random(32),
         ]);
 
         $automationService->syncActiveStates();

@@ -38,7 +38,9 @@ class SesiAbsenController extends Controller
         }
 
         if ($status === 'active') {
-            $query->where('is_active', true);
+            $query->where('is_active', true)
+                  ->where('metode', 'offline')
+                  ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%']);
         } elseif ($status === 'completed') {
             $query->where('is_active', false)->where('end_at', '<', now());
         } elseif ($status === 'scheduled') {
@@ -101,6 +103,8 @@ class SesiAbsenController extends Controller
         // Active session detail
         $activeSession = AttendanceSession::with(['course.dosen'])
             ->where('is_active', true)
+            ->where('metode', 'offline')
+            ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
             ->first();
 
         $activeSessionDetail = null;
@@ -299,6 +303,7 @@ class SesiAbsenController extends Controller
             'description' => $resolvedContent['description'],
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
+            'metode' => $resolvedContent['template']['mode'] ?? 'offline',
             'is_active' => false,
             'created_by' => auth()->id(),
         ]);
@@ -393,6 +398,7 @@ class SesiAbsenController extends Controller
             'description' => $resolvedContent['description'],
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
+            'metode' => $resolvedContent['template']['mode'] ?? $session->metode ?? 'offline',
         ]);
 
         $automationService->syncActiveStates();
@@ -412,6 +418,12 @@ class SesiAbsenController extends Controller
 
     public function activate(AttendanceSession $session): RedirectResponse
     {
+        // Safety check: Only offline sessions can be activated
+        $isOnlineByTitle = stripos($session->title ?? '', 'Online') !== false;
+        if ($session->metode !== 'offline' || $isOnlineByTitle) {
+            return back()->with('error', 'Sesi online tidak dapat diaktifkan untuk pemindaian QR.');
+        }
+
         $session->update(['is_active' => true]);
 
         return back()->with('success', 'Sesi berhasil diaktifkan.');
