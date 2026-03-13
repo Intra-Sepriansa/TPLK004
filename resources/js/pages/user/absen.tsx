@@ -3812,7 +3812,7 @@ export default function UserAbsensi() {
             setConsentError(
                 'Setujui persetujuan penggunaan kamera dan lokasi terlebih dahulu.',
             );
-            toast.error('Aktifkan persetujuan sebelum memulai.');
+            toast.error('Aktifkan persetujuan sebelum memulai.', { id: 'permission-consent-error' });
             return;
         }
 
@@ -3826,13 +3826,13 @@ export default function UserAbsensi() {
                 permissionCheck.error || ERROR_MESSAGES.CAMERA_GENERIC,
             );
             setShowPermissionGuide(true);
-            toast.error(permissionCheck.error || ERROR_MESSAGES.CAMERA_GENERIC);
+            toast.error(permissionCheck.error || ERROR_MESSAGES.CAMERA_GENERIC, { id: 'camera-init-error' });
             return;
         }
 
         await stopScan();
         stopSelfieStream();
-        await wait(300);
+        await wait(500);
         resetForNewFlow();
         setCameraPhase('scanning');
         setScanState('scanning');
@@ -3861,13 +3861,13 @@ export default function UserAbsensi() {
                 permissionCheck.error || ERROR_MESSAGES.CAMERA_GENERIC,
             );
             setShowPermissionGuide(true);
-            toast.error(permissionCheck.error || ERROR_MESSAGES.CAMERA_GENERIC);
+            toast.error(permissionCheck.error || ERROR_MESSAGES.CAMERA_GENERIC, { id: 'camera-init-error' });
             return;
         }
 
         await stopScan();
         stopSelfieStream();
-        await wait(300);
+        await wait(500);
         setSelfieState('ready');
         setSelfieMessage('Menyalakan kamera depan...');
 
@@ -3922,7 +3922,7 @@ export default function UserAbsensi() {
             setSelfieMessage(message);
             setCameraPermissionReason(message);
             setShowPermissionGuide(true);
-            toast.error(message);
+            toast.error(message, { id: 'camera-init-error' });
         }
     }
 
@@ -4613,7 +4613,7 @@ export default function UserAbsensi() {
                 setScanState('scanning');
                 setScanMessage('Menyalakan kamera belakang...');
                 await stopScanEvent();
-                await wait(250);
+                await wait(400); // Wait for release
 
                 const scanner = new Html5Qrcode(qrReaderDivId);
                 qrScannerRef.current = scanner;
@@ -4655,7 +4655,7 @@ export default function UserAbsensi() {
                 setCameraPermissionReason(message);
                 setShowPermissionGuide(true);
                 setCameraPhase('idle');
-                toast.error(message);
+                toast.error(message, { id: 'camera-init-error' });
             }
         };
 

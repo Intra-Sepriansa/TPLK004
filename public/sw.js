@@ -52,11 +52,11 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request)
                 .then((response) => {
                     // Cache successful responses
-                    if (response.ok) {
+                    if (response && response.ok) {
                         const responseClone = response.clone();
                         caches.open(CACHE_NAME).then((cache) => {
                             cache.put(event.request, responseClone);
-                        });
+                        }).catch(() => {}); // Ignore cache put errors
                     }
                     return response;
                 })
@@ -87,13 +87,20 @@ self.addEventListener('fetch', (event) => {
 
             // Not in cache, fetch from network
             return fetch(event.request).then((response) => {
-                if (response.ok) {
+                if (response && response.ok) {
                     const responseClone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
                         cache.put(event.request, responseClone);
-                    });
+                    }).catch(() => {});
                 }
                 return response;
+            }).catch((err) => {
+                console.error('[SW] Fetch failed for:', event.request.url, err);
+                // For images/assets, we can return a fallback or just let it fail gracefully
+                return new Response('Network error occurred', {
+                    status: 408,
+                    statusText: 'Network error occurred',
+                });
             });
         })
     );
