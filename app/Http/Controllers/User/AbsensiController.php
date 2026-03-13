@@ -1686,7 +1686,7 @@ class AbsensiController extends Controller
             }
         }
 
-        if ($session->end_at && clone $clientTime->greaterThan($session->end_at)) {
+        if ($session->end_at && $clientTime->greaterThan($session->end_at)) {
             $this->logAudit('session_closed', 'Sesi sudah berakhir.', $mahasiswa?->id, $session->id);
 
             return back()->withErrors([
