@@ -47,6 +47,7 @@ import {
     Send,
     Shield,
     Sparkles,
+    SwitchCamera,
     Trophy,
     Users,
     Wifi,
@@ -1510,6 +1511,8 @@ type UnifiedCameraCardProps = {
     onStartScanning: () => void;
     onCancelScanning: () => void;
     onToggleRearFlash: () => void;
+    onSwitchCamera: () => void;
+    canSwitchCamera: boolean;
     onRetryFlow: () => void;
     onRetrySelfieCamera: () => void;
     onToggleSelfieFlash: () => void;
@@ -1556,6 +1559,8 @@ function UnifiedCameraCard({
     onStartScanning,
     onCancelScanning,
     onToggleRearFlash,
+    onSwitchCamera,
+    canSwitchCamera,
     onRetryFlow,
     onRetrySelfieCamera,
     onToggleSelfieFlash,
@@ -1760,6 +1765,18 @@ function UnifiedCameraCard({
                                                         {rearFlashEnabled
                                                             ? 'Flash aktif'
                                                             : 'Flash'}
+                                                    </Button>
+                                                )}
+                                                {canSwitchCamera && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={onSwitchCamera}
+                                                        className="h-9 rounded-full border border-white/10 bg-black/35 px-3 text-xs text-white hover:bg-black/55 sm:px-4 sm:text-sm"
+                                                    >
+                                                        <SwitchCamera className="mr-2 h-4 w-4" />
+                                                        Ganti Kamera
                                                     </Button>
                                                 )}
                                                 <Button
@@ -2943,6 +2960,8 @@ export default function UserAbsensi() {
     const [detectedSession, setDetectedSession] =
         useState<AttendanceSessionInfo | null>(null);
     const [manuallySelectedSessionId, setManuallySelectedSessionId] = useState<number | null>(null);
+    const [availableCameras, setAvailableCameras] = useState<Array<{ id: string; label: string }>>([]);
+    const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
     const [resolvingToken, setResolvingToken] = useState(false);
     const [locationCollecting, setLocationCollecting] = useState(false);
     const autoLocationTriggeredRef = useRef(false);
@@ -3432,7 +3451,11 @@ export default function UserAbsensi() {
         ) {
             return `Akses kamera membutuhkan koneksi HTTPS yang aman. (Err: ${name} - ${rawMessage})`;
         }
-        return `${ERROR_MESSAGES.CAMERA_GENERIC} (Err: ${name} - ${rawMessage})`;
+        
+        const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        const httpsHint = !isHttps && window.location.hostname !== 'localhost' ? ' Akses kamera memerlukan koneksi HTTPS.' : '';
+
+        return `Gagal mengakses kamera (${name}). Pastikan izin diberikan di browser dan OS.${httpsHint}`;
     }
 
     function getLocationErrorMessage(error: GeolocationPositionError | null) {
@@ -3638,6 +3661,18 @@ export default function UserAbsensi() {
                 };
             }
 
+            setAvailableCameras(cameras);
+
+            if (selectedCameraId) {
+                const selected = cameras.find(c => c.id === selectedCameraId);
+                if (selected) {
+                    return {
+                        source: selected.id,
+                        label: selected.label || 'Kamera terpilih',
+                    };
+                }
+            }
+
             const normalized = cameras.map((camera) => ({
                 ...camera,
                 normalizedLabel: camera.label.toLowerCase(),
@@ -3653,6 +3688,8 @@ export default function UserAbsensi() {
                     ),
                 ) ??
                 normalized[0];
+
+            setSelectedCameraId(preferred.id);
 
             return {
                 source: preferred.id,
@@ -3695,6 +3732,25 @@ export default function UserAbsensi() {
         }
         setSelfieCountdown(null);
         releaseSelfieStream();
+    }
+
+    async function switchCamera() {
+        if (availableCameras.length <= 1) {
+            toast.error('Perangkat ini hanya memiliki satu kamera.', { id: 'single-camera-alert' });
+            return;
+        }
+
+        const currentIndex = availableCameras.findIndex(c => c.id === selectedCameraId);
+        const nextIndex = (currentIndex + 1) % availableCameras.length;
+        const nextCamera = availableCameras[nextIndex];
+        
+        setSelectedCameraId(nextCamera.id);
+        
+        setScanMessage('Mengganti kamera...');
+        await stopScanEvent();
+        
+        setCameraPhase('flipping');
+        setTimeout(() => setCameraPhase('scanning'), 150);
     }
 
     async function stopScan() {
@@ -4623,8 +4679,8 @@ export default function UserAbsensi() {
                     scannerCamera.source,
                     {
                         fps: 12,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1,
+                        qrbox: { width: 300, height: 300 },
+                        disableFlip: false,
                     },
                     async (decodedText) => {
                         if (cancelled || scanHandledRef.current) return;
@@ -4845,6 +4901,10 @@ export default function UserAbsensi() {
                                 onToggleRearFlash={() => {
                                     void toggleRearFlash();
                                 }}
+                                onSwitchCamera={() => {
+                                    void switchCamera();
+                                }}
+                                canSwitchCamera={availableCameras.length > 1}
                                 onRetryFlow={() => {
                                     resetForNewFlow();
                                 }}
