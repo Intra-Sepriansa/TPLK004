@@ -4904,7 +4904,7 @@ export default function UserAbsensi() {
                                 onSwitchCamera={() => {
                                     void switchCamera();
                                 }}
-                                canSwitchCamera={availableCameras.length > 1}
+                                canSwitchCamera={true}
                                 onRetryFlow={() => {
                                     resetForNewFlow();
                                 }}
