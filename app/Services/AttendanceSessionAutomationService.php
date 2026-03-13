@@ -21,21 +21,21 @@ class AttendanceSessionAutomationService
             ->update(['is_active' => false, 'updated_at' => $now]); // Added updated_at
 
         // Auto-activate: Only for offline sessions
-        AttendanceSession::where('is_active', false)
+        $sessionsToActivate = AttendanceSession::where('is_active', false)
             ->where('metode', 'offline')
             ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
-            ->where('start_at', '<=', $now) // Changed now() to $now
-            ->where('end_at', '>=', $now) // Changed now() to $now
+            ->where('start_at', '<=', $now)
+            ->where('end_at', '>=', $now)
             ->where(function ($query) {
-                $query->whereDoesntHave('logs')
-                      ->orWhereExists(function ($sub) {
-                          $sub->select(DB::raw(1))
-                              ->from('attendance_sessions as active')
-                              ->whereColumn('active.id', 'attendance_sessions.id')
-                              ->where('active.is_active', true);
-                      });
+                // Must not have logs, OR must be explicitly marked active via another instance logic (though we just check if it conflicts)
+                $query->whereDoesntHave('logs');
             })
-            ->update(['is_active' => true, 'updated_at' => $now]); // Added updated_at
+            ->pluck('id');
+
+        if ($sessionsToActivate->isNotEmpty()) {
+            AttendanceSession::whereIn('id', $sessionsToActivate)
+                ->update(['is_active' => true, 'updated_at' => $now]);
+        }
 
         // Deactivate sessions that have ended
         AttendanceSession::where('is_active', true)
