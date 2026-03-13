@@ -429,7 +429,7 @@ class TugasKelompokController extends Controller
                 'submission_deadline' => $assignment->submission_deadline?->toISOString(),
                 'submission_deadline_display' => $assignment->submission_deadline?->format('d M Y H:i'),
                 'is_locked' => $assignment->is_locked,
-                'course' => ['id' => $assignment->course->id, 'nama' => $assignment->course->nama],
+                'course' => $assignment->course ? ['id' => $assignment->course->id, 'nama' => $assignment->course->nama] : null,
                 'features' => $assignment->features ?? [],
                 'allow_resubmission' => $assignment->allow_resubmission,
                 'is_overdue' => $assignment->formation_deadline?->isPast() ?? false,

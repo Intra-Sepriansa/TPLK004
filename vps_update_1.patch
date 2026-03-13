@@ -1,0 +1,66 @@
+diff --git a/app/Http/Controllers/Dosen/SessionController.php b/app/Http/Controllers/Dosen/SessionController.php
+index 2784c200..d0ed3c1b 100644
+--- a/app/Http/Controllers/Dosen/SessionController.php
++++ b/app/Http/Controllers/Dosen/SessionController.php
+@@ -100,15 +100,14 @@ public function store(
+             ->where('meeting_number', $meetingNumber)
+             ->exists();
+ 
+-        $message = 'Sesi berhasil dibuat.';
+-
+         if ($isDuplicate) {
+-            // Find the highest existing meeting number for this course and add 1
+-            $maxMeetingNumber = AttendanceSession::where('course_id', $validated['course_id'])->max('meeting_number');
+-            $meetingNumber = $maxMeetingNumber + 1;
+-            $message = "Pertemuan {$validated['meeting_number']} sudah ada. Sistem otomatis membuat Pertemuan {$meetingNumber}.";
++            return back()->withErrors([
++                'meeting_number' => "Pertemuan {$meetingNumber} sudah ada untuk mata kuliah ini.",
++            ])->withInput();
+         }
+ 
++        $message = 'Sesi berhasil dibuat.';
++
+         $offlineValidationMessage = $meetingQuickFillService->validateOfflineMeetingSelection(
+             $course,
+             $meetingNumber,
+diff --git a/app/Http/Controllers/User/AbsensiController.php b/app/Http/Controllers/User/AbsensiController.php
+index 122a468b..935d055f 100644
+--- a/app/Http/Controllers/User/AbsensiController.php
++++ b/app/Http/Controllers/User/AbsensiController.php
+@@ -1463,10 +1463,8 @@ public function create(): Response
+         }
+ 
+         // === REAL SOCIAL PROOF DATA ===
+-        // Find active sessions today
+-        $today = now()->toDateString();
++        // Find active sessions regardless of exact date match to avoid VPS timezone issues
+         $activeSessionModels = AttendanceSession::with('course.dosen')
+-            ->whereDate('start_at', $today)
+             ->where('is_active', true)
+             ->orderBy('start_at')
+             ->get();
+diff --git a/app/Models/AttendanceSession.php b/app/Models/AttendanceSession.php
+index 6ef63459..d8773d3d 100644
+--- a/app/Models/AttendanceSession.php
++++ b/app/Models/AttendanceSession.php
+@@ -16,6 +16,7 @@ class AttendanceSession extends Model
+         'start_at',
+         'end_at',
+         'is_active',
++        'qr_token',
+         'created_by',
+         'created_by_dosen_id',
+     ];
+diff --git a/resources/js/pages/user/absen.tsx b/resources/js/pages/user/absen.tsx
+index 91e0c827..7ef1c238 100644
+--- a/resources/js/pages/user/absen.tsx
++++ b/resources/js/pages/user/absen.tsx
+@@ -165,7 +165,7 @@ const ERROR_MESSAGES = {
+         'Browser ini belum mendukung akses kamera untuk absensi.',
+     CAMERA_PLAYBACK:
+         'Kamera terbuka tetapi video gagal diputar. Coba ulangi sekali lagi.',
+-    CAMERA_GENERIC: 'Gagal mengakses kamera. Coba ulangi beberapa saat lagi.',
++    CAMERA_GENERIC: 'Gagal mengakses kamera. Pastikan memberikan izin kamera di pengaturan browser (Site Settings/Permissions) atau pastikan jaringan Anda mendukung.',
+     QR_SCAN_FAILED:
+         'QR code belum terbaca. Pastikan QR terlihat jelas dan tetap di dalam frame.',
+     SELFIE_FAILED: 'Gagal mengambil selfie. Silakan coba lagi.',

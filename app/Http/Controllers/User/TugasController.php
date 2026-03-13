@@ -88,11 +88,11 @@ class TugasController extends Controller
                 'deadline' => $tugas->deadline->format('Y-m-d H:i'),
                 'deadline_display' => $tugas->deadline->translatedFormat('l, d F Y H:i'),
                 'prioritas' => $tugas->prioritas,
-                'course' => [
+                'course' => $tugas->course ? [
                     'id' => $tugas->course->id,
                     'nama' => $tugas->course->nama,
                     'dosen' => $tugas->course->dosen?->nama,
-                ],
+                ] : null,
                 'created_by' => $tugas->creator_name,
                 'is_overdue' => $tugas->isOverdue(),
                 'days_until_deadline' => $tugas->days_until_deadline,
@@ -218,12 +218,12 @@ class TugasController extends Controller
                 'allow_late_submission' => $tugas->allow_late_submission ?? true,
                 'late_penalty_percent' => $tugas->late_penalty_percent ?? 0,
                 'max_grade' => $tugas->max_grade ?? 100,
-                'course' => [
+                'course' => $tugas->course ? [
                     'id' => $tugas->course->id,
                     'nama' => $tugas->course->nama,
                     'dosen' => $tugas->course->dosen?->nama,
                     'dosen_id' => $tugas->course->dosen_id,
-                ],
+                ] : null,
                 'created_by' => $tugas->creator_name,
                 'is_overdue' => $tugas->isOverdue(),
                 'days_until_deadline' => $tugas->days_until_deadline,
