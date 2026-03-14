@@ -1984,10 +1984,6 @@ function UnifiedCameraCard({
                                                     </div>
                                                 )}
                                             </div>
-                                            <div className="mt-4 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-[11px] font-medium text-white/90 backdrop-blur-sm sm:mt-5 sm:text-xs">
-                                                {selfieMessage ||
-                                                    'Posisikan wajah di dalam oval'}
-                                            </div>
                                         </div>
                                         <div className="absolute top-3 left-3 z-10 sm:top-4 sm:left-4">
                                             <Button
@@ -3255,7 +3251,7 @@ export default function UserAbsensi() {
         if (cameraPhase === 'flipping')
             return 'Flow berpindah otomatis ke kamera depan agar QR dan selfie terasa seperti satu aksi berurutan.';
         if (cameraPhase === 'selfie')
-            return 'Kamera depan aktif dengan mode mirror. Tombol shutter akan menjalankan hitung mundur singkat, dan flash layar bisa dipakai saat cahaya kurang.';
+            return '';
         if (cameraPhase === 'done')
             return 'Token dan foto sudah siap. Lokasi akan diverifikasi sebelum tombol submit dibuka.';
         return 'UI lama yang terpisah dipecah menjadi satu viewport kamera yang lebih fokus dan minim distraksi.';
@@ -4323,24 +4319,8 @@ export default function UserAbsensi() {
     }
 
     function startSelfieCountdown() {
-        if (selfieCountdown !== null || selfieState === 'capturing') return;
-
-        let current = 3;
-        setSelfieCountdown(current);
-
-        countdownIntervalRef.current = window.setInterval(() => {
-            current -= 1;
-            if (current <= 0) {
-                if (countdownIntervalRef.current) {
-                    window.clearInterval(countdownIntervalRef.current);
-                    countdownIntervalRef.current = null;
-                }
-                setSelfieCountdown(null);
-                void captureSelfie();
-                return;
-            }
-            setSelfieCountdown(current);
-        }, 1000);
+        if (selfieState === 'capturing') return;
+        void captureSelfie();
     }
 
     async function retakeSelfie() {
