@@ -37,6 +37,7 @@ import {
     Fingerprint,
     Flashlight,
     FlashlightOff,
+    FlipHorizontal,
     Loader2,
     MapPin,
     Navigation,
@@ -153,6 +154,7 @@ type PageProps = {
 
 const FLOW_TOTAL = 4;
 const CAMERA_FLIP_MS = 600;
+const CAMERA_RETRY_DELAY_MS = 700;
 const GLASS_CARD =
     'rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40';
 
@@ -184,6 +186,45 @@ function wait(ms: number) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+function isRetryableCameraError(error: unknown) {
+    if (!error || typeof error !== 'object') return false;
+    const rawMessage =
+        'message' in error && typeof error.message === 'string'
+            ? error.message.toLowerCase()
+            : '';
+    const name = (error as DOMException).name?.toLowerCase() ?? '';
+
+    return (
+        name === 'notreadableerror' ||
+        name === 'aborterror' ||
+        rawMessage.includes('notreadable') ||
+        rawMessage.includes('track start error') ||
+        rawMessage.includes('device in use') ||
+        rawMessage.includes('could not start video source')
+    );
+}
+
+async function getUserMediaWithRetry(
+    constraints: MediaStreamConstraints,
+    retries = 1,
+) {
+    let lastError: unknown = null;
+
+    for (let attempt = 0; attempt <= retries; attempt += 1) {
+        try {
+            return await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (error) {
+            lastError = error;
+            if (!isRetryableCameraError(error) || attempt === retries) {
+                throw error;
+            }
+            await wait(CAMERA_RETRY_DELAY_MS);
+        }
+    }
+
+    throw lastError;
+}
+
 function revokeObjectUrl(url: string | null) {
     if (url) URL.revokeObjectURL(url);
 }
@@ -192,6 +233,11 @@ function hasTorchCapability(
     capabilities?: MediaTrackCapabilities | null,
 ): boolean {
     return Boolean((capabilities as TorchTrackCapabilities | null)?.torch);
+}
+
+function isFrontCameraLabel(label: string | undefined | null) {
+    if (!label) return false;
+    return /(front|user|face|facetime|selfie)/i.test(label);
 }
 
 function createTorchConstraints(enabled: boolean): MediaTrackConstraints {
@@ -930,14 +976,16 @@ function StatusRingOverlay({
     title,
     hint,
     idSuffix,
+    className,
 }: {
     progressCount: number;
     total: number;
     title: string;
     hint: string;
     idSuffix: string;
+    className?: string;
 }) {
-    const size = 78;
+    const size = 58;
     const radius = (size - 10) / 2;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset =
@@ -945,9 +993,9 @@ function StatusRingOverlay({
         (Math.min(progressCount, total) / total) * circumference;
 
     return (
-        <div className="pointer-events-none absolute top-4 right-4 z-10">
-            <div className="flex items-center gap-3 rounded-[24px] border border-white/10 bg-black/45 px-3 py-3 text-white shadow-2xl backdrop-blur-md">
-                <div className="relative flex h-[78px] w-[78px] items-center justify-center">
+        <div className={cn("pointer-events-none absolute top-4 right-4 z-10", className)}>
+            <div className="flex items-center gap-2 rounded-[18px] border border-white/10 bg-black/45 px-2.5 py-2 text-white shadow-2xl backdrop-blur-md">
+                <div className="relative flex h-[58px] w-[58px] items-center justify-center">
                     <svg
                         width={size}
                         height={size}
@@ -989,22 +1037,22 @@ function StatusRingOverlay({
                         </defs>
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                        <p className="text-lg font-bold">
+                        <p className="text-base font-bold">
                             {progressCount}
-                            <span className="text-xs font-medium text-white/65">
+                            <span className="text-[10px] font-medium text-white/65">
                                 /{total}
                             </span>
                         </p>
-                        <p className="text-[9px] font-semibold tracking-[0.22em] text-white/55 uppercase">
+                        <p className="text-[8px] font-semibold tracking-[0.22em] text-white/55 uppercase">
                             Flow
                         </p>
                     </div>
                 </div>
-                <div className="hidden max-w-[150px] sm:block">
-                    <p className="text-[10px] font-semibold tracking-[0.24em] text-white/55 uppercase">
+                <div className="hidden max-w-[130px] sm:block">
+                    <p className="text-[9px] font-semibold tracking-[0.24em] text-white/55 uppercase">
                         {title}
                     </p>
-                    <p className="mt-1 text-sm leading-relaxed font-medium text-white/82">
+                    <p className="mt-1 text-[11px] leading-relaxed font-medium text-white/82">
                         {hint}
                     </p>
                 </div>
@@ -1502,10 +1550,14 @@ type UnifiedCameraCardProps = {
     rearFlashSupported: boolean;
     rearFlashEnabled: boolean;
     rearFlashBusy: boolean;
+    scanMirrorEnabled: boolean;
+    onToggleScanMirror: () => void;
     selfieTorchSupported: boolean;
     selfieFlashEnabled: boolean;
     selfieFlashBusy: boolean;
     selfieFlashOverlayVisible: boolean;
+    selfieMirrorEnabled: boolean;
+    onToggleSelfieMirror: () => void;
     onManualTokenChange: (value: string) => void;
     onApplyManualToken: () => void;
     onStartScanning: () => void;
@@ -1550,10 +1602,14 @@ function UnifiedCameraCard({
     rearFlashSupported,
     rearFlashEnabled,
     rearFlashBusy,
+    scanMirrorEnabled,
+    onToggleScanMirror,
     selfieTorchSupported,
     selfieFlashEnabled,
     selfieFlashBusy,
     selfieFlashOverlayVisible,
+    selfieMirrorEnabled,
+    onToggleSelfieMirror,
     onManualTokenChange,
     onApplyManualToken,
     onStartScanning,
@@ -1573,14 +1629,6 @@ function UnifiedCameraCard({
         (cameraPermission === 'denied' || selfieState === 'error');
     const showViewportProgress =
         cameraPhase !== 'idle' || progressCount > 0 || Boolean(currentToken);
-    const selfieFlashLabel = selfieTorchSupported
-        ? selfieFlashEnabled
-            ? 'Flash aktif'
-            : 'Flash'
-        : selfieFlashEnabled
-          ? 'Flash layar aktif'
-          : 'Flash layar';
-
     return (
         <section className={cn(GLASS_CARD, 'overflow-hidden p-0')}>
             <div className="flex flex-col gap-4 p-4 sm:gap-5 sm:p-6">
@@ -1616,7 +1664,7 @@ function UnifiedCameraCard({
                 </div>
 
                 <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]">
-                    <div className="relative overflow-hidden rounded-[30px] bg-neutral-950 shadow-[0_30px_80px_rgba(15,23,42,0.35)]">
+                    <div className="relative w-full overflow-hidden rounded-[30px] bg-neutral-950 shadow-[0_30px_80px_rgba(15,23,42,0.35)]">
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.25),transparent_38%),radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.2),transparent_34%)]" />
                         {showViewportProgress && (
                             <StatusRingOverlay
@@ -1625,10 +1673,11 @@ function UnifiedCameraCard({
                                 title={statusTitle}
                                 hint={statusHint}
                                 idSuffix={idSuffix}
+                                className="origin-top-right scale-75 sm:scale-100"
                             />
                         )}
 
-                        <div className="relative aspect-[9/14] min-h-[500px] overflow-hidden sm:aspect-[4/5] sm:min-h-[560px] md:aspect-[5/4] md:min-h-[420px] xl:aspect-[4/3]">
+                        <div className="relative aspect-[4/5] w-full min-h-[500px] overflow-hidden sm:aspect-[4/5] sm:min-h-[560px] md:aspect-[5/4] md:min-h-[420px] xl:aspect-[4/3]">
                             <AnimatePresence mode="wait">
                                 {cameraPhase === 'idle' && (
                                     <motion.div
@@ -1636,19 +1685,19 @@ function UnifiedCameraCard({
                                         initial={{ opacity: 0, y: 16 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -16 }}
-                                        className="absolute inset-0 flex items-center justify-center px-4 py-5 text-center text-white sm:px-8 sm:py-8"
+                                        className="absolute inset-0 flex items-center justify-center px-3 py-5 text-center text-white sm:px-8 sm:py-8"
                                     >
-                                        <div className="w-full max-w-[340px] rounded-[28px] border border-white/10 bg-black/28 p-5 shadow-2xl backdrop-blur-md sm:max-w-[680px] sm:rounded-[30px] sm:p-8">
+                                        <div className="w-full max-w-[300px] rounded-[26px] border border-white/10 bg-black/28 p-4 shadow-2xl backdrop-blur-md sm:max-w-[680px] sm:rounded-[30px] sm:p-8">
                                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[20px] bg-gradient-to-br from-sky-500/25 via-cyan-400/20 to-emerald-400/25 text-white shadow-lg sm:h-20 sm:w-20 sm:rounded-[24px]">
                                                 <Camera className="h-8 w-8 sm:h-10 sm:w-10" />
                                             </div>
                                             <p className="mt-4 text-[10px] font-semibold tracking-[0.26em] text-sky-200 uppercase sm:mt-5 sm:text-[11px] sm:tracking-[0.28em]">
                                                 Siap Memulai
                                             </p>
-                                            <h3 className="mt-2 text-xl font-bold sm:mt-3 sm:text-3xl">
+                                            <h3 className="mt-2 text-lg font-bold sm:mt-3 sm:text-3xl">
                                                 Siap untuk absen?
                                             </h3>
-                                            <p className="mx-auto mt-2 max-w-[540px] text-[13px] leading-relaxed text-white/72 sm:mt-3 sm:text-base">
+                                            <p className="mx-auto mt-2 max-w-[540px] text-[12px] leading-relaxed text-white/72 sm:mt-3 sm:text-base">
                                                 Mulai dari scan QR di kartu ini.
                                                 Jika sesi memerlukan selfie,
                                                 sistem akan berpindah kamera
@@ -1669,13 +1718,13 @@ function UnifiedCameraCard({
                                                     Lokasi otomatis
                                                 </span>
                                             </div>
-                                            <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:justify-center">
+                                            <div className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:justify-center">
                                                 <Button
                                                     type="button"
                                                     size="lg"
                                                     onClick={onStartScanning}
                                                     disabled={!consentAccepted}
-                                                    className="h-12 rounded-full bg-white px-6 text-sm text-slate-950 shadow-xl hover:bg-white/90 sm:h-auto sm:px-7 sm:text-base"
+                                                    className="h-11 rounded-full bg-white px-6 text-sm text-slate-950 shadow-xl hover:bg-white/90 sm:h-auto sm:px-7 sm:text-base"
                                                 >
                                                     <QrCode className="mr-2 h-4 w-4" />
                                                     Mulai Scan QR
@@ -1712,6 +1761,7 @@ function UnifiedCameraCard({
                                         exit={{ opacity: 0 }}
                                         className="absolute inset-0"
                                     >
+                                        <style>{`#${qrReaderDivId}, #${qrReaderDivId} > div, #${qrReaderDivId} video, #${qrReaderDivId} canvas { width: 100% !important; height: 100% !important; } #${qrReaderDivId} { position: absolute; inset: 0; } #${qrReaderDivId} > div { display: flex; align-items: stretch; } #${qrReaderDivId} video, #${qrReaderDivId} canvas { object-fit: cover; transform: ${scanMirrorEnabled ? 'scaleX(-1)' : 'none'}; transform-origin: center; }`}</style>
                                         <div
                                             id={qrReaderDivId}
                                             className="h-full w-full [&>*]:!border-none"
@@ -1736,65 +1786,71 @@ function UnifiedCameraCard({
                                                 />
                                             </div>
                                         </div>
-                                        <div className="absolute top-3 right-3 left-3 flex flex-col items-start gap-2 sm:top-4 sm:right-4 sm:left-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                                            <div className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-sm sm:px-4 sm:py-2 sm:text-xs">
-                                                Kamera belakang aktif
+                                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                            <QrCode className="h-7 w-7 text-emerald-300/70 sm:h-8 sm:w-8" />
+                                        </div>
+                                        <div className="absolute top-2 left-2 right-2 z-10 flex justify-start sm:top-4 sm:left-4 sm:right-auto sm:block">
+                                            <div className="w-fit max-w-full rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur-sm sm:px-3 sm:py-1.5 sm:text-xs">
+                                            {scanMirrorEnabled
+                                                ? 'Kamera depan aktif'
+                                                : 'Kamera belakang aktif'}
                                             </div>
-                                            <div className="flex flex-wrap items-center justify-end gap-2 self-end sm:self-auto">
-                                                {rearFlashSupported && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={
-                                                            onToggleRearFlash
-                                                        }
-                                                        disabled={rearFlashBusy}
-                                                        aria-pressed={
-                                                            rearFlashEnabled
-                                                        }
-                                                        className="h-9 rounded-full border border-white/10 bg-black/35 px-3 text-xs text-white hover:bg-black/55 sm:px-4 sm:text-sm"
-                                                    >
-                                                        {rearFlashBusy ? (
-                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        ) : rearFlashEnabled ? (
-                                                            <FlashlightOff className="mr-2 h-4 w-4" />
-                                                        ) : (
-                                                            <Flashlight className="mr-2 h-4 w-4" />
-                                                        )}
-                                                        {rearFlashEnabled
-                                                            ? 'Flash aktif'
-                                                            : 'Flash'}
-                                                    </Button>
-                                                )}
-                                                {canSwitchCamera && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={onSwitchCamera}
-                                                        className="h-9 rounded-full border border-white/10 bg-black/35 px-3 text-xs text-white hover:bg-black/55 sm:px-4 sm:text-sm"
-                                                    >
-                                                        <SwitchCamera className="mr-2 h-4 w-4" />
-                                                        Ganti Kamera
-                                                    </Button>
-                                                )}
+                                        </div>
+                                        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-black/35 px-2 py-2 backdrop-blur-sm sm:bottom-6">
+                                            {rearFlashSupported && (
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={onCancelScanning}
-                                                    className="h-9 rounded-full border border-white/10 bg-black/35 px-3 text-xs text-white hover:bg-black/55 sm:px-4 sm:text-sm"
+                                                    onClick={onToggleRearFlash}
+                                                    disabled={rearFlashBusy}
+                                                    aria-pressed={
+                                                        rearFlashEnabled
+                                                    }
+                                                    aria-label="Flash"
+                                                    className="h-9 w-9 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10 sm:h-10 sm:w-10"
                                                 >
-                                                    <X className="mr-2 h-4 w-4" />
-                                                    Batal
+                                                    {rearFlashBusy ? (
+                                                        <Loader2 className="h-4 w-4 animate-spin sm:h-5 sm:w-5" />
+                                                    ) : rearFlashEnabled ? (
+                                                        <FlashlightOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                    ) : (
+                                                        <Flashlight className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                    )}
                                                 </Button>
-                                            </div>
-                                        </div>
-                                        <div className="absolute right-3 bottom-4 left-3 flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/35 px-4 py-2 text-center text-[11px] font-medium text-white/90 backdrop-blur-sm sm:right-auto sm:bottom-5 sm:left-1/2 sm:w-auto sm:-translate-x-1/2 sm:text-xs">
-                                            <ScanLine className="h-4 w-4 text-emerald-300" />
-                                            {scanMessage ||
-                                                'Arahkan QR ke dalam frame'}
+                                            )}
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={onToggleScanMirror}
+                                                aria-label="Mirror"
+                                                className="h-9 w-9 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10 sm:h-10 sm:w-10"
+                                            >
+                                                <FlipHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+                                            </Button>
+                                            {canSwitchCamera && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={onSwitchCamera}
+                                                    aria-label="Ganti kamera"
+                                                    className="h-9 w-9 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10 sm:h-10 sm:w-10"
+                                                >
+                                                    <SwitchCamera className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                </Button>
+                                            )}
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={onCancelScanning}
+                                                aria-label="Batal"
+                                                className="h-9 w-9 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10 sm:h-10 sm:w-10"
+                                            >
+                                                <X className="h-4 w-4 sm:h-5 sm:w-5" />
+                                            </Button>
                                         </div>
                                     </motion.div>
                                 )}
@@ -1874,7 +1930,12 @@ function UnifiedCameraCard({
                                             autoPlay
                                             playsInline
                                             muted
-                                            className="h-full w-full scale-x-[-1] object-cover"
+                                            className="h-full w-full object-cover"
+                                            style={{
+                                                transform: selfieMirrorEnabled
+                                                    ? 'scaleX(-1)'
+                                                    : 'none',
+                                            }}
                                         />
                                         <CameraQualityIndicator
                                             videoRef={selfieVideoRef}
@@ -1928,7 +1989,7 @@ function UnifiedCameraCard({
                                                     'Posisikan wajah di dalam oval'}
                                             </div>
                                         </div>
-                                        <div className="absolute top-3 left-3 sm:top-4 sm:left-4">
+                                        <div className="absolute top-3 left-3 z-10 sm:top-4 sm:left-4">
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -1940,44 +2001,53 @@ function UnifiedCameraCard({
                                                 Scan Ulang
                                             </Button>
                                         </div>
-                                        <div className="absolute top-3 right-3 flex flex-wrap items-center justify-end gap-2 sm:top-4 sm:right-4">
-                                            <div className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-sm sm:px-4 sm:py-2 sm:text-xs">
-                                                Mode mirror
+                                        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 sm:bottom-8">
+                                            <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/35 px-2.5 py-2 backdrop-blur-sm">
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={onToggleSelfieMirror}
+                                                    aria-label="Mirror"
+                                                    className="h-10 w-10 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10"
+                                                >
+                                                    <FlipHorizontal className="h-4 w-4" />
+                                                </Button>
+                                                <button
+                                                    type="button"
+                                                    aria-label="Ambil selfie"
+                                                    onClick={onStartSelfieCountdown}
+                                                    disabled={
+                                                        selfieCountdown !==
+                                                            null ||
+                                                        selfieState ===
+                                                            'capturing'
+                                                    }
+                                                    className="flex h-16 w-16 items-center justify-center rounded-full border border-white/15 bg-white/15 shadow-2xl backdrop-blur-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:h-20 sm:w-20"
+                                                >
+                                                    <span className="h-10 w-10 rounded-full border-[6px] border-white bg-sky-500/90 shadow-inner sm:h-12 sm:w-12" />
+                                                </button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={onToggleSelfieFlash}
+                                                    disabled={selfieFlashBusy}
+                                                    aria-pressed={
+                                                        selfieFlashEnabled
+                                                    }
+                                                    aria-label="Flash"
+                                                    className="h-10 w-10 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10"
+                                                >
+                                                    {selfieFlashBusy ? (
+                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                    ) : selfieFlashEnabled ? (
+                                                        <FlashlightOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Flashlight className="h-4 w-4" />
+                                                    )}
+                                                </Button>
                                             </div>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={onToggleSelfieFlash}
-                                                disabled={selfieFlashBusy}
-                                                aria-pressed={
-                                                    selfieFlashEnabled
-                                                }
-                                                className="h-9 rounded-full border border-white/10 bg-black/35 px-3 text-xs text-white hover:bg-black/55 sm:px-4 sm:text-sm"
-                                            >
-                                                {selfieFlashBusy ? (
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                ) : selfieFlashEnabled ? (
-                                                    <FlashlightOff className="mr-2 h-4 w-4" />
-                                                ) : (
-                                                    <Flashlight className="mr-2 h-4 w-4" />
-                                                )}
-                                                {selfieFlashLabel}
-                                            </Button>
-                                        </div>
-                                        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3 sm:bottom-8">
-                                            <button
-                                                type="button"
-                                                aria-label="Ambil selfie"
-                                                onClick={onStartSelfieCountdown}
-                                                disabled={
-                                                    selfieCountdown !== null ||
-                                                    selfieState === 'capturing'
-                                                }
-                                                className="flex h-20 w-20 items-center justify-center rounded-full border border-white/15 bg-white/15 shadow-2xl backdrop-blur-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:h-24 sm:w-24"
-                                            >
-                                                <span className="h-14 w-14 rounded-full border-[6px] border-white bg-sky-500/90 shadow-inner sm:h-16 sm:w-16" />
-                                            </button>
                                             <p className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-[11px] font-medium text-white/90 backdrop-blur-sm sm:text-xs">
                                                 Tap sekali untuk foto otomatis
                                             </p>
@@ -2962,6 +3032,7 @@ export default function UserAbsensi() {
     const [manuallySelectedSessionId, setManuallySelectedSessionId] = useState<number | null>(null);
     const [availableCameras, setAvailableCameras] = useState<Array<{ id: string; label: string }>>([]);
     const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
+    const [scanMirrorEnabled, setScanMirrorEnabled] = useState(false);
     const [resolvingToken, setResolvingToken] = useState(false);
     const [locationCollecting, setLocationCollecting] = useState(false);
     const autoLocationTriggeredRef = useRef(false);
@@ -2985,6 +3056,7 @@ export default function UserAbsensi() {
         useState(false);
     const [selfieFlashOverlayVisible, setSelfieFlashOverlayVisible] =
         useState(false);
+    const [selfieMirrorEnabled, setSelfieMirrorEnabled] = useState(true);
     const [showSuccessCelebration, setShowSuccessCelebration] = useState(false);
     const [stepTimestamps, setStepTimestamps] = useState<{
         qr: string | null;
@@ -3470,10 +3542,11 @@ export default function UserAbsensi() {
         return 'Gagal mengambil izin lokasi dari browser.';
     }
 
-    async function checkCameraPermission(): Promise<{
+    async function checkCameraPermission(options?: { probe?: boolean }): Promise<{
         granted: boolean;
         error?: string;
     }> {
+        const probe = options?.probe ?? true;
         if (!navigator.mediaDevices?.getUserMedia) {
             setCameraPermission('denied');
             return {
@@ -3524,6 +3597,10 @@ export default function UserAbsensi() {
             } catch {
                 setCameraPermission('unknown');
             }
+        }
+
+        if (!probe) {
+            return { granted: true };
         }
 
         try {
@@ -3666,6 +3743,7 @@ export default function UserAbsensi() {
             if (selectedCameraId) {
                 const selected = cameras.find(c => c.id === selectedCameraId);
                 if (selected) {
+                    setScanMirrorEnabled(isFrontCameraLabel(selected.label));
                     return {
                         source: selected.id,
                         label: selected.label || 'Kamera terpilih',
@@ -3690,6 +3768,7 @@ export default function UserAbsensi() {
                 normalized[0];
 
             setSelectedCameraId(preferred.id);
+            setScanMirrorEnabled(isFrontCameraLabel(preferred.label));
 
             return {
                 source: preferred.id,
@@ -3745,6 +3824,7 @@ export default function UserAbsensi() {
         const nextCamera = availableCameras[nextIndex];
         
         setSelectedCameraId(nextCamera.id);
+        setScanMirrorEnabled(isFrontCameraLabel(nextCamera.label));
         
         setScanMessage('Mengganti kamera...');
         await stopScanEvent();
@@ -3872,7 +3952,7 @@ export default function UserAbsensi() {
             return;
         }
 
-        const permissionCheck = await checkCameraPermission();
+        const permissionCheck = await checkCameraPermission({ probe: false });
         if (!permissionCheck.granted) {
             setScanState('error');
             setScanMessage(
@@ -3907,7 +3987,7 @@ export default function UserAbsensi() {
     }
 
     async function startSelfieCamera() {
-        const permissionCheck = await checkCameraPermission();
+        const permissionCheck = await checkCameraPermission({ probe: false });
         if (!permissionCheck.granted) {
             setSelfieState('error');
             setSelfieMessage(
@@ -3926,16 +4006,20 @@ export default function UserAbsensi() {
         await wait(500);
         setSelfieState('ready');
         setSelfieMessage('Menyalakan kamera depan...');
+        setSelfieMirrorEnabled(true);
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'user',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
+            const stream = await getUserMediaWithRetry(
+                {
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                    },
+                    audio: false,
                 },
-                audio: false,
-            });
+                1,
+            );
 
             selfieStreamRef.current = stream;
             const torchSupported = syncSelfieFlashState(stream);
@@ -4201,8 +4285,10 @@ export default function UserAbsensi() {
             return;
         }
 
-        context.translate(canvas.width, 0);
-        context.scale(-1, 1);
+        if (selfieMirrorEnabled) {
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+        }
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         const blob = await new Promise<Blob | null>((resolve) => {
@@ -4664,55 +4750,82 @@ export default function UserAbsensi() {
         let cancelled = false;
 
         const startScanner = async () => {
-            try {
-                scanHandledRef.current = false;
-                setScanState('scanning');
-                setScanMessage('Menyalakan kamera belakang...');
-                await stopScanEvent();
-                await wait(400); // Wait for release
-
-                const scanner = new Html5Qrcode(qrReaderDivId);
-                qrScannerRef.current = scanner;
-                const scannerCamera = await resolveScannerCamera();
-
-                await scanner.start(
-                    scannerCamera.source,
-                    {
-                        fps: 12,
-                        qrbox: { width: 300, height: 300 },
-                        disableFlip: false,
-                    },
-                    async (decodedText) => {
-                        if (cancelled || scanHandledRef.current) return;
-                        scanHandledRef.current = true;
-                        await handleTokenDetectedEvent(decodedText);
-                    },
-                    () => {},
-                );
-
-                const flashSupported = syncRearFlashStateEvent(scanner);
-
-                if (cancelled) {
+            let lastError: unknown = null;
+            for (let attempt = 0; attempt < 2; attempt += 1) {
+                let scanner: Html5Qrcode | null = null;
+                try {
+                    scanHandledRef.current = false;
+                    setScanState('scanning');
+                    setScanMessage('Menyalakan kamera belakang...');
                     await stopScanEvent();
-                    return;
-                }
+                    await wait(400); // Wait for release
 
-                setScanMessage(
-                    `${scannerCamera.label} aktif. Arahkan QR ke dalam frame${flashSupported ? ' atau nyalakan flash bila gelap' : ''}.`,
-                );
-            } catch (error) {
-                if (cancelled) return;
-                const message = getCameraErrorMessage(error);
-                if ((error as DOMException)?.name === 'NotAllowedError') {
-                    setCameraPermission('denied');
+                    scanner = new Html5Qrcode(qrReaderDivId);
+                    qrScannerRef.current = scanner;
+                    const scannerCamera = await resolveScannerCamera();
+
+                    await scanner.start(
+                        scannerCamera.source,
+                        {
+                            fps: 12,
+                            qrbox: { width: 300, height: 300 },
+                            disableFlip: false,
+                        },
+                        async (decodedText) => {
+                            if (cancelled || scanHandledRef.current) return;
+                            scanHandledRef.current = true;
+                            await handleTokenDetectedEvent(decodedText);
+                        },
+                        () => {},
+                    );
+
+                    const flashSupported = syncRearFlashStateEvent(scanner);
+
+                    if (cancelled) {
+                        await stopScanEvent();
+                        return;
+                    }
+
+                    setScanMessage(
+                        `${scannerCamera.label} aktif. Arahkan QR ke dalam frame${flashSupported ? ' atau nyalakan flash bila gelap' : ''}.`,
+                    );
+                    return;
+                } catch (error) {
+                    lastError = error;
+                    if (cancelled) return;
+                    if (scanner) {
+                        try {
+                            if (scanner.isScanning) {
+                                await scanner.stop();
+                            }
+                        } catch {
+                            void 0;
+                        }
+                        try {
+                            await scanner.clear();
+                        } catch {
+                            void 0;
+                        }
+                    }
+
+                    if (!isRetryableCameraError(error) || attempt === 1) {
+                        break;
+                    }
+                    await wait(CAMERA_RETRY_DELAY_MS);
                 }
-                setScanState('error');
-                setScanMessage(message);
-                setCameraPermissionReason(message);
-                setShowPermissionGuide(true);
-                setCameraPhase('idle');
-                toast.error(message, { id: 'camera-init-error' });
             }
+
+            if (cancelled) return;
+            const message = getCameraErrorMessage(lastError);
+            if ((lastError as DOMException)?.name === 'NotAllowedError') {
+                setCameraPermission('denied');
+            }
+            setScanState('error');
+            setScanMessage(message);
+            setCameraPermissionReason(message);
+            setShowPermissionGuide(true);
+            setCameraPhase('idle');
+            toast.error(message, { id: 'camera-init-error' });
         };
 
         const timer = window.setTimeout(() => {
@@ -4880,6 +4993,10 @@ export default function UserAbsensi() {
                                 rearFlashSupported={rearFlashSupported}
                                 rearFlashEnabled={rearFlashEnabled}
                                 rearFlashBusy={rearFlashBusy}
+                                scanMirrorEnabled={scanMirrorEnabled}
+                                onToggleScanMirror={() =>
+                                    setScanMirrorEnabled((prev: boolean) => !prev)
+                                }
                                 selfieTorchSupported={selfieTorchSupported}
                                 selfieFlashEnabled={
                                     selfieTorchSupported
@@ -4889,6 +5006,12 @@ export default function UserAbsensi() {
                                 selfieFlashBusy={selfieFlashBusy}
                                 selfieFlashOverlayVisible={
                                     selfieFlashOverlayVisible
+                                }
+                                selfieMirrorEnabled={selfieMirrorEnabled}
+                                onToggleSelfieMirror={() =>
+                                    setSelfieMirrorEnabled(
+                                        (prev: boolean) => !prev,
+                                    )
                                 }
                                 onManualTokenChange={handleManualTokenChange}
                                 onApplyManualToken={applyManualToken}

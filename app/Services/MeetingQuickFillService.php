@@ -37,7 +37,7 @@ class MeetingQuickFillService
                 $meetingNumber = (int) $meeting->pertemuan_ke;
                 $topic = trim((string) ($meeting->topik ?? ''));
                 $description = trim((string) ($meeting->deskripsi ?? ''));
-                $mode = $meeting->mode ?: null;
+                $mode = $meeting->mode ?: 'offline';
                 $isOffline = $mode === 'offline';
                 $quickReady = $isOffline && ($topic !== '' || $description !== '');
                 $suggestedTitle = $topic !== ''
@@ -95,21 +95,22 @@ class MeetingQuickFillService
         ?string $description = null,
     ): array {
         $meetingTemplate = $this->findMeetingTemplate($course, $meetingNumber);
+        $templatePayload = $meetingTemplate ?? [];
         $resolvedTitle = trim((string) $title);
         $resolvedDescription = trim((string) $description);
 
         if ($resolvedTitle === '') {
-            $resolvedTitle = $meetingTemplate['suggested_title'] ?? "Pertemuan {$meetingNumber}";
+            $resolvedTitle = $templatePayload['suggested_title'] ?? "Pertemuan {$meetingNumber}";
         }
 
         if ($resolvedDescription === '') {
-            $resolvedDescription = $meetingTemplate['suggested_description'] ?? '';
+            $resolvedDescription = $templatePayload['suggested_description'] ?? '';
         }
 
         return [
             'title' => $resolvedTitle,
             'description' => $resolvedDescription !== '' ? $resolvedDescription : null,
-            'template' => $meetingTemplate,
+            'template' => $templatePayload,
         ];
     }
 }
