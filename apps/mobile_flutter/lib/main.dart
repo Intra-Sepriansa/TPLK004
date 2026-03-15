@@ -61,6 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
@@ -112,6 +113,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
@@ -136,32 +138,39 @@ class WelcomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Selamat datang',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Selamat datang',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Image.asset(
+                          'assets/images/welcome.png',
+                          height: size.height * 0.36,
+                          width: size.height * 0.36,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Aplikasi absensi mahasiswa untuk scan QR, selfie verifikasi, dan rekap kehadiran dalam satu alur yang cepat dan aman.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            height: 1.5,
+                            color: Color(0xFFEFF6FF),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Image.asset(
-                    'assets/images/welcome.png',
-                    height: 160,
-                    width: 160,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Aplikasi absensi mahasiswa untuk scan QR, selfie verifikasi, dan rekap kehadiran dalam satu alur yang cepat dan aman.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      height: 1.5,
-                      color: Color(0xFFEFF6FF),
-                    ),
-                  ),
-                  const Spacer(),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
