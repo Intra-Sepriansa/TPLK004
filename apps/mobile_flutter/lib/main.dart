@@ -112,7 +112,6 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
@@ -145,13 +144,14 @@ class WelcomeScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
                   Image.asset(
-                    'assets/images/app-logo.png',
-                    height: 68,
-                    width: 68,
+                    'assets/images/welcome.png',
+                    height: 160,
+                    width: 160,
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
                   const Text(
                     'Aplikasi absensi mahasiswa untuk scan QR, selfie verifikasi, dan rekap kehadiran dalam satu alur yang cepat dan aman.',
                     textAlign: TextAlign.center,
@@ -162,54 +162,25 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Container(
+                  SizedBox(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x26000000),
-                          blurRadius: 24,
-                          offset: Offset(0, -6),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context)
+                            .pushReplacement(_slideUpTo(const LoginScreen()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF1D4ED8),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            _Dot(active: true),
-                            _Dot(active: false),
-                            _Dot(active: false),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushReplacement(_slideUpTo(const LoginScreen()));
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2563EB),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                      ),
                     ),
                   ),
                 ],
