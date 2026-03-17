@@ -255,6 +255,16 @@ export default function QrBuilder({
     tokenStats,
     hourlyData,
 }: PageProps) {
+    const [selectedSessionId, setSelectedSessionId] = useState<number | null>(
+        null,
+    );
+    const [overrideTtlValue, setOverrideTtlValue] = useState<number>(
+        tokenTtlSeconds,
+    );
+    const [overrideTtlUnit, setOverrideTtlUnit] = useState<
+        'seconds' | 'minutes' | 'hours'
+    >('seconds');
+    const [hasCustomTtl, setHasCustomTtl] = useState(false);
     const [token, setToken] = useState<string | null>(null);
     const [expiresAtMs, setExpiresAtMs] = useState<number | null>(null);
     const [qrUrl, setQrUrl] = useState<string | null>(null);
@@ -266,9 +276,21 @@ export default function QrBuilder({
         typeof window !== 'undefined' ? window.innerWidth : 1024,
     );
     const rotatingRef = useRef(false);
+    const effectiveTtlSeconds = useMemo(() => {
+        const unitMultiplier =
+            overrideTtlUnit === 'hours'
+                ? 3600
+                : overrideTtlUnit === 'minutes'
+                  ? 60
+                  : 1;
+        return Math.max(
+            10,
+            Math.min(7200, Math.round(overrideTtlValue * unitMultiplier)),
+        );
+    }, [overrideTtlUnit, overrideTtlValue]);
     const ttlLabel = useMemo(
-        () => formatTtl(tokenTtlSeconds),
-        [tokenTtlSeconds],
+        () => formatTtl(effectiveTtlSeconds),
+        [effectiveTtlSeconds],
     );
     const qrSize = useMemo(() => {
         if (viewportWidth < 360) return 208;
@@ -393,6 +415,58 @@ export default function QrBuilder({
     }, []);
 
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+        if (sessionId && Number.isFinite(Number(sessionId))) {
+            setSelectedSessionId(Number(sessionId));
+        } else if (activeSession?.id) {
+            setSelectedSessionId(activeSession.id);
+        }
+    }, [activeSession?.id]);
+
+    useEffect(() => {
+        if (hasCustomTtl) return;
+        setOverrideTtlUnit('seconds');
+        setOverrideTtlValue(tokenTtlSeconds);
+    }, [hasCustomTtl, tokenTtlSeconds]);
+
+    useEffect(() => {
+        if (!hasCustomTtl || !activeSession?.id) return;
+        void generateToken({ silent: false, force: true });
+    }, [effectiveTtlSeconds, hasCustomTtl, activeSession?.id]);
+
+    const sessionCourseOptions = useMemo(() => {
+        const map = new Map<string, string>();
+        sessions.forEach((s) => {
+            if (s.course_name) map.set(s.course_name, s.course_name);
+        });
+        return Array.from(map.values());
+    }, [sessions]);
+
+    const sessionMeetingOptions = useMemo(() => {
+        const map = new Map<number, number>();
+        sessions.forEach((s) => {
+            if (Number.isFinite(s.meeting_number)) {
+                map.set(s.meeting_number, s.meeting_number);
+            }
+        });
+        return Array.from(map.values()).sort((a, b) => a - b);
+    }, [sessions]);
+
+    const [filterCourse, setFilterCourse] = useState<string>('');
+    const [filterMeeting, setFilterMeeting] = useState<number | ''>('');
+
+    const filteredSessions = useMemo(() => {
+        return sessions.filter((s) => {
+            const matchCourse = filterCourse ? s.course_name === filterCourse : true;
+            const matchMeeting =
+                filterMeeting !== '' ? s.meeting_number === filterMeeting : true;
+            return matchCourse && matchMeeting;
+        });
+    }, [filterCourse, filterMeeting, sessions]);
+
+    useEffect(() => {
         setToken(null);
         setExpiresAtMs(null);
         if (activeSession?.id) {
@@ -434,7 +508,10 @@ export default function QrBuilder({
                         Accept: 'application/json',
                         ...(csrf ? { 'X-XSRF-TOKEN': csrf } : {}),
                     },
-                    body: JSON.stringify(force ? { force: true } : {}),
+                    body: JSON.stringify({
+                        ...(force ? { force: true } : {}),
+                        ttl_seconds: effectiveTtlSeconds,
+                    }),
                 },
             );
 
@@ -470,6 +547,14 @@ export default function QrBuilder({
             rotatingRef.current = false;
             if (!silent) setLoading(false);
         }
+    };
+
+    const handleSelectSession = (sessionId: number) => {
+        setSelectedSessionId(sessionId);
+        router.visit(`/admin/qr-builder?session_id=${sessionId}`, {
+            preserveScroll: true,
+            preserveState: false,
+        });
     };
 
     const copyToken = () => {
@@ -856,8 +941,100 @@ export default function QrBuilder({
                                             <span className="text-neutral-500 dark:text-neutral-400">
                                                 Token TTL
                                             </span>
-                                            <span className="block w-full text-right font-medium text-indigo-600 dark:text-indigo-400">
-                                                {ttlLabel}
+                                            <span className="block w-full">
+                                                <label className="flex items-center justify-end gap-2 text-right text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                                                    <input
+                                                        type="number"
+                                                        inputMode="numeric"
+                                                        min={overrideTtlUnit === 'seconds' ? 10 : 1}
+                                                        max={
+                                                            overrideTtlUnit ===
+                                                            'hours'
+                                                                ? 2
+                                                                : overrideTtlUnit ===
+                                                                    'minutes'
+                                                                  ? 120
+                                                                  : 7200
+                                                        }
+                                                        value={overrideTtlValue}
+                                                        onChange={(event) => {
+                                                            const next =
+                                                                Number(
+                                                                    event
+                                                                        .target
+                                                                        .value,
+                                                                );
+                                                            if (
+                                                                Number.isFinite(
+                                                                    next,
+                                                                )
+                                                            ) {
+                                                                setOverrideTtlValue(next);
+                                                                setHasCustomTtl(true);
+                                                            }
+                                                        }}
+                                                        className="w-20 rounded-lg border border-indigo-500/20 bg-white/70 px-2 py-1 text-right text-sm text-indigo-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:border-indigo-500/30 dark:bg-neutral-900/60 dark:text-indigo-300 dark:focus:ring-indigo-700"
+                                                        aria-label="Token TTL"
+                                                    />
+                                                    <select
+                                                        value={overrideTtlUnit}
+                                                        onChange={(event) => {
+                                                            const nextUnit =
+                                                                event.target
+                                                                    .value as
+                                                                    'seconds' | 'minutes' | 'hours';
+                                                            const currentSeconds =
+                                                                Math.max(
+                                                                    10,
+                                                                    Math.min(
+                                                                        7200,
+                                                                        Math.round(
+                                                                            overrideTtlValue *
+                                                                                (overrideTtlUnit ===
+                                                                                'hours'
+                                                                                    ? 3600
+                                                                                    : overrideTtlUnit ===
+                                                                                        'minutes'
+                                                                                      ? 60
+                                                                                      : 1),
+                                                                        ),
+                                                                    ),
+                                                                );
+                                                            const nextMultiplier =
+                                                                nextUnit === 'hours'
+                                                                    ? 3600
+                                                                    : nextUnit === 'minutes'
+                                                                      ? 60
+                                                                      : 1;
+                                                            setOverrideTtlUnit(nextUnit);
+                                                            setOverrideTtlValue(
+                                                                Math.max(
+                                                                    1,
+                                                                    Math.round(
+                                                                        currentSeconds /
+                                                                            nextMultiplier,
+                                                                    ),
+                                                                ),
+                                                            );
+                                                            setHasCustomTtl(true);
+                                                        }}
+                                                        className="rounded-lg border border-indigo-500/20 bg-white/70 px-2 py-1 text-xs text-neutral-600 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:border-indigo-500/30 dark:bg-neutral-900/60 dark:text-neutral-300 dark:focus:ring-indigo-700"
+                                                        aria-label="Satuan TTL"
+                                                    >
+                                                        <option value="seconds">
+                                                            detik
+                                                        </option>
+                                                        <option value="minutes">
+                                                            menit
+                                                        </option>
+                                                        <option value="hours">
+                                                            jam
+                                                        </option>
+                                                    </select>
+                                                </label>
+                                                <div className="mt-1 text-right text-xs text-neutral-400">
+                                                    {ttlLabel}
+                                                </div>
                                             </span>
                                         </div>
                                     </div>
@@ -1323,7 +1500,50 @@ export default function QrBuilder({
                             </motion.div>
                         ) : (
                             <div className="space-y-2">
-                                {sessions.map((s, index) => (
+                                <div className="grid gap-2 p-1 sm:grid-cols-2">
+                                    <div className="rounded-xl border border-white/10 bg-white/60 px-3 py-2 text-xs text-neutral-600 backdrop-blur dark:bg-neutral-800/60 dark:text-neutral-300">
+                                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+                                            Mata Kuliah
+                                        </div>
+                                        <select
+                                            value={filterCourse}
+                                            onChange={(event) =>
+                                                setFilterCourse(event.target.value)
+                                            }
+                                            className="w-full rounded-lg border border-neutral-200/60 bg-white/80 px-2 py-1.5 text-sm text-neutral-700 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-neutral-700/60 dark:bg-neutral-900/60 dark:text-neutral-200 dark:focus:ring-indigo-600"
+                                        >
+                                            <option value="">Semua</option>
+                                            {sessionCourseOptions.map((name) => (
+                                                <option key={name} value={name}>
+                                                    {name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="rounded-xl border border-white/10 bg-white/60 px-3 py-2 text-xs text-neutral-600 backdrop-blur dark:bg-neutral-800/60 dark:text-neutral-300">
+                                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+                                            Pertemuan
+                                        </div>
+                                        <select
+                                            value={filterMeeting}
+                                            onChange={(event) => {
+                                                const value = event.target.value;
+                                                setFilterMeeting(
+                                                    value === '' ? '' : Number(value),
+                                                );
+                                            }}
+                                            className="w-full rounded-lg border border-neutral-200/60 bg-white/80 px-2 py-1.5 text-sm text-neutral-700 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:border-neutral-700/60 dark:bg-neutral-900/60 dark:text-neutral-200 dark:focus:ring-indigo-600"
+                                        >
+                                            <option value="">Semua</option>
+                                            {sessionMeetingOptions.map((num) => (
+                                                <option key={num} value={num}>
+                                                    #{num}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                {filteredSessions.map((s, index) => (
                                     <motion.div
                                         key={s.id}
                                         initial={{
@@ -1348,6 +1568,7 @@ export default function QrBuilder({
                                                 ? 'border-emerald-500/30 bg-gradient-to-br from-emerald-50/60 to-green-50/40 dark:border-emerald-500/20 dark:from-emerald-900/20 dark:to-green-900/10'
                                                 : 'border-white/20 bg-white/30 hover:bg-white/60 dark:border-white/5 dark:bg-neutral-800/30 dark:hover:bg-neutral-800/50'
                                         }`}
+                                        onClick={() => handleSelectSession(s.id)}
                                     >
                                         {/* Active Session Glow */}
                                         {s.is_active && (
@@ -1455,7 +1676,10 @@ export default function QrBuilder({
                                                 className={`flex flex-shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold shadow-sm ${
                                                     s.is_active
                                                         ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-emerald-500/20'
-                                                        : 'border border-white/10 bg-neutral-100/80 text-neutral-600 dark:bg-neutral-800/80 dark:text-neutral-300'
+                                                        : selectedSessionId ===
+                                                              s.id
+                                                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20'
+                                                          : 'border border-white/10 bg-neutral-100/80 text-neutral-600 dark:bg-neutral-800/80 dark:text-neutral-300'
                                                 }`}
                                             >
                                                 {s.is_active ? (
@@ -1476,6 +1700,12 @@ export default function QrBuilder({
                                                             }}
                                                         />
                                                         <span>Aktif</span>
+                                                    </>
+                                                ) : selectedSessionId ===
+                                                  s.id ? (
+                                                    <>
+                                                        <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                                                        <span>Dipilih</span>
                                                     </>
                                                 ) : (
                                                     <>

@@ -1,0 +1,25 @@
+{
+  "kode_mata_kuliah": "22TIF0443",
+  "nama_mata_kuliah": "MOBILE PROGRAMMING",
+  "kelas": "06TPLK004",
+  "sks": 3,
+  "catatan": "",
+  "pertemuan": [
+    { "pertemuan_ke": 1, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 2, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 3, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 4, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 5, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 6, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 7, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 8, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 9, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 10, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 11, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 12, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 13, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 14, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 15, "mode": "", "topik": "", "deskripsi": "" },
+    { "pertemuan_ke": 16, "mode": "", "topik": "", "deskripsi": "" }
+  ]
+}

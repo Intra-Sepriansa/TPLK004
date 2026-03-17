@@ -53,6 +53,8 @@ import {
     Users,
     Wifi,
     X,
+    Zap,
+    ZapOff,
     type LucideIcon,
 } from 'lucide-react';
 import {
@@ -1997,17 +1999,17 @@ function UnifiedCameraCard({
                                                 Scan Ulang
                                             </Button>
                                         </div>
-                                        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 sm:bottom-8">
-                                            <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/35 px-2.5 py-2 backdrop-blur-sm">
+                                        <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center sm:bottom-6">
+                                            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/35 px-2.5 py-2 backdrop-blur-sm">
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={onToggleSelfieMirror}
-                                                    aria-label="Mirror"
-                                                    className="h-10 w-10 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10"
+                                                    onClick={onSwitchCamera}
+                                                    aria-label="Ganti kamera"
+                                                    className="h-9 w-9 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10 sm:h-10 sm:w-10"
                                                 >
-                                                    <FlipHorizontal className="h-4 w-4" />
+                                                    <SwitchCamera className="h-4 w-4 sm:h-5 sm:w-5" />
                                                 </Button>
                                                 <button
                                                     type="button"
@@ -2019,9 +2021,9 @@ function UnifiedCameraCard({
                                                         selfieState ===
                                                             'capturing'
                                                     }
-                                                    className="flex h-16 w-16 items-center justify-center rounded-full border border-white/15 bg-white/15 shadow-2xl backdrop-blur-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:h-20 sm:w-20"
+                                                    className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 shadow-2xl backdrop-blur-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:w-14"
                                                 >
-                                                    <span className="h-10 w-10 rounded-full border-[6px] border-white bg-sky-500/90 shadow-inner sm:h-12 sm:w-12" />
+                                                    <Camera className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                                                 </button>
                                                 <Button
                                                     type="button"
@@ -2032,21 +2034,18 @@ function UnifiedCameraCard({
                                                     aria-pressed={
                                                         selfieFlashEnabled
                                                     }
-                                                    aria-label="Flash"
-                                                    className="h-10 w-10 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10"
+                                                    aria-label="Flash layar"
+                                                    className="h-9 w-9 rounded-full border border-white/10 bg-white/5 p-0 text-white hover:bg-white/10 sm:h-10 sm:w-10"
                                                 >
                                                     {selfieFlashBusy ? (
-                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                        <Loader2 className="h-4 w-4 animate-spin sm:h-5 sm:w-5" />
                                                     ) : selfieFlashEnabled ? (
-                                                        <FlashlightOff className="h-4 w-4" />
+                                                        <Zap className="h-4 w-4 text-amber-300 sm:h-5 sm:w-5" />
                                                     ) : (
-                                                        <Flashlight className="h-4 w-4" />
+                                                        <ZapOff className="h-4 w-4 sm:h-5 sm:w-5" />
                                                     )}
                                                 </Button>
                                             </div>
-                                            <p className="rounded-full border border-white/10 bg-black/35 px-4 py-2 text-[11px] font-medium text-white/90 backdrop-blur-sm sm:text-xs">
-                                                Tap sekali untuk foto otomatis
-                                            </p>
                                         </div>
                                     </motion.div>
                                 )}
@@ -2057,9 +2056,9 @@ function UnifiedCameraCard({
                                         initial={{ opacity: 0, y: 12 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -12 }}
-                                        className="absolute inset-0 flex items-center justify-center p-6 text-white"
+                                        className="absolute inset-0 flex items-start justify-center p-4 text-white sm:items-center sm:p-6"
                                     >
-                                        <div className="w-full max-w-[350px] rounded-[30px] border border-white/10 bg-white/8 p-6 shadow-2xl backdrop-blur-sm">
+                                        <div className="w-[min(92vw,360px)] max-h-[82vh] overflow-auto rounded-[26px] border border-white/10 bg-white/8 p-4 shadow-2xl backdrop-blur-sm sm:max-h-none sm:rounded-[30px] sm:p-6">
                                             <div className="flex items-center gap-4">
                                                 <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-[24px] bg-white/10">
                                                     {previewUrl ? (

@@ -259,10 +259,6 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                         children: [
                           _buildButton('Export PDF', Icons.picture_as_pdf_rounded,
                               onTap: widget.onExport),
-                          _buildButton('Rekapan', Icons.assessment_rounded,
-                              onTap: widget.onRekapan),
-                          _buildButton('Refresh', Icons.refresh,
-                              onTap: widget.onRefresh),
                         ],
                       ),
                     ],

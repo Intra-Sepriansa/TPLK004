@@ -20,7 +20,13 @@ class AttendanceTokenController extends Controller
             ], 422);
         }
 
-        $ttl = (int) Setting::getValue('token_ttl_seconds', '180');
+        $ttlSetting = (int) Setting::getValue('token_ttl_seconds', '180');
+        $requestedTtl = $request->input('ttl_seconds');
+        $ttl = $ttlSetting;
+        if (is_numeric($requestedTtl)) {
+            $ttl = (int) $requestedTtl;
+        }
+        $ttl = max(10, min(7200, $ttl));
         $now = now();
         $forceRefresh = $request->boolean('force');
 
@@ -38,6 +44,14 @@ class AttendanceTokenController extends Controller
                 ->where('expires_at', '>', $now)
                 ->latest()
                 ->first();
+        }
+
+        if ($token && $token->expires_at && $token->created_at) {
+            $currentTtl = $token->expires_at->diffInSeconds($token->created_at);
+            if ($currentTtl !== $ttl) {
+                $token->update(['expires_at' => $now]);
+                $token = null;
+            }
         }
 
         if (! $token) {

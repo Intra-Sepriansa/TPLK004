@@ -189,13 +189,14 @@ const createInitialFormData = () => ({
     penilaian: { method: 'simple', weight: 100 },
     sanksi: { enabled: false },
 
-    // Step 6
     notifikasi_mahasiswa: true,
     notifikasi_dosen: true,
     notifikasi_admin: false,
     notifikasi_ortu: false,
     channels: ['push', 'in-app'] as string[],
     timing: ['15_min_before'] as string[],
+    notification_title: '',
+    notification_message: '',
 });
 
 type FormDataState = ReturnType<typeof createInitialFormData>;
@@ -412,6 +413,9 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
             description: formData.deskripsi,
             start_at: startDateTime,
             end_at: endDateTime,
+            broadcast_notification: formData.notifikasi_mahasiswa,
+            notification_title: formData.notification_title,
+            notification_message: formData.notification_message,
 
             // Note: Advanced features (Zona, AI methods, settings) would need
             // further backend migration extensions to store in the DB.
@@ -2067,6 +2071,50 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                         </div>
 
                                         <div className="space-y-6">
+                                            {/* Notifikasi Toggle */}
+                                            <div className="flex items-center justify-between rounded-xl border border-white/30 bg-white/30 p-4 dark:border-neutral-800 dark:bg-neutral-800/30">
+                                                <div>
+                                                    <Label className="font-semibold text-slate-700 dark:text-slate-200">
+                                                        Kirim Notifikasi ke Mahasiswa
+                                                    </Label>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        Mahasiswa akan menerima pemberitahuan saat sesi ini diterbitkan.
+                                                    </p>
+                                                </div>
+                                                <Switch
+                                                    checked={formData.notifikasi_mahasiswa}
+                                                    onCheckedChange={(val) => updateField('notifikasi_mahasiswa', val)}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                                <Label className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
+                                                    <Bell className="h-5 w-5" />{' '}
+                                                    Kustomisasi Teks Notifikasi Push (Opsional)
+                                                </Label>
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <Label className="text-sm">Judul Notifikasi</Label>
+                                                        <Input
+                                                            value={formData.notification_title}
+                                                            onChange={(e) => updateField('notification_title', e.target.value)}
+                                                            placeholder="Contoh: Sesi Absen Kuliah Pengganti"
+                                                            className="mt-1"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-sm">Isi Pesan Notifikasi</Label>
+                                                        <Textarea
+                                                            value={formData.notification_message}
+                                                            onChange={(e) => updateField('notification_message', e.target.value)}
+                                                            placeholder="Contoh: Sesi absensi untuk pertemuan ini telah dibuat, siapkan diri Anda."
+                                                            className="mt-1"
+                                                            rows={3}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <Label className="font-semibold text-slate-700 dark:text-slate-200">
                                                 Kirim Via Channel:
                                             </Label>

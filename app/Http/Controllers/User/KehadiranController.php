@@ -394,14 +394,19 @@ class KehadiranController extends Controller
         $session = \App\Models\AttendanceSession::firstOrCreate([
             'course_id' => $mataKuliah->id,
             'meeting_number' => $request->meeting_number,
+            'metode' => 'online',
         ], [
             'title' => "Pertemuan Online " . $request->meeting_number,
             'start_at' => now(),
             'end_at' => now()->addDays(7),
             'is_active' => false,
             'created_by' => null,
-            'created_by_dosen_id' => $mataKuliah->dosen_id
+            'created_by_dosen_id' => $mataKuliah->dosen_id,
         ]);
+
+        if ($session->metode !== 'online') {
+            $session->update(['metode' => 'online', 'is_active' => false]);
+        }
 
         // 4. Create the AttendanceLog
         \App\Models\AttendanceLog::updateOrCreate([
@@ -544,6 +549,5 @@ class KehadiranController extends Controller
         }
     }
 }
-
 
 

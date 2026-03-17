@@ -115,6 +115,12 @@ class AttendanceSessionController extends Controller
         ]);
 
         $attendanceSession->update($validated);
+        $attendanceSession->refresh();
+
+        $isOnlineByTitle = stripos($attendanceSession->title ?? '', 'Online') !== false;
+        if ($attendanceSession->metode === 'offline' && ! $isOnlineByTitle) {
+            $attendanceSession->update(['is_active' => true]);
+        }
 
         return back()->with('success', 'Jadwal sesi diperbarui.');
     }

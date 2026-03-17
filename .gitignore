@@ -40,3 +40,30 @@ database/fix_password.php
 
 # Local Netlify folder
 .netlify
+
+# Ignore local configuration and secrets
+.env*
+!.env.example
+!.env.production.example
+
+# Local debug/test scripts and logs
+test_*.php
+test-*.php
+debug_*.php
+tmp_*.php
+fix_*.php
+build_error*.log
+
+# Prompt files and reports
+PROJECT_STORAGE_REPORT.md
+PROMPT_*.md
+prompt_*.md
+prompt_*.txt
+
+# Media and archives
+*.mp4
+*.zip
+
+# Database
+database/*.sqlite
+database/*.sqlite3

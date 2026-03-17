@@ -82,3 +82,80 @@ if (import.meta.env.PROD && !isLocalhost && 'serviceWorker' in navigator) {
             });
     });
 }
+
+if (typeof window !== 'undefined' && 'onbeforeinstallprompt' in window) {
+    let deferredPrompt: BeforeInstallPromptEvent | null = null;
+    const dismissedKey = 'tplk004_pwa_install_dismissed';
+
+    window.addEventListener('beforeinstallprompt', (event: Event) => {
+        event.preventDefault();
+        deferredPrompt = event as BeforeInstallPromptEvent;
+
+        if (window.localStorage.getItem(dismissedKey) === '1') {
+            return;
+        }
+
+        if (document.getElementById('pwa-install-banner')) {
+            return;
+        }
+
+        const banner = document.createElement('div');
+        banner.id = 'pwa-install-banner';
+        banner.style.position = 'fixed';
+        banner.style.right = '16px';
+        banner.style.bottom = '16px';
+        banner.style.zIndex = '9999';
+        banner.style.padding = '12px 14px';
+        banner.style.borderRadius = '14px';
+        banner.style.background = 'rgba(15, 23, 42, 0.92)';
+        banner.style.color = '#fff';
+        banner.style.fontSize = '13px';
+        banner.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+        banner.style.display = 'flex';
+        banner.style.gap = '10px';
+        banner.style.alignItems = 'center';
+        banner.style.boxShadow = '0 14px 40px rgba(0,0,0,0.35)';
+        banner.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:2px;">
+                <strong style="font-size:13px;">Install TPLK004</strong>
+                <span style="font-size:12px;color:rgba(255,255,255,0.75);">Akses cepat di layar utama</span>
+            </div>
+        `;
+
+        const installBtn = document.createElement('button');
+        installBtn.textContent = 'Install';
+        installBtn.style.border = 'none';
+        installBtn.style.borderRadius = '999px';
+        installBtn.style.padding = '6px 12px';
+        installBtn.style.background = '#10b981';
+        installBtn.style.color = '#0b1f17';
+        installBtn.style.cursor = 'pointer';
+        installBtn.style.fontWeight = '600';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = 'Nanti';
+        closeBtn.style.border = '1px solid rgba(255,255,255,0.2)';
+        closeBtn.style.borderRadius = '999px';
+        closeBtn.style.padding = '6px 10px';
+        closeBtn.style.background = 'transparent';
+        closeBtn.style.color = '#fff';
+        closeBtn.style.cursor = 'pointer';
+
+        installBtn.onclick = async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            banner.remove();
+        };
+
+        closeBtn.onclick = () => {
+            window.localStorage.setItem(dismissedKey, '1');
+            banner.remove();
+        };
+
+        banner.appendChild(installBtn);
+        banner.appendChild(closeBtn);
+        document.body.appendChild(banner);
+    });
+}

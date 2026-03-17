@@ -9,6 +9,9 @@ use App\Models\Mahasiswa;
 use App\Models\Dosen;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class SmartNotificationService
 {
@@ -184,10 +187,39 @@ class SmartNotificationService
         // Using Laravel Mail or external service
     }
 
-    private function sendPush(NotificationLog $log): void
+    public function sendPush(NotificationLog $log): void
     {
-        // Implement push notification logic
-        // Using Firebase Cloud Messaging or similar
+        $recipient = $log->recipient;
+        $fcmToken = $recipient->fcm_token ?? null;
+
+        if (!$fcmToken) {
+            throw new \Exception("Recipient has no FCM token registered.");
+        }
+
+        // Initialize Firebase Factory using credentials from storage
+        $credentialsPath = storage_path('app/firebase-credentials.json');
+        if (!file_exists($credentialsPath)) {
+            throw new \Exception("Firebase credentials file not found at $credentialsPath.");
+        }
+
+        $factory = (new Factory)->withServiceAccount($credentialsPath);
+        $messaging = $factory->createMessaging();
+
+        // Prepare the message
+        $message = CloudMessage::fromArray([
+            'token' => $fcmToken,
+            'notification' => [
+                'title' => $log->subject,
+                'body' => $log->body,
+            ],
+            'data' => [
+                'type' => (string) $log->type,
+                'log_id' => (string) $log->id,
+            ],
+        ]);
+
+        // Send the message
+        $messaging->send($message);
     }
 
     private function sendSMS(NotificationLog $log): void

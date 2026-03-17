@@ -28,6 +28,7 @@ class Mahasiswa extends Authenticatable
         'remember_token',
         'last_activity_at',
         'theme_preference',
+        'fcm_token',
     ];
 
     protected $hidden = [

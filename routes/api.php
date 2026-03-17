@@ -2,8 +2,16 @@
 
 use App\Http\Controllers\Api\DocumentationController;
 use App\Http\Controllers\Api\HelpCenterController;
+use App\Http\Controllers\Api\MobileMahasiswaAuthController;
+use App\Http\Controllers\Api\MobileMahasiswaAttendanceController;
+use App\Http\Controllers\Api\MobileMahasiswaDashboardController;
+use App\Http\Controllers\Api\MobileMahasiswaKasController;
+use App\Http\Controllers\Api\MobileMahasiswaProfileController;
+use App\Http\Controllers\Api\MobileTugasController;
+use App\Http\Controllers\Api\MobileTugasKelompokController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TutorialController;
+use App\Http\Controllers\Api\MobileFcmController;
 use App\Http\Controllers\User\KasController as UserKasController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +25,76 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group.
 |
 */
+
+Route::post('mobile/mahasiswa/login', [MobileMahasiswaAuthController::class, 'login'])
+    ->name('api.mobile.mahasiswa.login');
+
+Route::middleware(['mobile.mahasiswa'])->prefix('mobile/mahasiswa')->group(function () {
+    Route::get('/dashboard', [MobileMahasiswaDashboardController::class, 'index'])
+        ->name('api.mobile.mahasiswa.dashboard');
+    Route::get('/profile', [MobileMahasiswaProfileController::class, 'show'])
+        ->name('api.mobile.mahasiswa.profile');
+    Route::post('/profile', [MobileMahasiswaProfileController::class, 'update'])
+        ->name('api.mobile.mahasiswa.profile.update');
+    Route::post('/profile/avatar', [MobileMahasiswaProfileController::class, 'uploadAvatar'])
+        ->name('api.mobile.mahasiswa.profile.avatar');
+    Route::post('/profile/password', [MobileMahasiswaProfileController::class, 'updatePassword'])
+        ->name('api.mobile.mahasiswa.profile.password');
+    Route::get('/attendance/today', [MobileMahasiswaAttendanceController::class, 'today'])
+        ->name('api.mobile.mahasiswa.attendance.today');
+    Route::get('/attendance/history', [MobileMahasiswaAttendanceController::class, 'history'])
+        ->name('api.mobile.mahasiswa.attendance.history');
+    Route::get('/attendance/active-sessions', [MobileMahasiswaAttendanceController::class, 'activeSessions'])
+        ->name('api.mobile.mahasiswa.attendance.active-sessions');
+    Route::post('/attendance/qr', [MobileMahasiswaAttendanceController::class, 'submitQr'])
+        ->name('api.mobile.mahasiswa.attendance.qr');
+    Route::post('/attendance/selfie', [MobileMahasiswaAttendanceController::class, 'submitSelfie'])
+        ->name('api.mobile.mahasiswa.attendance.selfie');
+
+    // FCM Token
+    Route::post('/fcm-token', [MobileFcmController::class, 'updateToken'])
+        ->name('api.mobile.mahasiswa.fcm-token');
+
+    // Kas
+    Route::get('/kas', [MobileMahasiswaKasController::class, 'index'])
+        ->name('api.mobile.mahasiswa.kas');
+    Route::post('/kas/receipts/upload', [MobileMahasiswaKasController::class, 'uploadReceipt'])
+        ->name('api.mobile.mahasiswa.kas.receipts.upload');
+
+    // Tugas Individu
+    Route::post('/tugas', [MobileTugasController::class, 'index'])
+        ->name('api.mobile.mahasiswa.tugas');
+    Route::get('/tugas/{id}', [MobileTugasController::class, 'show'])
+        ->name('api.mobile.mahasiswa.tugas.show');
+    Route::post('/tugas/{id}/submit', [MobileTugasController::class, 'submit'])
+        ->name('api.mobile.mahasiswa.tugas.submit');
+    Route::post('/tugas/{id}/message', [MobileTugasController::class, 'sendMessage'])
+        ->name('api.mobile.mahasiswa.tugas.message');
+
+    // Tugas Kelompok
+    Route::post('/tugas-kelompok', [MobileTugasKelompokController::class, 'index'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok');
+    Route::get('/tugas-kelompok/{id}', [MobileTugasKelompokController::class, 'show'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.show');
+    Route::post('/tugas-kelompok/{id}/join', [MobileTugasKelompokController::class, 'join'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.join');
+    Route::post('/tugas-kelompok/{id}/message', [MobileTugasKelompokController::class, 'message'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.message');
+    Route::post('/tugas-kelompok/{id}/upload', [MobileTugasKelompokController::class, 'upload'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.upload');
+    Route::post('/tugas-kelompok/{id}/submit', [MobileTugasKelompokController::class, 'submit'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.submit');
+    Route::post('/tugas-kelompok/{id}/invite', [MobileTugasKelompokController::class, 'invite'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.invite');
+    Route::post('/tugas-kelompok/{id}/invitation/{invId}/accept', function (\Illuminate\Http\Request $request, int $id, int $invId) {
+        return app(MobileTugasKelompokController::class)->respondInvitation($request, $id, $invId, 'accept');
+    })->name('api.mobile.mahasiswa.tugas-kelompok.invitation.accept');
+    Route::post('/tugas-kelompok/{id}/invitation/{invId}/decline', function (\Illuminate\Http\Request $request, int $id, int $invId) {
+        return app(MobileTugasKelompokController::class)->respondInvitation($request, $id, $invId, 'decline');
+    })->name('api.mobile.mahasiswa.tugas-kelompok.invitation.decline');
+    Route::post('/tugas-kelompok/{id}/task', [MobileTugasKelompokController::class, 'addTask'])
+        ->name('api.mobile.mahasiswa.tugas-kelompok.task');
+});
 
 // Settings API - accessible by all authenticated users
 Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->prefix('settings')->group(function () {

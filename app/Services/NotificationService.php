@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\NotificationLog;
 use App\Models\AppNotification;
 use App\Models\AttendanceSession;
 use App\Models\Mahasiswa;
@@ -10,9 +11,13 @@ use Carbon\Carbon;
 
 class NotificationService
 {
+    public function __construct(private SmartNotificationService $smartNotificationService)
+    {
+    }
+
     public function sendToMahasiswa(int $mahasiswaId, string $title, string $message, array $options = []): AppNotification
     {
-        return AppNotification::create([
+        $notification = AppNotification::create([
             'notifiable_type' => 'mahasiswa',
             'notifiable_id' => $mahasiswaId,
             'title' => $title,
@@ -24,11 +29,15 @@ class NotificationService
             'scheduled_at' => $options['scheduled_at'] ?? null,
             'created_by' => $options['created_by'] ?? null,
         ]);
+
+        $this->dispatchPush(Mahasiswa::find($mahasiswaId), $title, $message, $options['type'] ?? 'info');
+
+        return $notification;
     }
 
     public function sendToDosen(int $dosenId, string $title, string $message, array $options = []): AppNotification
     {
-        return AppNotification::create([
+        $notification = AppNotification::create([
             'notifiable_type' => 'dosen',
             'notifiable_id' => $dosenId,
             'title' => $title,
@@ -40,11 +49,15 @@ class NotificationService
             'scheduled_at' => $options['scheduled_at'] ?? null,
             'created_by' => $options['created_by'] ?? null,
         ]);
+
+        $this->dispatchPush(Dosen::find($dosenId), $title, $message, $options['type'] ?? 'info');
+
+        return $notification;
     }
 
     public function sendToAll(string $title, string $message, array $options = []): AppNotification
     {
-        return AppNotification::create([
+        $notification = AppNotification::create([
             'notifiable_type' => 'all',
             'notifiable_id' => null,
             'title' => $title,
@@ -56,6 +69,16 @@ class NotificationService
             'scheduled_at' => $options['scheduled_at'] ?? null,
             'created_by' => $options['created_by'] ?? null,
         ]);
+
+        // Push to all Mahasiswa and Dosen
+        foreach (Mahasiswa::all() as $mhs) {
+            $this->dispatchPush($mhs, $title, $message, $options['type'] ?? 'announcement');
+        }
+        foreach (Dosen::all() as $dsn) {
+            $this->dispatchPush($dsn, $title, $message, $options['type'] ?? 'announcement');
+        }
+
+        return $notification;
     }
 
     public function sendBulkToMahasiswa(array $mahasiswaIds, string $title, string $message, array $options = []): int
@@ -173,5 +196,29 @@ class NotificationService
         return AppNotification::forUser($type, $id)
             ->unread()
             ->update(['read_at' => now()]);
+    }
+
+    private function dispatchPush($user, string $title, string $message, string $type): void
+    {
+        if (!$user || !$user->fcm_token) {
+            return;
+        }
+
+        $log = NotificationLog::create([
+            'recipient_type' => get_class($user),
+            'recipient_id' => $user->id,
+            'type' => 'push',
+            'subject' => $title,
+            'body' => $message,
+            'target_type' => 'specific_users',
+            'status' => 'pending'
+        ]);
+
+        try {
+            $this->smartNotificationService->sendPush($log);
+            $log->update(['status' => 'sent', 'sent_at' => now()]);
+        } catch (\Exception $e) {
+            $log->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+        }
     }
 }

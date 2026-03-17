@@ -30,6 +30,18 @@ class SesiAbsenController extends Controller
 
         $sessionsRaw = AttendanceSession::whereIn('course_id', $courseIds)
             ->with(['course', 'logs'])
+            ->where(function ($q) {
+                $q->where('metode', 'offline')
+                    ->orWhereNull('metode');
+            })
+            ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
+            ->whereNotExists(function ($q) {
+                $q->select(\Illuminate\Support\Facades\DB::raw(1))
+                    ->from('pertemuan as p')
+                    ->whereColumn('p.mata_kuliah_id', 'attendance_sessions.course_id')
+                    ->whereColumn('p.pertemuan_ke', 'attendance_sessions.meeting_number')
+                    ->where('p.mode', 'online');
+            })
             ->orderByDesc('start_at')
             ->get();
 

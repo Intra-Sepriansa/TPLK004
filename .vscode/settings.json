@@ -31,5 +31,6 @@
     ],
     "files.associations": {
         "*.blade.php": "blade"
-    }
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

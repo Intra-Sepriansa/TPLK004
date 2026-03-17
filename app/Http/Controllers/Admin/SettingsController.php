@@ -12,7 +12,7 @@ class SettingsController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'token_ttl_seconds' => ['required', 'integer', 'min:10', 'max:300'],
+            'token_ttl_seconds' => ['required', 'integer', 'min:10', 'max:7200'],
             'late_minutes' => ['required', 'integer', 'min:0', 'max:120'],
             'selfie_required' => ['nullable', 'boolean'],
             'notify_rejected' => ['nullable', 'boolean'],

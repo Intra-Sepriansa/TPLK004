@@ -7,10 +7,14 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\MataKuliah;
 use App\Models\SelfieVerification;
+use App\Models\MahasiswaCourse;
+use App\Models\NotificationLog;
 use App\Services\AttendanceSessionAutomationService;
 use App\Services\MeetingQuickFillService;
+use App\Services\SmartNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -87,6 +91,7 @@ class SessionController extends Controller
             'meeting_number' => 'required|integer|min:1',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
+            'broadcast_notification' => 'nullable|boolean',
         ]);
 
         // Check if dosen teaches this course
@@ -139,6 +144,39 @@ class SessionController extends Controller
         ]);
 
         $automationService->syncActiveStates();
+
+        if ($request->boolean('broadcast_notification')) {
+            $notificationService = app(SmartNotificationService::class);
+            $enrollmentsQuery = MahasiswaCourse::query();
+            if (Schema::hasColumn('mahasiswa_courses', 'course_id')) {
+                $enrollmentsQuery->where('course_id', $session->course_id);
+            } else {
+                $enrollmentsQuery->where('name', $course->nama);
+            }
+            $enrollments = $enrollmentsQuery->with('mahasiswa')->get();
+                
+            foreach ($enrollments as $enrollment) {
+                if ($enrollment->mahasiswa && $enrollment->mahasiswa->fcm_token) {
+                    $log = NotificationLog::create([
+                        'recipient_type' => get_class($enrollment->mahasiswa),
+                        'recipient_id' => $enrollment->mahasiswa->id,
+                        'type' => 'push',
+                        'subject' => "Absen Dibuka: {$course->nama}",
+                        'body' => "Sesi absensi untuk pertemuan {$session->meeting_number} telah dibuka oleh Dosen pengampu. Buka aplikasi dan segera check-in kehadiran Anda sekarang!",
+                        'target_type' => 'specific_users',
+                        'status' => 'pending'
+                    ]);
+                    
+                    try {
+                        $notificationService->sendPush($log);
+                        $log->update(['status' => 'sent', 'sent_at' => now()]);
+                    } catch (\Exception $e) {
+                         $log->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+                    }
+                }
+            }
+            $message .= ' Serta notifikasi telah disiarkan ke mahasiswa.';
+        }
 
         return redirect()->route('dosen.sesi-absen')->with('success', $message);
     }

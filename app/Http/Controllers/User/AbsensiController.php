@@ -1850,7 +1850,10 @@ class AbsensiController extends Controller
             $path = $request->file('selfie')->store('selfies', 'public');
         }
         $lateMinutes = (int) Setting::getValue('late_minutes', '10');
-        $status = clone $clientTime->greaterThan($session->start_at->copy()->addMinutes($lateMinutes))
+        $lateThreshold = $session->start_at
+            ? $session->start_at->copy()->addMinutes($lateMinutes)
+            : now();
+        $status = $clientTime->greaterThan($lateThreshold)
             ? 'late'
             : 'present';
 

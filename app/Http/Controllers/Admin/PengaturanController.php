@@ -100,7 +100,7 @@ class PengaturanController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'token_ttl_seconds' => 'required|integer|min:30|max:600',
+            'token_ttl_seconds' => 'required|integer|min:10|max:7200',
             'late_minutes' => 'required|integer|min:1|max:60',
             'selfie_required' => 'required|boolean',
             'notify_rejected' => 'required|boolean',

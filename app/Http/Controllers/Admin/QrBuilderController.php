@@ -18,10 +18,24 @@ class QrBuilderController extends Controller
     {
         $automationService->syncActiveStates();
 
-        $activeSession = AttendanceSession::with('course')
-            ->where('is_active', true)
+        $selectedSessionId = $request->integer('session_id');
+        $activeSessionQuery = AttendanceSession::with('course')
+            ->where('is_active', true);
+
+        if ($selectedSessionId) {
+            $activeSessionQuery->where('id', $selectedSessionId);
+        }
+
+        $activeSession = $activeSessionQuery
             ->orderBy('start_at')
             ->first();
+
+        if (! $activeSession && $selectedSessionId) {
+            $activeSession = AttendanceSession::with('course')
+                ->where('is_active', true)
+                ->orderBy('start_at')
+                ->first();
+        }
 
         $tokenTtlSeconds = Setting::getValue('token_ttl_seconds', 180);
 

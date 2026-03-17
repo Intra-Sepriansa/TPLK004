@@ -9,12 +9,17 @@ use App\Models\AttendanceToken;
 use App\Models\MataKuliah;
 use App\Models\Mahasiswa;
 use App\Models\SelfieVerification;
+use App\Models\MahasiswaCourse;
+use App\Models\NotificationLog;
 use App\Services\AttendanceSessionAutomationService;
 use App\Services\MeetingQuickFillService;
+use App\Services\SmartNotificationService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,6 +37,17 @@ class SesiAbsenController extends Controller
         // Build query
         $query = AttendanceSession::with(['course.dosen'])
             ->withCount(['logs', 'tokens']);
+        $query->where(function ($q) {
+            $q->where('metode', 'offline')
+                ->orWhereNull('metode');
+        })->whereRaw('LOWER(title) NOT LIKE ?', ['%online%']);
+        $query->whereNotExists(function ($q) {
+            $q->select(DB::raw(1))
+                ->from('pertemuan as p')
+                ->whereColumn('p.mata_kuliah_id', 'attendance_sessions.course_id')
+                ->whereColumn('p.pertemuan_ke', 'attendance_sessions.meeting_number')
+                ->where('p.mode', 'online');
+        });
 
         if ($courseId !== 'all') {
             $query->where('course_id', $courseId);
@@ -105,6 +121,13 @@ class SesiAbsenController extends Controller
             ->where('is_active', true)
             ->where('metode', 'offline')
             ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('pertemuan as p')
+                    ->whereColumn('p.mata_kuliah_id', 'attendance_sessions.course_id')
+                    ->whereColumn('p.pertemuan_ke', 'attendance_sessions.meeting_number')
+                    ->where('p.mode', 'online');
+            })
             ->first();
 
         $activeSessionDetail = null;
@@ -115,6 +138,18 @@ class SesiAbsenController extends Controller
         // Today's sessions
         $todaySessions = AttendanceSession::with(['course'])
             ->whereDate('start_at', today())
+            ->where(function ($q) {
+                $q->where('metode', 'offline')
+                    ->orWhereNull('metode');
+            })
+            ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('pertemuan as p')
+                    ->whereColumn('p.mata_kuliah_id', 'attendance_sessions.course_id')
+                    ->whereColumn('p.pertemuan_ke', 'attendance_sessions.meeting_number')
+                    ->where('p.mode', 'online');
+            })
             ->orderBy('start_at')
             ->get()
             ->map(fn($s) => [
@@ -273,6 +308,9 @@ class SesiAbsenController extends Controller
             'description' => 'nullable|string',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
+            'broadcast_notification' => 'boolean',
+            'notification_title' => 'nullable|string|max:255',
+            'notification_message' => 'nullable|string',
         ], [
             'meeting_number.unique' => 'Pertemuan ke-' . $request->meeting_number . ' untuk mata kuliah ini sudah ada.'
         ]);
@@ -296,7 +334,7 @@ class SesiAbsenController extends Controller
             $request->string('description')->toString(),
         );
 
-        AttendanceSession::create([
+        $session =        AttendanceSession::create([
             'course_id' => $request->course_id,
             'meeting_number' => $request->meeting_number,
             'title' => $resolvedContent['title'],
@@ -309,6 +347,49 @@ class SesiAbsenController extends Controller
         ]);
 
         $automationService->syncActiveStates();
+
+        Log::info('Admin Store Session:', [
+            'request_broadcast' => $request->boolean('broadcast_notification'),
+            'all_data' => $request->all(),
+        ]);
+
+        if ($request->boolean('broadcast_notification')) {
+            $notificationService = app(SmartNotificationService::class);
+            $enrollmentsQuery = MahasiswaCourse::query();
+            if (Schema::hasColumn('mahasiswa_courses', 'course_id')) {
+                $enrollmentsQuery->where('course_id', $session->course_id);
+            } else {
+                $enrollmentsQuery->where('name', $course->nama);
+            }
+            $enrollments = $enrollmentsQuery->with('mahasiswa')->get();
+            
+            $title = $request->input('notification_title') ?: "Sesi Absen: {$course->nama}";
+            $body = $request->input('notification_message') ?: "Sesi absensi untuk pertemuan {$session->meeting_number} telah dibuat. Pastikan Anda siap untuk check-in!";
+            Log::info("Found enrollments: " . $enrollments->count() . " ready to broadcast");
+                
+            foreach ($enrollments as $enrollment) {
+                if ($enrollment->mahasiswa && $enrollment->mahasiswa->fcm_token) {
+                    $log = NotificationLog::create([
+                        'recipient_type' => get_class($enrollment->mahasiswa),
+                        'recipient_id' => $enrollment->mahasiswa->id,
+                        'type' => 'push',
+                        'subject' => $title,
+                        'body' => $body,
+                        'target_type' => 'specific_users',
+                        'status' => 'pending'
+                    ]);
+                    
+                    try {
+                        $notificationService->sendPush($log);
+                        $log->update(['status' => 'sent', 'sent_at' => now()]);
+                        Log::info("Admin broadcast push sent to: " . $enrollment->mahasiswa->id);
+                    } catch (\Exception $e) {
+                         $log->update(['status' => 'failed', 'error_message' => $e->getMessage()]);
+                         Log::error("Admin broadcast push failed.", ['error' => $e->getMessage()]);
+                    }
+                }
+            }
+        }
 
         return redirect()->route('admin.sesi-absen')->with('success', 'Sesi absen berhasil dibuat.');
     }
@@ -399,6 +480,8 @@ class SesiAbsenController extends Controller
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
             'metode' => $resolvedContent['template']['mode'] ?? $session->metode ?? 'offline',
+            'is_active' => ($resolvedContent['template']['mode'] ?? $session->metode ?? 'offline') === 'offline'
+                && stripos($resolvedContent['title'] ?? '', 'online') === false,
         ]);
 
         $automationService->syncActiveStates();
@@ -542,26 +625,40 @@ class SesiAbsenController extends Controller
         $thisWeek = now()->startOfWeek();
         $thisMonth = now()->startOfMonth();
 
+        $offlineSessions = AttendanceSession::query()
+            ->where(function ($q) {
+                $q->where('metode', 'offline')
+                    ->orWhereNull('metode');
+            })
+            ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('pertemuan as p')
+                    ->whereColumn('p.mata_kuliah_id', 'attendance_sessions.course_id')
+                    ->whereColumn('p.pertemuan_ke', 'attendance_sessions.meeting_number')
+                    ->where('p.mode', 'online');
+            });
+
         return [
-            'total_sessions' => AttendanceSession::count(),
-            'active_sessions' => AttendanceSession::where('is_active', true)->count(),
-            'today_sessions' => AttendanceSession::whereDate('start_at', $today)->count(),
+            'total_sessions' => (clone $offlineSessions)->count(),
+            'active_sessions' => (clone $offlineSessions)->where('is_active', true)->count(),
+            'today_sessions' => (clone $offlineSessions)->whereDate('start_at', $today)->count(),
             'today_attendance' => AttendanceLog::whereDate('scanned_at', $today)->count(),
-            'week_sessions' => AttendanceSession::where('start_at', '>=', $thisWeek)->count(),
+            'week_sessions' => (clone $offlineSessions)->where('start_at', '>=', $thisWeek)->count(),
             'week_attendance' => AttendanceLog::where('scanned_at', '>=', $thisWeek)->count(),
-            'month_sessions' => AttendanceSession::where('start_at', '>=', $thisMonth)->count(),
+            'month_sessions' => (clone $offlineSessions)->where('start_at', '>=', $thisMonth)->count(),
             'month_attendance' => AttendanceLog::where('scanned_at', '>=', $thisMonth)->count(),
             'avg_attendance_per_session' => round(
-                AttendanceSession::where('start_at', '>=', $thisMonth)->count() > 0
+                (clone $offlineSessions)->where('start_at', '>=', $thisMonth)->count() > 0
                     ? AttendanceLog::where('scanned_at', '>=', $thisMonth)->count() /
-                      AttendanceSession::where('start_at', '>=', $thisMonth)->count()
+                      (clone $offlineSessions)->where('start_at', '>=', $thisMonth)->count()
                     : 0,
                 1
             ),
-            'completion_rate' => AttendanceSession::count() > 0
+            'completion_rate' => (clone $offlineSessions)->count() > 0
                 ? round(
-                    AttendanceSession::where('end_at', '<', now())->count() /
-                    AttendanceSession::count() * 100,
+                    (clone $offlineSessions)->where('end_at', '<', now())->count() /
+                    (clone $offlineSessions)->count() * 100,
                     1
                 )
                 : 0,
