@@ -313,7 +313,9 @@ class MobileMahasiswaAttendanceController extends Controller
             ], 400);
         }
 
-        if ((int) $payload['session_id'] !== (int) $token->attendance_session_id) {
+        $providedSessionId = (int) ($payload['session_id'] ?? 0);
+        
+        if ($providedSessionId !== 0 && $providedSessionId !== (int) $token->attendance_session_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Session tidak sesuai',
@@ -384,7 +386,7 @@ class MobileMahasiswaAttendanceController extends Controller
         $path = $request->file('selfie')->store('selfies', 'public');
 
         $log = AttendanceLog::create([
-            'attendance_session_id' => $payload['session_id'],
+            'attendance_session_id' => $token->attendance_session_id,
             'mahasiswa_id' => $mahasiswa->id,
             'attendance_token_id' => $token->id,
             'scanned_at' => $payload['timestamp'] ?? now(),
