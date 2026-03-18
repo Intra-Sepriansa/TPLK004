@@ -52,51 +52,45 @@ class _TugasHeaderState extends State<TugasHeader> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _gradientCtrl,
-      builder: (context, child) {
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment(-1.0 + _gradientCtrl.value, -1.0),
-              end: Alignment(1.0, 1.0 - _gradientCtrl.value),
-              colors: [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight.withOpacity(0.8),
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4F46E5).withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.06,
-                  child: Transform.scale(
-                    scale: 1.3,
-                    child: Transform.translate(
-                      offset: Offset(_gradientCtrl.value * 20 - 10, _gradientCtrl.value * 10 - 5),
-                      child: Image.asset(
-                        'assets/images/batik_pattern.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.06,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               SafeArea(
                 bottom: false,
                 child: Padding(

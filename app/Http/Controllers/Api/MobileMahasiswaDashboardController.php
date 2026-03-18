@@ -77,18 +77,18 @@ class MobileMahasiswaDashboardController extends Controller
             $dosen = $session?->dosen;
             $todayAttendance = [
                 'status' => $todayLog->status ?? 'present',
-                'check_in' => optional($todayLog->scanned_at)->format('H:i:s'),
+                'check_in' => \optional($todayLog->scanned_at)->format('H:i:s'),
                 'check_out' => null,
                 'session' => [
                     'id' => $session?->id,
-                    'mata_kuliah' => $course?->nama ?? $session?->title,
-                    'dosen' => $dosen?->name,
+                    'mata_kuliah' => $course?->nama ?? $session?->title ?? 'Session',
+                    'dosen' => $dosen?->nama ?? $dosen?->name ?? 'Dosen',
                     'room' => $session?->zona,
                     'meeting_number' => $session?->meeting_number,
                 ],
                 'meeting_number' => $session?->meeting_number,
-                'latitude' => (float) $todayLog->latitude,
-                'longitude' => (float) $todayLog->longitude,
+                'latitude' => $todayLog->latitude ? (float) $todayLog->latitude : 0,
+                'longitude' => $todayLog->longitude ? (float) $todayLog->longitude : 0,
                 'distance' => (float) $todayLog->distance_m,
                 'selfie_url' => $todayLog->selfie_path ? \Illuminate\Support\Facades\Storage::disk('public')->url($todayLog->selfie_path) : null,
             ];
@@ -216,7 +216,7 @@ class MobileMahasiswaDashboardController extends Controller
             ['label' => 'Tidak Hadir', 'value' => $absentCount, 'color' => '#f43f5e'],
         ];
 
-        return response()->json([
+        return \response()->json([
             'success' => true,
             'data' => [
                 'profile' => $profile,

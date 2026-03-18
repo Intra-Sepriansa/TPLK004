@@ -21,12 +21,12 @@ class MobileMahasiswaAttendanceController extends Controller
 
         $log = AttendanceLog::with(['session.course', 'session.dosen'])
             ->where('mahasiswa_id', $mahasiswa->id)
-            ->whereDate('scanned_at', now()->toDateString())
+            ->whereDate('scanned_at', \now()->toDateString())
             ->latest('scanned_at')
             ->first();
 
         if (! $log) {
-            return response()->json([
+            return \response()->json([
                 'success' => true,
                 'message' => 'Belum ada absensi hari ini',
                 'data' => null,
@@ -37,11 +37,11 @@ class MobileMahasiswaAttendanceController extends Controller
         $course = $session?->course;
         $dosen = $session?->dosen;
 
-        return response()->json([
+        return \response()->json([
             'success' => true,
             'data' => [
                 'status' => $log->status ?? 'present',
-                'check_in' => optional($log->scanned_at)->toDateTimeString(),
+                'check_in' => \optional($log->scanned_at)->toDateTimeString(),
                 'check_out' => null,
                 'session' => [
                     'id' => $session?->id,
@@ -91,10 +91,10 @@ class MobileMahasiswaAttendanceController extends Controller
             $course = $session?->course;
             return [
                 'id' => $log->id,
-                'date' => optional($log->scanned_at)->toDateString(),
+                'date' => \optional($log->scanned_at)->toDateString(),
                 'mata_kuliah' => $course?->nama ?? $session?->title ?? '-',
                 'status' => $log->status ?? 'present',
-                'check_in' => optional($log->scanned_at)->format('H:i:s'),
+                'check_in' => \optional($log->scanned_at)->format('H:i:s'),
                 'check_out' => null,
                 'session_id' => $session?->id,
                 'notes' => $log->note,
@@ -106,7 +106,7 @@ class MobileMahasiswaAttendanceController extends Controller
             ];
         })->values();
 
-        return response()->json([
+        return \response()->json([
             'success' => true,
             'data' => $items,
             'meta' => [
@@ -123,7 +123,7 @@ class MobileMahasiswaAttendanceController extends Controller
     public function activeSessions(Request $request): JsonResponse
     {
         // Sync states first
-        app(AttendanceSessionAutomationService::class)->syncActiveStates();
+        \app(AttendanceSessionAutomationService::class)->syncActiveStates();
 
         $mahasiswa = $request->user();
 
@@ -150,7 +150,7 @@ class MobileMahasiswaAttendanceController extends Controller
             ))
             ->values();
 
-        return response()->json([
+        return \response()->json([
             'success' => true,
             'data' => $activeSessionPayloads,
         ]);
@@ -159,13 +159,13 @@ class MobileMahasiswaAttendanceController extends Controller
     private function transformActiveSession(AttendanceSession $session, ?AttendanceLog $studentLog = null): array
     {
         return [
-            'id' => $session->id,
-            'courseName' => $session->course?->nama ?? 'Mata Kuliah',
-            'meetingNumber' => (int) $session->meeting_number,
-            'title' => $session->title,
-            'startAt' => $session->start_at?->format('H:i'),
-            'endAt' => $session->end_at?->format('H:i'),
-            'dosenName' => $session->course?->dosen?->nama,
+            'id' => $session?->id,
+            'courseName' => $session?->course?->nama ?? 'Mata Kuliah',
+            'meetingNumber' => (int) ($session?->meeting_number ?? 0),
+            'title' => $session?->title,
+            'startAt' => $session?->start_at?->format('H:i'),
+            'endAt' => $session?->end_at?->format('H:i'),
+            'dosenName' => $session?->course?->dosen?->nama ?? 'Dosen',
             'attendanceStatus' => $studentLog?->status,
             'attendanceLabel' => $studentLog
                 ? $this->formatAttendanceStatusLabel($studentLog->status)
@@ -205,11 +205,11 @@ class MobileMahasiswaAttendanceController extends Controller
 
         $token = AttendanceToken::with(['session.course', 'session.dosen'])
             ->where('token', $tokenValue)
-            ->where('expires_at', '>', now())
+            ->where('expires_at', '>', \now())
             ->first();
 
         if (! $token) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'QR code tidak valid atau sudah kadaluarsa',
                 'errors' => ['Invalid QR code'],
@@ -222,7 +222,7 @@ class MobileMahasiswaAttendanceController extends Controller
             ->exists();
 
         if ($existing) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'Kamu sudah absen pada sesi ini',
                 'errors' => ['Already attended'],
@@ -238,7 +238,7 @@ class MobileMahasiswaAttendanceController extends Controller
         $samples = $this->normalizeLocationSamples($payload['location_samples']);
         $validation = $this->validateLocationSamples($samples, $accuracyLimit);
         if ($validation !== null) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => $validation,
                 'errors' => [$validation],
@@ -247,7 +247,7 @@ class MobileMahasiswaAttendanceController extends Controller
 
         $bestSample = $this->selectBestSample($samples);
         if ($bestSample['accuracy_m'] > $accuracyLimit) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => "Akurasi GPS terlalu rendah (maks {$accuracyLimit}m).",
                 'errors' => ['Low accuracy'],
@@ -262,7 +262,7 @@ class MobileMahasiswaAttendanceController extends Controller
         );
 
         if ($distance > $radius) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'Anda berada di luar radius kelas',
                 'errors' => ['Location out of range'],
@@ -277,7 +277,7 @@ class MobileMahasiswaAttendanceController extends Controller
             ], 400);
         }
 
-        return response()->json([
+        return \response()->json([
             'success' => true,
             'data' => [
                 'session_id' => $session?->id ?? $token->attendance_session_id,
@@ -315,11 +315,11 @@ class MobileMahasiswaAttendanceController extends Controller
         $mahasiswa = $request->user();
         $token = AttendanceToken::with('session')
             ->where('token', $payload['qr_data'])
-            ->where('expires_at', '>', now())
+            ->where('expires_at', '>', \now())
             ->first();
 
         if (! $token) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'QR code tidak valid atau sudah kadaluarsa',
                 'errors' => ['Invalid QR code'],
@@ -329,7 +329,7 @@ class MobileMahasiswaAttendanceController extends Controller
         $providedSessionId = (int) ($payload['session_id'] ?? 0);
         
         if ($providedSessionId !== 0 && $providedSessionId !== (int) $token->attendance_session_id) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'Session tidak sesuai',
                 'errors' => ['Session mismatch'],
@@ -342,7 +342,7 @@ class MobileMahasiswaAttendanceController extends Controller
             ->exists();
 
         if ($existing) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'Kamu sudah absen pada sesi ini',
                 'errors' => ['Already attended'],
@@ -357,7 +357,7 @@ class MobileMahasiswaAttendanceController extends Controller
         $samples = $this->normalizeLocationSamples($payload['location_samples']);
         $validation = $this->validateLocationSamples($samples, $accuracyLimit);
         if ($validation !== null) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => $validation,
                 'errors' => [$validation],
@@ -366,7 +366,7 @@ class MobileMahasiswaAttendanceController extends Controller
 
         $bestSample = $this->selectBestSample($samples);
         if ($bestSample['accuracy_m'] > $accuracyLimit) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => "Akurasi GPS terlalu rendah (maks {$accuracyLimit}m).",
                 'errors' => ['Low accuracy'],
@@ -381,7 +381,7 @@ class MobileMahasiswaAttendanceController extends Controller
         );
 
         if ($distance > $radius) {
-            return response()->json([
+            return \response()->json([
                 'success' => false,
                 'message' => 'Anda berada di luar radius kelas',
                 'errors' => ['Location out of range'],
@@ -402,7 +402,7 @@ class MobileMahasiswaAttendanceController extends Controller
             'attendance_session_id' => $token->attendance_session_id,
             'mahasiswa_id' => $mahasiswa->id,
             'attendance_token_id' => $token->id,
-            'scanned_at' => $payload['timestamp'] ?? now(),
+            'scanned_at' => $payload['timestamp'] ?? \now(),
             'status' => 'present',
             'selfie_path' => $path,
             'latitude' => $bestSample['latitude'],
@@ -411,14 +411,14 @@ class MobileMahasiswaAttendanceController extends Controller
             'accuracy' => $bestSample['accuracy_m'],
         ]);
 
-        return response()->json([
+        return \response()->json([
             'success' => true,
             'message' => 'Absensi berhasil dicatat',
             'data' => [
                 'attendance_id' => $log->id,
                 'status' => $log->status,
-                'check_in' => optional($log->scanned_at)->toDateTimeString(),
-                'meeting_number' => $token->session?->meeting_number,
+                'check_in' => \optional($log->scanned_at)->toDateTimeString(),
+                'meeting_number' => $token?->session?->meeting_number,
                 'latitude' => (float) $log->latitude,
                 'longitude' => (float) $log->longitude,
                 'distance' => (float) $log->distance_m,
@@ -455,7 +455,7 @@ class MobileMahasiswaAttendanceController extends Controller
             return 'Sampel lokasi terlalu lama. Ambil ulang GPS.';
         }
 
-        if ($oldest->lt(now()->subSeconds(60))) {
+        if ($oldest->lt(\now()->subSeconds(60))) {
             return 'Lokasi terlalu lama. Ambil ulang GPS sebelum absen.';
         }
 

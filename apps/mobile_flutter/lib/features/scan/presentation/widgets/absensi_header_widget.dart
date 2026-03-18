@@ -99,54 +99,47 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
     final String dateString = DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(now);
     final String initials = widget.studentName.split(' ').map((e) => e[0]).take(2).join().toUpperCase();
 
-    return AnimatedBuilder(
-      animation: _gradientController, // Using _gradientController as per original class definition
-      builder: (context, child) {
-        final double t = _gradientController.value; // Using _gradientController as per original class definition
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight.withOpacity(0.8),
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Stack(
-            children: [
-              // Batik pattern overlay
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.06,
-                  child: Transform.scale(
-                    scale: 1.3, // Prevent edges from showing during translate
-                    child: Transform.translate(
-                      offset: Offset(t * 20 - 10, t * 10 - 5),
-                      child: Image.asset(
-                        'assets/images/batik_pattern.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Static Batik pattern overlay
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.06,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               // Content
               SafeArea(
                 bottom: false,

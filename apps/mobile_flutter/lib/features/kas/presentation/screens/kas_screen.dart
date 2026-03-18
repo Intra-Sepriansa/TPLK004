@@ -101,59 +101,46 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
   Widget _buildHeader(KasDashboardData data, bool isDark) {
     final paymentRate = data.personalStats.paymentRate;
 
-    return AnimatedBuilder(
-      animation: _gradientCtrl,
-      builder: (context, child) {
-        final t = _gradientCtrl.value;
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment(-1.0 + t, -1.0),
-              end: Alignment(1.0, 1.0 - t),
-              colors: const [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight,
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight,
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Stack(
-            children: [
-              // Batik pattern
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _floatCtrl,
-                  builder: (context2, child2) {
-                    final dy = 4.0 * _floatCtrl.value;
-                    return Transform.translate(
-                      offset: Offset(0, dy),
-                      child: Transform.scale(
-                        scale: 1.3,
-                        child: Opacity(
-                          opacity: 0.06,
-                          child: Image.asset(
-                            'assets/images/batik_pattern.png',
-                            fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => const SizedBox.shrink(),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Batik pattern
+          Positioned.fill(
+            child: Transform.scale(
+              scale: 1.1,
+              child: Opacity(
+                opacity: 0.06,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               // Content
               SafeArea(
                 bottom: false,

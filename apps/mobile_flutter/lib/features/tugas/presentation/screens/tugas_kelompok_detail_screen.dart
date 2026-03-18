@@ -1422,41 +1422,45 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
   @override
   Widget build(BuildContext context) {
     final assignment = widget.assignment;
-    return AnimatedBuilder(
-      animation: _gradientCtrl,
-      builder: (context, child) {
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment(-1.0 + _gradientCtrl.value, -1.0),
-              end: Alignment(1.0, 1.0 - _gradientCtrl.value),
-              colors: [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight.withValues(alpha: 0.8),
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(32),
-              bottomRight: Radius.circular(32),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.08,
-                  child: Image.asset('assets/images/batik_pattern.png', fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.08,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               Positioned(
                 top: -50,
                 right: -50,
@@ -1557,6 +1561,7 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
           ),
         );
       },
+      ],
     );
   }
 

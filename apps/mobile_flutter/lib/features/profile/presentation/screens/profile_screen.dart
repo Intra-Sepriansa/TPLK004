@@ -180,54 +180,47 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   // ═══════════════════════════════════════════════════════
   // 1. ANIMATED HEADER (same style as AbsensiHeaderWidget)
   // ═══════════════════════════════════════════════════════
-  Widget _buildHeader(ProfileEntity profile) {
-    return AnimatedBuilder(
-      animation: _headerCtrl,
-      builder: (context, _) {
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.lerp(AppColors.primaryDark, AppColors.primary, _headerCtrl.value)!,
-                AppColors.primary,
-                Color.lerp(AppColors.primary, AppColors.primaryLight, _headerCtrl.value)!,
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight,
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Stack(
-            children: [
-              // Batik pattern overlay
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.08,
-                  child: Transform.scale(
-                    scale: 1.4,
-                    child: Transform.translate(
-                      offset: Offset(_headerCtrl.value * 30 - 15, _headerCtrl.value * 15 - 7),
-                      child: Image.asset(
-                        'assets/images/batik_pattern.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Batik pattern overlay
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.08,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               // Content
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),

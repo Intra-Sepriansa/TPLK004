@@ -65,57 +65,47 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
     final dateStr =
         DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(_currentTime);
 
-    return AnimatedBuilder(
-      animation: _gradientController,
-      builder: (context, child) {
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(
-                  0.5 + _gradientController.value * 0.5, 1.0),
-              colors: const [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight,
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight,
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Stack(
-            children: [
-              // Animated Batik Background
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.06,
-                  child: Transform.scale(
-                    scale: 1.3,
-                    child: Transform.translate(
-                      offset: Offset(
-                          _gradientController.value * 20 - 10,
-                          _gradientController.value * 10 - 5),
-                      child: Image.asset(
-                        'assets/images/batik_pattern.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Static Batik Background
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.06,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
 
               // Content
               SafeArea(

@@ -589,34 +589,38 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
   @override
   Widget build(BuildContext context) {
     final tugas = widget.tugas;
-    return AnimatedBuilder(
-      animation: _gradientCtrl,
-      builder: (context, child) {
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment(-1.0 + _gradientCtrl.value, -1.0),
-              end: Alignment(1.0, 1.0 - _gradientCtrl.value),
-              colors: [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight.withOpacity(0.8),
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.06,
-                  child: Image.asset('assets/images/batik_pattern.png', fit: BoxFit.cover, errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.06,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               SafeArea(
                 bottom: false,
                 child: Padding(

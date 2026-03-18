@@ -124,54 +124,47 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
     String dateFormatted,
     String timeFormatted,
   ) {
-    return AnimatedBuilder(
-      animation: _gradientController,
-      builder: (context, child) {
-        final double t = _gradientController.value;
-        return Container(
-          clipBehavior: Clip.antiAlias,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.primaryDark,
-                AppColors.primary,
-                AppColors.primaryLight.withValues(alpha: 0.8),
-              ],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primaryDark,
+            AppColors.primary,
+            AppColors.primaryLight.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: Stack(
-            children: [
-              // Batik Pattern Overlay
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.06,
-                  child: Transform.scale(
-                    scale: 1.3,
-                    child: Transform.translate(
-                      offset: Offset(t * 20 - 10, t * 10 - 5),
-                      child: Image.asset(
-                        'assets/images/batik_pattern.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                      ),
-                    ),
-                  ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Batik Pattern Overlay
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.06,
+              child: Transform.scale(
+                scale: 1.1,
+                child: Image.asset(
+                  'assets/images/batik_pattern.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
+            ),
+          ),
               // Content
               SafeArea(
                 bottom: false,
