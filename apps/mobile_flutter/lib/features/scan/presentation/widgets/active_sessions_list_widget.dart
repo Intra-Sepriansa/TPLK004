@@ -41,7 +41,7 @@ class _SessionContextCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -50,7 +50,7 @@ class _SessionContextCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -94,7 +94,7 @@ class _SessionContextCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       isEmpty ? 'Belum ada sesi aktif' : 'Sesi Aktif Saat Ini',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
@@ -125,7 +125,7 @@ class _SessionContextCard extends StatelessWidget {
             // Tampilan Kosong (Empty State)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               decoration: BoxDecoration(
                 color: Colors.grey[50], // Abu-abu sangat terang
                 borderRadius: BorderRadius.circular(20),
@@ -173,10 +173,11 @@ class _SessionContextCard extends StatelessWidget {
           else
             // Daftar Sesi Horizontal
             SizedBox(
-              height: 144,
+              height: 160,
               child: ListView.separated(
                 clipBehavior: Clip.none,
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(right: 4),
                 itemCount: sessions.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
@@ -228,14 +229,14 @@ class _ActiveSessionCard extends ConsumerWidget {
                   );
                 },
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: bgColor,
                         borderRadius: BorderRadius.circular(6),
@@ -251,7 +252,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.divider.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(6),
@@ -263,7 +264,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Text(
                             '${session.startAt ?? '-'} - ${session.endAt ?? '-'}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
@@ -277,7 +278,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Text(
                   session.courseName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
@@ -288,7 +289,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   session.dosenName ?? 'Dosen',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -335,7 +336,7 @@ class _LoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 144,
+      height: 160,
       child: ListView.separated(
         clipBehavior: Clip.none,
         scrollDirection: Axis.horizontal,
@@ -344,7 +345,7 @@ class _LoadingSkeleton extends StatelessWidget {
         itemBuilder: (context, index) {
           return Container(
             width: 260,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey[50],
               borderRadius: BorderRadius.circular(16),
