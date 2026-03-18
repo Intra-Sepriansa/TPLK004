@@ -141,15 +141,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── HEADER ──
-          SliverToBoxAdapter(child: _buildHeader(profile)),
+          // ── STATIC HEADER ──
+          SliverToBoxAdapter(child: _buildStaticHeader(context)),
           // ── BODY ──
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  _buildHeroCard(profile, state),
                   const SizedBox(height: 16),
                   _buildStatsGrid(),
                   const SizedBox(height: 24),
@@ -168,23 +167,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   const SizedBox(height: 20),
                   _buildLogoutButton(),
                   const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════
-  // 1. ANIMATED HEADER (same style as AbsensiHeaderWidget)
-  // ═══════════════════════════════════════════════════════
+  Widget _buildStaticHeader(BuildContext context) {
     return Container(
       clipBehavior: Clip.antiAlias,
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -326,57 +317,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  // ═══════════════════════════════════════════════════════
-  // 2. HERO PROFILE CARD
-  // ═══════════════════════════════════════════════════════
-  Widget _buildHeroCard(ProfileEntity profile, ProfileState state) {
-    return Container(
-      margin: const EdgeInsets.only(top: 20),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 24, offset: const Offset(0, 8)),
-        ],
-      ),
-      child: Column(children: [
-        // Avatar + verified badge
-        Stack(children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: [AppColors.violet500, AppColors.pink500]),
-              boxShadow: [
-                BoxShadow(color: AppColors.violet500.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6)),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.grey[200],
-              backgroundImage: profile.avatar != null
-                  ? CachedNetworkImageProvider(profile.avatar!)
-                  : null,
-              child: profile.avatar == null
-                  ? Text(profile.name.isNotEmpty ? profile.name[0] : 'M',
-                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.violet500))
-                  : null,
-            ),
-          ),
-          Positioned(
-            bottom: 2, right: 2,
-            child: Container(
-              padding: const EdgeInsets.all(3),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-              child: const Icon(Icons.verified_rounded, color: AppColors.emerald500, size: 22),
-            ),
-          ),
-        ]),
-        const SizedBox(height: 16),
-        // Name
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Flexible(
+
             child: Text(profile.name,
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
                 textAlign: TextAlign.center),

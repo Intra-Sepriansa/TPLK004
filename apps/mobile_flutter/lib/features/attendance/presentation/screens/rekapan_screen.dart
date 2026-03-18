@@ -187,7 +187,7 @@ class _RekapanScreenState extends State<RekapanScreen>
       clipBehavior: Clip.antiAlias,
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -333,8 +333,7 @@ class _RekapanScreenState extends State<RekapanScreen>
               ),
             ],
           ),
-      ),
-    );
+      );
   }
 
   Widget _buildHeaderButton({required IconData icon, required String label, required VoidCallback onTap}) {
