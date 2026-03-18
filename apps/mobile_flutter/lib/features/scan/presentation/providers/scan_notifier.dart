@@ -242,24 +242,16 @@ class ScanNotifier extends StateNotifier<ScanAbsensiState> {
         locationTimestamp: () => DateTime.now(),
       );
 
-      // Check geofence
-      if (state.isInsideZone && state.accuracyOk) {
+      // Check accuracy
+      if (state.accuracyOk) {
         state = state.copyWith(
           locationState: LocationState.success,
-          locationMessage: 'Lokasi tervalidasi — dalam radius absensi.',
-        );
-      } else if (!state.isInsideZone) {
-        final dist = state.currentDistance?.round() ?? 0;
-        state = state.copyWith(
-          locationState: LocationState.error,
-          locationMessage:
-              'Di luar radius absensi (${dist}m dari pusat zona, radius ${state.geofenceRadiusM.round()}m).',
+          locationMessage: 'Lokasi berhasil didapatkan (Akurasi: ${state.accuracy?.round()}m).',
         );
       } else {
         state = state.copyWith(
-          locationState: LocationState.error,
-          locationMessage:
-              'Akurasi GPS belum memadai (${state.accuracy?.round()}m, target ≤${state.accuracyThreshold.round()}m).',
+          locationState: LocationState.success, // Still allow submission, backend can reject if it wants
+          locationMessage: 'Akurasi GPS rendah (${state.accuracy?.round()}m).',
         );
       }
     } catch (e) {

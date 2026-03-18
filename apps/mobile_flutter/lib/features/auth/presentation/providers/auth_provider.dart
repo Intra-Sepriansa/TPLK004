@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import '../../../../core/api/api_client.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/services/push_notification_service.dart';
 import '../../domain/entities/user.dart';
@@ -41,7 +42,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     this._loginUseCase,
     this._logoutUseCase,
     this._checkAuthUseCase,
-  ) : super(const AuthState(isLoading: true, isAuthenticated: false));
+  ) : super(const AuthState(isLoading: true, isAuthenticated: false)) {
+    ApiClient.unauthorizedStream.stream.listen((_) {
+      logout();
+    });
+  }
 
   final LoginUseCase _loginUseCase;
   final LogoutUseCase _logoutUseCase;

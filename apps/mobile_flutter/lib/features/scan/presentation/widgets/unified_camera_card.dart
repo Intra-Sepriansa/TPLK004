@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -12,6 +13,7 @@ import '../../../attendance/domain/entities/session_info.dart';
 class UnifiedCameraCard extends StatelessWidget {
   final ScanAbsensiState scanState;
   final MobileScannerController? scannerController;
+  final CameraController? selfieController;
   final VoidCallback onStartScanning;
   final VoidCallback onCancelScanning;
   final VoidCallback onToggleFlash;
@@ -26,6 +28,7 @@ class UnifiedCameraCard extends StatelessWidget {
     super.key,
     required this.scanState,
     this.scannerController,
+    this.selfieController,
     required this.onStartScanning,
     required this.onCancelScanning,
     required this.onToggleFlash,
@@ -197,6 +200,7 @@ class UnifiedCameraCard extends StatelessWidget {
         return _FlippingView(detectedSession: scanState.detectedSession);
       case CameraPhase.selfie:
         return _SelfieView(
+          cameraController: selfieController,
           countdown: scanState.selfieCountdown,
           onCapture: onStartSelfieCountdown,
           onRetryFlow: onRetryFlow,
@@ -758,11 +762,13 @@ class _FlippingViewState extends State<_FlippingView>
 // ═══════════════════════════════════════
 
 class _SelfieView extends StatelessWidget {
+  final CameraController? cameraController;
   final int? countdown;
   final VoidCallback onCapture;
   final VoidCallback onRetryFlow;
 
   const _SelfieView({
+    this.cameraController,
     this.countdown,
     required this.onCapture,
     required this.onRetryFlow,
@@ -775,51 +781,45 @@ class _SelfieView extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Placeholder for camera preview (will be overlaid by actual CameraPreview)
-          const Center(
-            child: Text(
-              'Camera Preview',
-              style: TextStyle(color: Colors.white38, fontSize: 14),
+          // Camera preview
+          if (cameraController != null && cameraController!.value.isInitialized)
+            ClipRect(
+              child: Transform.scale(
+                scale: 1.05,
+                child: Center(
+                  child: CameraPreview(cameraController!),
+                ),
+              ),
+            )
+          else
+            const Center(
+              child: Text(
+                'Menyiapkan kamera...',
+                style: TextStyle(color: Colors.white38, fontSize: 14),
+              ),
             ),
-          ),
-          // Face guide overlay (dashed ellipse)
-          Center(
-            child: CustomPaint(
-              size: const Size(220, 280),
-              painter: _FaceGuidePainter(),
-            ),
-          ),
-          // Countdown
-          if (countdown != null)
-            Center(
-              child: TweenAnimationBuilder<double>(
-                key: ValueKey(countdown),
-                tween: Tween(begin: 0.75, end: 1.0),
-                duration: const Duration(milliseconds: 300),
-                builder: (context, scale, child) {
-                  return Transform.scale(scale: scale, child: child);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(50),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: Text(
-                    '$countdown',
-                    style: const TextStyle(
-                      fontSize: 64,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
+          // Simple instruction text at top
+          Positioned(
+            top: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  'Arahkan kamera ke wajah, lalu tekan tombol',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
             ),
+          ),
           // Scan ulang button
           Positioned(
-            top: 12,
+            top: 50,
             left: 12,
             child: Material(
               color: Colors.black.withOpacity(0.35),
@@ -848,16 +848,16 @@ class _SelfieView extends StatelessWidget {
             right: 0,
             child: Center(
               child: Material(
-                color: Colors.white.withOpacity(0.1),
-                shape: const CircleBorder(side: BorderSide(color: Color(0x33FFFFFF), width: 2)),
+                color: Colors.white.withOpacity(0.15),
+                shape: const CircleBorder(side: BorderSide(color: Colors.white, width: 3)),
                 child: InkWell(
-                  onTap: countdown == null ? onCapture : null,
+                  onTap: onCapture,
                   customBorder: const CircleBorder(),
                   child: Container(
-                    width: 56,
-                    height: 56,
+                    width: 64,
+                    height: 64,
                     alignment: Alignment.center,
-                    child: const Icon(Icons.camera_alt, size: 24, color: Colors.white),
+                    child: const Icon(Icons.camera_alt_rounded, size: 28, color: Colors.white),
                   ),
                 ),
               ),
@@ -867,38 +867,6 @@ class _SelfieView extends StatelessWidget {
       ),
     );
   }
-}
-
-class _FaceGuidePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withOpacity(0.85)
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    // Dashed ellipse rendering
-
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final rx = size.width / 2 - 4;
-    final ry = size.height / 2 - 4;
-
-    // Draw dashed ellipse
-    for (double angle = 0; angle < 2 * pi; angle += 0.1) {
-      final x1 = cx + rx * cos(angle);
-      final y1 = cy + ry * sin(angle);
-      final x2 = cx + rx * cos(angle + 0.05);
-      final y2 = cy + ry * sin(angle + 0.05);
-
-      if ((angle ~/ 0.15) % 2 == 0) {
-        canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ═══════════════════════════════════════

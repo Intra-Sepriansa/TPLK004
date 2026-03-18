@@ -154,6 +154,8 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::get('admin/live-monitor/aktivitas-terbaru', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'aktivitasTerbaru'])->name('admin.live-monitor.aktivitas-terbaru');
     Route::get('admin/live-monitor/aktivitas-terbaru/export', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'exportAktivitasTerbaru'])->name('admin.live-monitor.aktivitas-terbaru.export');
     Route::get('admin/live-monitor/aktivitas-terbaru/{id}/export-pdf', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'exportAktivitasDetailPdf'])->name('admin.live-monitor.aktivitas-terbaru.export-detail');
+    Route::get('admin/live-monitor/advanced-export', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'advancedExport'])->name('admin.live-monitor.advanced-export');
+    Route::get('admin/live-monitor/filter-options', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'getFilterOptions'])->name('admin.live-monitor.filter-options');
     
     // Admin Verifikasi Selfie
     Route::get('admin/verifikasi-selfie', [VerifikasiSelfieController::class, 'index'])->name('admin.verifikasi-selfie');

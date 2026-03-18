@@ -1,10 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -33,18 +31,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
   MobileScannerController? _mobileScannerController;
   CameraController? _selfieCameraController;
   bool _isSelfieReady = false;
-
-  final _faceDetector = FaceDetector(
-    options: FaceDetectorOptions(
-      enableContours: false,
-      enableClassification: true,
-      enableTracking: true,
-      minFaceSize: 0.15,
-    ),
-  );
-  bool _isDetectingFaces = false;
-  bool _faceValid = false;
-  String _faceHint = 'Posisikan wajah di tengah';
+  bool _isCapturing = false;
   String _studentName = 'Mahasiswa';
 
   @override
@@ -70,7 +57,6 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
   void dispose() {
     _mobileScannerController?.dispose();
     _selfieCameraController?.dispose();
-    _faceDetector.close();
     super.dispose();
   }
 
@@ -128,86 +114,29 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
 
       _selfieCameraController = CameraController(
         front,
-        ResolutionPreset.high,
+        ResolutionPreset.medium,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.yuv420,
       );
 
       await _selfieCameraController!.initialize();
       if (mounted) {
         setState(() => _isSelfieReady = true);
-        await _selfieCameraController!.startImageStream(_processFaceImage);
       }
     } catch (e) {
       debugPrint('Selfie camera init error: $e');
     }
   }
 
-  Future<void> _processFaceImage(CameraImage image) async {
-    if (_isDetectingFaces || !_isSelfieReady) return;
-    _isDetectingFaces = true;
-    try {
-      final input = _cameraImageToInputImage(image, _selfieCameraController!.description);
-      final faces = await _faceDetector.processImage(input);
-      if (!mounted) return;
-
-      setState(() {
-        if (faces.isEmpty) {
-          _faceValid = false;
-          _faceHint = 'Wajah tidak terdeteksi';
-        } else if (faces.length > 1) {
-          _faceValid = false;
-          _faceHint = 'Terdeteksi lebih dari 1 wajah';
-        } else {
-          _faceValid = true;
-          _faceHint = 'Wajah terdeteksi. Siap ambil foto.';
-        }
-      });
-    } catch (_) {
-      // ignore detection errors
-    } finally {
-      _isDetectingFaces = false;
-    }
-  }
-
-  InputImage _cameraImageToInputImage(CameraImage image, CameraDescription desc) {
-    final bytes = image.planes.fold<List<int>>(
-      <int>[],
-      (prev, plane) => prev..addAll(plane.bytes),
-    );
-    final size = Size(image.width.toDouble(), image.height.toDouble());
-    final rotation =
-        InputImageRotationValue.fromRawValue(desc.sensorOrientation) ??
-            InputImageRotation.rotation0deg;
-    final format =
-        InputImageFormatValue.fromRawValue(image.format.raw) ??
-            InputImageFormat.yuv420;
-    final metadata = InputImageMetadata(
-      size: size,
-      rotation: rotation,
-      format: format,
-      bytesPerRow: image.planes.first.bytesPerRow,
-    );
-    return InputImage.fromBytes(
-      bytes: Uint8List.fromList(bytes),
-      metadata: metadata,
-    );
-  }
-
   Future<void> _captureSelfie() async {
-    if (!_faceValid || _selfieCameraController == null) return;
-
-    final notifier = ref.read(scanProvider.notifier);
-    notifier.startSelfieCountdown();
-
-    // Wait for countdown (3 seconds)
-    await Future.delayed(const Duration(seconds: 3));
-
-    if (!mounted) return;
+    if (_selfieCameraController == null || !_isSelfieReady || _isCapturing) {
+      debugPrint('Selfie capture blocked');
+      return;
+    }
+    _isCapturing = true;
 
     try {
-      await _selfieCameraController!.stopImageStream();
       final xf = await _selfieCameraController!.takePicture();
+      debugPrint('Picture taken: ${xf.path}');
 
       final dir = await getTemporaryDirectory();
       final path = '${dir.path}/selfie_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -215,13 +144,17 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
       final copied = await file.copy(path);
 
       if (mounted) {
+        final notifier = ref.read(scanProvider.notifier);
         notifier.onSelfieCaptured(copied, path);
+        debugPrint('Selfie saved successfully');
         _selfieCameraController?.dispose();
         _selfieCameraController = null;
         setState(() => _isSelfieReady = false);
       }
     } catch (e) {
       debugPrint('Selfie capture error: $e');
+    } finally {
+      _isCapturing = false;
     }
   }
 
@@ -265,8 +198,6 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
     _selfieCameraController = null;
     setState(() {
       _isSelfieReady = false;
-      _faceValid = false;
-      _faceHint = 'Posisikan wajah di tengah';
     });
     ref.read(scanProvider.notifier).retryFlow();
   }
@@ -343,6 +274,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
                   child: UnifiedCameraCard(
                     scanState: state,
                     scannerController: _mobileScannerController,
+                    selfieController: _selfieCameraController,
                     onStartScanning: _handleStartScanning,
                     onCancelScanning: _handleCancelScanning,
                     onToggleFlash: _handleToggleFlash,
@@ -364,9 +296,6 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
                     sampleCount: state.sampleCount,
                     requiredSamples: state.requiredSampleCount,
                     accuracy: state.accuracy,
-                    currentDistance: state.currentDistance,
-                    geofenceRadiusM: state.geofenceRadiusM,
-                    isInsideZone: state.isInsideZone,
                     locationMessage: state.locationMessage,
                     latitude: state.latitude,
                     longitude: state.longitude,

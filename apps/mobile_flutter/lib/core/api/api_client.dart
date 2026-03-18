@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 
 import '../network/connectivity_service.dart';
@@ -7,6 +8,8 @@ import 'interceptors/logging_interceptor.dart';
 import 'interceptors/retry_interceptor.dart';
 
 class ApiClient {
+  static final StreamController<void> unauthorizedStream = StreamController.broadcast();
+  
   final Dio dio;
 
   ApiClient({

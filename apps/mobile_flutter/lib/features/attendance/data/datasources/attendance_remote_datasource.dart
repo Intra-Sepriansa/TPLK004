@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 
 import '../../../../core/api/api_endpoints.dart';
@@ -147,6 +148,29 @@ class AttendanceRemoteDataSource {
     return courseMap.values.toList();
   }
 
+  String _handleError(dynamic e, String defaultMsg) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      
+      if (data is Map<String, dynamic> && data['message'] != null) {
+        return data['message'].toString();
+      } else if (data is String) {
+        try {
+          final parsed = jsonDecode(data);
+          if (parsed is Map<String, dynamic> && parsed['message'] != null) {
+            return parsed['message'].toString();
+          }
+        } catch (_) {}
+      }
+      
+      if (e.response?.statusCode != null) {
+         return '$defaultMsg (Error ${e.response?.statusCode})';
+      }
+      return defaultMsg;
+    }
+    return defaultMsg;
+  }
+
   Future<QrValidationResultModel> submitQr({
     required String qrData,
     required double latitude,
@@ -154,20 +178,24 @@ class AttendanceRemoteDataSource {
     required double accuracy,
     required List<Map<String, dynamic>> locationSamples,
   }) async {
-    final res = await dio.post(ApiEndpoints.submitQrAttendance, data: {
-      'qr_data': qrData,
-      'latitude': latitude,
-      'longitude': longitude,
-      'accuracy_m': accuracy,
-      'location_samples': locationSamples,
-      'timestamp': DateTime.now().toIso8601String(),
-    });
-    final data = res.data as Map<String, dynamic>;
-    if (data['success'] != true) {
-      throw Exception(data['message'] ?? 'Gagal submit QR');
+    try {
+      final res = await dio.post(ApiEndpoints.submitQrAttendance, data: {
+        'qr_data': qrData,
+        'latitude': latitude,
+        'longitude': longitude,
+        'accuracy_m': accuracy,
+        'location_samples': locationSamples,
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      final data = res.data as Map<String, dynamic>;
+      if (data['success'] != true) {
+        throw Exception(data['message'] ?? 'Gagal submit QR');
+      }
+      final payload = data['data'] as Map<String, dynamic>? ?? {};
+      return QrValidationResultModel.fromJson(payload);
+    } catch (e) {
+      throw _handleError(e, 'Gagal submit QR');
     }
-    final payload = data['data'] as Map<String, dynamic>? ?? {};
-    return QrValidationResultModel.fromJson(payload);
   }
 
   Future<AttendanceResultModel> submitSelfie({
@@ -198,12 +226,16 @@ class AttendanceRemoteDataSource {
     }
 
     final formData = FormData.fromMap(formMap);
-    final res = await dio.post(ApiEndpoints.submitSelfieAttendance, data: formData);
-    final data = res.data as Map<String, dynamic>;
-    if (data['success'] != true) {
-      throw Exception(data['message'] ?? 'Gagal submit selfie');
+    try {
+      final res = await dio.post(ApiEndpoints.submitSelfieAttendance, data: formData);
+      final data = res.data as Map<String, dynamic>;
+      if (data['success'] != true) {
+        throw Exception(data['message'] ?? 'Gagal submit selfie');
+      }
+      final payload = data['data'] as Map<String, dynamic>? ?? {};
+      return AttendanceResultModel.fromJson(payload);
+    } catch (e) {
+      throw _handleError(e, 'Gagal submit selfie');
     }
-    final payload = data['data'] as Map<String, dynamic>? ?? {};
-    return AttendanceResultModel.fromJson(payload);
   }
 }

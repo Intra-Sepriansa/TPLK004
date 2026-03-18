@@ -8,9 +8,6 @@ class LocationStatusCard extends StatefulWidget {
   final int sampleCount;
   final int requiredSamples;
   final double? accuracy;
-  final double? currentDistance;
-  final double geofenceRadiusM;
-  final bool isInsideZone;
   final String locationMessage;
   final double? latitude;
   final double? longitude;
@@ -23,9 +20,6 @@ class LocationStatusCard extends StatefulWidget {
     required this.sampleCount,
     required this.requiredSamples,
     this.accuracy,
-    this.currentDistance,
-    required this.geofenceRadiusM,
-    required this.isInsideZone,
     required this.locationMessage,
     this.latitude,
     this.longitude,
@@ -119,7 +113,7 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'GPS & geofence',
+                      'Pencarian koordinat GPS',
                       style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                   ],
@@ -184,39 +178,13 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
               const SizedBox(width: 8),
               Expanded(
                 child: _MetricTile(
-                  label: 'AKURASI',
+                  label: 'AKURASI GPS',
                   value: widget.accuracy != null ? '${widget.accuracy!.round()}m' : '-',
                   tone: widget.accuracy != null && widget.accuracy! <= 50
                       ? _MetricTone.success
                       : widget.accuracy != null
                           ? _MetricTone.warning
                           : _MetricTone.neutral,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _MetricTile(
-                  label: 'JARAK',
-                  value: widget.currentDistance != null
-                      ? '${widget.currentDistance!.round()}m'
-                      : '-',
-                  tone: widget.isInsideZone
-                      ? _MetricTone.success
-                      : widget.currentDistance != null
-                          ? _MetricTone.error
-                          : _MetricTone.neutral,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _MetricTile(
-                  label: 'ZONA',
-                  value: widget.isInsideZone ? 'Dalam radius' : 'Di luar radius',
-                  tone: widget.isInsideZone ? _MetricTone.success : _MetricTone.error,
                 ),
               ),
             ],
@@ -264,13 +232,6 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
                     _CoordRow(label: 'Latitude', value: widget.latitude?.toStringAsFixed(6) ?? '-'),
                     const SizedBox(height: 6),
                     _CoordRow(label: 'Longitude', value: widget.longitude?.toStringAsFixed(6) ?? '-'),
-                    const SizedBox(height: 6),
-                    _CoordRow(label: 'Akurasi', value: widget.accuracy != null ? '${widget.accuracy!.round()}m' : '-'),
-                    const SizedBox(height: 6),
-                    _CoordRow(
-                      label: 'Radius geofence',
-                      value: '${widget.geofenceRadiusM.round()}m',
-                    ),
                   ],
                 ),
               ),

@@ -24,11 +24,14 @@ import {
     Clock,
     Download,
     Eye,
+    FileSpreadsheet,
+    FileText,
     GraduationCap,
     Info,
     MapPin,
     Radio,
     RefreshCw,
+    Shield,
     Smartphone,
     Sparkles,
     User,
@@ -67,6 +70,9 @@ type Activity = {
     device?: string;
     anomaly_reason?: string;
     isNew?: boolean;
+    risk_score?: number;
+    face_match?: number;
+    is_suspicious?: boolean;
 };
 
 type Session = {
@@ -107,6 +113,11 @@ interface PageProps {
     };
     initialAnomalies: Anomaly[];
     initialChartData: any[];
+    filterOptions?: {
+        courses: { value: string; label: string }[];
+        statuses: { value: string; label: string }[];
+        riskLevels: { value: string; label: string }[];
+    };
 }
 
 const containerVariants = {
@@ -162,6 +173,7 @@ export default function LiveMonitor({
     initialTodayStats,
     initialAnomalies = [],
     initialChartData = [],
+    filterOptions,
 }: PageProps) {
     const [stats, setStats] = useState(
         initialStats || {
@@ -198,6 +210,16 @@ export default function LiveMonitor({
     const [chartType, setChartType] = useState('hourly');
     const [chartData, setChartData] = useState(initialChartData);
     const activityListUrl = '/admin/live-monitor/aktivitas-terbaru';
+
+    // Advanced Export Modal state
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [exportFormat, setExportFormat] = useState<'excel' | 'pdf'>('excel');
+    const [exportStartDate, setExportStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [exportEndDate, setExportEndDate] = useState(new Date().toISOString().split('T')[0]);
+    const [exportStatus, setExportStatus] = useState('all');
+    const [exportCourse, setExportCourse] = useState('all');
+    const [exportRisk, setExportRisk] = useState('all');
+    const [isExporting, setIsExporting] = useState(false);
 
     const playNotificationSound = () => {
         if (!soundEnabled) return;
@@ -290,6 +312,30 @@ export default function LiveMonitor({
         } catch (error) {
             toast.error('Gagal memperbarui data');
         }
+    };
+
+    const handleAdvancedExport = () => {
+        setIsExporting(true);
+        toast.loading('Menyiapkan export...', { id: 'adv-export' });
+        const params = new URLSearchParams({
+            format: exportFormat,
+            start_date: exportStartDate,
+            end_date: exportEndDate,
+            status: exportStatus,
+            course: exportCourse,
+            risk: exportRisk,
+        });
+        window.location.href = `/admin/live-monitor/advanced-export?${params.toString()}`;
+        setTimeout(() => {
+            setIsExporting(false);
+            setShowExportModal(false);
+            toast.success(
+                exportFormat === 'pdf'
+                    ? '📄 PDF report downloaded!'
+                    : '📊 Excel multi-sheet report downloaded!',
+                { id: 'adv-export' },
+            );
+        }, 2000);
     };
 
     const handleExportToday = async () => {
@@ -1166,6 +1212,16 @@ export default function LiveMonitor({
                                 <div className="space-y-2">
                                     <Button
                                         size="sm"
+                                        onClick={() => setShowExportModal(true)}
+                                        className="w-full justify-start rounded-xl border-indigo-500/30 bg-gradient-to-r from-indigo-50 to-purple-50 text-xs font-semibold text-indigo-700 shadow-sm hover:from-indigo-100 hover:to-purple-100 dark:from-indigo-950/50 dark:to-purple-950/50 dark:text-indigo-300"
+                                        variant="outline"
+                                        type="button"
+                                    >
+                                        <FileSpreadsheet className="mr-2 h-3 w-3" />{' '}
+                                        Advanced Export
+                                    </Button>
+                                    <Button
+                                        size="sm"
                                         onClick={handleExportToday}
                                         className={quickActionBtnClass}
                                         variant="outline"
@@ -1346,6 +1402,146 @@ export default function LiveMonitor({
                             </Button>
                         </div>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* ═══ ADVANCED EXPORT MODAL ═══ */}
+            <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
+                <DialogContent className="overflow-hidden rounded-3xl border-neutral-800 bg-neutral-900 p-0 text-white sm:max-w-lg">
+                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-indigo-900/40 to-transparent" />
+
+                    <div className="relative z-10 p-6">
+                        <div className="mb-6 flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
+                                <FileSpreadsheet className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold">Advanced Export</h2>
+                                <p className="text-xs text-neutral-400">Export laporan profesional multi-sheet</p>
+                            </div>
+                        </div>
+
+                        {/* Format Selection */}
+                        <div className="mb-5 flex gap-2">
+                            <button
+                                onClick={() => setExportFormat('excel')}
+                                className={`flex-1 rounded-xl border-2 p-3 text-center transition-all ${
+                                    exportFormat === 'excel'
+                                        ? 'border-emerald-500 bg-emerald-500/10'
+                                        : 'border-neutral-700 bg-neutral-800/50 hover:border-neutral-600'
+                                }`}
+                            >
+                                <FileSpreadsheet className={`mx-auto mb-1 h-6 w-6 ${exportFormat === 'excel' ? 'text-emerald-400' : 'text-neutral-500'}`} />
+                                <p className={`text-sm font-semibold ${exportFormat === 'excel' ? 'text-emerald-300' : 'text-neutral-400'}`}>Excel</p>
+                                <p className="text-[10px] text-neutral-500">4 Sheets • Analytics</p>
+                            </button>
+                            <button
+                                onClick={() => setExportFormat('pdf')}
+                                className={`flex-1 rounded-xl border-2 p-3 text-center transition-all ${
+                                    exportFormat === 'pdf'
+                                        ? 'border-red-500 bg-red-500/10'
+                                        : 'border-neutral-700 bg-neutral-800/50 hover:border-neutral-600'
+                                }`}
+                            >
+                                <FileText className={`mx-auto mb-1 h-6 w-6 ${exportFormat === 'pdf' ? 'text-red-400' : 'text-neutral-500'}`} />
+                                <p className={`text-sm font-semibold ${exportFormat === 'pdf' ? 'text-red-300' : 'text-neutral-400'}`}>PDF</p>
+                                <p className="text-[10px] text-neutral-500">Header UNPAM • Formal</p>
+                            </button>
+                        </div>
+
+                        {/* Filter Controls */}
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tanggal Mulai</label>
+                                    <input
+                                        type="date"
+                                        value={exportStartDate}
+                                        onChange={(e) => setExportStartDate(e.target.value)}
+                                        className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tanggal Akhir</label>
+                                    <input
+                                        type="date"
+                                        value={exportEndDate}
+                                        onChange={(e) => setExportEndDate(e.target.value)}
+                                        className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Status Kehadiran</label>
+                                <select
+                                    value={exportStatus}
+                                    onChange={(e) => setExportStatus(e.target.value)}
+                                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                                >
+                                    {(filterOptions?.statuses || [
+                                        { value: 'all', label: 'Semua Status' },
+                                        { value: 'present', label: '✅ Hadir' },
+                                        { value: 'late', label: '⏰ Terlambat' },
+                                        { value: 'excused', label: '📋 Izin' },
+                                        { value: 'anomali', label: '⚠️ Anomali/Ditolak' },
+                                    ]).map((s) => (
+                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+                                    <Shield className="mr-1 inline h-3 w-3" />Level Risiko
+                                </label>
+                                <select
+                                    value={exportRisk}
+                                    onChange={(e) => setExportRisk(e.target.value)}
+                                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
+                                >
+                                    {(filterOptions?.riskLevels || [
+                                        { value: 'all', label: 'Semua Level' },
+                                        { value: 'low', label: '🟢 Rendah (0-29)' },
+                                        { value: 'medium', label: '🟡 Sedang (30-69)' },
+                                        { value: 'high', label: '🔴 Tinggi (70-100)' },
+                                    ]).map((r) => (
+                                        <option key={r.value} value={r.value}>{r.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Export Info */}
+                        <div className="mt-4 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-3">
+                            <p className="text-[11px] text-neutral-400">
+                                {exportFormat === 'excel' ? (
+                                    <><FileSpreadsheet className="mr-1 inline h-3 w-3 text-emerald-400" />Export 4 sheet: Dashboard, Data Mentah, Analytics, Risk Analysis dengan conditional formatting profesional.</>
+                                ) : (
+                                    <><FileText className="mr-1 inline h-3 w-3 text-red-400" />Export PDF formal dengan header UNPAM, ringkasan eksekutif, tabel data, analisis risiko, dan tanda tangan.</>
+                                )}
+                            </p>
+                        </div>
+
+                        {/* Export Button */}
+                        <Button
+                            onClick={handleAdvancedExport}
+                            disabled={isExporting}
+                            className={`mt-5 w-full rounded-2xl py-6 text-base font-bold shadow-xl transition-all ${
+                                exportFormat === 'excel'
+                                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700'
+                                    : 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700'
+                            }`}
+                        >
+                            {isExporting ? (
+                                <><RefreshCw className="mr-2 h-5 w-5 animate-spin" />Generating...</>
+                            ) : (
+                                <><Download className="mr-2 h-5 w-5" />
+                                    {exportFormat === 'excel' ? 'Download Excel (4 Sheets)' : 'Download PDF Report'}
+                                </>
+                            )}
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
         </AppLayout>

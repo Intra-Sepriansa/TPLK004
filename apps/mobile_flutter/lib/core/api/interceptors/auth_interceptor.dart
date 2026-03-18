@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../storage/secure_storage.dart';
+import '../api_client.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorage secureStorage;
@@ -17,5 +18,14 @@ class AuthInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401) {
+      secureStorage.deleteToken();
+      ApiClient.unauthorizedStream.add(null);
+    }
+    handler.next(err);
   }
 }

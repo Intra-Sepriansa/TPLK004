@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/// Sticky bottom submit bar with progress dots and gradient button.
+/// Clean Sticky bottom submit bar.
 class StickySubmitFooter extends StatelessWidget {
   final bool tokenDone;
   final bool selfieDone;
@@ -34,10 +34,10 @@ class StickySubmitFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
+        24,
         20,
-        16,
-        20,
-        16 + MediaQuery.of(context).padding.bottom,
+        24,
+        20 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -53,79 +53,30 @@ class StickySubmitFooter extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Progress dots
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _ProgressDot(done: tokenDone, label: 'QR'),
-              _DotDivider(done: tokenDone),
-              _ProgressDot(done: selfieDone, label: 'Selfie'),
-              _DotDivider(done: selfieDone),
-              _ProgressDot(done: locationDone, label: 'Lokasi'),
-              _DotDivider(done: locationDone),
-              _ProgressDot(done: submitSuccess, label: 'Submit'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Badges
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: AppColors.primary.withOpacity(0.1),
-                ),
-                child: Text(
-                  '$progressCount/4 selesai',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: consentAccepted
-                      ? AppColors.emerald500.withOpacity(0.1)
-                      : Colors.grey[200],
-                ),
-                child: Text(
-                  consentAccepted ? 'Consent aktif' : 'Consent belum aktif',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: consentAccepted ? AppColors.emerald500 : Colors.grey[500],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           // Message
-          Text(
-            submitSuccess
-                ? (submitMessage ?? 'Absensi berhasil dikirim!')
-                : canSubmit
-                    ? 'Semua data siap. Klik untuk mengirim absensi.'
-                    : 'Lengkapi seluruh langkah sebelum mengirim.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12,
-              color: submitSuccess
-                  ? AppColors.emerald500
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Text(
+              submitSuccess
+                  ? (submitMessage ?? 'Absensi berhasil dikirim!')
                   : canSubmit
-                      ? Colors.grey[800]
-                      : Colors.grey[500],
-              height: 1.5,
+                      ? 'Semua syarat terpenuhi. Klik untuk mengirim absensi.'
+                      : (!consentAccepted)
+                          ? 'Silahkan berikan izin lokasi dan kamera sebelum mulai'
+                          : 'Selesaikan verifikasi absensi di atas untuk lanjut',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: submitSuccess || canSubmit ? FontWeight.w600 : FontWeight.w500,
+                color: submitSuccess
+                    ? AppColors.emerald500
+                    : canSubmit
+                        ? Colors.grey[800]
+                        : Colors.grey[500],
+              ),
             ),
           ),
-          const SizedBox(height: 12),
+          
           // Submit button
           if (submitSuccess)
             SizedBox(
@@ -159,7 +110,7 @@ class StickySubmitFooter extends StatelessWidget {
                           ],
                         )
                       : LinearGradient(
-                          colors: [Colors.grey[300]!, Colors.grey[400]!],
+                          colors: [Colors.grey[200]!, Colors.grey[300]!],
                         ),
                   boxShadow: canSubmit
                       ? [
@@ -189,9 +140,9 @@ class StickySubmitFooter extends StatelessWidget {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.white,
+                    foregroundColor: canSubmit ? Colors.white : Colors.grey[500],
                     disabledBackgroundColor: Colors.transparent,
-                    disabledForegroundColor: Colors.white.withOpacity(0.6),
+                    disabledForegroundColor: Colors.grey[500],
                     shadowColor: Colors.transparent,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -202,61 +153,6 @@ class StickySubmitFooter extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _ProgressDot extends StatelessWidget {
-  final bool done;
-  final String label;
-
-  const _ProgressDot({required this.done, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: done ? AppColors.emerald500 : Colors.grey[300],
-          ),
-          child: done
-              ? const Icon(Icons.check, size: 10, color: Colors.white)
-              : null,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-            color: done ? AppColors.emerald500 : Colors.grey[400],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DotDivider extends StatelessWidget {
-  final bool done;
-
-  const _DotDivider({required this.done});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 28,
-      height: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(2),
-        color: done ? AppColors.emerald500 : Colors.grey[300],
       ),
     );
   }

@@ -148,8 +148,7 @@ class ScanAbsensiState {
       samplesReady &&
       latitude != null &&
       longitude != null &&
-      accuracyOk &&
-      isInsideZone;
+      accuracyOk;
 
   bool get canSubmit =>
       consentAccepted &&

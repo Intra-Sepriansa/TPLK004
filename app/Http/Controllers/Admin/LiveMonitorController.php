@@ -13,6 +13,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AktivitasTerbaruExport;
 
+use App\Exports\LiveMonitorAdvancedExport;
+
 class LiveMonitorController extends Controller
 {
     public function index(Request $request): Response
@@ -75,6 +77,9 @@ class LiveMonitorController extends Controller
                 'device' => $log->device_info,
                 'anomaly_reason' => $log->status === 'rejected' ? 'Jarak terlalu jauh dari radius yang diizinkan' : null,
                 'isNew' => false,
+                'risk_score' => $log->risk_score ?? 0,
+                'face_match' => $log->face_match_score ?? null,
+                'is_suspicious' => $log->is_suspicious ?? false,
             ];
         });
 
@@ -128,6 +133,9 @@ class LiveMonitorController extends Controller
             ];
         }
 
+        // Filter options for frontend dropdowns
+        $filterOptions = $this->buildFilterOptions();
+
         return [
             'initialStats' => $stats,
             'initialRecentActivities' => $recentActivities,
@@ -135,6 +143,7 @@ class LiveMonitorController extends Controller
             'initialTodayStats' => $todayStats,
             'initialAnomalies' => $anomalies,
             'initialChartData' => $chartData,
+            'filterOptions' => $filterOptions,
         ];
     }
 
@@ -185,23 +194,23 @@ class LiveMonitorController extends Controller
             'time' => $log->scanned_at?->format('H:i:s'),
             'status' => $log->status === 'present' ? 'hadir' : ($log->status === 'late' ? 'terlambat' : ($log->status === 'rejected' ? 'anomali' : 'izin')),
             'distance' => $log->distance_m,
-            'method' => 'GPS/QR Code', // Could be populated from actual method if available
-            'location' => 'Universitas', // Mock or use actual location data
+            'method' => 'GPS/QR Code',
+            'location' => 'Universitas',
             'device' => $log->device_info ?? 'Unknown Device',
             'gps_accuracy' => 10,
-            'ip_address' => request()->ip(), // Or from log
+            'ip_address' => request()->ip(),
             'os' => 'Unknown OS',
             'browser' => 'Unknown Browser',
             'user_agent' => $log->device_info,
             'coordinates' => '-',
-            'selfie' => null, // Placeholder if actual selfie url exists
+            'selfie' => null,
             'face_match' => 0,
             'isNew' => false,
             'student' => [
                 'name' => $log->mahasiswa?->nama ?? 'Unknown',
                 'nim' => $log->mahasiswa?->nim ?? '-',
                 'initials' => substr($log->mahasiswa?->nama ?? 'U', 0, 2),
-                'photo' => null, // Provide standard mock or real user avatar
+                'photo' => null,
                 'major' => 'Manajemen Informatika',
                 'semester' => '3',
                 'email' => strtolower(str_replace(' ', '', $log->mahasiswa?->nama ?? 'unknown')) . '@unja.ac.id',
@@ -224,7 +233,7 @@ class LiveMonitorController extends Controller
                 'lecturer' => $sess->dosen?->nama ?? 'Dosen Pengampu',
                 'location' => 'Ruang 101',
                 'present' => AttendanceLog::where('attendance_session_id', $sess->id)->whereIn('status', ['present', 'late'])->count(),
-                'total' => 40, // Mock total
+                'total' => 40,
                 'timeLeft' => '45 menit',
                 'progress' => 0
             ]);
@@ -245,7 +254,7 @@ class LiveMonitorController extends Controller
                 'totalScans' => AttendanceLog::whereDate('scanned_at', today())->count(),
                 'activeStudents' => $activities->count(),
                 'anomalyCount' => AttendanceLog::whereDate('scanned_at', today())->where('status', 'rejected')->count(),
-                'scanRate' => 85, // Mock percentage
+                'scanRate' => 85,
             ]
         ]);
     }
@@ -312,4 +321,148 @@ class LiveMonitorController extends Controller
 
         return $pdf->download($filename);
     }
+
+    /**
+     * ═══════════════════════════════════════════════════
+     * ADVANCED EXPORT — Multi-sheet Excel & Professional PDF
+     * ═══════════════════════════════════════════════════
+     */
+    public function advancedExport(Request $request)
+    {
+        $format = $request->query('format', 'excel');
+        $startDate = $request->query('start_date', today()->toDateString());
+        $endDate = $request->query('end_date', today()->toDateString());
+        $statusFilter = $request->query('status', 'all');
+        $courseFilter = $request->query('course', 'all');
+        $riskFilter = $request->query('risk', 'all');
+
+        // Build query with filters
+        $query = AttendanceLog::with(['mahasiswa', 'session.course', 'session.dosen', 'selfieVerification'])
+            ->whereDate('scanned_at', '>=', $startDate)
+            ->whereDate('scanned_at', '<=', $endDate)
+            ->orderBy('scanned_at', 'desc');
+
+        if ($statusFilter !== 'all') {
+            if ($statusFilter === 'anomali') {
+                $query->whereIn('status', ['rejected', 'absent']);
+            } else {
+                $query->where('status', $statusFilter);
+            }
+        }
+
+        if ($courseFilter !== 'all') {
+            $query->whereHas('session', fn($q) => $q->where('course_id', $courseFilter));
+        }
+
+        if ($riskFilter !== 'all') {
+            match ($riskFilter) {
+                'high' => $query->where('risk_score', '>=', 70),
+                'medium' => $query->whereBetween('risk_score', [30, 69]),
+                'low' => $query->where('risk_score', '<', 30),
+                default => null,
+            };
+        }
+
+        $logs = $query->take(1000)->get();
+
+        $filters = [
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'status' => $statusFilter,
+            'course' => $courseFilter,
+            'risk' => $riskFilter,
+        ];
+
+        $stats = $this->computeExportStats($logs);
+
+        if ($format === 'pdf') {
+            $logoUnpam = public_path('images/logo_unpam.png');
+            $logoSasmita = public_path('images/logo_sasmita.png');
+
+            $pdf = Pdf::loadView('pdf.live-monitor-report', [
+                'logs' => $logs,
+                'stats' => $stats,
+                'filters' => $filters,
+                'logoUnpam' => $logoUnpam,
+                'logoSasmita' => $logoSasmita,
+                'reportPeriod' => $startDate . ' s/d ' . $endDate,
+                'filterStatus' => $statusFilter === 'all' ? 'Semua Status' : ucfirst($statusFilter),
+                'filterClass' => 'Semua Kelas',
+            ]);
+            $pdf->setPaper('a4', 'portrait');
+            return $pdf->download('Laporan_Live_Monitor_' . now()->format('Y_m_d_His') . '.pdf');
+        }
+
+        // Excel: multi-sheet export
+        return Excel::download(
+            new LiveMonitorAdvancedExport($logs, $stats, $filters),
+            'Laporan_Live_Monitor_Advanced_' . now()->format('Y_m_d_His') . '.xlsx'
+        );
+    }
+
+    /**
+     * Get available filter options for frontend dropdowns
+     */
+    public function getFilterOptions()
+    {
+        return response()->json($this->buildFilterOptions());
+    }
+
+    /**
+     * Build filter options from database
+     */
+    private function buildFilterOptions(): array
+    {
+        $courses = \App\Models\MataKuliah::select('id', 'nama', 'kode')
+            ->orderBy('nama')
+            ->get()
+            ->map(fn($c) => ['value' => (string) $c->id, 'label' => $c->nama . ' (' . ($c->kode ?? '-') . ')']);
+
+        $statuses = [
+            ['value' => 'all', 'label' => 'Semua Status'],
+            ['value' => 'present', 'label' => '✅ Hadir'],
+            ['value' => 'late', 'label' => '⏰ Terlambat'],
+            ['value' => 'excused', 'label' => '📋 Izin'],
+            ['value' => 'anomali', 'label' => '⚠️ Anomali/Ditolak'],
+        ];
+
+        $riskLevels = [
+            ['value' => 'all', 'label' => 'Semua Level'],
+            ['value' => 'low', 'label' => '🟢 Rendah (0-29)'],
+            ['value' => 'medium', 'label' => '🟡 Sedang (30-69)'],
+            ['value' => 'high', 'label' => '🔴 Tinggi (70-100)'],
+        ];
+
+        return [
+            'courses' => $courses,
+            'statuses' => $statuses,
+            'riskLevels' => $riskLevels,
+        ];
+    }
+
+    /**
+     * Compute stats for export context
+     */
+    private function computeExportStats($logs): array
+    {
+        $total = $logs->count();
+        $hadir = $logs->where('status', 'present')->count();
+        $terlambat = $logs->where('status', 'late')->count();
+        $izin = $logs->where('status', 'excused')->count();
+        $anomali = $logs->whereIn('status', ['rejected', 'absent'])->count();
+
+        return [
+            'total' => $total,
+            'hadir' => $hadir,
+            'terlambat' => $terlambat,
+            'izin' => $izin,
+            'anomali' => $anomali,
+            'attendanceRate' => $total > 0 ? round(($hadir / $total) * 100, 1) : 0,
+            'riskHigh' => $logs->where('risk_score', '>=', 70)->count(),
+            'riskMedium' => $logs->whereBetween('risk_score', [30, 69])->count(),
+            'riskLow' => $logs->where('risk_score', '<', 30)->count(),
+            'suspicious' => $logs->where('is_suspicious', true)->count(),
+        ];
+    }
 }
+
