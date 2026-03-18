@@ -19,6 +19,17 @@ class AttendanceSessionAutomationService
                 'is_active' => false,
                 'updated_at' => $now,
             ]);
+
+        // Auto-activate sessions that should be active now
+        AttendanceSession::where('is_active', false)
+            ->where('start_at', '<=', $now)
+            ->where('end_at', '>=', $now)
+            ->where('metode', 'offline')
+            ->whereRaw('LOWER(title) NOT LIKE ?', ['%online%'])
+            ->update([
+                'is_active' => true,
+                'updated_at' => $now,
+            ]);
     }
 
     public function isSessionOpen(?AttendanceSession $session, ?CarbonInterface $currentTime = null): bool
