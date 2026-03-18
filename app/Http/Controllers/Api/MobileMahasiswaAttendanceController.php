@@ -49,6 +49,11 @@ class MobileMahasiswaAttendanceController extends Controller
                     'dosen' => $dosen?->name,
                     'room' => $session?->zona,
                 ],
+                'meeting_number' => $session?->meeting_number,
+                'distance' => (float) $log->distance_m,
+                'latitude' => (float) $log->latitude,
+                'longitude' => (float) $log->longitude,
+                'selfie_url' => $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
             ],
         ]);
     }
@@ -92,6 +97,11 @@ class MobileMahasiswaAttendanceController extends Controller
                 'check_out' => null,
                 'session_id' => $session?->id,
                 'notes' => $log->note,
+                'meeting_number' => $session?->meeting_number,
+                'distance' => (float) $log->distance_m,
+                'latitude' => (float) $log->latitude,
+                'longitude' => (float) $log->longitude,
+                'selfie_url' => $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
             ];
         })->values();
 
