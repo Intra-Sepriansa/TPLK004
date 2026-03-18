@@ -48,12 +48,13 @@ class MobileMahasiswaAttendanceController extends Controller
                     'mata_kuliah' => $course?->nama ?? $session?->title,
                     'dosen' => $dosen?->name,
                     'room' => $session?->zona,
+                    'meeting_number' => $session?->meeting_number,
                 ],
                 'meeting_number' => $session?->meeting_number,
                 'distance' => (float) $log->distance_m,
                 'latitude' => (float) $log->latitude,
                 'longitude' => (float) $log->longitude,
-                'selfie_url' => $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
+                'selfie_url' => $log->selfie_path ? Storage::disk('public')->url($log->selfie_path) : null,
             ],
         ]);
     }
@@ -101,7 +102,7 @@ class MobileMahasiswaAttendanceController extends Controller
                 'distance' => (float) $log->distance_m,
                 'latitude' => (float) $log->latitude,
                 'longitude' => (float) $log->longitude,
-                'selfie_url' => $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
+                'selfie_url' => $log->selfie_path ? Storage::disk('public')->url($log->selfie_path) : null,
             ];
         })->values();
 
@@ -286,7 +287,9 @@ class MobileMahasiswaAttendanceController extends Controller
                     'mata_kuliah' => $session?->course?->nama ?? $session?->title,
                     'dosen' => $session?->dosen?->name,
                     'room' => $session?->zona,
+                    'meeting_number' => $session?->meeting_number,
                 ],
+                'meeting_number' => $session?->meeting_number,
                 'message' => 'QR valid. Silakan ambil foto selfie.',
             ],
         ]);
@@ -415,6 +418,10 @@ class MobileMahasiswaAttendanceController extends Controller
                 'attendance_id' => $log->id,
                 'status' => $log->status,
                 'check_in' => optional($log->scanned_at)->toDateTimeString(),
+                'meeting_number' => $token->session?->meeting_number,
+                'latitude' => (float) $log->latitude,
+                'longitude' => (float) $log->longitude,
+                'distance' => (float) $log->distance_m,
                 'selfie_path' => Storage::disk('public')->url($path),
             ],
         ]);

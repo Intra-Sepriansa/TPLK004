@@ -80,10 +80,17 @@ class MobileMahasiswaDashboardController extends Controller
                 'check_in' => optional($todayLog->scanned_at)->format('H:i:s'),
                 'check_out' => null,
                 'session' => [
+                    'id' => $session?->id,
                     'mata_kuliah' => $course?->nama ?? $session?->title,
                     'dosen' => $dosen?->name,
                     'room' => $session?->zona,
+                    'meeting_number' => $session?->meeting_number,
                 ],
+                'meeting_number' => $session?->meeting_number,
+                'latitude' => (float) $todayLog->latitude,
+                'longitude' => (float) $todayLog->longitude,
+                'distance' => (float) $todayLog->distance_m,
+                'selfie_url' => $todayLog->selfie_path ? \Illuminate\Support\Facades\Storage::disk('public')->url($todayLog->selfie_path) : null,
             ];
         }
 
