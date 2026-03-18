@@ -1,5 +1,5 @@
 class ApiEndpoints {
-  // URL diisi saat build: flutter build apk --dart-define=BASE_URL=http://43.156.61.79
+  // URL diisi saat build: flutter build apk --dart-define=BASE_URL=https://<DOMAIN_ATAU_IP>
   // Default otomatis untuk emulator dev (10.0.2.2 = localhost laptop)
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
