@@ -1,5 +1,10 @@
 class ApiEndpoints {
-  static const String baseUrl = 'http://43.156.61.79'; // URL API VPS Server Production
+  // URL diisi saat build: flutter build apk --dart-define=BASE_URL=http://43.156.61.79
+  // Default otomatis untuk emulator dev (10.0.2.2 = localhost laptop)
+  static const String baseUrl = String.fromEnvironment(
+    'BASE_URL',
+    defaultValue: 'http://10.0.2.2:8000',
+  );
   static const String basePath = '/api/mobile/mahasiswa';
 
   static const String login = '$basePath/login';

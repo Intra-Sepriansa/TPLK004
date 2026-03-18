@@ -44,6 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Google Services
+# Google Services (Firebase config — contain API keys, NEVER commit these)
 google-services.json
 GoogleService-Info.plist
+
+# Dart define files (may contain production URLs/secrets)
+.dart_defines
+*.dart_defines
