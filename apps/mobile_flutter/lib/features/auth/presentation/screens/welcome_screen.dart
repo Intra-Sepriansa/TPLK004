@@ -25,33 +25,43 @@ class WelcomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
             child: Column(
               children: [
-                const SizedBox(height: 20),
-                const Text(
-                  'Selamat datang',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 24),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const Text(
+                        'Selamat datang',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Portal Presensi Mahasiswa',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withOpacity(0.8),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
                       Image.asset(
                         'assets/images/welcome.png',
-                        width: size.width * 0.7,
+                        width: size.width * 0.75,
                         fit: BoxFit.contain,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 48),
                       const Text(
-                        'Kelola presensi mahasiswa dengan alur modern: QR check-in, verifikasi selfie, dan rekap kehadiran terintegrasi—lebih cepat, akurat, dan aman.',
+                        'Kelola presensi mahasiswa dengan alur modern: QR check-in, verifikasi selfie, dan rekap kehadiran terintegrasi\nLebih cepat, akurat, dan aman.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
-                          height: 1.5,
+                          height: 1.6,
                           color: Colors.white,
                         ),
                       ),

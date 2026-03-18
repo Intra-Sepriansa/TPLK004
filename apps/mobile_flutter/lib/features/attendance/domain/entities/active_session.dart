@@ -5,9 +5,9 @@ class ActiveSessionEntity extends Equatable {
   final String courseName;
   final int meetingNumber;
   final String title;
-  final String startAt;
-  final String endAt;
-  final String dosenName;
+  final String? startAt;
+  final String? endAt;
+  final String? dosenName;
   final String? attendanceStatus;
   final String? attendanceLabel;
   final bool alreadySubmitted;
@@ -17,9 +17,9 @@ class ActiveSessionEntity extends Equatable {
     required this.courseName,
     required this.meetingNumber,
     required this.title,
-    required this.startAt,
-    required this.endAt,
-    required this.dosenName,
+    this.startAt,
+    this.endAt,
+    this.dosenName,
     this.attendanceStatus,
     this.attendanceLabel,
     required this.alreadySubmitted,

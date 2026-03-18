@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/scan_enums.dart';
 import '../providers/scan_state.dart';
 import 'scan_frame_overlay.dart';
+import '../../../attendance/domain/entities/session_info.dart';
 
 /// Master camera card that switches between phase views.
 class UnifiedCameraCard extends StatelessWidget {
@@ -193,7 +194,7 @@ class UnifiedCameraCard extends StatelessWidget {
           onCancel: onCancelScanning,
         );
       case CameraPhase.flipping:
-        return const _FlippingView();
+        return _FlippingView(detectedSession: scanState.detectedSession);
       case CameraPhase.selfie:
         return _SelfieView(
           countdown: scanState.selfieCountdown,
@@ -209,6 +210,7 @@ class UnifiedCameraCard extends StatelessWidget {
           locationFetching: scanState.locationState == LocationState.fetching,
           locationMessage: scanState.locationMessage,
           selfieRequired: scanState.selfieRequired,
+          detectedSession: scanState.detectedSession,
           onRetakeSelfie: onRetakeSelfie,
           onRetryFlow: onRetryFlow,
         );
@@ -317,109 +319,113 @@ class _IdleView extends StatelessWidget {
             ),
           ),
           Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.sky500.withOpacity(0.25),
-                          AppColors.emerald400.withOpacity(0.25),
-                        ],
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt_rounded,
-                      size: 36,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'SIAP MEMULAI',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 2.5,
-                      color: AppColors.sky400.withOpacity(0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Siap untuk absen?',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Mulai dari scan QR di kartu ini.\nJika sesi memerlukan selfie, kamera akan berpindah otomatis.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.7),
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Chip badges
-                  Wrap(
-                    spacing: 6,
-                    children: [
-                      _InfoChip(label: '1 kartu kamera'),
-                      _InfoChip(label: 'QR lalu selfie'),
-                      _InfoChip(label: 'Lokasi otomatis'),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Start button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: consentAccepted ? onStartScanning : null,
-                      icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
-                      label: const Text('Mulai Scan QR'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.grey[900],
-                        disabledBackgroundColor: Colors.white.withOpacity(0.3),
-                        disabledForegroundColor: Colors.white.withOpacity(0.5),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.sky500.withOpacity(0.25),
+                            AppColors.emerald400.withOpacity(0.25),
+                          ],
                         ),
-                        elevation: 8,
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt_rounded,
+                        size: 36,
+                        color: Colors.white,
                       ),
                     ),
-                  ),
-                  if (hasToken) ...[
-                    const SizedBox(height: 10),
-                    TextButton.icon(
-                      onPressed: onRetryFlow,
-                      icon: const Icon(Icons.refresh_rounded, size: 16, color: Colors.white70),
-                      label: const Text('Mulai Ulang', style: TextStyle(color: Colors.white70)),
+                    const SizedBox(height: 16),
+                    Text(
+                      'SIAP MEMULAI',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2.5,
+                        color: AppColors.sky400.withOpacity(0.8),
+                      ),
                     ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Siap untuk absen?',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Mulai dari scan QR di kartu ini.\nJika sesi memerlukan selfie, kamera akan berpindah otomatis.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.7),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Chip badges
+                    const Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        _InfoChip(label: '1 kartu kamera'),
+                        _InfoChip(label: 'QR lalu selfie'),
+                        _InfoChip(label: 'Lokasi otomatis'),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Start button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: consentAccepted ? onStartScanning : null,
+                        icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
+                        label: const Text('Mulai Scan QR'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.grey[900],
+                          disabledBackgroundColor: Colors.white.withOpacity(0.3),
+                          disabledForegroundColor: Colors.white.withOpacity(0.5),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          elevation: 8,
+                        ),
+                      ),
+                    ),
+                    if (hasToken) ...[
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        onPressed: onRetryFlow,
+                        icon: const Icon(Icons.refresh_rounded, size: 16, color: Colors.white70),
+                        label: const Text('Mulai Ulang', style: TextStyle(color: Colors.white70)),
+                      ),
+                    ],
+                    if (!consentAccepted)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          'Aktifkan persetujuan kamera dan lokasi di bagian atas sebelum memulai.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 11, color: Colors.amber[300]),
+                        ),
+                      ),
                   ],
-                  if (!consentAccepted)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text(
-                        'Aktifkan persetujuan kamera dan lokasi di bagian atas sebelum memulai.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 11, color: Colors.amber[300]),
-                      ),
-                    ),
-                ],
+                ),
               ),
             ),
           ),
@@ -579,7 +585,9 @@ class _ToolbarButton extends StatelessWidget {
 // ═══════════════════════════════════════
 
 class _FlippingView extends StatefulWidget {
-  const _FlippingView();
+  final SessionInfo? detectedSession;
+
+  const _FlippingView({this.detectedSession});
 
   @override
   State<_FlippingView> createState() => _FlippingViewState();
@@ -664,6 +672,37 @@ class _FlippingViewState extends State<_FlippingView>
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.7)),
             ),
+            if (widget.detectedSession != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.detectedSession!.mataKuliah ?? 'Mata Kuliah',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    if (widget.detectedSession!.pertemuanKe != null)
+                      Text(
+                        'Pertemuan ${widget.detectedSession!.pertemuanKe}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -874,6 +913,7 @@ class _DoneView extends StatelessWidget {
   final bool locationFetching;
   final String locationMessage;
   final bool selfieRequired;
+  final SessionInfo? detectedSession;
   final VoidCallback onRetakeSelfie;
   final VoidCallback onRetryFlow;
 
@@ -885,6 +925,7 @@ class _DoneView extends StatelessWidget {
     required this.locationFetching,
     required this.locationMessage,
     required this.selfieRequired,
+    this.detectedSession,
     required this.onRetakeSelfie,
     required this.onRetryFlow,
   });
@@ -1020,6 +1061,49 @@ class _DoneView extends StatelessWidget {
                   ),
                 ],
               ),
+              if (detectedSession != null) ...[
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.sky500.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.sky500.withOpacity(0.2)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'SESI TERDETEKSI',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                          color: AppColors.sky400,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        detectedSession!.mataKuliah ?? 'Mata Kuliah',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (detectedSession!.pertemuanKe != null)
+                        Text(
+                          'Pertemuan ${detectedSession!.pertemuanKe}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),

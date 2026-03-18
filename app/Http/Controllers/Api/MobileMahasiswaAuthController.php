@@ -78,4 +78,48 @@ class MobileMahasiswaAuthController extends Controller
             ],
         ]);
     }
+
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'nim' => ['required', 'string', 'max:20'],
+        ]);
+
+        $nim = trim($request->nim);
+        $mahasiswa = Mahasiswa::where('nim', $nim)->first();
+
+        if (! $mahasiswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIM tidak ditemukan. Pastikan NIM yang dimasukkan benar.',
+            ], 404);
+        }
+
+        try {
+            $defaultPassword = CredentialDefaults::mahasiswaDefaultPassword($nim);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mereset password. Hubungi admin.',
+            ], 500);
+        }
+
+        $mahasiswa->forceFill([
+            'password' => Hash::make($defaultPassword),
+        ])->save();
+
+        // Build a masked hint of the default password (show first 2 and last 2 chars)
+        $hint = strlen($defaultPassword) > 4
+            ? substr($defaultPassword, 0, 2) . str_repeat('*', strlen($defaultPassword) - 4) . substr($defaultPassword, -2)
+            : str_repeat('*', strlen($defaultPassword));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil direset ke default.',
+            'data' => [
+                'hint' => $hint,
+                'nama' => $mahasiswa->nama,
+            ],
+        ]);
+    }
 }

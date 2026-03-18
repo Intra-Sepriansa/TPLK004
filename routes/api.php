@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('mobile/mahasiswa/login', [MobileMahasiswaAuthController::class, 'login'])
     ->name('api.mobile.mahasiswa.login');
 
+Route::post('mobile/mahasiswa/forgot-password', [MobileMahasiswaAuthController::class, 'forgotPassword'])
+    ->name('api.mobile.mahasiswa.forgot-password');
+
 Route::middleware(['mobile.mahasiswa'])->prefix('mobile/mahasiswa')->group(function () {
     Route::get('/dashboard', [MobileMahasiswaDashboardController::class, 'index'])
         ->name('api.mobile.mahasiswa.dashboard');

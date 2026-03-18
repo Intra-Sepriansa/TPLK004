@@ -6,6 +6,7 @@ class SessionInfoModel extends SessionInfo {
     super.mataKuliah,
     super.dosen,
     super.room,
+    super.pertemuanKe,
   });
 
   factory SessionInfoModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,9 @@ class SessionInfoModel extends SessionInfo {
       mataKuliah: json['mata_kuliah']?.toString(),
       dosen: json['dosen']?.toString(),
       room: json['room']?.toString(),
+      pertemuanKe: json['pertemuan_ke'] != null
+          ? (json['pertemuan_ke'] as num).toInt()
+          : null,
     );
   }
 }

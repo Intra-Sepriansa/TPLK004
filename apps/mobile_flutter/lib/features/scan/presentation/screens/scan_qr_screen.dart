@@ -331,10 +331,11 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
               // Active Sessions List
               const SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.only(top: 20),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: ActiveSessionsListWidget(),
                 ),
               ),
+
               // Unified Camera Card
               SliverToBoxAdapter(
                 child: Padding(

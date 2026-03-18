@@ -17,15 +17,15 @@ class ActiveSessionModel extends ActiveSessionEntity {
   factory ActiveSessionModel.fromJson(Map<String, dynamic> json) {
     return ActiveSessionModel(
       id: json['id'] as int,
-      courseName: json['courseName'] as String,
-      meetingNumber: json['meetingNumber'] as int,
-      title: json['title'] as String,
-      startAt: json['startAt'] as String,
-      endAt: json['endAt'] as String,
-      dosenName: json['dosenName'] as String,
+      courseName: json['courseName'] as String? ?? 'Mata Kuliah',
+      meetingNumber: json['meetingNumber'] as int? ?? 0,
+      title: json['title'] as String? ?? '',
+      startAt: json['startAt'] as String?,
+      endAt: json['endAt'] as String?,
+      dosenName: json['dosenName'] as String?,
       attendanceStatus: json['attendanceStatus'] as String?,
       attendanceLabel: json['attendanceLabel'] as String?,
-      alreadySubmitted: json['alreadySubmitted'] as bool,
+      alreadySubmitted: json['alreadySubmitted'] as bool? ?? false,
     );
   }
 

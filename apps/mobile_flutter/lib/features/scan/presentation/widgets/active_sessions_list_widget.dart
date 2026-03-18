@@ -15,42 +15,177 @@ class ActiveSessionsListWidget extends ConsumerWidget {
 
     return activeSessionsAsync.when(
       data: (sessions) {
-        if (sessions.isEmpty) return const SizedBox.shrink();
+        return _SessionContextCard(
+          sessions: sessions,
+          isLoading: false,
+        );
+      },
+      loading: () => const _SessionContextCard(sessions: [], isLoading: true),
+      error: (error, stack) {
+        debugPrint('ActiveSessionsError: $error');
+        return const _SessionContextCard(sessions: [], isLoading: false);
+      },
+    );
+  }
+}
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Sesi Aktif Saat Ini',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+class _SessionContextCard extends StatelessWidget {
+  final List<ActiveSessionEntity> sessions;
+  final bool isLoading;
+
+  const _SessionContextCard({required this.sessions, required this.isLoading});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEmpty = sessions.isEmpty && !isLoading;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Ikon dalam kotak rounded
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.qr_code_scanner_rounded, 
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(width: 16),
+              // Teks Header
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SESSION CONTEXT',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 2,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      isEmpty ? 'Belum ada sesi aktif' : 'Sesi Aktif Saat Ini',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      isEmpty 
+                        ? 'Saat dosen membuka absensi, daftar matkul aktif akan muncul di kartu ini.'
+                        : 'Pilih matkul di bawah ini untuk melihat jadwal sesinya.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 24),
+          
+          if (isLoading)
+            const _LoadingSkeleton()
+          else if (isEmpty)
+            // Tampilan Kosong (Empty State)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              decoration: BoxDecoration(
+                color: Colors.grey[50], // Abu-abu sangat terang
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.schedule_rounded,
+                        color: Colors.grey[400],
+                        size: 36,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Belum Ada Absensi Aktif',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Mahasiswa bisa kembali lagi saat\ndosen sudah membuka QR untuk mata\nkuliah yang sedang berjalan.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      height: 1.6,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            // Daftar Sesi Horizontal
             SizedBox(
-              height: 140,
+              height: 144,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                clipBehavior: Clip.none,
                 scrollDirection: Axis.horizontal,
                 itemCount: sessions.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
-                  final session = sessions[index];
-                  return _ActiveSessionCard(session: session);
+                  return _ActiveSessionCard(session: sessions[index]);
                 },
               ),
             ),
-            const SizedBox(height: 16),
-          ],
-        );
-      },
-      loading: () => const _LoadingSkeleton(),
-      error: (error, stack) => const SizedBox.shrink(), // Silently fail on error
+        ],
+      ),
     );
   }
 }
@@ -75,13 +210,6 @@ class _ActiveSessionCard extends ConsumerWidget {
           color: themeColor.withOpacity(0.3),
           width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -91,9 +219,6 @@ class _ActiveSessionCard extends ConsumerWidget {
           onTap: isSubmitted
               ? null
               : () {
-                  // Pre-fill the token input with some hint if needed, or simply trigger focus
-                  // In this implementation, we don't know the exact token, so we just
-                  // show a toast or highlight the scanner area.
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Arahkan kamera ke QR kode untuk ${session.courseName}'),
@@ -103,7 +228,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                   );
                 },
           child: Padding(
-            padding: const EdgeInsets.all(14.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -119,17 +244,17 @@ class _ActiveSessionCard extends ConsumerWidget {
                         'Pertemuan ${session.meetingNumber}',
                         style: TextStyle(
                           fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           color: themeColor,
                         ),
                       ),
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.divider.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -137,10 +262,10 @@ class _ActiveSessionCard extends ConsumerWidget {
                           const Icon(Icons.schedule, size: 10, color: AppColors.textSecondary),
                           const SizedBox(width: 4),
                           Text(
-                            '${session.startAt} - ${session.endAt}',
+                            '${session.startAt ?? '-'} - ${session.endAt ?? '-'}',
                             style: const TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -149,12 +274,12 @@ class _ActiveSessionCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Text(
                   session.courseName,
                   style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                   maxLines: 1,
@@ -162,7 +287,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  session.dosenName,
+                  session.dosenName ?? 'Dosen',
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -186,7 +311,7 @@ class _ActiveSessionCard extends ConsumerWidget {
                             : 'Belum Absen',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           color: isSubmitted ? AppColors.emerald500 : AppColors.textSecondary,
                         ),
                         maxLines: 1,
@@ -209,60 +334,43 @@ class _LoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            'Sesi Aktif Saat Ini',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+    return SizedBox(
+      height: 144,
+      child: ListView.separated(
+        clipBehavior: Clip.none,
+        scrollDirection: Axis.horizontal,
+        itemCount: 2,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          return Container(
+            width: 260,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey[200]!),
             ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 140,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            scrollDirection: Axis.horizontal,
-            itemCount: 2,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              return Container(
-                width: 260,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.divider.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(width: 80, height: 20, color: AppColors.divider),
-                        const Spacer(),
-                        Container(width: 60, height: 16, color: AppColors.divider),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(width: 180, height: 18, color: AppColors.divider),
-                    const SizedBox(height: 6),
-                    Container(width: 120, height: 14, color: AppColors.divider),
+                    Container(width: 80, height: 20, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4))),
                     const Spacer(),
-                    Container(width: 100, height: 14, color: AppColors.divider),
+                    Container(width: 60, height: 16, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(4))),
                   ],
                 ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
+                const SizedBox(height: 16),
+                Container(width: 180, height: 18, color: Colors.grey[300]),
+                const SizedBox(height: 8),
+                Container(width: 120, height: 14, color: Colors.grey[300]),
+                const Spacer(),
+                Container(width: 100, height: 14, color: Colors.grey[300]),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/services/push_notification_service.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/usecases/check_auth_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -71,6 +73,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
         user: result.$2,
         errorMessage: null,
       );
+      
+      FirebaseMessaging.instance.getToken().then((token) {
+        PushNotificationService.instance.sendTokenToBackend(token);
+      });
+      
       return true;
     } catch (e) {
       state = state.copyWith(

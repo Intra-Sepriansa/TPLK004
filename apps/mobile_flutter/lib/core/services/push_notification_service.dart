@@ -6,6 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 
+import '../api/api_client.dart';
+import '../api/api_endpoints.dart';
+import '../di/injection.dart';
+
 /// Top-level background handler – must be a top-level function.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -51,7 +55,7 @@ class PushNotificationService {
         ?.createNotificationChannel(_androidChannel);
 
     // ── 3. Initialise flutter_local_notifications ──────────────
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidInit = AndroidInitializationSettings('@drawable/ic_notification');
     const darwinInit = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -75,11 +79,14 @@ class PushNotificationService {
     debugPrint('═══════════════════════════════════════');
     debugPrint('[FCM] TOKEN: $fcmToken');
     debugPrint('═══════════════════════════════════════');
+    
+    // Send token if already logged in
+    await sendTokenToBackend(fcmToken);
 
     // Listen for token refresh
     _messaging.onTokenRefresh.listen((newToken) {
       debugPrint('[FCM] Token refreshed: $newToken');
-      // TODO: Send newToken to your backend
+      sendTokenToBackend(newToken);
     });
 
     // ── 5. Setup foreground message handler ─────────────────────
@@ -118,7 +125,7 @@ class PushNotificationService {
           channelDescription: _androidChannel.description,
           importance: Importance.high,
           priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+          icon: '@drawable/ic_notification',
           styleInformation: BigTextStyleInformation(
             notification.body ?? '',
             contentTitle: notification.title,
@@ -149,6 +156,20 @@ class PushNotificationService {
     if (route != null) {
       debugPrint('[FCM] Message opened, route: $route');
       // TODO: Navigate to route using GoRouter
+    }
+  }
+
+  /// Send FCM token to backend
+  Future<void> sendTokenToBackend(String? token) async {
+    if (token == null || token.isEmpty) return;
+    try {
+      final dio = getIt<ApiClient>().dio;
+      await dio.post(ApiEndpoints.fcmToken, data: {
+        'fcm_token': token,
+      });
+      _log.i('[FCM] Token successfully sent to backend');
+    } catch (e) {
+      _log.w('[FCM] Failed to send token to backend (likely not logged in yet): $e');
     }
   }
 }
