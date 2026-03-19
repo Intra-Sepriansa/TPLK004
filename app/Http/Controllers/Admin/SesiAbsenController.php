@@ -491,12 +491,11 @@ class SesiAbsenController extends Controller
 
     public function destroy(AttendanceSession $session): RedirectResponse
     {
-        if ($session->logs()->count() > 0) {
-            return back()->with('error', 'Tidak dapat menghapus sesi yang sudah memiliki data kehadiran.');
-        }
+        // Cascade delete: hapus semua data kehadiran terkait sesi ini
+        $session->logs()->delete();
 
         $session->delete();
-        return back()->with('success', 'Sesi absen berhasil dihapus.');
+        return back()->with('success', 'Sesi absen dan data kehadiran berhasil dihapus.');
     }
 
     public function activate(AttendanceSession $session): RedirectResponse
