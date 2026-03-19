@@ -100,9 +100,6 @@ class _AttendanceSuccessScreenState extends State<AttendanceSuccessScreen>
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Wave Background
-          _buildWaveBackground(),
-
           // Confetti particles
           AnimatedBuilder(
             animation: _confettiAnim,
