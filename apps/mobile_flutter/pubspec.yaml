@@ -107,6 +107,7 @@ flutter:
     - assets/images/empty_no_kas.png
     - assets/images/empty_no_data.png
     - assets/images/forgot_password_hero.png
+    - assets/images/student_celebration.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

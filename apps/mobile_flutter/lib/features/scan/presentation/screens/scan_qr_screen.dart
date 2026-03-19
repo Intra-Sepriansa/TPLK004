@@ -12,12 +12,13 @@ import '../../../home/data/datasources/home_remote_datasource.dart';
 import '../../../../shared/providers/navigation_provider.dart';
 import '../../domain/entities/scan_enums.dart';
 import '../providers/scan_notifier.dart';
+import '../providers/scan_state.dart';
+import 'attendance_success_screen.dart';
 import '../widgets/absensi_header_widget.dart';
 import '../widgets/active_sessions_list_widget.dart';
 import '../widgets/location_status_card.dart';
 import '../widgets/progress_tracker_widget.dart';
 import '../widgets/sticky_submit_footer.dart';
-import '../widgets/success_celebration_overlay.dart';
 import '../widgets/unified_camera_card.dart';
 
 class ScanQrScreen extends ConsumerStatefulWidget {
@@ -216,6 +217,31 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
     final state = ref.watch(scanProvider);
     final notifier = ref.read(scanProvider.notifier);
 
+    // Listen for submit success and navigate to success screen
+    ref.listen<ScanAbsensiState>(scanProvider, (prev, next) {
+      if (next.submitSuccess && (prev == null || !prev.submitSuccess)) {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return AttendanceSuccessScreen(
+                courseName: next.detectedSession?.mataKuliah,
+                dosenName: next.detectedSession?.dosen,
+                meetingNumber: next.detectedSession?.pertemuanKe,
+                checkInTime: next.submitTimestamp,
+              );
+            },
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 500),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -242,7 +268,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
               // Progress Tracker
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: ProgressTrackerWidget(
                     progressCount: state.progressCount,
                     consentDone: state.consentAccepted,
@@ -270,7 +296,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
               // Unified Camera Card
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: UnifiedCameraCard(
                     scanState: state,
                     scannerController: _mobileScannerController,
@@ -290,7 +316,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
               // Location Status Card
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: LocationStatusCard(
                     locationState: state.locationState,
                     sampleCount: state.sampleCount,
@@ -308,9 +334,9 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
               if (state.errorMessage != null)
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.rose500.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(16),
@@ -323,7 +349,7 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
                           Expanded(
                             child: Text(
                               state.errorMessage!,
-                              style: const TextStyle(fontSize: 13, color: AppColors.rose500),
+                              style: TextStyle(fontSize: 13, color: AppColors.rose500),
                             ),
                           ),
                         ],
@@ -359,16 +385,6 @@ class _ScanQrScreenState extends ConsumerState<ScanQrScreen> {
               },
             ),
           ),
-          // Success Celebration Overlay
-          if (state.submitSuccess)
-            SuccessCelebrationOverlay(
-              xpGained: state.xpGained > 0 ? state.xpGained : 25,
-              currentStreak: state.currentStreak,
-              message: state.submitMessage ?? 'Data kehadiran Anda telah tercatat.',
-              onDismiss: () {
-                // Don't dismiss - keep showing until new session
-              },
-            ),
         ],
       ),
     );
