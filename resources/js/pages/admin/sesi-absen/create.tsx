@@ -908,78 +908,49 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                             *
                                                         </span>
                                                     </Label>
-                                                    {selectedCourse?.offline_meetings.length ? (
-                                                        <Select
-                                                            value={
-                                                                availableOfflineMeetings.includes(
-                                                                    selectedMeetingNumber,
-                                                                )
-                                                                    ? selectedMeetingNumber.toString()
-                                                                    : ''
-                                                            }
-                                                            onValueChange={(value) =>
-                                                                updateField(
-                                                                    'pertemuan',
-                                                                    value,
-                                                                )
-                                                            }
-                                                        >
-                                                            <SelectTrigger className="h-12 rounded-xl border-white/30 bg-white/50 dark:border-neutral-800 dark:bg-black/20">
-                                                                <SelectValue placeholder="Pilih pertemuan offline" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {availableOfflineMeetings.length === 0 ? (
-                                                                    <SelectItem value="__scheduled__" disabled>
-                                                                        Semua
-                                                                        pertemuan
-                                                                        offline
-                                                                        sudah
-                                                                        dijadwalkan
-                                                                    </SelectItem>
-                                                                ) : (
-                                                                    availableOfflineMeetings.map(
-                                                                        (
-                                                                            meetingNumber,
-                                                                        ) => (
-                                                                            <SelectItem
-                                                                                key={
-                                                                                    meetingNumber
-                                                                                }
-                                                                                value={meetingNumber.toString()}
-                                                                            >
-                                                                                Pertemuan{' '}
-                                                                                {
-                                                                                    meetingNumber
-                                                                                }
-                                                                            </SelectItem>
-                                                                        ),
-                                                                    )
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    ) : (
-                                                        <Input
-                                                            type="number"
-                                                            min={1}
-                                                            max={
-                                                                selectedCourse?.sks ===
-                                                                3
-                                                                    ? 21
-                                                                    : 14
-                                                            }
-                                                            value={
-                                                                selectedMeetingNumber || formData.pertemuan
-                                                            }
-                                                            onChange={(e) =>
-                                                                updateField(
-                                                                    'pertemuan',
-                                                                    e.target.value,
-                                                                )
-                                                            }
-                                                            className="h-12 rounded-xl border-white/30 bg-white/50 dark:border-neutral-800 dark:bg-black/20"
-                                                            placeholder="Contoh: 1"
-                                                        />
-                                                    )}
+                                                    {(() => {
+                                                        const maxMeetings = selectedCourse?.sks === 3 ? 21 : 14;
+                                                        const hasOffline = selectedCourse?.offline_meetings.length ? true : false;
+                                                        const scheduled = selectedCourse?.scheduled_meetings || [];
+                                                        
+                                                        const allOptions = hasOffline 
+                                                            ? (selectedCourse?.offline_meetings || []) 
+                                                            : Array.from({ length: maxMeetings }, (_, i) => i + 1);
+
+                                                        return (
+                                                            <Select
+                                                                value={selectedMeetingNumber ? selectedMeetingNumber.toString() : ''}
+                                                                onValueChange={(value) =>
+                                                                    updateField('pertemuan', value)
+                                                                }
+                                                            >
+                                                                <SelectTrigger className="h-12 rounded-xl border-white/30 bg-white/50 dark:border-neutral-800 dark:bg-black/20">
+                                                                    <SelectValue placeholder={`Pilih pertemuan ${hasOffline ? 'offline' : ''}`} />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {allOptions.length === 0 ? (
+                                                                        <SelectItem value="__empty__" disabled>
+                                                                            Belum ada data pertemuan
+                                                                        </SelectItem>
+                                                                    ) : (
+                                                                        allOptions.map((meetingNumber) => {
+                                                                            const isScheduled = scheduled.includes(meetingNumber);
+                                                                            return (
+                                                                                <SelectItem
+                                                                                    key={meetingNumber}
+                                                                                    value={meetingNumber.toString()}
+                                                                                    disabled={isScheduled}
+                                                                                    className={isScheduled ? "text-slate-400 dark:text-slate-600 focus:bg-transparent" : ""}
+                                                                                >
+                                                                                    Pertemuan {meetingNumber} {isScheduled ? "(Sudah Selesai / Ada)" : ""}
+                                                                                </SelectItem>
+                                                                            );
+                                                                        })
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
 
@@ -1013,24 +984,25 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                         animate="visible"
                                         exit={{ opacity: 0, x: -20 }}
                                     >
-                                        <div className="mb-6 flex items-center gap-3">
-                                            <div className="rounded-xl bg-fuchsia-100 p-3 text-fuchsia-600 dark:bg-fuchsia-900/30 dark:text-fuchsia-400">
-                                                <Calendar className="h-6 w-6" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <h2 className="bg-gradient-to-r from-fuchsia-600 to-pink-600 bg-clip-text text-2xl font-bold text-transparent dark:from-fuchsia-400 dark:to-pink-400">
-                                                    Jadwal & Waktu
-                                                </h2>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                    Sesuaikan hari, jam tayang,
-                                                    waktu buka dan tutup
-                                                    absensi.
-                                                </p>
+                                        <div className="mb-6 flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="rounded-xl bg-fuchsia-100 p-3 text-fuchsia-600 dark:bg-fuchsia-900/30 dark:text-fuchsia-400">
+                                                    <Calendar className="h-6 w-6" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h2 className="bg-gradient-to-r from-fuchsia-600 to-pink-600 bg-clip-text text-2xl font-bold text-transparent whitespace-nowrap dark:from-fuchsia-400 dark:to-pink-400">
+                                                        Jadwal & Waktu
+                                                    </h2>
+                                                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                        Sesuaikan hari, jam tayang,
+                                                        waktu buka dan tutup absensi.
+                                                    </p>
+                                                </div>
                                             </div>
                                             <Button
                                                 variant="outline"
                                                 onClick={handleSetToNow}
-                                                className="border-fuchsia-200 bg-fuchsia-50 text-fuchsia-600 shadow-sm hover:bg-fuchsia-100 dark:border-fuchsia-800/50 dark:bg-fuchsia-900/20 dark:hover:bg-fuchsia-900/40"
+                                                className="w-full shrink-0 border-fuchsia-200 bg-fuchsia-50 text-fuchsia-600 shadow-sm hover:bg-fuchsia-100 md:w-auto dark:border-fuchsia-800/50 dark:bg-fuchsia-900/20 dark:hover:bg-fuchsia-900/40"
                                             >
                                                 <Zap className="mr-2 h-4 w-4" />
                                                 Isi Sesi Sekarang
@@ -1421,27 +1393,15 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <div className="group relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center transition-colors hover:border-emerald-400 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800/20 dark:hover:border-emerald-500/50 dark:hover:bg-slate-800/40">
-                                                            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-slate-200 transition-colors group-hover:bg-emerald-100 group-hover:text-emerald-600 dark:bg-slate-800/80 dark:group-hover:bg-emerald-900/50">
-                                                                <MapPin className="h-10 w-10 text-slate-500 transition-colors group-hover:text-emerald-600 dark:text-slate-400 dark:group-hover:text-emerald-400" />
+                                                        <div className="group relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-emerald-300 bg-emerald-50/50 p-6 text-center transition-colors hover:border-emerald-500 hover:bg-emerald-50 dark:border-emerald-800/50 dark:bg-emerald-950/20 dark:hover:border-emerald-600/60 dark:hover:bg-emerald-900/30">
+                                                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-sm transition-transform group-hover:scale-110 group-hover:bg-emerald-200 dark:bg-emerald-900/60 dark:text-emerald-400 dark:group-hover:bg-emerald-800/80">
+                                                                <MapPin className="h-8 w-8 transition-colors" />
                                                             </div>
-                                                            <h3 className="mb-2 text-2xl font-bold text-slate-800 dark:text-slate-200">
-                                                                Tentukan
-                                                                Geofencing &
-                                                                Ruangan
+                                                            <h3 className="mb-2 text-lg font-bold text-emerald-900 dark:text-emerald-100">
+                                                                Tentukan Geofencing & Ruangan
                                                             </h3>
-                                                            <p className="mb-8 max-w-lg text-sm text-slate-500 dark:text-slate-400">
-                                                                Untuk kelas
-                                                                fisik, mahasiswa
-                                                                diwajibkan
-                                                                berada dalam
-                                                                radius yang Anda
-                                                                tentukan dari
-                                                                titik pusat
-                                                                kelas agar dapat
-                                                                melakukan
-                                                                presensi
-                                                                kehadiran.
+                                                            <p className="mb-6 max-w-md text-xs text-emerald-700/80 leading-relaxed dark:text-emerald-300/80">
+                                                                Untuk kelas fisik, mahasiswa diwajibkan berada dalam radius yang Anda tentukan dari titik pusat kelas agar dapat melakukan presensi kehadiran.
                                                             </p>
 
                                                             <Button
@@ -1450,12 +1410,10 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                                         '/admin/zona?redirect=/admin/sesi-absen/create',
                                                                     )
                                                                 }
-                                                                size="lg"
-                                                                className="group-button h-14 w-full transform rounded-xl bg-slate-800 px-10 text-lg font-bold text-white shadow-lg transition-all group-hover:scale-105 group-hover:bg-emerald-600 hover:bg-slate-900 sm:w-auto dark:bg-white dark:text-black dark:group-hover:bg-emerald-500 dark:group-hover:text-white dark:hover:bg-slate-200"
+                                                                className="flex h-11 w-full items-center justify-center gap-2 transform rounded-xl border border-emerald-500 bg-emerald-600 px-6 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:scale-105 hover:bg-emerald-700 sm:w-auto dark:border-emerald-500 dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-500"
                                                             >
-                                                                <Settings className="mr-3 h-5 w-5 transition-transform duration-500 group-hover:rotate-90" />
-                                                                Atur Lokasi &
-                                                                Zona Sekarang
+                                                                <Settings className="h-4 w-4 transition-transform duration-500 group-hover:rotate-90" />
+                                                                Atur Lokasi & Zona Sekarang
                                                             </Button>
                                                         </div>
                                                     )}
@@ -2070,131 +2028,120 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-6">
+                                        <div className="space-y-8">
                                             {/* Notifikasi Toggle */}
-                                            <div className="flex items-center justify-between rounded-xl border border-white/30 bg-white/30 p-4 dark:border-neutral-800 dark:bg-neutral-800/30">
-                                                <div>
-                                                    <Label className="font-semibold text-slate-700 dark:text-slate-200">
-                                                        Kirim Notifikasi ke Mahasiswa
-                                                    </Label>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                        Mahasiswa akan menerima pemberitahuan saat sesi ini diterbitkan.
-                                                    </p>
+                                            <div className="flex items-center justify-between rounded-2xl border border-white/20 bg-white/40 p-5 shadow-sm backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40">
+                                                <div className="flex items-start gap-4">
+                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400">
+                                                        <Bell className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-base font-bold text-slate-800 dark:text-slate-200">
+                                                            Aktifkan Notifikasi Mahasiswa
+                                                        </Label>
+                                                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                                            Izinkan sistem mengirimkan pengingat ke mahasiswa tergabung.
+                                                        </p>
+                                                    </div>
                                                 </div>
                                                 <Switch
                                                     checked={formData.notifikasi_mahasiswa}
                                                     onCheckedChange={(val) => updateField('notifikasi_mahasiswa', val)}
+                                                    className="scale-110"
                                                 />
                                             </div>
 
-                                            <div className="space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
-                                                <Label className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
-                                                    <Bell className="h-5 w-5" />{' '}
-                                                    Kustomisasi Teks Notifikasi Push (Opsional)
-                                                </Label>
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <Label className="text-sm">Judul Notifikasi</Label>
-                                                        <Input
-                                                            value={formData.notification_title}
-                                                            onChange={(e) => updateField('notification_title', e.target.value)}
-                                                            placeholder="Contoh: Sesi Absen Kuliah Pengganti"
-                                                            className="mt-1"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-sm">Isi Pesan Notifikasi</Label>
-                                                        <Textarea
-                                                            value={formData.notification_message}
-                                                            onChange={(e) => updateField('notification_message', e.target.value)}
-                                                            placeholder="Contoh: Sesi absensi untuk pertemuan ini telah dibuat, siapkan diri Anda."
-                                                            className="mt-1"
-                                                            rows={3}
-                                                        />
+                                            <div className={cn("grid grid-cols-1 gap-6 md:grid-cols-[1.5fr_1fr] transition-opacity duration-300", formData.notifikasi_mahasiswa ? "opacity-100" : "opacity-40 pointer-events-none")}>
+                                                {/* Kustomisasi Teks */}
+                                                <div className="space-y-5 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                                    <Label className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
+                                                        <MessageSquare className="h-5 w-5 text-blue-500" />
+                                                        Kustomisasi Pesan 
+                                                    </Label>
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <Label className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                                                Judul Notifikasi
+                                                            </Label>
+                                                            <Input
+                                                                value={formData.notification_title}
+                                                                onChange={(e) => updateField('notification_title', e.target.value)}
+                                                                placeholder="Contoh: Sesi Absen Kuliah Pengganti"
+                                                                className="h-12 rounded-xl bg-white/60 dark:bg-black/40"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                                                Isi Pesan Pendek
+                                                            </Label>
+                                                            <Textarea
+                                                                value={formData.notification_message}
+                                                                onChange={(e) => updateField('notification_message', e.target.value)}
+                                                                placeholder="Contoh: Jangan lupa untuk absen tepat waktu hari ini."
+                                                                className="rounded-xl bg-white/60 dark:bg-black/40"
+                                                                rows={3}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <Label className="font-semibold text-slate-700 dark:text-slate-200">
-                                                Kirim Via Channel:
-                                            </Label>
-                                            <div className="flex gap-4">
-                                                {[
-                                                    {
-                                                        id: 'push',
-                                                        label: 'In-App / Push',
-                                                        icon: Smartphone,
-                                                    },
-                                                    {
-                                                        id: 'whatsapp',
-                                                        label: 'WhatsApp',
-                                                        icon: MessageSquare,
-                                                    },
-                                                    {
-                                                        id: 'email',
-                                                        label: 'Email',
-                                                        icon: Mail,
-                                                    },
-                                                ].map((channel) => (
-                                                    <div
-                                                        key={channel.id}
-                                                        onClick={() =>
-                                                            toggleChannel(
-                                                                channel.id,
-                                                            )
-                                                        }
-                                                        className={cn(
-                                                            'flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 p-4 transition-all',
-                                                            formData.channels.includes(
-                                                                channel.id,
-                                                            )
-                                                                ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                                                                : 'border-slate-200 text-slate-500 dark:border-neutral-800',
-                                                        )}
-                                                    >
-                                                        <channel.icon className="h-5 w-5" />
-                                                        <span className="text-sm font-semibold">
-                                                            {channel.label}
-                                                        </span>
+                                                <div className="space-y-6">
+                                                    {/* Delivery Channels */}
+                                                    <div className="space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                                        <Label className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
+                                                            <Zap className="h-5 w-5 text-indigo-500" />
+                                                            Kirim Melalui
+                                                        </Label>
+                                                        <div className="flex flex-col gap-3">
+                                                            {[
+                                                                { id: 'push', label: 'In-App / Push', icon: Smartphone },
+                                                                { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
+                                                                { id: 'email', label: 'Email', icon: Mail },
+                                                            ].map((channel) => (
+                                                                <div
+                                                                    key={channel.id}
+                                                                    onClick={() => toggleChannel(channel.id)}
+                                                                    className={cn(
+                                                                        'flex cursor-pointer items-center justify-between rounded-xl border-2 px-4 py-3 transition-all',
+                                                                        formData.channels.includes(channel.id)
+                                                                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-sm'
+                                                                            : 'border-white/30 bg-white/20 hover:bg-white/40 dark:border-neutral-800 dark:bg-neutral-800/20'
+                                                                    )}
+                                                                >
+                                                                    <div className="flex items-center gap-3">
+                                                                        <channel.icon className={cn("h-5 w-5", formData.channels.includes(channel.id) ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400")} />
+                                                                        <span className={cn("text-sm font-semibold", formData.channels.includes(channel.id) ? "text-blue-700 dark:text-blue-300" : "text-slate-700 dark:text-slate-300")}>
+                                                                            {channel.label}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className={cn("flex h-5 w-5 items-center justify-center rounded-full border", formData.channels.includes(channel.id) ? "border-blue-500 bg-blue-500" : "border-slate-300 dark:border-slate-600")}>
+                                                                        {formData.channels.includes(channel.id) && <CheckCircle className="h-3 w-3 text-white" />}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                ))}
-                                            </div>
 
-                                            <div className="!mt-8 space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
-                                                <Label className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
-                                                    <TrendingUp className="h-5 w-5" />{' '}
-                                                    Timing Reminder
-                                                </Label>
-                                                <div className="space-y-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <Checkbox
-                                                            id="t1"
-                                                            defaultChecked
-                                                        />
-                                                        <Label htmlFor="t1">
-                                                            1 Hari Sebelum Sesi
+                                                    {/* Reminder Timing */}
+                                                    <div className="space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                                        <Label className="flex items-center gap-2 font-bold text-slate-800 dark:text-slate-200">
+                                                            <TrendingUp className="h-5 w-5 text-rose-500" />
+                                                            Auto Reminder
                                                         </Label>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <Checkbox
-                                                            id="t2"
-                                                            defaultChecked
-                                                        />
-                                                        <Label htmlFor="t2">
-                                                            30 Menit Sebelum
-                                                            Sesi Mulai
-                                                        </Label>
-                                                    </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <Checkbox
-                                                            id="t3"
-                                                            defaultChecked
-                                                        />
-                                                        <Label htmlFor="t3">
-                                                            15 Menit Sebelum
-                                                            Tutup Absen (Yang
-                                                            Belum Absen)
-                                                        </Label>
+                                                        <div className="space-y-3">
+                                                            <div className="flex items-center gap-3 rounded-lg bg-white/50 p-2 dark:bg-black/20">
+                                                                <Checkbox id="t1" defaultChecked className="border-slate-400 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500" />
+                                                                <Label htmlFor="t1" className="cursor-pointer text-sm font-medium">1 Hari Sebelum</Label>
+                                                            </div>
+                                                            <div className="flex items-center gap-3 rounded-lg bg-white/50 p-2 dark:bg-black/20">
+                                                                <Checkbox id="t2" defaultChecked className="border-slate-400 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500" />
+                                                                <Label htmlFor="t2" className="cursor-pointer text-sm font-medium">30 Menit Sebelum</Label>
+                                                            </div>
+                                                            <div className="flex items-center gap-3 rounded-lg bg-white/50 p-2 dark:bg-black/20">
+                                                                <Checkbox id="t3" defaultChecked className="border-slate-400 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500" />
+                                                                <Label htmlFor="t3" className="cursor-pointer text-xs font-medium">15 Menit Sebelum Tutup</Label>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
