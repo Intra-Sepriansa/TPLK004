@@ -82,14 +82,14 @@ class DosenSeeder extends Seeder
             [
                 'kode' => '22TIF2012',
                 'nama' => 'SISTEM PENDUKUNG KEPUTUSAN',
-                'sks' => 3,
+                'sks' => 2,
                 'kelas' => '06TPLK004',
                 'dosen_nidn' => '0498000003',
             ],
             [
                 'kode' => '22TIF3012',
                 'nama' => 'TEKNIK KOMPILASI',
-                'sks' => 3,
+                'sks' => 2,
                 'kelas' => '06TPLK004',
                 'dosen_nidn' => '0498000004',
             ],
@@ -110,14 +110,14 @@ class DosenSeeder extends Seeder
             [
                 'kode' => '22TIF0342',
                 'nama' => 'TEKNOLOGI INTERNET OF THINGS',
-                'sks' => 3,
+                'sks' => 2,
                 'kelas' => '06TPLK004',
                 'dosen_nidn' => '0498000007',
             ],
             [
                 'kode' => '22TIF0332',
                 'nama' => 'KERJA PRAKTEK',
-                'sks' => 3,
+                'sks' => 2,
                 'kelas' => '06TPLK004',
                 'dosen_nidn' => '0498000008',
             ],

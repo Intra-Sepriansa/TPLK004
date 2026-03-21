@@ -73,7 +73,7 @@ class KehadiranController extends Controller
             $session = $courseSessions->get($i);
             $log = $session ? $allLogs->get($session->id) : null;
 
-            $status = 'belum-dimulai';
+            $status = 'belum-dibuat';
             $date = null;
             $notes = null;
             $completedAt = null;
@@ -83,11 +83,20 @@ class KehadiranController extends Controller
                 $date = $log->scanned_at?->format('d M Y');
                 $completedAt = $log->scanned_at?->format('d M Y H:i');
                 $notes = $log->note;
-            } elseif ($session && !$session->is_active && $session->end_at && now()->greaterThan($session->end_at)) {
-                $status = 'tidak-hadir';
-                $date = $session->start_at?->format('d M Y');
-                $notes = 'Absen tidak tercatat di sesi ini';
             } elseif ($session) {
+                if ($session->start_at && $session->end_at) {
+                    $now = now();
+                    if ($now->between($session->start_at, $session->end_at) || $session->is_active) {
+                        $status = 'aktif';
+                    } elseif ($now->greaterThan($session->end_at)) {
+                        $status = 'tidak-hadir';
+                        $notes = 'Absen tidak tercatat di sesi ini';
+                    } else {
+                        $status = 'belum-dimulai'; 
+                    }
+                } else {
+                    $status = $session->is_active ? 'aktif' : 'belum-dimulai';
+                }
                 $date = $session->start_at?->format('d M Y');
             }
 
@@ -223,7 +232,7 @@ class KehadiranController extends Controller
             $session = $actualSessions->get($i);
             $log = $session ? $actualLogs->get($session->id) : null;
 
-            $status = 'belum-dimulai';
+            $status = 'belum-dibuat';
             $date = null;
             $rawDate = null;
             $notes = null;
@@ -236,15 +245,21 @@ class KehadiranController extends Controller
                 $rawDate = $log->scanned_at?->format('Y-m-d');
                 $completedAt = $log->scanned_at?->format('d M Y H:i');
                 $notes = $log->note ?? 'Sudah mengumpulkan bukti absensi';
-            } elseif ($session && !$session->is_active && $session->end_at && now()->greaterThan($session->end_at)) {
-                // Session is over and no present log found
-                $status = 'tidak-hadir';
-                $absentCount++;
-                $date = $session->start_at?->format('d M Y');
-                $rawDate = $session->start_at?->format('Y-m-d');
-                $notes = 'Absen tidak tercatat di sesi ini';
             } elseif ($session) {
-                // Session is started/scheduled but not closed yet, or waiting for student
+                if ($session->start_at && $session->end_at) {
+                    $now = now();
+                    if ($now->between($session->start_at, $session->end_at) || $session->is_active) {
+                        $status = 'aktif';
+                    } elseif ($now->greaterThan($session->end_at)) {
+                        $status = 'tidak-hadir';
+                        $absentCount++;
+                        $notes = 'Absen tidak tercatat di sesi ini';
+                    } else {
+                        $status = 'belum-dimulai';
+                    }
+                } else {
+                    $status = $session->is_active ? 'aktif' : 'belum-dimulai';
+                }
                 $date = $session->start_at?->format('d M Y');
                 $rawDate = $session->start_at?->format('Y-m-d');
             }

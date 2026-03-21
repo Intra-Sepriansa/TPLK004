@@ -40,7 +40,7 @@ interface Meeting {
     number: number;
     date: string | null;
     rawDate: string | null;
-    status: 'hadir' | 'tidak-hadir' | 'belum-dimulai';
+    status: 'hadir' | 'tidak-hadir' | 'aktif' | 'belum-dimulai' | 'belum-dibuat';
     mode: 'online' | 'offline';
     notes: string | null;
     completedAt: string | null;
@@ -188,6 +188,10 @@ function MeetingModal({
                                         ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20'
                                         : meeting.status === 'tidak-hadir'
                                           ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
+                                          : meeting.status === 'aktif'
+                                          ? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20'
+                                          : meeting.status === 'belum-dibuat'
+                                          ? 'border-neutral-200 border-dashed bg-transparent dark:border-neutral-700/50'
                                           : 'border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800'
                                 }`}
                             >
@@ -207,11 +211,30 @@ function MeetingModal({
                                         </span>
                                     </>
                                 )}
+                                {meeting.status === 'aktif' && (
+                                    <>
+                                        <div className="relative flex h-5 w-5 items-center justify-center">
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                                            <span className="relative inline-flex h-4 w-4 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30 dark:bg-blue-400"></span>
+                                        </div>
+                                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                                            Sedang Aktif
+                                        </span>
+                                    </>
+                                )}
                                 {meeting.status === 'belum-dimulai' && (
                                     <>
                                         <Clock className="h-5 w-5 text-neutral-500" />
                                         <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                                             Belum Dimulai
+                                        </span>
+                                    </>
+                                )}
+                                {meeting.status === 'belum-dibuat' && (
+                                    <>
+                                        <span className="h-5 w-5 rounded-full border-2 border-dashed border-neutral-400 dark:border-neutral-500" />
+                                        <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+                                            Belum Dibuat
                                         </span>
                                     </>
                                 )}
@@ -277,7 +300,8 @@ function MeetingModal({
                         </div>
 
                         {meeting.mode === 'online' &&
-                            meeting.status === 'belum-dimulai' && (
+                            (meeting.status === 'aktif' ||
+                                meeting.status === 'belum-dimulai') && (
                                 <div className="mt-6 space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
                                     <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
                                         <Checkbox
@@ -1066,6 +1090,8 @@ export default function DetailKehadiranMataKuliah({
                             {meetings.map((m, idx) => {
                                 const isH = m.status === 'hadir',
                                     isA = m.status === 'tidak-hadir',
+                                    isAc = m.status === 'aktif',
+                                    isU = m.status === 'belum-dibuat',
                                     isOn = m.mode === 'online';
                                 const midPoint = course.sks === 2 ? 7 : 10;
                                 const utsDone = !isBeforeUTS;
@@ -1084,14 +1110,14 @@ export default function DetailKehadiranMataKuliah({
                                             onClick={() =>
                                                 setSelectedMeeting(m)
                                             }
-                                            className={`group relative cursor-pointer rounded-xl border-2 p-2.5 transition-all sm:p-3 ${isH ? 'border-emerald-400 bg-emerald-50 shadow-md shadow-emerald-500/10 dark:border-emerald-600 dark:bg-emerald-900/20' : isA ? 'border-red-400 bg-red-50 shadow-md shadow-red-500/10 dark:border-red-600 dark:bg-red-900/20' : 'border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/60'}`}
+                                            className={`group relative cursor-pointer rounded-xl border-2 p-2.5 transition-all sm:p-3 ${isH ? 'border-emerald-400 bg-emerald-50 shadow-md shadow-emerald-500/10 dark:border-emerald-600 dark:bg-emerald-900/20' : isA ? 'border-red-400 bg-red-50 shadow-md shadow-red-500/10 dark:border-red-600 dark:bg-red-900/20' : isAc ? 'border-blue-400 bg-blue-50 shadow-md shadow-blue-500/10 dark:border-blue-600 dark:bg-blue-900/20 ring-2 ring-blue-500/20' : isU ? 'border-neutral-200 border-dashed bg-transparent hover:border-neutral-300 dark:border-neutral-700/50 dark:hover:border-neutral-600' : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:border-neutral-600'}`}
                                         >
                                             <div className="mb-1.5 text-center">
                                                 <p className="text-[9px] font-medium text-neutral-400 sm:text-[10px]">
                                                     Pertemuan
                                                 </p>
                                                 <p
-                                                    className={`text-xl font-extrabold tabular-nums sm:text-2xl ${isH ? 'text-emerald-600 dark:text-emerald-400' : isA ? 'text-red-600 dark:text-red-400' : 'text-neutral-500 dark:text-neutral-400'}`}
+                                                    className={`text-xl font-extrabold tabular-nums sm:text-2xl ${isH ? 'text-emerald-600 dark:text-emerald-400' : isA ? 'text-red-600 dark:text-red-400' : isAc ? 'text-blue-600 dark:text-blue-400 animate-pulse' : isU ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-500 dark:text-neutral-400'}`}
                                                 >
                                                     {m.number}
                                                 </p>
@@ -1111,6 +1137,14 @@ export default function DetailKehadiranMataKuliah({
                                                     </>
                                                 )}
                                             </div>
+                                            {isAc && (
+                                                <div className="absolute -top-1.5 -right-1.5">
+                                                    <div className="relative flex h-4 w-4">
+                                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                                                        <span className="relative inline-flex h-4 w-4 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30"></span>
+                                                    </div>
+                                                </div>
+                                            )}
                                             {isH && (
                                                 <div className="absolute -top-1.5 -right-1.5">
                                                     <div className="rounded-full bg-emerald-500 p-0.5 shadow-lg">
@@ -1197,7 +1231,22 @@ export default function DetailKehadiranMataKuliah({
                             <div className="flex items-center gap-1.5">
                                 <div className="h-3.5 w-3.5 rounded-full bg-neutral-300 dark:bg-neutral-600" />
                                 <span className="text-neutral-600 dark:text-neutral-400">
-                                    Belum Terlaksana
+                                    Akan Datang
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <div className="relative flex h-3.5 w-3.5 items-center justify-center">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                                    <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-blue-500"></span>
+                                </div>
+                                <span className="text-neutral-600 dark:text-neutral-400">
+                                    Sedang Aktif
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <div className="h-3.5 w-3.5 rounded-full border border-dashed border-neutral-400 bg-transparent dark:border-neutral-500" />
+                                <span className="text-neutral-600 dark:text-neutral-400">
+                                    Belum Dibuat
                                 </span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -1228,7 +1277,9 @@ export default function DetailKehadiranMataKuliah({
                         <div className="space-y-2">
                             {meetings.map((m, idx) => {
                                 const isH = m.status === 'hadir',
-                                    isA = m.status === 'tidak-hadir';
+                                    isA = m.status === 'tidak-hadir',
+                                    isAc = m.status === 'aktif',
+                                    isU = m.status === 'belum-dibuat';
                                 return (
                                     <motion.div
                                         key={m.number}
@@ -1242,12 +1293,19 @@ export default function DetailKehadiranMataKuliah({
                                             <div className="absolute top-12 bottom-0 left-[23px] w-0.5 bg-neutral-200 dark:bg-neutral-700" />
                                         )}
                                         <div
-                                            className={`relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-4 border-white shadow-md dark:border-neutral-900 ${isH ? 'bg-emerald-500' : isA ? 'bg-red-500' : 'bg-neutral-300 dark:bg-neutral-600'}`}
+                                            className={`relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-4 border-white shadow-md dark:border-neutral-900 ${isH ? 'bg-emerald-500' : isA ? 'bg-red-500' : isAc ? 'bg-blue-500 border-blue-200 dark:border-blue-900' : isU ? 'bg-transparent border-dashed border-neutral-300 dark:border-neutral-700' : 'bg-neutral-300 dark:bg-neutral-600'}`}
                                         >
                                             {isH ? (
                                                 <CheckCircle2 className="h-5 w-5 text-white" />
                                             ) : isA ? (
                                                 <XCircle className="h-5 w-5 text-white" />
+                                            ) : isAc ? (
+                                                <div className="relative flex h-5 w-5 items-center justify-center">
+                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-40"></span>
+                                                    <div className="h-3 w-3 rounded-full bg-white text-blue-500" />
+                                                </div>
+                                            ) : isU ? (
+                                                <span className="h-3 w-3 rounded-full bg-neutral-300 dark:bg-neutral-600" />
                                             ) : (
                                                 <Clock className="h-5 w-5 text-white" />
                                             )}
@@ -1269,13 +1327,17 @@ export default function DetailKehadiranMataKuliah({
                                                                     : 'Offline'}
                                                             </span>
                                                             <span
-                                                                className={`rounded-lg px-2 py-0.5 text-xs font-medium ${isH ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isA ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400'}`}
+                                                                className={`rounded-lg px-2 py-0.5 text-xs font-medium ${isH ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : isA ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' : isAc ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : isU ? 'bg-transparent border border-dashed border-neutral-300 text-neutral-500 dark:border-neutral-600 dark:text-neutral-400' : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400'}`}
                                                             >
                                                                 {isH
                                                                     ? 'Hadir'
                                                                     : isA
                                                                       ? 'Tidak Hadir'
-                                                                      : 'Belum Dimulai'}
+                                                                      : isAc
+                                                                      ? 'Sedang Aktif'
+                                                                      : isU
+                                                                      ? 'Belum Dibuat'
+                                                                      : 'Akan Datang'}
                                                             </span>
                                                         </div>
                                                         <h4 className="text-sm font-bold text-neutral-900 dark:text-white">

@@ -34,7 +34,7 @@ import kehadiranIcon from '@/assets/mahasiswa/monitoring/monitoring.png';
 interface Meeting {
     number: number;
     date: string | null;
-    status: 'hadir' | 'tidak-hadir' | 'belum-dimulai';
+    status: 'hadir' | 'tidak-hadir' | 'aktif' | 'belum-dimulai' | 'belum-dibuat';
     mode: 'online' | 'offline';
     notes: string | null;
     completedAt: string | null;
@@ -139,7 +139,7 @@ const courseGradients = [
 
 function calculateStreak(meetings: Meeting[]) {
     const sorted = meetings
-        .filter((m) => m.status !== 'belum-dimulai')
+        .filter((m) => m.status !== 'belum-dimulai' && m.status !== 'belum-dibuat' && m.status !== 'aktif')
         .sort((a, b) => a.number - b.number);
     let currentStreak = 0;
     let longestStreak = 0;
@@ -836,57 +836,37 @@ export default function MonitoringKehadiran({
                                     <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-7">
                                         {course.meetings.map(
                                             (meeting, meetingIndex) => {
-                                                const isAttended =
-                                                    meeting.status === 'hadir';
-                                                const isAbsent =
-                                                    meeting.status ===
-                                                    'tidak-hadir';
-                                                const isOnline =
-                                                    meeting.mode === 'online';
-                                                const midPoint =
-                                                    course.sks === 2 ? 7 : 10;
+                                                const isAttended = meeting.status === 'hadir';
+                                                const isAbsent = meeting.status === 'tidak-hadir';
+                                                const isActive = meeting.status === 'aktif';
+                                                const isUnmade = meeting.status === 'belum-dibuat';
+                                                const isScheduled = meeting.status === 'belum-dimulai';
+                                                const isOnline = meeting.mode === 'online';
+                                                const midPoint = course.sks === 2 ? 7 : 10;
 
                                                 const utsDone = !isBeforeUTS;
-                                                const uasDone =
-                                                    course.attendedCount +
-                                                        course.absentCount ===
-                                                    course.totalMeetings;
+                                                const uasDone = course.attendedCount + course.absentCount === course.totalMeetings;
 
                                                 return (
                                                     <React.Fragment
                                                         key={meeting.number}
                                                     >
                                                         <motion.button
-                                                            initial={{
-                                                                opacity: 0,
-                                                                scale: 0.8,
-                                                            }}
-                                                            animate={{
-                                                                opacity: 1,
-                                                                scale: 1,
-                                                            }}
-                                                            transition={{
-                                                                delay:
-                                                                    meetingIndex *
-                                                                    0.02,
-                                                            }}
-                                                            whileHover={{
-                                                                scale: 1.08,
-                                                                y: -2,
-                                                            }}
-                                                            whileTap={{
-                                                                scale: 0.95,
-                                                            }}
-                                                            onClick={() =>
-                                                                router.visit(
-                                                                    `/user/akademik/kehadiran/${course.id}`,
-                                                                )
-                                                            }
+                                                            initial={{ opacity: 0, scale: 0.8 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            transition={{ delay: meetingIndex * 0.02 }}
+                                                            whileHover={{ scale: 1.08, y: -2 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => router.visit(`/user/akademik/kehadiran/${course.id}`)}
                                                             className={`group relative cursor-pointer rounded-xl border-2 p-2.5 transition-all duration-200 sm:p-3 ${
                                                                 isAttended
                                                                     ? 'border-emerald-400 bg-emerald-50 shadow-md shadow-emerald-500/10 dark:border-emerald-600 dark:bg-emerald-900/20'
                                                                     : isAbsent
                                                                       ? 'border-red-400 bg-red-50 shadow-md shadow-red-500/10 dark:border-red-600 dark:bg-red-900/20'
+                                                                      : isActive
+                                                                      ? 'border-blue-400 bg-blue-50 shadow-md shadow-blue-500/10 dark:border-blue-600 dark:bg-blue-900/20 ring-2 ring-blue-500/20'
+                                                                      : isUnmade
+                                                                      ? 'border-neutral-200 border-dashed bg-transparent hover:border-neutral-300 dark:border-neutral-700/50 dark:hover:border-neutral-600'
                                                                       : 'border-neutral-200 bg-neutral-50 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:border-neutral-600'
                                                             }`}
                                                         >
@@ -900,12 +880,14 @@ export default function MonitoringKehadiran({
                                                                             ? 'text-emerald-600 dark:text-emerald-400'
                                                                             : isAbsent
                                                                               ? 'text-red-600 dark:text-red-400'
+                                                                              : isActive
+                                                                              ? 'text-blue-600 dark:text-blue-400 animate-pulse'
+                                                                              : isUnmade
+                                                                              ? 'text-neutral-300 dark:text-neutral-600'
                                                                               : 'text-neutral-500 dark:text-neutral-400'
                                                                     }`}
                                                                 >
-                                                                    {
-                                                                        meeting.number
-                                                                    }
+                                                                    {meeting.number}
                                                                 </p>
                                                             </div>
                                                             <div
@@ -931,6 +913,14 @@ export default function MonitoringKehadiran({
                                                                     </>
                                                                 )}
                                                             </div>
+                                                            {isActive && (
+                                                                <div className="absolute -top-1.5 -right-1.5">
+                                                                    <div className="relative flex h-4 w-4">
+                                                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                                                                        <span className="relative inline-flex h-4 w-4 rounded-full bg-blue-500 shadow-lg shadow-blue-500/30"></span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                             {isAttended && (
                                                                 <div className="absolute -top-1.5 -right-1.5">
                                                                     <div className="rounded-full bg-emerald-500 p-0.5 shadow-lg shadow-emerald-500/30">
@@ -1022,9 +1012,24 @@ export default function MonitoringKehadiran({
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-1.5">
+                                                <div className="relative flex h-3.5 w-3.5">
+                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                                                    <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-blue-500" />
+                                                </div>
+                                                <span className="text-neutral-600 dark:text-neutral-400">
+                                                    Sedang Aktif
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
                                                 <div className="h-3.5 w-3.5 rounded-full bg-neutral-300 dark:bg-neutral-600" />
                                                 <span className="text-neutral-600 dark:text-neutral-400">
-                                                    Belum Terlaksana
+                                                    Akan Datang
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="h-3.5 w-3.5 rounded-full border border-dashed border-neutral-400 bg-transparent dark:border-neutral-500" />
+                                                <span className="text-neutral-600 dark:text-neutral-400">
+                                                    Belum Dibuat
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-1.5">
