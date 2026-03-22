@@ -44,12 +44,12 @@ class TugasFilterWidget extends StatelessWidget {
           ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1F2937) : Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -60,7 +60,7 @@ class TugasFilterWidget extends StatelessWidget {
                 BoxShadow(
                   color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
                   blurRadius: 14,
-                  offset: const Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
               ],
             ),
@@ -72,7 +72,7 @@ class TugasFilterWidget extends StatelessWidget {
                   child: TextField(
                     onChanged: onSearchChanged,
                     controller: controller,
-                    style: const TextStyle(fontSize: 13),
+                    style: TextStyle(fontSize: 13),
                     decoration: const InputDecoration(
                       hintText: 'Cari judul tugas atau mata kuliah...',
                       border: InputBorder.none,
@@ -85,7 +85,7 @@ class TugasFilterWidget extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF111827) : const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(12),
@@ -105,7 +105,7 @@ class TugasFilterWidget extends StatelessWidget {
                   ),
                   ...courses.map((course) => DropdownMenuItem<int?>(
                         value: course.id,
-                        child: Text(course.nama, style: const TextStyle(fontSize: 12)),
+                        child: Text(course.nama, style: TextStyle(fontSize: 12)),
                       )),
                 ],
                 onChanged: onCourseChanged,
@@ -123,7 +123,7 @@ class TugasFilterWidget extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeInOut,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: isActive ? AppColors.indigo600 : (isDark ? const Color(0xFF111827) : Colors.white),
                     borderRadius: BorderRadius.circular(999),
@@ -133,9 +133,9 @@ class TugasFilterWidget extends StatelessWidget {
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppColors.indigo600.withValues(alpha: 0.3),
+                              color: AppColors.indigo600.withOpacity(0.3),
                               blurRadius: 12,
-                              offset: const Offset(0, 6),
+                              offset: Offset(0, 6),
                             ),
                           ]
                         : null,

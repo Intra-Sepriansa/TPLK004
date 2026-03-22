@@ -23,7 +23,7 @@ class AttendanceStatusCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,7 +40,7 @@ class AttendanceStatusCard extends StatelessWidget {
             const SizedBox(height: 8),
             if (todayAttendance!.mataKuliah != null)
               Text(todayAttendance!.mataKuliah!,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: TextStyle(fontWeight: FontWeight.w600)),
             if (todayAttendance!.dosen != null)
               Text(todayAttendance!.dosen!),
             if (todayAttendance!.room != null)

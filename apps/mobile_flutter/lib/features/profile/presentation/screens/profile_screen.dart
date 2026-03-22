@@ -141,14 +141,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ── STATIC HEADER ──
-          SliverToBoxAdapter(child: _buildStaticHeader(context)),
+          // ── HEADER ──
+          SliverToBoxAdapter(child: _buildHeader(profile!)),
           // ── BODY ──
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
+                  _buildHeroCard(profile, state),
                   const SizedBox(height: 16),
                   _buildStatsGrid(),
                   const SizedBox(height: 24),
@@ -159,18 +160,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     switchInCurve: Curves.easeOut,
                     switchOutCurve: Curves.easeIn,
                     child: _activeTab == 0
-                        ? _buildOverviewTab(profile, key: const ValueKey(0))
+                        ? _buildOverviewTab(profile!, key: const ValueKey(0))
                         : _activeTab == 1
-                            ? _buildEditTab(profile, state, key: const ValueKey(1))
+                            ? _buildEditTab(profile!, state, key: const ValueKey(1))
                             : _buildSecurityTab(state, key: const ValueKey(2)),
                   ),
                   const SizedBox(height: 20),
                   _buildLogoutButton(),
                   const SizedBox(height: 80),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildStaticHeader(BuildContext context) {
+  // ═══════════════════════════════════════════════════════
+  Widget _buildHeader(ProfileEntity profile) {
     return Container(
       clipBehavior: Clip.antiAlias,
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
@@ -190,9 +198,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -214,7 +222,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           ),
               // Content
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                padding: EdgeInsets.fromLTRB(20, 12, 20, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -228,7 +236,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                             const Text('Profil Saya',
                                 style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             Text(profile.name,
-                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
+                                style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
                           ],
                         ),
                         _glassClock(),
@@ -237,28 +245,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     const SizedBox(height: 12),
                     // Date
                     Text(_dateString,
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12)),
+                        style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 12)),
                     const SizedBox(height: 8),
                     // NIM badge removed per request
-                  ],
-                ),
+                ],
               ),
-            ],
-          ),
-        );
-      },
-    );
+            ),
+          ],
+        ),
+      );
   }
 
   Widget _glassButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
         ),
         child: Icon(icon, color: Colors.white, size: 20),
       ),
@@ -267,31 +273,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _glassClock() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Text(_timeString,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
     );
   }
 
   Widget _nimBadge(String nim) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Container(width: 8, height: 8,
-            decoration: const BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle)),
+            decoration: BoxDecoration(color: Colors.greenAccent, shape: BoxShape.circle)),
         const SizedBox(width: 8),
         Text('NIM: $nim',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
       ]),
     );
   }
@@ -301,25 +307,75 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: Colors.white.withOpacity(0.2),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+          border: Border.all(color: Colors.white.withOpacity(0.3)),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, color: Colors.white, size: 14),
           const SizedBox(width: 6),
           Text(label,
-              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+              style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
         ]),
       ),
     );
   }
 
-
+  // ═══════════════════════════════════════════════════════
+  // 2. HERO PROFILE CARD
+  // ═══════════════════════════════════════════════════════
+  Widget _buildHeroCard(ProfileEntity profile, ProfileState state) {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 24, offset: Offset(0, 8)),
+        ],
+      ),
+      child: Column(children: [
+        // Avatar + verified badge
+        Stack(children: [
+          Container(
+            padding: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(colors: [AppColors.violet500, AppColors.pink500]),
+              boxShadow: [
+                BoxShadow(color: AppColors.violet500.withOpacity(0.3), blurRadius: 16, offset: Offset(0, 6)),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: profile.avatar != null
+                  ? CachedNetworkImageProvider(profile.avatar!)
+                  : null,
+              child: profile.avatar == null
+                  ? Text(profile.name.isNotEmpty ? profile.name[0] : 'M',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.violet500))
+                  : null,
+            ),
+          ),
+          Positioned(
+            bottom: 2, right: 2,
+            child: Container(
+              padding: EdgeInsets.all(3),
+              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              child: const Icon(Icons.verified_rounded, color: AppColors.emerald500, size: 22),
+            ),
+          ),
+        ]),
+        const SizedBox(height: 16),
+        // Name
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Flexible(
             child: Text(profile.name,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
                 textAlign: TextAlign.center),
           ),
           const SizedBox(width: 6),
@@ -331,14 +387,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         const SizedBox(height: 12),
         // Active badge
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.emerald500.withValues(alpha: 0.1),
+            color: AppColors.emerald500.withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Container(width: 7, height: 7,
-                decoration: const BoxDecoration(color: AppColors.emerald500, shape: BoxShape.circle)),
+                decoration: BoxDecoration(color: AppColors.emerald500, shape: BoxShape.circle)),
             const SizedBox(width: 8),
             const Text('Mahasiswa Aktif',
                 style: TextStyle(color: AppColors.emerald500, fontSize: 12, fontWeight: FontWeight.bold)),
@@ -365,7 +421,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               label: Text('Ganti Foto',
                   style: TextStyle(color: Colors.grey[800], fontWeight: FontWeight.bold, fontSize: 13)),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: 14),
                 side: BorderSide(color: Colors.grey[300]!),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
@@ -382,7 +438,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _infoChip(IconData icon, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 14, color: Colors.grey[600]),
@@ -399,21 +455,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   Widget _gradientButton(String label, IconData icon, VoidCallback onTap) {
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [AppColors.violet500, AppColors.indigo600]),
+        gradient: LinearGradient(colors: [AppColors.violet500, AppColors.indigo600]),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: AppColors.violet500.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
+          BoxShadow(color: AppColors.violet500.withOpacity(0.3), blurRadius: 12, offset: Offset(0, 6)),
         ],
       ),
       child: ElevatedButton.icon(
         onPressed: onTap,
         icon: Icon(icon, size: 16, color: Colors.white),
         label: Text(label,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
@@ -438,17 +494,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _statCard(String label, String value, IconData icon, Color c1, Color c2) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: Offset(0, 4)),
         ],
       ),
       child: Column(children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             gradient: LinearGradient(colors: [c1, c2]),
             borderRadius: BorderRadius.circular(14),
@@ -457,7 +513,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         ),
         const SizedBox(height: 10),
         Text(value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(label,
             textAlign: TextAlign.center,
@@ -477,7 +533,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       (Icons.lock_outline_rounded, 'Keamanan'),
     ];
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(20),
@@ -490,15 +546,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               onTap: () => setState(() => _activeTab = i),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   gradient: active
-                      ? const LinearGradient(colors: [AppColors.violet500, AppColors.purple600])
+                      ? LinearGradient(colors: [AppColors.violet500, AppColors.purple600])
                       : null,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: active
-                      ? [BoxShadow(color: AppColors.violet500.withValues(alpha: 0.3),
-                            blurRadius: 8, offset: const Offset(0, 4))]
+                      ? [BoxShadow(color: AppColors.violet500.withOpacity(0.3),
+                            blurRadius: 8, offset: Offset(0, 4))]
                       : null,
                 ),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -559,7 +615,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               Text('Kelengkapan Profil',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[700])),
               Text(_profileCompleteness(p),
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.violet500)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.violet500)),
             ]),
             const SizedBox(height: 6),
             ClipRRect(
@@ -645,7 +701,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Avatar section
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey[50],
               borderRadius: BorderRadius.circular(20),
@@ -660,7 +716,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     : null,
                 child: profile.avatar == null
                     ? Text(profile.name[0],
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.violet500))
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.violet500))
                     : null,
               ),
               const SizedBox(width: 16),
@@ -679,7 +735,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       icon: const Icon(Icons.upload_rounded, size: 14),
                       label: const Text('Pilih Foto', style: TextStyle(fontSize: 11)),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: EdgeInsets.symmetric(horizontal: 12),
                         side: BorderSide(color: Colors.grey[300]!),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
@@ -713,7 +769,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           const SizedBox(height: 24),
           // Buttons
           Container(
-            padding: const EdgeInsets.only(top: 16),
+            padding: EdgeInsets.only(top: 16),
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: Colors.grey[200]!)),
             ),
@@ -727,7 +783,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   label: Text('Batal',
                       style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(color: Colors.grey[300]!),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
@@ -798,7 +854,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(color: Colors.grey[200]!),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
         style: TextStyle(
           fontSize: 14, fontWeight: FontWeight.w500,
@@ -839,7 +895,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               () => setState(() => _showConfirmPwd = !_showConfirmPwd)),
           const SizedBox(height: 24),
           Container(
-            padding: const EdgeInsets.only(top: 16),
+            padding: EdgeInsets.only(top: 16),
             decoration: BoxDecoration(
               border: Border(top: BorderSide(color: Colors.grey[200]!)),
             ),
@@ -855,7 +911,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   label: Text('Batal',
                       style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(color: Colors.grey[300]!),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
@@ -865,11 +921,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.rose400, AppColors.rose500]),
+                    gradient: LinearGradient(colors: [AppColors.rose400, AppColors.rose500]),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
-                      BoxShadow(color: AppColors.rose500.withValues(alpha: 0.3),
-                          blurRadius: 12, offset: const Offset(0, 6)),
+                      BoxShadow(color: AppColors.rose500.withOpacity(0.3),
+                          blurRadius: 12, offset: Offset(0, 6)),
                     ],
                   ),
                   child: ElevatedButton.icon(
@@ -877,12 +933,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     icon: const Icon(Icons.shield_rounded, size: 16, color: Colors.white),
                     label: Text(
                       state.isUpdating ? 'Menyimpan...' : 'Ubah Password',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                   ),
@@ -972,9 +1028,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         label: const Text('Logout'),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.error,
-          side: BorderSide(color: AppColors.error.withValues(alpha: 0.4)),
+          side: BorderSide(color: AppColors.error.withOpacity(0.4)),
           backgroundColor: Colors.white,
-          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
@@ -1012,11 +1068,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(color: AppColors.violet500, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           hintText: '••••••••',
           hintStyle: TextStyle(color: Colors.grey[300]),
         ),
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
     ]);
   }
@@ -1034,11 +1090,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final idx = (score - 1).clamp(0, 4);
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.sky400.withValues(alpha: 0.08),
+        color: AppColors.sky400.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.sky400.withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.sky400.withOpacity(0.2)),
       ),
       child: Column(children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -1063,9 +1119,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _tipRow(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.grey[50],
           borderRadius: BorderRadius.circular(16),
@@ -1084,14 +1140,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _securitySummaryRow(String label, String value, Color valueColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: valueColor == AppColors.emerald500
-            ? AppColors.emerald500.withValues(alpha: 0.08)
+            ? AppColors.emerald500.withOpacity(0.08)
             : Colors.grey[50],
         borderRadius: BorderRadius.circular(16),
         border: valueColor == AppColors.emerald500
-            ? Border.all(color: AppColors.emerald500.withValues(alpha: 0.2))
+            ? Border.all(color: AppColors.emerald500.withOpacity(0.2))
             : null,
       ),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -1099,7 +1155,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
                 color: valueColor == AppColors.emerald500 ? AppColors.emerald500 : Colors.grey[700])),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: valueColor == AppColors.emerald500 ? AppColors.emerald500 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
@@ -1123,19 +1179,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     required Widget child,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: Offset(0, 4)),
         ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         // Header
         Row(children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: iconGradient),
               borderRadius: BorderRadius.circular(14),
@@ -1146,7 +1202,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               Text(subtitle,
                   style: TextStyle(fontSize: 11, color: Colors.grey[500])),
             ]),
@@ -1160,10 +1216,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _infoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: 12),
       child: Row(children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(10),
@@ -1178,7 +1234,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     color: Colors.grey[500], letterSpacing: 0.5)),
             const SizedBox(height: 2),
             Text(value,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           ]),
         ),
       ]),
@@ -1187,7 +1243,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _metricRow(String label, String value, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.only(bottom: 10),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Row(children: [
           Container(
@@ -1199,7 +1255,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               style: TextStyle(fontSize: 13, color: Colors.grey[700], fontWeight: FontWeight.w500)),
         ]),
         Text(value,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       ]),
     );
   }
@@ -1208,14 +1264,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: valueColor == AppColors.emerald500
-              ? AppColors.emerald500.withValues(alpha: 0.08)
+              ? AppColors.emerald500.withOpacity(0.08)
               : Colors.grey[50],
           borderRadius: BorderRadius.circular(14),
           border: valueColor == AppColors.emerald500
-              ? Border.all(color: AppColors.emerald500.withValues(alpha: 0.2))
+              ? Border.all(color: AppColors.emerald500.withOpacity(0.2))
               : null,
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -1223,13 +1279,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600,
                   color: valueColor == AppColors.emerald500 ? AppColors.emerald500 : Colors.grey[700])),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: valueColor == AppColors.emerald500 ? AppColors.emerald500 : AppColors.amber500,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(value,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ]),
       ),

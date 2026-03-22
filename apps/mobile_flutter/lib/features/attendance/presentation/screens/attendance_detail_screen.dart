@@ -86,7 +86,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
 
               // ═══ CONTENT ═══
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildSelfieCard(record, ss),
@@ -134,7 +134,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
           colors: [
             AppColors.primaryDark,
             AppColors.primary,
-            AppColors.primaryLight.withValues(alpha: 0.8),
+            AppColors.primaryLight.withOpacity(0.8),
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -143,7 +143,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -165,120 +165,118 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
               ),
             ),
           ),
-              // Content
-              SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // Content
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ── Top Row: Back + Title ──
+                  Row(
                     children: [
-                      // ── Top Row: Back + Title ──
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 26),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Detail Kehadiran',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  record.mataKuliah,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Status Badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: sc.$2.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(sc.$4, size: 16, color: Colors.white),
-                                const SizedBox(width: 6),
-                                Text(
-                                  sc.$1,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // ── Description ──
-                      Text(
-                        'Pertemuan #${record.meetingNumber ?? "?"} — $dateFormatted',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontSize: 13,
-                          height: 1.5,
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 26),
                         ),
                       ),
-
-                      const SizedBox(height: 16),
-
-                      // ── Action Buttons ──
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildActionButton(
-                            icon: Icons.picture_as_pdf_rounded,
-                            label: _isExporting ? 'Mengexport...' : 'Export PDF',
-                            onTap: _isExporting ? null : _exportPdf,
-                          ),
-                          _buildActionButton(
-                            icon: Icons.refresh_rounded,
-                            label: 'Refresh',
-                            onTap: () {
-                              setState(() {});
-                            },
-                          ),
-                        ],
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Detail Kehadiran',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              record.mataKuliah,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Status Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: sc.$2.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(sc.$4, size: 16, color: Colors.white),
+                            const SizedBox(width: 6),
+                            Text(
+                              sc.$1,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
+
+                  const SizedBox(height: 16),
+
+                  // ── Description ──
+                  Text(
+                    'Pertemuan #${record.meetingNumber ?? "?"} — $dateFormatted',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.85),
+                      fontSize: 13,
+                      height: 1.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ── Action Buttons ──
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildActionButton(
+                        icon: Icons.picture_as_pdf_rounded,
+                        label: _isExporting ? 'Mengexport...' : 'Export PDF',
+                        onTap: _isExporting ? null : _exportPdf,
+                      ),
+                      _buildActionButton(
+                        icon: Icons.refresh_rounded,
+                        label: 'Refresh',
+                        onTap: () {
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -294,10 +292,10 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+            border: Border.all(color: Colors.white.withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -306,7 +304,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -728,7 +726,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
               decoration: BoxDecoration(
                 color: AppColors.background,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+                border: Border.all(color: Colors.black.withOpacity(0.05)),
               ),
               clipBehavior: Clip.antiAlias,
               child: record.selfieUrl != null
@@ -745,15 +743,15 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
                             top: 12,
                             right: 12,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: ss.$2.withValues(alpha: 0.9),
+                                color: ss.$2.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: ss.$2.withValues(alpha: 0.3),
+                                    color: ss.$2.withOpacity(0.3),
                                     blurRadius: 10,
-                                    offset: const Offset(0, 4),
+                                    offset: Offset(0, 4),
                                   )
                                 ],
                               ),
@@ -764,7 +762,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
                                   const SizedBox(width: 6),
                                   Text(
                                     ss.$1,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white,
@@ -778,9 +776,9 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
                           bottom: 12,
                           right: 12,
                           child: Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.4),
+                              color: Colors.black.withOpacity(0.4),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(Icons.fullscreen_rounded, size: 20, color: Colors.white),
@@ -802,14 +800,14 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.image_not_supported_rounded,
-              size: 48, color: AppColors.textSecondary.withValues(alpha: 0.2)),
+              size: 48, color: AppColors.textSecondary.withOpacity(0.2)),
           const SizedBox(height: 12),
           Text(
             'Tidak ada bukti selfie',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary.withValues(alpha: 0.5),
+              color: AppColors.textSecondary.withOpacity(0.5),
             ),
           ),
         ],
@@ -872,11 +870,11 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
                 onTap: () {},
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.sky500.withValues(alpha: 0.08),
+                    color: AppColors.sky500.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.sky500.withValues(alpha: 0.2)),
+                    border: Border.all(color: AppColors.sky500.withOpacity(0.2)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -985,12 +983,12 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
   // ═══════════════════════════════════════════════════════
   Widget _buildNotesCard(AttendanceEntity record) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.amber500.withValues(alpha: 0.05),
+        color: AppColors.amber500.withOpacity(0.05),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.amber500.withValues(alpha: 0.25),
+          color: AppColors.amber500.withOpacity(0.25),
           width: 2,
         ),
       ),
@@ -1000,11 +998,11 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.amber500.withValues(alpha: 0.12),
+                  color: AppColors.amber500.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.amber500.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppColors.amber500.withOpacity(0.2)),
                 ),
                 child: const Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.amber600),
               ),
@@ -1022,7 +1020,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
           const SizedBox(height: 14),
           Text(
             record.note!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               color: AppColors.textPrimary,
               height: 1.6,
@@ -1041,7 +1039,7 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
     return GestureDetector(
       onTap: () => setState(() => _selfieFullscreen = false),
       child: Container(
-        color: Colors.black.withValues(alpha: 0.9),
+        color: Colors.black.withOpacity(0.9),
         child: SafeArea(
           child: Stack(
             children: [
@@ -1064,9 +1062,9 @@ class _AttendanceDetailScreenState extends State<AttendanceDetailScreen>
                 child: GestureDetector(
                   onTap: () => setState(() => _selfieFullscreen = false),
                   child: Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(Icons.close_rounded, size: 24, color: Colors.white),
@@ -1092,16 +1090,16 @@ class _GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.8),
+        color: Colors.white.withOpacity(0.8),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           )
         ],
       ),
@@ -1128,11 +1126,11 @@ class _SectionHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
+            color: iconColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: iconColor.withValues(alpha: 0.2)),
+            border: Border.all(color: iconColor.withOpacity(0.2)),
           ),
           child: Icon(icon, size: 20, color: iconColor),
         ),
@@ -1143,7 +1141,7 @@ class _SectionHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
@@ -1152,7 +1150,7 @@ class _SectionHeader extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
@@ -1177,17 +1175,17 @@ class _MetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
+        color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Column(
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -1196,7 +1194,7 @@ class _MetricTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
@@ -1227,11 +1225,11 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.04),
+        color: color.withOpacity(0.04),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Row(
         children: [
@@ -1242,14 +1240,14 @@ class _InfoRow extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [color, color.withValues(alpha: 0.7)],
+                colors: [color, color.withOpacity(0.7)],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: color.withValues(alpha: 0.25),
+                  color: color.withOpacity(0.25),
                   blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 )
               ],
             ),
@@ -1272,7 +1270,7 @@ class _InfoRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -1298,9 +1296,9 @@ class _SessionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.background,
           borderRadius: BorderRadius.circular(14),
@@ -1310,7 +1308,7 @@ class _SessionRow extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 color: AppColors.textSecondary,
               ),
@@ -1318,7 +1316,7 @@ class _SessionRow extends StatelessWidget {
             Flexible(
               child: Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,

@@ -61,7 +61,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       onRefresh: _onRefresh,
       color: AppColors.indigo600,
       child: ListView(
-        padding: const EdgeInsets.only(top: 0, bottom: 32),
+        padding: EdgeInsets.only(top: 0, bottom: 32),
         children: [
           // 1. Hero Header
           HeroHeaderWidget(
@@ -88,13 +88,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // Quick Menu — Uang Kas
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: GestureDetector(
               onTap: () => context.push('/app/kas'),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
@@ -102,9 +102,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+                      color: const Color(0xFF6366F1).withOpacity(0.35),
                       blurRadius: 16,
-                      offset: const Offset(0, 6),
+                      offset: Offset(0, 6),
                     ),
                   ],
                 ),
@@ -114,7 +114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
@@ -140,7 +140,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Text(
                             'Kelola pembayaran & keuangan kelas',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: Colors.white.withOpacity(0.8),
                               fontSize: 12,
                             ),
                           ),
@@ -151,7 +151,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -170,13 +170,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
           // Quick Menu — Informasi Tugas
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: GestureDetector(
               onTap: () => context.push('/app/tugas'),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
@@ -184,9 +184,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.35),
+                      color: const Color(0xFF10B981).withOpacity(0.35),
                       blurRadius: 16,
-                      offset: const Offset(0, 6),
+                      offset: Offset(0, 6),
                     ),
                   ],
                 ),
@@ -196,7 +196,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
@@ -222,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           Text(
                             'Tugas individu & kelompok',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: Colors.white.withOpacity(0.8),
                               fontSize: 12,
                             ),
                           ),
@@ -233,7 +233,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
+                        color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -288,7 +288,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       baseColor: isDark ? const Color(0xFF1E293B) : Colors.grey[300]!,
       highlightColor: isDark ? const Color(0xFF334155) : Colors.grey[100]!,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
           // Hero placeholder
           Container(
@@ -331,7 +331,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ...List.generate(
             3,
             (_) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(bottom: 12),
               child: Container(
                 height: 180,
                 decoration: BoxDecoration(
@@ -349,7 +349,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildError(String message, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -387,7 +387,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 12,
                 ),

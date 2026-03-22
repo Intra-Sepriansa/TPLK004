@@ -65,7 +65,7 @@ class StatsGridWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GridView.count(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
@@ -89,15 +89,15 @@ class StatsGridWidget extends StatelessWidget {
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: config.gradient.first.withValues(alpha: 0.2),
+            color: config.gradient.first.withOpacity(0.2),
             blurRadius: 16,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
         border: Border.all(
           color: isDark
-              ? Colors.white.withValues(alpha: 0.05)
-              : config.gradient.first.withValues(alpha: 0.15),
+              ? Colors.white.withOpacity(0.05)
+              : config.gradient.first.withOpacity(0.15),
         ),
       ),
       child: Stack(
@@ -113,15 +113,15 @@ class StatsGridWidget extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    config.gradient.first.withValues(alpha: 0.2),
-                    config.gradient.first.withValues(alpha: 0),
+                    config.gradient.first.withOpacity(0.2),
+                    config.gradient.first.withOpacity(0),
                   ],
                 ),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(14),
+            padding: EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

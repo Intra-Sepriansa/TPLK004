@@ -31,7 +31,7 @@ class TugasStatsWidget extends StatelessWidget {
           ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Wrap(
         spacing: 12,
         runSpacing: 12,
@@ -60,7 +60,7 @@ class _StatCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: (MediaQuery.of(context).size.width - 16 * 2 - 12) / 2,
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -70,9 +70,9 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: item.colors.first.withValues(alpha: 0.35),
+            color: item.colors.first.withOpacity(0.35),
             blurRadius: 16,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -83,7 +83,7 @@ class _StatCard extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(item.icon, color: Colors.white, size: 18),
@@ -107,7 +107,7 @@ class _StatCard extends StatelessWidget {
           Text(
             item.label,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Colors.white.withOpacity(0.9),
               fontSize: 11,
               fontWeight: FontWeight.w600,
             ),

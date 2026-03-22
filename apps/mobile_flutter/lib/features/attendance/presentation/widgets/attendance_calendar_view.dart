@@ -63,12 +63,12 @@ class _AttendanceCalendarViewState extends State<AttendanceCalendarView> {
     final startWeekday = firstDay.weekday % 7; // 0=Sun
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         children: [
@@ -84,7 +84,7 @@ class _AttendanceCalendarViewState extends State<AttendanceCalendarView> {
               ),
               Text(
                 DateFormat('MMMM yyyy', 'id_ID').format(_focusedMonth),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right, color: AppColors.textPrimary),
@@ -126,7 +126,7 @@ class _AttendanceCalendarViewState extends State<AttendanceCalendarView> {
                 onTap: () => widget.onDateSelected(isSelected ? null : date),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.indigo500.withValues(alpha: 0.15) : null,
+                    color: isSelected ? AppColors.indigo500.withOpacity(0.15) : null,
                     borderRadius: BorderRadius.circular(8),
                     border: isToday ? Border.all(color: AppColors.indigo500, width: 1.5) : null,
                   ),
@@ -148,7 +148,7 @@ class _AttendanceCalendarViewState extends State<AttendanceCalendarView> {
                           children: colors.take(3).map((c) => Container(
                             width: 5,
                             height: 5,
-                            margin: const EdgeInsets.symmetric(horizontal: 1),
+                            margin: EdgeInsets.symmetric(horizontal: 1),
                             decoration: BoxDecoration(shape: BoxShape.circle, color: c),
                           )).toList(),
                         ),

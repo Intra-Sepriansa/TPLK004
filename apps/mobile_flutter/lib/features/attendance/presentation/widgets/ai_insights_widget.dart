@@ -96,12 +96,12 @@ class AiInsightsWidget extends StatelessWidget {
     final insights = _compute();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,9 +109,9 @@ class AiInsightsWidget extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.violet500, AppColors.purple600]),
+                  gradient: LinearGradient(colors: [AppColors.violet500, AppColors.purple600]),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.auto_awesome, size: 20, color: Colors.white),
@@ -130,10 +130,10 @@ class AiInsightsWidget extends StatelessWidget {
           if (insights.isEmpty)
             Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
+                padding: EdgeInsets.symmetric(vertical: 24),
                 child: Column(
                   children: [
-                    Icon(Icons.auto_awesome, size: 40, color: AppColors.textSecondary.withValues(alpha: 0.3)),
+                    Icon(Icons.auto_awesome, size: 40, color: AppColors.textSecondary.withOpacity(0.3)),
                     const SizedBox(height: 8),
                     Text('Belum cukup data', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   ],
@@ -175,12 +175,12 @@ class _InsightCard extends StatelessWidget {
     final (color, icon) = _style;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
+        color: color.withOpacity(0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
+        border: Border.all(color: color.withOpacity(0.15)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +189,7 @@ class _InsightCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: Colors.white.withOpacity(0.6),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 18, color: color),
@@ -214,7 +214,7 @@ class _InsightCard extends StatelessWidget {
                           builder: (_, val, __) => LinearProgressIndicator(
                             value: val,
                             minHeight: 4,
-                            backgroundColor: color.withValues(alpha: 0.1),
+                            backgroundColor: color.withOpacity(0.1),
                             valueColor: AlwaysStoppedAnimation(color),
                           ),
                         ),

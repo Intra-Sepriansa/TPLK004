@@ -101,33 +101,33 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _buildGroupSelection(TugasKelompokDetailData data, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (data.assignment.formationMode == 'self-form' || data.assignment.formationMode == 'random_and_self_form')
             Container(
-              margin: const EdgeInsets.only(bottom: 24),
-              padding: const EdgeInsets.all(20),
+              margin: EdgeInsets.only(bottom: 24),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.indigo600.withValues(alpha: 0.1),
-                    AppColors.primaryLight.withValues(alpha: 0.05)
+                    AppColors.indigo600.withOpacity(0.1),
+                    AppColors.primaryLight.withOpacity(0.05)
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.indigo600.withValues(alpha: 0.3)),
+                border: Border.all(color: AppColors.indigo600.withOpacity(0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.indigo600.withValues(alpha: 0.15),
+                      color: AppColors.indigo600.withOpacity(0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.group_add_rounded, color: AppColors.indigo600, size: 32),
@@ -158,7 +158,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.indigo600,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
@@ -198,16 +198,16 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
               }
 
               return Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E293B) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
+                      color: Colors.black.withOpacity(0.03),
                       blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
@@ -221,7 +221,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                         Expanded(
                           child: Text(
                             group.name,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -234,7 +234,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                       children: [
                         CircleAvatar(
                           radius: 10,
-                          backgroundColor: AppColors.indigo600.withValues(alpha: 0.2),
+                          backgroundColor: AppColors.indigo600.withOpacity(0.2),
                           child: const Icon(Icons.person_rounded, size: 12, color: AppColors.indigo600),
                         ),
                         const SizedBox(width: 6),
@@ -257,7 +257,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                           children: [
                             Text(
                               '${group.memberCount} / ${group.maxMembers} Anggota',
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -285,7 +285,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                           foregroundColor: isFull ? Colors.grey : Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          padding: EdgeInsets.symmetric(vertical: 6),
                         ),
                         child: const Text('Gabung', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                       ),
@@ -302,11 +302,11 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _smallBadge(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -330,7 +330,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         height: 60,
         decoration: BoxDecoration(
@@ -339,9 +339,9 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
           border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -412,19 +412,19 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _buildChatTab(TugasKelompokDetailData data, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         children: [
           if (data.messages.isEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 40),
+              padding: EdgeInsets.symmetric(vertical: 40),
               alignment: Alignment.center,
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.indigo600.withValues(alpha: 0.1),
+                      color: AppColors.indigo600.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.forum_outlined, size: 48, color: AppColors.indigo600),
@@ -440,7 +440,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
             ...data.messages.map((msg) {
               final isMine = msg.sender?.id == null; // Simple heuristic; adjust based on real auth user ID if available
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.only(bottom: 12),
                 child: Row(
                   mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -448,14 +448,14 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                     if (!isMine) ...[
                       CircleAvatar(
                         radius: 14,
-                        backgroundColor: AppColors.indigo600.withValues(alpha: 0.2),
-                        child: Text(msg.sender?.nama.substring(0, 1).toUpperCase() ?? 'U', style: const TextStyle(fontSize: 12, color: AppColors.indigo600, fontWeight: FontWeight.w700)),
+                        backgroundColor: AppColors.indigo600.withOpacity(0.2),
+                        child: Text(msg.sender?.nama.substring(0, 1).toUpperCase() ?? 'U', style: TextStyle(fontSize: 12, color: AppColors.indigo600, fontWeight: FontWeight.w700)),
                       ),
                       const SizedBox(width: 8),
                     ],
                     Flexible(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: isMine ? AppColors.indigo600 : (isDark ? const Color(0xFF1E293B) : Colors.white),
                           borderRadius: BorderRadius.only(
@@ -467,9 +467,9 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                           border: isMine ? null : Border.all(color: isDark ? Colors.white10 : Colors.black12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
+                              color: Colors.black.withOpacity(0.04),
                               blurRadius: 10,
-                              offset: const Offset(0, 2),
+                              offset: Offset(0, 2),
                             ),
                           ],
                         ),
@@ -486,9 +486,9 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                               GestureDetector(
                                 onTap: () {},
                                 child: Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding: EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: (isMine ? Colors.white : (isDark ? Colors.white : AppColors.indigo600)).withValues(alpha: 0.1),
+                                    color: (isMine ? Colors.white : (isDark ? Colors.white : AppColors.indigo600)).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -525,20 +525,20 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
   Widget _buildFilesTab(TugasKelompokDetailData data, bool isDark) {
     final files = data.myGroup?.files ?? [];
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (files.isEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 40),
+              padding: EdgeInsets.symmetric(vertical: 40),
               alignment: Alignment.center,
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.indigo600.withValues(alpha: 0.1),
+                      color: AppColors.indigo600.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.folder_off_outlined, size: 48, color: AppColors.indigo600),
@@ -553,22 +553,22 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
           else
             ...files.map((file) {
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E293B) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2)),
+                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: Offset(0, 2)),
                   ],
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.indigo600.withValues(alpha: 0.1),
+                        color: AppColors.indigo600.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.insert_drive_file_rounded, color: AppColors.indigo600),
@@ -578,13 +578,13 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(file.originalName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(file.originalName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 4),
                           Row(
                             children: [
                               Text(file.fileSizeFormatted ?? 'Ukuran tidak diketahui', style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : Colors.black54)),
                               if (file.uploader?.nama != null) ...[
-                                Container(margin: const EdgeInsets.symmetric(horizontal: 6), width: 4, height: 4, decoration: BoxDecoration(color: isDark ? Colors.white38 : Colors.black38, shape: BoxShape.circle)),
+                                Container(margin: EdgeInsets.symmetric(horizontal: 6), width: 4, height: 4, decoration: BoxDecoration(color: isDark ? Colors.white38 : Colors.black38, shape: BoxShape.circle)),
                                 Expanded(child: Text('Oleh ${file.uploader!.nama}', style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : Colors.black54), maxLines: 1, overflow: TextOverflow.ellipsis)),
                               ],
                             ],
@@ -595,7 +595,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                     IconButton(
                       onPressed: () {},
                       icon: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: isDark ? Colors.white10 : Colors.grey[100],
                           shape: BoxShape.circle,
@@ -615,7 +615,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.indigo600,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               elevation: 0,
             ),
@@ -628,20 +628,20 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
   Widget _buildTasksTab(TugasKelompokDetailData data, bool isDark) {
     final tasks = data.myGroup?.tasks ?? [];
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (tasks.isEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 40),
+              padding: EdgeInsets.symmetric(vertical: 40),
               alignment: Alignment.center,
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.indigo600.withValues(alpha: 0.1),
+                      color: AppColors.indigo600.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.assignment_turned_in_outlined, size: 48, color: AppColors.indigo600),
@@ -666,13 +666,13 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
               }
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E293B) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2)),
+                    BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: Offset(0, 2)),
                   ],
                   border: Border(
                     top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
@@ -688,7 +688,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: Text(task.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))),
+                        Expanded(child: Text(task.title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700))),
                         const SizedBox(width: 8),
                         _smallBadge(statusLabel, statusColor),
                       ],
@@ -712,7 +712,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                               return CircleAvatar(
                                 radius: 12,
                                 backgroundColor: AppColors.indigo600,
-                                child: Text(a.nama.substring(0, 1).toUpperCase(), style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
+                                child: Text(a.nama.substring(0, 1).toUpperCase(), style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w700)),
                               );
                             }).toList()
                               ..addAll(
@@ -746,18 +746,18 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
   Widget _buildMembersTab(TugasKelompokDetailData data, bool isDark) {
     final members = data.myGroup?.members ?? [];
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2)),
+                BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: Offset(0, 2)),
               ],
             ),
             child: Column(
@@ -768,19 +768,19 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                   children: [
                     const Text('Daftar Anggota', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.indigo600.withValues(alpha: 0.1),
+                        color: AppColors.indigo600.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: Text('${members.length} Orang', style: const TextStyle(color: AppColors.indigo600, fontSize: 12, fontWeight: FontWeight.w600)),
+                      child: Text('${members.length} Orang', style: TextStyle(color: AppColors.indigo600, fontSize: 12, fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 ...members.map((m) {
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: EdgeInsets.only(bottom: 12),
                     child: Row(
                       children: [
                         Stack(
@@ -788,7 +788,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                           children: [
                             CircleAvatar(
                               radius: 20,
-                              backgroundColor: m.isLeader ? const Color(0xFFF59E0B).withValues(alpha: 0.2) : AppColors.indigo600.withValues(alpha: 0.1),
+                              backgroundColor: m.isLeader ? const Color(0xFFF59E0B).withOpacity(0.2) : AppColors.indigo600.withOpacity(0.1),
                               child: Text(
                                 m.nama.isNotEmpty ? m.nama[0].toUpperCase() : '?',
                                 style: TextStyle(color: m.isLeader ? const Color(0xFFD97706) : AppColors.indigo600, fontWeight: FontWeight.w700, fontSize: 16),
@@ -799,8 +799,8 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                                 bottom: -2,
                                 right: -2,
                                 child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                                   child: const Icon(Icons.stars_rounded, color: Color(0xFFF59E0B), size: 14),
                                 ),
                               ),
@@ -811,7 +811,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(m.nama, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              Text(m.nama, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 2),
                               Text(m.nim ?? '-', style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54)),
                             ],
@@ -834,7 +834,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
               backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
               foregroundColor: AppColors.indigo600,
               side: const BorderSide(color: AppColors.indigo600),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               elevation: 0,
             ),
@@ -850,18 +850,18 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
     // Fallback if there is no submission at all
     if (submission == null) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1E293B) : Colors.white,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.indigo600.withValues(alpha: 0.2)),
+            border: Border.all(color: AppColors.indigo600.withOpacity(0.2)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.indigo600.withValues(alpha: 0.05),
+                color: AppColors.indigo600.withOpacity(0.05),
                 blurRadius: 20,
-                offset: const Offset(0, 10),
+                offset: Offset(0, 10),
               ),
             ],
           ),
@@ -869,9 +869,9 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                  color: const Color(0xFFF59E0B).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.pending_actions_rounded, size: 48, color: Color(0xFFD97706)),
@@ -892,7 +892,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.indigo600,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
@@ -920,18 +920,18 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1E293B) : Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.2)),
+          border: Border.all(color: const Color(0xFF10B981).withOpacity(0.2)),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF10B981).withValues(alpha: 0.05),
+              color: const Color(0xFF10B981).withOpacity(0.05),
               blurRadius: 20,
-              offset: const Offset(0, 10),
+              offset: Offset(0, 10),
             ),
           ],
         ),
@@ -944,9 +944,9 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                        color: const Color(0xFF10B981).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 24),
@@ -976,11 +976,11 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                     children: [
                       Text('Waktu Pengumpulan', style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54)),
                       const SizedBox(height: 4),
-                      Text(submission.submittedAt ?? 'Tidak diketahui', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                      Text(submission.submittedAt ?? 'Tidak diketahui', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
-                Container(width: 1, height: 40, color: isDark ? Colors.white10 : Colors.black12, margin: const EdgeInsets.symmetric(horizontal: 16)),
+                Container(width: 1, height: 40, color: isDark ? Colors.white10 : Colors.black12, margin: EdgeInsets.symmetric(horizontal: 16)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1002,9 +1002,9 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
             if (submission.gradingNotes != null && submission.gradingNotes!.isNotEmpty) ...[
               const SizedBox(height: 20),
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey[50],
+                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey[50],
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
                 ),
@@ -1032,7 +1032,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.indigo600,
                 side: const BorderSide(color: AppColors.indigo600),
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
@@ -1044,12 +1044,12 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _buildPendingInvitations(List<TugasKelompokInvitation> items, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: items.map((inv) {
           return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
+            margin: EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF0F172A) : Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -1058,7 +1058,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(inv.groupName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                Text(inv.groupName, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 Text('Inviter: ${inv.inviterName}', style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black54)),
                 const SizedBox(height: 8),
@@ -1090,7 +1090,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _buildMonitoringDashboard(TugasKelompokDetailData data, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           _monitorCard('Completion Rate', '${data.myGroup?.progress?.toStringAsFixed(0) ?? '0'}%', const Color(0xFF10B981), isDark),
@@ -1105,7 +1105,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _monitorCard(String title, String value, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -1116,7 +1116,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
             child: Icon(Icons.insights_rounded, color: color),
           ),
           const SizedBox(width: 12),
@@ -1124,7 +1124,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 4),
                 Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
               ],
@@ -1137,7 +1137,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _buildAddTaskForm(bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF111827) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(14),
@@ -1180,16 +1180,16 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _buildChatInput(bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, -2),
+            offset: Offset(0, -2),
           ),
         ],
       ),
@@ -1204,7 +1204,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
           ),
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(bottom: 2),
+              margin: EdgeInsets.only(bottom: 2),
               child: TextField(
                 controller: _chatCtrl,
                 minLines: 1,
@@ -1216,20 +1216,20 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
                   _chatCtrl.clear();
                   ref.read(tugasKelompokDetailProvider.notifier).sendMessage(widget.id, text);
                 },
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Ketik pesan...',
                   hintStyle: TextStyle(color: isDark ? Colors.white38 : Colors.black38, fontSize: 13),
                   border: InputBorder.none,
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
             ),
           ),
           Container(
-            margin: const EdgeInsets.only(left: 8),
-            decoration: const BoxDecoration(
+            margin: EdgeInsets.only(left: 8),
+            decoration: BoxDecoration(
               color: AppColors.indigo600,
               shape: BoxShape.circle,
             ),
@@ -1254,7 +1254,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(999),
@@ -1271,15 +1271,15 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
 
   Widget _sectionTitle(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Text(text, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
     );
   }
 
   Widget _buildError(String message, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1299,7 +1299,7 @@ class _TugasKelompokDetailScreenState extends ConsumerState<TugasKelompokDetailS
       baseColor: isDark ? const Color(0xFF1E293B) : Colors.grey[300]!,
       highlightColor: isDark ? const Color(0xFF334155) : Colors.grey[100]!,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
           Container(height: 220, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
           const SizedBox(height: 16),
@@ -1402,11 +1402,11 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1431,7 +1431,7 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
           colors: [
             AppColors.primaryDark,
             AppColors.primary,
-            AppColors.primaryLight.withValues(alpha: 0.8),
+            AppColors.primaryLight.withOpacity(0.8),
           ],
         ),
         borderRadius: const BorderRadius.only(
@@ -1440,9 +1440,9 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
           ),
         ],
       ),
@@ -1470,7 +1470,7 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [Colors.white.withValues(alpha: 0.2), Colors.transparent],
+                      colors: [Colors.white.withOpacity(0.2), Colors.transparent],
                     ),
                   ),
                 ),
@@ -1478,7 +1478,7 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                  padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1497,22 +1497,22 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text('Tugas Kelompok', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
-                                Text(assignment.course.nama, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Text(assignment.course.nama, style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
                               ],
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
+                              color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                              border: Border.all(color: Colors.white.withOpacity(0.3)),
                             ),
                             child: Row(
                               children: [
                                 const Icon(Icons.access_time_rounded, color: Colors.white, size: 14),
                                 const SizedBox(width: 4),
-                                Text(_clock, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600, fontFamily: 'monospace')),
+                                Text(_clock, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600, fontFamily: 'monospace')),
                               ],
                             ),
                           ),
@@ -1521,7 +1521,7 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
                       const SizedBox(height: 24),
                       Text(
                         assignment.title.toUpperCase(),
-                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, height: 1.2),
+                        style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, height: 1.2),
                       ),
                       const SizedBox(height: 16),
                       Wrap(
@@ -1536,11 +1536,11 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
                       ),
                       const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.15),
+                          color: Colors.black.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                          border: Border.all(color: Colors.white.withOpacity(0.1)),
                         ),
                         child: Column(
                           children: [
@@ -1560,10 +1560,7 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
             ],
           ),
         );
-      },
-      ],
-    );
-  }
+    }
 
   String _formationLabel(String mode) {
     switch (mode) {
@@ -1580,11 +1577,11 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
 
   Widget _badge(IconData icon, String label, {Color color = Colors.white}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withOpacity(0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1601,18 +1598,18 @@ class _KelompokHeaderState extends State<_KelompokHeader> with SingleTickerProvi
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 16, color: Colors.white),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
+          child: Text(label, style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500)),
         ),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
+        Text(value, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
       ],
     );
   }

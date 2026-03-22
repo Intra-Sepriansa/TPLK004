@@ -31,7 +31,7 @@ class AnimatedCounter extends StatelessWidget {
         return Text(
           '$display$suffix',
           style: style ??
-              const TextStyle(
+              TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
               ),

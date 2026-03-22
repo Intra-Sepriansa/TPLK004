@@ -19,7 +19,7 @@ class TugasListWidget extends StatelessWidget {
       return EmptyStateWidget.noTugas();
     }
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: items.map((item) => _TugasCard(item: item)).toList(),
       ),
@@ -83,8 +83,8 @@ class _TugasCardState extends State<_TugasCard> with SingleTickerProviderStateMi
             onTapCancel: () => _tapCtrl.reverse(),
             onTap: () => context.push('/app/tugas/${item.id}'),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(16),
+              margin: EdgeInsets.only(bottom: 14),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0F172A) : Colors.white,
                 borderRadius: BorderRadius.circular(18),
@@ -93,7 +93,7 @@ class _TugasCardState extends State<_TugasCard> with SingleTickerProviderStateMi
                   BoxShadow(
                     color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.08),
                     blurRadius: 18,
-                    offset: const Offset(0, 8),
+                    offset: Offset(0, 8),
                   ),
                 ],
               ),
@@ -113,7 +113,7 @@ class _TugasCardState extends State<_TugasCard> with SingleTickerProviderStateMi
                   const SizedBox(height: 10),
                   Text(
                     item.judul,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -145,11 +145,11 @@ class _TugasCardState extends State<_TugasCard> with SingleTickerProviderStateMi
 
   Widget _badge(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.6)),
+        border: Border.all(color: color.withOpacity(0.6)),
       ),
       child: Text(
         label,
@@ -165,7 +165,7 @@ class _TugasCardState extends State<_TugasCard> with SingleTickerProviderStateMi
         const SizedBox(width: 4),
         Text(
           text,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ],
     );

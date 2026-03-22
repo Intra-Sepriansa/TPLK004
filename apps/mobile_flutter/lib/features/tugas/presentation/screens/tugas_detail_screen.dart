@@ -151,7 +151,7 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
           if (submission.gradedAt != null) _metaRow(Icons.check_circle_rounded, 'Dinilai ${submission.gradedAt}'),
           const SizedBox(height: 8),
           if (submission.grade != null)
-            Text('Nilai: ${submission.grade} / ${tugas.maxGrade}', style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text('Nilai: ${submission.grade} / ${tugas.maxGrade}', style: TextStyle(fontWeight: FontWeight.w700)),
           if (submission.feedback != null) ...[
             const SizedBox(height: 6),
             Text('Feedback: ${submission.feedback}', style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black54)),
@@ -270,8 +270,8 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
         return Align(
           alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(12),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(12),
             constraints: const BoxConstraints(maxWidth: 320),
             decoration: BoxDecoration(
               gradient: isMine
@@ -284,7 +284,7 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
                 BoxShadow(
                   color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.06),
                   blurRadius: 12,
-                  offset: const Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
               ],
             ),
@@ -311,9 +311,9 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
                 if (item.replyTo != null) ...[
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: isMine ? Colors.white.withValues(alpha: 0.15) : (isDark ? Colors.white10 : Colors.black12),
+                      color: isMine ? Colors.white.withOpacity(0.15) : (isDark ? Colors.white10 : Colors.black12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -342,9 +342,9 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
 
   Widget _buildChatInput(bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -385,16 +385,16 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
 
   Widget _sectionTitle(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Text(text, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
     );
   }
 
   Widget _glassCard(bool isDark, {required Widget child, IconData? icon, Color? iconColor}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -403,7 +403,7 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
               blurRadius: 16,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -415,7 +415,7 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: iconColor?.withValues(alpha: 0.15) ?? Colors.white10,
+                  color: iconColor?.withOpacity(0.15) ?? Colors.white10,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: iconColor ?? AppColors.indigo600, size: 18),
@@ -431,11 +431,11 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
 
   Widget _badge(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.6)),
+        border: Border.all(color: color.withOpacity(0.6)),
       ),
       child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
     );
@@ -443,12 +443,12 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
 
   Widget _metaRow(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
           Icon(icon, size: 14, color: Colors.grey),
           const SizedBox(width: 6),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600))),
+          Expanded(child: Text(text, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600))),
         ],
       ),
     );
@@ -456,17 +456,17 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
 
   Widget _warningBox(String text) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: const Color(0xFFFEE2E2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.5)),
+        border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.5)),
       ),
       child: Row(
         children: [
           const Icon(Icons.warning_rounded, color: Color(0xFFEF4444), size: 18),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 11, color: Color(0xFFB91C1C)))),
+          Expanded(child: Text(text, style: TextStyle(fontSize: 11, color: Color(0xFFB91C1C)))),
         ],
       ),
     );
@@ -489,11 +489,11 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.6)]),
+        gradient: LinearGradient(colors: [color, color.withOpacity(0.6)]),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Center(
-        child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+        child: Text(initials, style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
       ),
     );
   }
@@ -501,7 +501,7 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
   Widget _buildError(String message, bool isDark) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -521,7 +521,7 @@ class _TugasDetailScreenState extends ConsumerState<TugasDetailScreen> with Tick
       baseColor: isDark ? const Color(0xFF1E293B) : Colors.grey[300]!,
       highlightColor: isDark ? const Color(0xFF334155) : Colors.grey[100]!,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
           Container(height: 240, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
           const SizedBox(height: 16),
@@ -624,7 +624,7 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  padding: EdgeInsets.fromLTRB(20, 8, 20, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -641,7 +641,7 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
                           const Expanded(
                             child: Text('Detail Tugas', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
                           ),
-                          Text(_clock, style: const TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace')),
+                          Text(_clock, style: TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace')),
                         ],
                       ),
                       const SizedBox(height: 14),
@@ -657,7 +657,7 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
                       const SizedBox(height: 10),
                       Text(
                         tugas.judul,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
                       ),
                       const SizedBox(height: 10),
                       Row(
@@ -673,15 +673,15 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
                       Align(
                         alignment: Alignment.centerRight,
                         child: Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
+                            color: Colors.white.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                            border: Border.all(color: Colors.white.withOpacity(0.2)),
                           ),
                           child: Column(
                             children: [
-                              Text('${tugas.daysUntilDeadline}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+                              Text('${tugas.daysUntilDeadline}', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
                               const Text('Hari Lagi', style: TextStyle(color: Colors.white70, fontSize: 11)),
                             ],
                           ),
@@ -694,17 +694,15 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
             ],
           ),
         );
-      },
-    );
   }
 
   Widget _badge(String label, Color color, {Color? textColor}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withOpacity(0.2),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.withOpacity(0.4)),
       ),
       child: Text(
         label,
@@ -718,7 +716,7 @@ class _DetailHeaderState extends State<_DetailHeader> with SingleTickerProviderS
       children: [
         Icon(icon, size: 14, color: Colors.white70),
         const SizedBox(width: 4),
-        Text(text, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+        Text(text, style: TextStyle(color: Colors.white70, fontSize: 11)),
       ],
     );
   }

@@ -11,7 +11,7 @@ class WelcomeScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [AppColors.primary, AppColors.primaryLight],
             begin: Alignment.topCenter,
@@ -22,7 +22,7 @@ class WelcomeScreen extends StatelessWidget {
         height: double.infinity,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 28, vertical: 24),
             child: Column(
               children: [
                 Expanded(

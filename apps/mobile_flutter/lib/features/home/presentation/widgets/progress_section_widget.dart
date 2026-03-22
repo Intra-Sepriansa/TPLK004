@@ -16,7 +16,7 @@ class ProgressSectionWidget extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +97,7 @@ class ProgressSectionWidget extends StatelessWidget {
                 value: animValue,
                 minHeight: 10,
                 backgroundColor: isDark
-                    ? Colors.white.withValues(alpha: 0.08)
+                    ? Colors.white.withOpacity(0.08)
                     : const Color(0xFFE5E7EB),
                 valueColor: AlwaysStoppedAnimation(color),
               ),
@@ -107,7 +107,7 @@ class ProgressSectionWidget extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           note,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             color: AppColors.textSecondary,
           ),

@@ -17,7 +17,7 @@ class WeeklyAttendanceChart extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +82,7 @@ class WeeklyAttendanceChart extends StatelessWidget {
                                 final idx = value.toInt();
                                 if (idx >= 0 && idx < data.length) {
                                   return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
+                                    padding: EdgeInsets.only(top: 8),
                                     child: Text(
                                       data[idx].label,
                                       style: TextStyle(
@@ -175,7 +175,7 @@ class WeeklyAttendanceChart extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+          style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
         ),
       ],
     );

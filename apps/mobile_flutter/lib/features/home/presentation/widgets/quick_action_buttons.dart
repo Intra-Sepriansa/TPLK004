@@ -65,7 +65,7 @@ class QuickActionButtons extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,21 +77,21 @@ class QuickActionButtons extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ...actions.map((a) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: EdgeInsets.only(bottom: 8),
                   child: InkWell(
                     onTap: a.onTap,
                     borderRadius: BorderRadius.circular(14),
                     child: Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withValues(alpha: 0.04)
-                            : a.gradient.first.withValues(alpha: 0.06),
+                            ? Colors.white.withOpacity(0.04)
+                            : a.gradient.first.withOpacity(0.06),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.06)
-                              : a.gradient.first.withValues(alpha: 0.12),
+                              ? Colors.white.withOpacity(0.06)
+                              : a.gradient.first.withOpacity(0.12),
                         ),
                       ),
                       child: Row(

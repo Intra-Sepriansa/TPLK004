@@ -50,7 +50,7 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(state.errorMessage!, style: const TextStyle(color: Colors.red)),
+              Text(state.errorMessage!, style: TextStyle(color: Colors.red)),
               ElevatedButton(onPressed: _refresh, child: const Text('Coba Lagi')),
             ],
           ),
@@ -76,7 +76,7 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
         onRefresh: _refresh,
         color: AppColors.indigo600,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 40),
+          padding: EdgeInsets.only(bottom: 40),
           children: [
             TugasHeader(
               onBack: () => context.pop(),
@@ -97,7 +97,7 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
               )
             else
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: filtered.map((e) => _AssignmentCard(assignment: e, isDark: isDark)).toList(),
                 ),
@@ -143,7 +143,7 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GridView.builder(
         padding: EdgeInsets.zero,
         shrinkWrap: true,
@@ -181,16 +181,16 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+          color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
         ),
         boxShadow: [
           BoxShadow(
-            color: colors[0].withValues(alpha: 0.1),
+            color: colors[0].withOpacity(0.1),
             blurRadius: 16,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -207,20 +207,20 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: colors[0].withValues(alpha: 0.15),
+                  color: colors[0].withOpacity(0.15),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: colors[0].withValues(alpha: 0.1),
+                      color: colors[0].withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(icon, color: colors[0], size: 20),
@@ -228,7 +228,7 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
                   const Spacer(),
                   Text(
                     value,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -257,7 +257,7 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
 
   Widget _buildFilterSection(TugasDashboardState state, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           TextField(
@@ -267,12 +267,12 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
               hintText: 'Cari tugas...',
               prefixIcon: const Icon(Icons.search),
               filled: true,
-              fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+              fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              contentPadding: EdgeInsets.symmetric(vertical: 0),
             ),
           ),
           const SizedBox(height: 12),
@@ -294,13 +294,13 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
 
   Widget _filterChip(String label, String value, bool isSelected, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: 8),
       child: GestureDetector(
         onTap: () => ref.read(tugasProvider.notifier).setGroupStatusFilter(value),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.indigo600 : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white),
+            color: isSelected ? AppColors.indigo600 : (isDark ? Colors.white.withOpacity(0.05) : Colors.white),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: isSelected ? AppColors.indigo600 : (isDark ? Colors.white24 : Colors.black12),
@@ -308,9 +308,9 @@ class _TugasKelompokScreenState extends ConsumerState<TugasKelompokScreen> {
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.indigo600.withValues(alpha: 0.3),
+                      color: AppColors.indigo600.withOpacity(0.3),
                       blurRadius: 8,
-                      offset: const Offset(0, 4),
+                      offset: Offset(0, 4),
                     )
                   ]
                 : null,
@@ -400,18 +400,18 @@ class _AssignmentCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.push('/app/tugas-kelompok/${assignment.id}'),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white,
+          color: isDark ? Colors.white.withOpacity(0.03) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05),
+            color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05),
           ),
           boxShadow: [
             BoxShadow(
-              color: (isDark ? Colors.black : const Color(0xFF4F46E5)).withValues(alpha: 0.05),
+              color: (isDark ? Colors.black : const Color(0xFF4F46E5)).withOpacity(0.05),
               blurRadius: 20,
-              offset: const Offset(0, 10),
+              offset: Offset(0, 10),
             ),
           ],
         ),
@@ -428,7 +428,7 @@ class _AssignmentCard extends StatelessWidget {
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: statusColor.withValues(alpha: 0.1),
+                    color: statusColor.withOpacity(0.1),
                   ),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
@@ -438,7 +438,7 @@ class _AssignmentCard extends StatelessWidget {
               ),
               
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -451,7 +451,7 @@ class _AssignmentCard extends StatelessWidget {
                             children: [
                               Text(
                                 assignment.title,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -470,11 +470,11 @@ class _AssignmentCard extends StatelessWidget {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.1),
+                            color: statusColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                            border: Border.all(color: statusColor.withOpacity(0.3)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -496,21 +496,21 @@ class _AssignmentCard extends StatelessWidget {
                       runSpacing: 8,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [formationColor, formationColor.withValues(alpha: 0.8)],
+                              colors: [formationColor, formationColor.withOpacity(0.8)],
                             ),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
                             assignment.formationMode.toUpperCase(),
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                           ),
                         ),
                         if (assignment.isLocked)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: isDark ? Colors.white12 : Colors.black12,
                               borderRadius: BorderRadius.circular(999),
@@ -538,9 +538,9 @@ class _AssignmentCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.02),
+                              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.02),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -557,7 +557,7 @@ class _AssignmentCard extends StatelessWidget {
                                 const SizedBox(height: 2),
                                 Text(
                                   '${assignment.totalGroups ?? 0} slot',
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -566,9 +566,9 @@ class _AssignmentCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.02),
+                              color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.02),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -608,7 +608,7 @@ class _AssignmentCard extends StatelessWidget {
                           ),
                           Text(
                             '${progress.round()}%',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -632,7 +632,7 @@ class _AssignmentCard extends StatelessWidget {
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               colors: [Color(0xFF818CF8), Color(0xFFC084FC)],
                             ),
                             shape: BoxShape.circle,
@@ -640,7 +640,7 @@ class _AssignmentCard extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             (assignment.dosen?.nama ?? '?').substring(0, 1).toUpperCase(),
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ),
                         const SizedBox(width: 8),

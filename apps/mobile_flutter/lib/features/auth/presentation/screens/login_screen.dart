@@ -39,7 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       duration: const Duration(milliseconds: 800),
     );
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.12),
+      begin: Offset(0, 0.12),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _slideController,
@@ -90,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: EdgeInsets.symmetric(horizontal: 24),
                       child: Image.asset(
                         'assets/images/login_hero.png',
                         width: screenWidth * 0.7,
@@ -104,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   FadeTransition(
                     opacity: _fadeAnimation,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      padding: EdgeInsets.symmetric(horizontal: 32),
                       child: Column(
                         children: [
                           const SizedBox(height: 4),
@@ -141,9 +141,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     child: FadeTransition(
                       opacity: _fadeAnimation,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: EdgeInsets.symmetric(horizontal: 24),
                         child: Container(
-                          padding: const EdgeInsets.all(24),
+                          padding: EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(24),
@@ -155,12 +155,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               BoxShadow(
                                 color: const Color(0xFF6366F1).withOpacity(0.06),
                                 blurRadius: 24,
-                                offset: const Offset(0, 8),
+                                offset: Offset(0, 8),
                               ),
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.03),
                                 blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                offset: Offset(0, 2),
                               ),
                             ],
                           ),

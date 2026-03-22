@@ -441,7 +441,7 @@ class _AttendanceHistoryScreenState
 
             // Content padding
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const SizedBox(height: 16),
@@ -497,7 +497,7 @@ class _AttendanceHistoryScreenState
             // List View (shown in 'list' mode or below calendar)
             if (state.viewMode != 'timeline')
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 sliver: state.viewMode == 'list'
                     ? SliverToBoxAdapter(
                         child: Column(
@@ -514,7 +514,7 @@ class _AttendanceHistoryScreenState
 
             if (state.viewMode != 'timeline')
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -529,7 +529,7 @@ class _AttendanceHistoryScreenState
                       }
                       final record = records[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: EdgeInsets.only(bottom: 8),
                         child: AttendanceListItem(
                           attendance: record,
                           onTap: () => Navigator.push(
@@ -548,16 +548,16 @@ class _AttendanceHistoryScreenState
 
             // Analytics sections (below list)
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   if (records.isEmpty && !state.isLoading) ...[
                     Container(
-                      padding: const EdgeInsets.all(40),
+                      padding: EdgeInsets.all(40),
                       child: Center(
                         child: Column(
                           children: [
-                            Icon(Icons.inbox, size: 56, color: AppColors.textSecondary.withValues(alpha: 0.3)),
+                            Icon(Icons.inbox, size: 56, color: AppColors.textSecondary.withOpacity(0.3)),
                             const SizedBox(height: 12),
                             Text('Belum ada data', style: TextStyle(color: AppColors.textSecondary)),
                           ],
@@ -576,9 +576,9 @@ class _AttendanceHistoryScreenState
                   // Error
                   if (state.errorMessage != null)
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.rose500.withValues(alpha: 0.1),
+                        color: AppColors.rose500.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -607,16 +607,16 @@ class _AttendanceHistoryScreenState
 
   Widget _buildSectionHeader(String title, String count) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
           Text(count, style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
         ],
       ),

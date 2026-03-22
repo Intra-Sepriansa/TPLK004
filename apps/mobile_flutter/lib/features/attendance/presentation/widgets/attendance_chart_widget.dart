@@ -43,12 +43,12 @@ class _CourseBarChart extends StatelessWidget {
     if (courseData.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,9 +56,9 @@ class _CourseBarChart extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.indigo500.withValues(alpha: 0.1),
+                  color: AppColors.indigo500.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.bar_chart, size: 20, color: AppColors.indigo500),
@@ -73,11 +73,11 @@ class _CourseBarChart extends StatelessWidget {
             if (total == 0) return const SizedBox.shrink();
             final name = entry.key.length > 20 ? '${entry.key.substring(0, 18)}...' : entry.key;
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(bottom: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                  Text(name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                   const SizedBox(height: 4),
                   SizedBox(
                     height: 14,
@@ -212,12 +212,12 @@ class _MonthlyTrendChart extends StatelessWidget {
     });
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,9 +225,9 @@ class _MonthlyTrendChart extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.emerald500.withValues(alpha: 0.1),
+                  color: AppColors.emerald500.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.show_chart, size: 20, color: AppColors.emerald500),
@@ -246,7 +246,7 @@ class _MonthlyTrendChart extends StatelessWidget {
                 final totalH = maxVal > 0 ? ((entry.value.$1 + entry.value.$2 + entry.value.$3) / maxVal) * 100 : 0.0;
                 return Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    padding: EdgeInsets.symmetric(horizontal: 3),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -261,7 +261,7 @@ class _MonthlyTrendChart extends StatelessWidget {
                           builder: (_, val, __) => Container(
                             height: val,
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 colors: [AppColors.indigo500, AppColors.purple600],
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,

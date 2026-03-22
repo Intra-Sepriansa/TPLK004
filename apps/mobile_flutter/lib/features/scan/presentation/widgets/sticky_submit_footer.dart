@@ -46,7 +46,7 @@ class StickySubmitFooter extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
             blurRadius: 24,
-            offset: const Offset(0, -8),
+            offset: Offset(0, -8),
           ),
         ],
       ),
@@ -55,7 +55,7 @@ class StickySubmitFooter extends StatelessWidget {
         children: [
           // Message
           Padding(
-            padding: const EdgeInsets.only(bottom: 16),
+            padding: EdgeInsets.only(bottom: 16),
             child: Text(
               submitSuccess
                   ? (submitMessage ?? 'Absensi berhasil dikirim!')
@@ -87,7 +87,7 @@ class StickySubmitFooter extends StatelessWidget {
                 label: const Text('Mulai sesi baru'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
                   ),
@@ -102,7 +102,7 @@ class StickySubmitFooter extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50),
                   gradient: canSubmit
-                      ? const LinearGradient(
+                      ? LinearGradient(
                           colors: [
                             Color(0xFF0284C7),
                             Color(0xFF06B6D4),
@@ -117,7 +117,7 @@ class StickySubmitFooter extends StatelessWidget {
                           BoxShadow(
                             color: const Color(0xFF06B6D4).withOpacity(0.4),
                             blurRadius: 20,
-                            offset: const Offset(0, 6),
+                            offset: Offset(0, 6),
                           ),
                         ]
                       : [],
@@ -133,7 +133,7 @@ class StickySubmitFooter extends StatelessWidget {
                       : const Icon(Icons.send_rounded, size: 18),
                   label: Text(
                     isSubmitting ? 'Mengirim...' : 'Kirim Absensi',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -144,7 +144,7 @@ class StickySubmitFooter extends StatelessWidget {
                     disabledBackgroundColor: Colors.transparent,
                     disabledForegroundColor: Colors.grey[500],
                     shadowColor: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50),
                     ),

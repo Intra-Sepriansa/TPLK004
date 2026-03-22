@@ -32,14 +32,14 @@ class AttendanceFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 12,
           ),
         ],
@@ -50,9 +50,9 @@ class AttendanceFilterBar extends StatelessWidget {
           // Search
           Container(
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.6),
+              color: Colors.white.withOpacity(0.6),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
             ),
             child: TextField(
               onChanged: onSearchChanged,
@@ -61,7 +61,7 @@ class AttendanceFilterBar extends StatelessWidget {
                 hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                 prefixIcon: Icon(Icons.search, size: 20, color: AppColors.textSecondary),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 suffixIcon: state.searchQuery.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.close, size: 18),
@@ -91,11 +91,11 @@ class AttendanceFilterBar extends StatelessWidget {
             children: [
               // View toggle
               Container(
-                padding: const EdgeInsets.all(3),
+                padding: EdgeInsets.all(3),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: Colors.white.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                  border: Border.all(color: Colors.white.withOpacity(0.3)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -114,7 +114,7 @@ class AttendanceFilterBar extends StatelessWidget {
                   label: const Text('Reset', style: TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.textSecondary,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
             ],
@@ -149,12 +149,12 @@ class AttendanceFilterBar extends StatelessWidget {
   Widget _StatusChip(String label, String value, {Color? color}) {
     final selected = state.statusFilter == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 6),
+      padding: EdgeInsets.only(right: 6),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () => onStatusChanged(value),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             gradient: selected
                 ? LinearGradient(colors: [
@@ -162,9 +162,9 @@ class AttendanceFilterBar extends StatelessWidget {
                     AppColors.purple600,
                   ])
                 : null,
-            color: selected ? null : (color?.withValues(alpha: 0.1) ?? Colors.white.withValues(alpha: 0.4)),
+            color: selected ? null : (color?.withOpacity(0.1) ?? Colors.white.withOpacity(0.4)),
             borderRadius: BorderRadius.circular(20),
-            border: selected ? null : Border.all(color: (color ?? AppColors.textSecondary).withValues(alpha: 0.3)),
+            border: selected ? null : Border.all(color: (color ?? AppColors.textSecondary).withOpacity(0.3)),
           ),
           child: Text(
             label,
@@ -185,10 +185,10 @@ class AttendanceFilterBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       onTap: () => onViewModeChanged(mode),
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
           gradient: selected
-              ? const LinearGradient(colors: [AppColors.indigo500, AppColors.purple600])
+              ? LinearGradient(colors: [AppColors.indigo500, AppColors.purple600])
               : null,
           borderRadius: BorderRadius.circular(10),
         ),
@@ -199,9 +199,9 @@ class AttendanceFilterBar extends StatelessWidget {
 
   Widget _FilterChip(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.indigo500.withValues(alpha: 0.1),
+        color: AppColors.indigo500.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(label, style: TextStyle(fontSize: 11, color: AppColors.indigo600)),

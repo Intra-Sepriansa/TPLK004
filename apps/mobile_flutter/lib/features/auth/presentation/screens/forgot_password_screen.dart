@@ -129,7 +129,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         body: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Column(
@@ -219,7 +219,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
               ),
               filled: true,
               fillColor: _nimFocused ? const Color(0xFFF5F3FF) : const Color(0xFFF8FAFC),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none,
@@ -240,7 +240,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 borderRadius: BorderRadius.circular(14),
                 borderSide: const BorderSide(color: AppColors.rose500, width: 1.5),
               ),
-              errorStyle: const TextStyle(color: AppColors.rose500, fontSize: 11),
+              errorStyle: TextStyle(color: AppColors.rose500, fontSize: 11),
             ),
             validator: (value) =>
                 value == null || value.trim().isEmpty ? 'NIM wajib diisi' : null,
@@ -252,9 +252,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           // Error
           if (_errorMessage != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+              padding: EdgeInsets.only(bottom: 14),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.rose500.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(12),
@@ -267,7 +267,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: const TextStyle(color: AppColors.rose500, fontSize: 12),
+                        style: TextStyle(color: AppColors.rose500, fontSize: 12),
                       ),
                     ),
                   ],
@@ -280,14 +280,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
             height: 54,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
               ),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF6366F1).withOpacity(0.3),
                   blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
               ],
             ),
@@ -351,7 +351,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
 
   Widget _buildSuccessCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFF0FDF4),
         borderRadius: BorderRadius.circular(16),
@@ -367,7 +367,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           const SizedBox(height: 12),
           Text(
             'Halo, ${_nama ?? 'Mahasiswa'}!',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF1E293B),
@@ -377,7 +377,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           Text(
             _successMessage!,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               color: Color(0xFF15803D),
               fontWeight: FontWeight.w500,
@@ -386,7 +386,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           if (_passwordHint != null) ...[
             const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -404,7 +404,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   const SizedBox(height: 4),
                   Text(
                     _passwordHint!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF1E293B),
@@ -434,14 +434,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       height: 54,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
         ),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF6366F1).withOpacity(0.3),
             blurRadius: 16,
-            offset: const Offset(0, 6),
+            offset: Offset(0, 6),
           ),
         ],
       ),

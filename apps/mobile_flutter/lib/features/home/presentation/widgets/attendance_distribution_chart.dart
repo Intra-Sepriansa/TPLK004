@@ -24,7 +24,7 @@ class AttendanceDistributionChart extends StatelessWidget {
     final total = data.fold<int>(0, (sum, d) => sum + d.value);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           children: [
@@ -56,7 +56,7 @@ class AttendanceDistributionChart extends StatelessWidget {
                         color: _parseHex(d.color),
                         radius: 32,
                         title: '${pct.toStringAsFixed(0)}%',
-                        titleStyle: const TextStyle(
+                        titleStyle: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,

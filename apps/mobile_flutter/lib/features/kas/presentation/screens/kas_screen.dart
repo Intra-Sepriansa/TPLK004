@@ -11,7 +11,6 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../domain/entities/kas_data.dart';
 import '../providers/kas_provider.dart';
 
-final _rp = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
 class KasScreen extends ConsumerStatefulWidget {
   const KasScreen({super.key});
@@ -26,6 +25,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
   String _clock = '';
   Timer? _clockTimer;
   int _historyTab = 0; // 0 = riwayat, 1 = pengeluaran
+  final _rp = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   @override
   void initState() {
@@ -104,7 +104,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -119,9 +119,9 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -141,81 +141,79 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
               ),
             ),
           ),
-              // Content
-              SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // Content
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top bar
+                  Row(
                     children: [
-                      // Top bar
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => context.pop(),
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 26),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('💰 Keuangan Kelas', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
-                                Text('Uang Kas Saya', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
-                              ],
-                            ),
-                          ),
-                          Text(_clock, style: const TextStyle(color: Colors.white70, fontSize: 13, fontFamily: 'monospace')),
-                        ],
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.arrow_back_rounded, color: Colors.white, size: 26),
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      // Info row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(data.mahasiswa.nama, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                                const SizedBox(height: 2),
-                                Text(data.mahasiswa.nim, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
-                              ],
-                            ),
-                          ),
-                          // Payment Rate badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                            ),
-                            child: Text(
-                              '${paymentRate.toStringAsFixed(0)}% Lunas',
-                              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('💰 Keuangan Kelas', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700)),
+                            Text('Uang Kas Saya', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                      Text(_clock, style: const TextStyle(color: Colors.white70, fontSize: 13, fontFamily: 'monospace')),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Info row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(data.mahasiswa.nama, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 2),
+                            Text(data.mahasiswa.nim, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                      // Payment Rate badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        ),
+                        child: Text(
+                          '${paymentRate.toStringAsFixed(0)}% Lunas',
+                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
   // ══════════ SECTION 2: Stats Cards ══════════
   Widget _buildStatsCards(PersonalStats stats, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Expanded(child: _statCard(
@@ -235,12 +233,12 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
 
   Widget _statCard(String title, double amount, IconData icon, List<Color> gradient, String subtitle, bool isDark, {bool warning = false}) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
+        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,12 +382,12 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
     final headerStyle = TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : AppColors.textSecondary);
     final cellStyle = TextStyle(fontSize: 11, color: isDark ? Colors.white : AppColors.textPrimary);
     return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06))),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.06))),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.06), borderRadius: const BorderRadius.vertical(top: Radius.circular(11))),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.06), borderRadius: const BorderRadius.vertical(top: Radius.circular(11))),
             child: Row(children: [
               Expanded(flex: 2, child: Text('Bulan', style: headerStyle)),
               Expanded(flex: 2, child: Text('Saldo', style: headerStyle, textAlign: TextAlign.right)),
@@ -398,7 +396,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
             ]),
           ),
           ...forecast.take(4).map((f) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Row(children: [
               Expanded(flex: 2, child: Text(f.month, style: cellStyle)),
               Expanded(flex: 2, child: Text(_rp.format(f.predictedBalance), style: cellStyle, textAlign: TextAlign.right)),
@@ -427,11 +425,11 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
             children: settings.channels.entries.map((e) {
               final active = e.value;
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: active ? const Color(0xFF10B981).withValues(alpha: 0.15) : (isDark ? Colors.white10 : Colors.grey.withValues(alpha: 0.1)),
+                  color: active ? const Color(0xFF10B981).withOpacity(0.15) : (isDark ? Colors.white10 : Colors.grey.withOpacity(0.1)),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: active ? const Color(0xFF10B981).withValues(alpha: 0.3) : Colors.transparent),
+                  border: Border.all(color: active ? const Color(0xFF10B981).withOpacity(0.3) : Colors.transparent),
                 ),
                 child: Text(e.key, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: active ? const Color(0xFF10B981) : (isDark ? Colors.white38 : Colors.grey))),
               );
@@ -439,7 +437,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
           ),
           const SizedBox(height: 10),
           ...reminders.take(3).map((r) => Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: EdgeInsets.only(bottom: 6),
             child: Row(children: [
               Icon(Icons.circle, size: 8, color: r.status == 'sent' ? const Color(0xFF10B981) : const Color(0xFFF59E0B)),
               const SizedBox(width: 8),
@@ -472,7 +470,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
                 value: b.percentage / 100,
-                backgroundColor: isDark ? Colors.white10 : Colors.grey.withValues(alpha: 0.15),
+                backgroundColor: isDark ? Colors.white10 : Colors.grey.withOpacity(0.15),
                 color: b.percentage > 80 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
                 minHeight: 8,
               ),
@@ -492,7 +490,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
                 value: s.percentage / 100,
-                backgroundColor: isDark ? Colors.white10 : Colors.grey.withValues(alpha: 0.15),
+                backgroundColor: isDark ? Colors.white10 : Colors.grey.withOpacity(0.15),
                 color: const Color(0xFF6366F1),
                 minHeight: 8,
               ),
@@ -528,7 +526,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
             Text('#${pc.yourRank}', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: isDark ? Colors.white : AppColors.textPrimary)),
             Text('dari ${pc.totalPeers} peers', style: TextStyle(fontSize: 10, color: isDark ? Colors.white54 : AppColors.textSecondary)),
             const SizedBox(height: 4),
-            Text('Top ${pc.percentile.toStringAsFixed(0)}%', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF10B981))),
+            Text('Top ${pc.percentile.toStringAsFixed(0)}%', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF10B981))),
           ]))),
         ],
       ),
@@ -557,11 +555,11 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
 
   Widget _summaryCard(String label, double amount, IconData icon, List<Color> gradient, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05),
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.04)),
+        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.04)),
       ),
       child: Column(children: [
         ShaderMask(
@@ -594,9 +592,9 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
             Expanded(child: GestureDetector(
               onTap: () => setState(() => _historyTab = 0),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _historyTab == 0 ? const Color(0xFF6366F1) : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.08)),
+                  color: _historyTab == 0 ? const Color(0xFF6366F1) : (isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.08)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
@@ -607,9 +605,9 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
             Expanded(child: GestureDetector(
               onTap: () => setState(() => _historyTab = 1),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _historyTab == 1 ? const Color(0xFF6366F1) : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.08)),
+                  color: _historyTab == 1 ? const Color(0xFF6366F1) : (isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.08)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
@@ -635,12 +633,12 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
   Widget _paymentItem(KasRecord r, bool isDark) {
     final paid = r.status == 'paid';
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Row(children: [
         Container(
           width: 36, height: 36,
           decoration: BoxDecoration(
-            color: (paid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withValues(alpha: 0.12),
+            color: (paid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.12),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(paid ? Icons.check_circle_rounded : Icons.schedule_rounded, size: 18, color: paid ? const Color(0xFF10B981) : const Color(0xFFEF4444)),
@@ -653,9 +651,9 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(_rp.format(r.amount), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: isDark ? Colors.white : AppColors.textPrimary)),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: (paid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withValues(alpha: 0.1),
+              color: (paid ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(paid ? 'Lunas' : 'Belum', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: paid ? const Color(0xFF10B981) : const Color(0xFFEF4444))),
@@ -667,11 +665,11 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
 
   Widget _expenseItem(Expense e, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Row(children: [
         Container(
           width: 36, height: 36,
-          decoration: BoxDecoration(color: const Color(0xFFEF4444).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: const Color(0xFFEF4444).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
           child: const Icon(Icons.arrow_downward_rounded, size: 18, color: Color(0xFFEF4444)),
         ),
         const SizedBox(width: 10),
@@ -679,7 +677,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
           Text(e.description, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: isDark ? Colors.white : AppColors.textPrimary), overflow: TextOverflow.ellipsis),
           Text(e.periodDisplay, style: TextStyle(fontSize: 10, color: isDark ? Colors.white38 : Colors.grey)),
         ])),
-        Text('-${_rp.format(e.amount)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFEF4444))),
+        Text('-${_rp.format(e.amount)}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFEF4444))),
       ]),
     );
   }
@@ -687,14 +685,14 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
   // ══════════ COMMON HELPERS ══════════
   Widget _sectionCard({required IconData icon, required List<Color> gradient, required String title, required String subtitle, required bool isDark, required Widget child}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkSurface : Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4))],
+          border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: Offset(0, 4))],
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
@@ -717,11 +715,11 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
 
   Widget _miniCard(bool isDark, {required Widget child}) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.05),
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.04)),
+        border: Border.all(color: isDark ? Colors.white10 : Colors.black.withOpacity(0.04)),
       ),
       child: child,
     );
@@ -729,11 +727,11 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
 
   Widget _infoChip(String label, String value, IconData icon, Color color, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
+        border: Border.all(color: color.withOpacity(0.15)),
       ),
       child: Row(children: [
         Icon(icon, size: 16, color: color),
@@ -751,7 +749,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
       SizedBox(width: 50, child: Text(label, style: TextStyle(fontSize: 9, color: isDark ? Colors.white38 : Colors.grey))),
       Expanded(child: ClipRRect(
         borderRadius: BorderRadius.circular(4),
-        child: LinearProgressIndicator(value: pct, backgroundColor: isDark ? Colors.white10 : Colors.grey.withValues(alpha: 0.12), color: color, minHeight: 5),
+        child: LinearProgressIndicator(value: pct, backgroundColor: isDark ? Colors.white10 : Colors.grey.withOpacity(0.12), color: color, minHeight: 5),
       )),
       const SizedBox(width: 6),
       SizedBox(width: 28, child: Text('${(pct * 100).toStringAsFixed(0)}%', textAlign: TextAlign.right, style: TextStyle(fontSize: 9, color: isDark ? Colors.white54 : Colors.grey))),
@@ -763,7 +761,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
       Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isDark ? Colors.white70 : AppColors.textPrimary)),
       const SizedBox(height: 4),
       ...items.take(3).map((i) => Padding(
-        padding: const EdgeInsets.only(bottom: 2),
+        padding: EdgeInsets.only(bottom: 2),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('• ', style: TextStyle(color: isDark ? Colors.white38 : Colors.grey)),
           Expanded(child: Text(i, style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : AppColors.textSecondary))),
@@ -774,7 +772,7 @@ class _KasScreenState extends ConsumerState<KasScreen> with TickerProviderStateM
 
   Widget _emptyState(String msg, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: EdgeInsets.symmetric(vertical: 20),
       child: EmptyStateWidget(
         imagePath: 'assets/images/empty_no_kas.png',
         title: 'Tidak Ada Data',
@@ -803,7 +801,7 @@ class _HealthScorePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 6;
-    final bg = Paint()..color = color.withValues(alpha: 0.15)..style = PaintingStyle.stroke..strokeWidth = 6..strokeCap = StrokeCap.round;
+    final bg = Paint()..color = color.withOpacity(0.15)..style = PaintingStyle.stroke..strokeWidth = 6..strokeCap = StrokeCap.round;
     final fg = Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 6..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius, bg);

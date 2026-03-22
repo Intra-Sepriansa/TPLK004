@@ -63,7 +63,7 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -72,7 +72,7 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 16,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -138,13 +138,13 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
                       : widget.locationState == LocationState.success
                           ? 'Perbarui'
                           : 'Ambil lokasi',
-                  style: const TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 12),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _statusColor.withOpacity(0.12),
                   foregroundColor: _statusColor,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
                 ),
               ),
@@ -195,7 +195,7 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
             onTap: () => setState(() => _detailsExpanded = !_detailsExpanded),
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
@@ -219,9 +219,9 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
           ),
           if (_detailsExpanded)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: EdgeInsets.only(top: 8),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
                   borderRadius: BorderRadius.circular(12),
@@ -239,10 +239,10 @@ class _LocationStatusCardState extends State<LocationStatusCard> {
           // Permission guide
           if (!widget.permissionGranted)
             Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: EdgeInsets.only(top: 12),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.amber500.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
@@ -320,7 +320,7 @@ class _MetricTile extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(16),

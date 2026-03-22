@@ -116,12 +116,12 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
     final activeCount = state.kelompokData?.stats.activeGroups ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
         onTap: () => context.push('/app/tugas-kelompok-dashboard'),
         child: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -129,9 +129,9 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.3),
+                color: const Color(0xFF6366F1).withOpacity(0.3),
                 blurRadius: 20,
-                offset: const Offset(0, 10),
+                offset: Offset(0, 10),
               ),
             ],
           ),
@@ -145,7 +145,7 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: Colors.white.withOpacity(0.1),
                   ),
                 ),
               ),
@@ -157,18 +157,18 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: 0.1),
+                    color: Colors.white.withOpacity(0.1),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(Icons.groups_rounded, color: Colors.white, size: 28),
@@ -192,7 +192,7 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
                                 ? 'Lihat semua tugas kelompok'
                                 : '$activeCount tugas kelompok aktif',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
+                              color: Colors.white.withOpacity(0.8),
                               fontSize: 13,
                             ),
                           ),
@@ -200,8 +200,8 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
                       ),
@@ -247,7 +247,7 @@ class _TugasScreenState extends ConsumerState<TugasScreen> with TickerProviderSt
       baseColor: isDark ? const Color(0xFF1E293B) : Colors.grey[300]!,
       highlightColor: isDark ? const Color(0xFF334155) : Colors.grey[100]!,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         children: [
           Container(height: 220, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24))),
           const SizedBox(height: 16),

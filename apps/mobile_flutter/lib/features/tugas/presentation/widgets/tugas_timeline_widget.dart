@@ -18,9 +18,9 @@ class TugasTimelineWidget extends StatelessWidget {
     final displayItems = items.take(5).toList();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
           borderRadius: BorderRadius.circular(18),
@@ -29,7 +29,7 @@ class TugasTimelineWidget extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
               blurRadius: 16,
-              offset: const Offset(0, 8),
+              offset: Offset(0, 8),
             ),
           ],
         ),
@@ -47,22 +47,22 @@ class TugasTimelineWidget extends StatelessWidget {
             Column(
               children: displayItems.map((item) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.only(bottom: 10),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         width: 12,
                         height: 12,
-                        margin: const EdgeInsets.only(top: 4),
+                        margin: EdgeInsets.only(top: 4),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(colors: [AppColors.indigo600, AppColors.primaryLight]),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.indigo600.withValues(alpha: 0.4),
+                              color: AppColors.indigo600.withOpacity(0.4),
                               blurRadius: 8,
-                              offset: const Offset(0, 4),
+                              offset: Offset(0, 4),
                             ),
                           ],
                         ),
@@ -72,14 +72,14 @@ class TugasTimelineWidget extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item.judul, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                            Text(item.judul, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                             const SizedBox(height: 2),
                             Text(item.deadlineDisplay, style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black54)),
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: item.isOverdue ? const Color(0xFFFEE2E2) : const Color(0xFFE0F2FE),
                           borderRadius: BorderRadius.circular(999),

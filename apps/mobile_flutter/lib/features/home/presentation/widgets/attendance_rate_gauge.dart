@@ -21,7 +21,7 @@ class AttendanceRateGauge extends StatelessWidget {
     final gaugeColor = isGood ? AppColors.emerald500 : AppColors.amber500;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           children: [
@@ -56,7 +56,7 @@ class AttendanceRateGauge extends StatelessWidget {
                         PieChartSectionData(
                           value: (100.0 - rate).clamp(0.0, 100.0),
                           color: isDark
-                              ? Colors.white.withValues(alpha: 0.1)
+                              ? Colors.white.withOpacity(0.1)
                               : const Color(0xFFE5E7EB),
                           radius: 12,
                           showTitle: false,
@@ -104,7 +104,7 @@ class AttendanceRateGauge extends StatelessWidget {
                   width: 1,
                   height: 40,
                   color: isDark
-                      ? Colors.white.withValues(alpha: 0.1)
+                      ? Colors.white.withOpacity(0.1)
                       : const Color(0xFFE5E7EB),
                 ),
                 Expanded(
@@ -138,7 +138,7 @@ class AttendanceRateGauge extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
         ),
       ],
     );

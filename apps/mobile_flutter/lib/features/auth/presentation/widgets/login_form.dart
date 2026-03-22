@@ -103,7 +103,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       fillColor: isFocused
           ? const Color(0xFFF5F3FF)
           : const Color(0xFFF8FAFC),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
@@ -136,7 +136,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           width: 1.5,
         ),
       ),
-      errorStyle: const TextStyle(
+      errorStyle: TextStyle(
         color: AppColors.rose500,
         fontSize: 11,
       ),
@@ -217,7 +217,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             child: TextButton(
               onPressed: auth.isLoading ? null : () => context.push('/forgot-password'),
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
@@ -237,9 +237,9 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           // Error State
           if (auth.errorMessage != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+              padding: EdgeInsets.only(bottom: 14),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.rose500.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(12),
@@ -254,7 +254,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                     Expanded(
                       child: Text(
                         _friendlyAuthError(auth.errorMessage),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.rose500,
                           fontSize: 12,
                         ),
@@ -270,7 +270,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             height: 54,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [
                   Color(0xFF6366F1),
                   Color(0xFF818CF8),
@@ -280,7 +280,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 BoxShadow(
                   color: const Color(0xFF6366F1).withOpacity(0.3),
                   blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  offset: Offset(0, 6),
                 ),
               ],
             ),

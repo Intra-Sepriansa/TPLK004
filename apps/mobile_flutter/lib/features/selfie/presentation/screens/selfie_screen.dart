@@ -246,18 +246,18 @@ class _SelfieScreenState extends ConsumerState<SelfieScreen> {
                   child: Card(
                     color: Colors.black87,
                     child: Padding(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.all(12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             widget.session.mataKuliah ?? 'Sesi Absensi',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             '${widget.session.dosen ?? '-'} • ${widget.session.room ?? '-'}',
-                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                            style: TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                         ],
                       ),
@@ -269,14 +269,14 @@ class _SelfieScreenState extends ConsumerState<SelfieScreen> {
                   left: 24,
                   right: 24,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: _faceValid ? Colors.green : Colors.orange,
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: Text(
                       _faceHint,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),

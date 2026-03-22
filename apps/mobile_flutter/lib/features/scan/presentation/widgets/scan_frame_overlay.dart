@@ -45,7 +45,7 @@ class _ScanFrameOverlayState extends State<ScanFrameOverlay>
         // Dark vignette overlay
         Positioned.fill(
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: RadialGradient(
                 center: Alignment.center,
                 radius: 0.6,
@@ -124,7 +124,7 @@ class _ScanFrameOverlayState extends State<ScanFrameOverlay>
                       height: 3,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2),
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
                             AppColors.emerald400,

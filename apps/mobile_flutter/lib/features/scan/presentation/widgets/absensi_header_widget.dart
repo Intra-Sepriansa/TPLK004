@@ -120,7 +120,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
           BoxShadow(
             color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -144,7 +144,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                  padding: EdgeInsets.fromLTRB(20, 16, 20, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -167,7 +167,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
                                       fit: BoxFit.cover,
                                       errorBuilder: (_, __, ___) => Center(
                                         child: Text(initials,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold)),
@@ -176,7 +176,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
                                   )
                                 : Center(
                                     child: Text(initials,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold)),
@@ -199,7 +199,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
                                 const SizedBox(height: 2),
                                 Text(
                                   widget.studentName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -212,7 +212,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
                           ),
                           // Clock
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(16),
@@ -221,7 +221,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
                             child: Column(
                               children: [
                                 Text(timeString,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold)),
@@ -282,9 +282,7 @@ class _AbsensiHeaderWidgetState extends State<AbsensiHeaderWidget>
             ],
           ),
         );
-      },
-    );
-  }
+    }
 }
 
 class _ActionButton extends StatelessWidget {
@@ -309,7 +307,7 @@ class _ActionButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: filled ? null : Border.all(color: Colors.white.withOpacity(0.3)),
@@ -344,7 +342,7 @@ class _ConsentSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
@@ -382,7 +380,7 @@ class _ConsentSection extends StatelessWidget {
               ),
               if (accepted)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppColors.emerald500.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -396,7 +394,7 @@ class _ConsentSection extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Padding(
-            padding: const EdgeInsets.only(left: 34),
+            padding: EdgeInsets.only(left: 34),
             child: Text(
               'Data hanya dipakai untuk verifikasi QR, selfie, dan geofence kehadiran.',
               style: TextStyle(
@@ -420,7 +418,7 @@ class _PermissionPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: granted
             ? AppColors.emerald500.withOpacity(0.2)

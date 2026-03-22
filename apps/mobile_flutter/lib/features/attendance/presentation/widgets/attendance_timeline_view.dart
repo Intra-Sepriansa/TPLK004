@@ -69,11 +69,11 @@ class _AttendanceTimelineViewState extends State<AttendanceTimelineView> {
 
     if (timeline.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(32),
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.timeline, size: 48, color: AppColors.textSecondary.withValues(alpha: 0.3)),
+              Icon(Icons.timeline, size: 48, color: AppColors.textSecondary.withOpacity(0.3)),
               const SizedBox(height: 12),
               Text('Belum ada data', style: TextStyle(color: AppColors.textSecondary)),
             ],
@@ -83,12 +83,12 @@ class _AttendanceTimelineViewState extends State<AttendanceTimelineView> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,9 +96,9 @@ class _AttendanceTimelineViewState extends State<AttendanceTimelineView> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.indigo500.withValues(alpha: 0.1),
+                  color: AppColors.indigo500.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.timeline, size: 20, color: AppColors.indigo500),
@@ -152,14 +152,14 @@ class _MonthSection extends StatelessWidget {
           onTap: onToggle,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
                 Container(
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.indigo500, AppColors.purple600]),
+                    gradient: LinearGradient(colors: [AppColors.indigo500, AppColors.purple600]),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.calendar_month, size: 18, color: Colors.white),
@@ -169,7 +169,7 @@ class _MonthSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(month, style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                      Text(month, style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
                       Text('${days.length} hari', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                     ],
                   ),
@@ -187,10 +187,10 @@ class _MonthSection extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           crossFadeState: expanded ? CrossFadeState.showFirst : CrossFadeState.showSecond,
           firstChild: Padding(
-            padding: const EdgeInsets.only(left: 18),
+            padding: EdgeInsets.only(left: 18),
             child: Stack(
               children: [
-                Positioned(left: 7, top: 0, bottom: 0, child: Container(width: 2, color: AppColors.indigo500.withValues(alpha: 0.2))),
+                Positioned(left: 7, top: 0, bottom: 0, child: Container(width: 2, color: AppColors.indigo500.withOpacity(0.2))),
                 Column(
                   children: days.map((day) => _DayItem(day: day)).toList(),
                 ),
@@ -211,28 +211,28 @@ class _DayItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 0, bottom: 12),
+      padding: EdgeInsets.only(left: 0, bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 16,
             height: 16,
-            margin: const EdgeInsets.only(top: 2),
+            margin: EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: [AppColors.indigo500, AppColors.purple600]),
+              gradient: LinearGradient(colors: [AppColors.indigo500, AppColors.purple600]),
               border: Border.all(color: Colors.white, width: 2),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Colors.white.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                border: Border.all(color: Colors.white.withOpacity(0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +242,7 @@ class _DayItem extends StatelessWidget {
                     children: [
                       Text(
                         DateFormat('EEEE, d MMM', 'id_ID').format(day.date),
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary),
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary),
                       ),
                       Text(
                         '${day.records.length} kehadiran',
@@ -258,9 +258,9 @@ class _DayItem extends StatelessWidget {
                       final color = _AttendanceTimelineViewState._statusColors[r.status] ?? AppColors.textSecondary;
                       final label = _AttendanceTimelineViewState._statusLabels[r.status] ?? r.status;
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.1),
+                          color: color.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

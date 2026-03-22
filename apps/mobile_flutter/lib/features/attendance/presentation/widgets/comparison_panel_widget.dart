@@ -82,12 +82,12 @@ class _ComparisonPanelWidgetState extends State<ComparisonPanelWidget> {
     final data = _compute();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,11 +95,11 @@ class _ComparisonPanelWidgetState extends State<ComparisonPanelWidget> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.sky500.withValues(alpha: 0.1),
+                  color: AppColors.sky500.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.sky500.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppColors.sky500.withOpacity(0.2)),
                 ),
                 child: Icon(Icons.bar_chart, size: 20, color: AppColors.sky500),
               ),
@@ -131,10 +131,10 @@ class _ComparisonPanelWidgetState extends State<ComparisonPanelWidget> {
       onTap: () => setState(() => _period = value),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          gradient: selected ? const LinearGradient(colors: [AppColors.sky500, AppColors.primary]) : null,
-          color: selected ? null : Colors.white.withValues(alpha: 0.4),
+          gradient: selected ? LinearGradient(colors: [AppColors.sky500, AppColors.primary]) : null,
+          color: selected ? null : Colors.white.withOpacity(0.4),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -172,12 +172,12 @@ class _MetricCard extends StatelessWidget {
     final maxVal = [metric.current, metric.previous, 1.0].reduce((a, b) => a > b ? a : b);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +195,7 @@ class _MetricCard extends StatelessWidget {
                     metric.isPercentage
                         ? '${metric.current.toStringAsFixed(1)}%'
                         : metric.current.toStringAsFixed(0),
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
                   ),
                   Text(
                     'Sebelumnya: ${metric.isPercentage ? '${metric.previous.toStringAsFixed(1)}%' : metric.previous.toStringAsFixed(0)}',
@@ -204,9 +204,9 @@ class _MetricCard extends StatelessWidget {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (metric.isPositive ? AppColors.emerald500 : AppColors.rose500).withValues(alpha: 0.1),
+                  color: (metric.isPositive ? AppColors.emerald500 : AppColors.rose500).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -236,8 +236,8 @@ class _MetricCard extends StatelessWidget {
                         builder: (_, val, __) => LinearProgressIndicator(
                           value: val,
                           minHeight: 6,
-                          backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                          valueColor: AlwaysStoppedAnimation(Colors.grey.withValues(alpha: 0.4)),
+                          backgroundColor: Colors.grey.withOpacity(0.1),
+                          valueColor: AlwaysStoppedAnimation(Colors.grey.withOpacity(0.4)),
                         ),
                       ),
                     ),
@@ -259,7 +259,7 @@ class _MetricCard extends StatelessWidget {
                         builder: (_, val, __) => LinearProgressIndicator(
                           value: val,
                           minHeight: 6,
-                          backgroundColor: Colors.grey.withValues(alpha: 0.1),
+                          backgroundColor: Colors.grey.withOpacity(0.1),
                           valueColor: AlwaysStoppedAnimation(
                             metric.isPositive ? AppColors.emerald500 : AppColors.rose500,
                           ),

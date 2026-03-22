@@ -24,7 +24,7 @@ class ProgressRing extends StatelessWidget {
       height: size + 8,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -40,7 +40,7 @@ class ProgressRing extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(4),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -56,7 +56,7 @@ class ProgressRing extends StatelessWidget {
             children: [
               RichText(
                 text: TextSpan(
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white),
                   children: [
                     TextSpan(
                       text: '$current',
@@ -119,7 +119,7 @@ class _ProgressRingPainter extends CustomPainter {
       final sweepAngle = 2 * pi * progress;
 
       final progressPaint = Paint()
-        ..shader = const LinearGradient(
+        ..shader = LinearGradient(
           colors: [Color(0xFF818CF8), Color(0xFFA855F7), Color(0xFFF472B6)],
         ).createShader(Rect.fromCircle(center: center, radius: radius))
         ..strokeWidth = 6
@@ -209,7 +209,7 @@ class ProgressTrackerWidget extends StatelessWidget {
     ];
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -218,7 +218,7 @@ class ProgressTrackerWidget extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 16,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -273,7 +273,7 @@ class ProgressTrackerWidget extends StatelessWidget {
                   curve: Curves.easeOut,
                   height: 10,
                   width: MediaQuery.of(context).size.width * percent * 0.75,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
                         AppColors.indigo600,
@@ -361,9 +361,9 @@ class _StepItem extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(16),

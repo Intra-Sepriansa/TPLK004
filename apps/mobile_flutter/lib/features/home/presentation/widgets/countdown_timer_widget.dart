@@ -73,7 +73,7 @@ class _CountdownTimerWidgetState extends State<CountdownTimerWidget> {
 
   Widget _buildDigit(String text, bool isDark) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isDark ? Colors.white : const Color(0xFF171717),
         borderRadius: BorderRadius.circular(6),

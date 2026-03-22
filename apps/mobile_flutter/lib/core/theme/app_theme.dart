@@ -32,7 +32,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: AppTypography.h1,
         displayMedium: AppTypography.h2,
         displaySmall: AppTypography.h3,

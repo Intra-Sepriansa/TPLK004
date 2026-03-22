@@ -131,8 +131,8 @@ class _SuccessCelebrationOverlayState extends State<SuccessCelebrationOverlay>
                   return Transform.scale(scale: scale, child: child);
                 },
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 32),
-                  padding: const EdgeInsets.all(32),
+                  margin: EdgeInsets.symmetric(horizontal: 32),
+                  padding: EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.95),
                     borderRadius: BorderRadius.circular(32),
@@ -141,7 +141,7 @@ class _SuccessCelebrationOverlayState extends State<SuccessCelebrationOverlay>
                       BoxShadow(
                         color: Colors.black.withOpacity(0.15),
                         blurRadius: 50,
-                        offset: const Offset(0, 20),
+                        offset: Offset(0, 20),
                       ),
                     ],
                   ),
@@ -251,7 +251,7 @@ class _GameChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: color.withOpacity(0.08),
         borderRadius: BorderRadius.circular(50),

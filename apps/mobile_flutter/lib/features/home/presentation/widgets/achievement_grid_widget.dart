@@ -16,7 +16,7 @@ class AchievementGridWidget extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,12 +78,12 @@ class AchievementGridWidget extends StatelessWidget {
               ? Colors.white.withValues(alpha: a.unlocked ? 0.06 : 0.02)
               : (a.unlocked
                   ? const Color(0xFFFFFBEB)
-                  : Colors.grey.withValues(alpha: 0.05)),
+                  : Colors.grey.withOpacity(0.05)),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: a.unlocked
-                ? AppColors.amber400.withValues(alpha: 0.3)
-                : Colors.grey.withValues(alpha: 0.15),
+                ? AppColors.amber400.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.15),
           ),
         ),
         child: Opacity(
@@ -93,7 +93,7 @@ class AchievementGridWidget extends StatelessWidget {
             children: [
               Text(
                 a.icon,
-                style: const TextStyle(fontSize: 28),
+                style: TextStyle(fontSize: 28),
               ),
               const SizedBox(height: 6),
               Text(
@@ -109,7 +109,7 @@ class AchievementGridWidget extends StatelessWidget {
               ),
               Text(
                 a.description,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 8,
                   color: AppColors.textSecondary,
                 ),

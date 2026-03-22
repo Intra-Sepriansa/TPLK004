@@ -60,12 +60,12 @@ class GamificationWidget extends StatelessWidget {
     final achievements = _compute();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.5),
+        color: Colors.white.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12)],
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,9 +73,9 @@ class GamificationWidget extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.amber500, AppColors.orange600]),
+                  gradient: LinearGradient(colors: [AppColors.amber500, AppColors.orange600]),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.emoji_events, size: 20, color: Colors.white),
@@ -115,16 +115,16 @@ class _AchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: achievement.unlocked
-            ? AppColors.amber500.withValues(alpha: 0.08)
-            : Colors.grey.withValues(alpha: 0.05),
+            ? AppColors.amber500.withOpacity(0.08)
+            : Colors.grey.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: achievement.unlocked
-              ? AppColors.amber500.withValues(alpha: 0.2)
-              : Colors.grey.withValues(alpha: 0.1),
+              ? AppColors.amber500.withOpacity(0.2)
+              : Colors.grey.withOpacity(0.1),
         ),
       ),
       child: Column(

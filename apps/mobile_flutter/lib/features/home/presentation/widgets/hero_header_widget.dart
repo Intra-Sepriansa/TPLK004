@@ -71,7 +71,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
       clipBehavior: Clip.antiAlias,
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -86,9 +86,9 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -113,7 +113,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -127,9 +127,9 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                             height: 56,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: Colors.white.withOpacity(0.2),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
+                                color: Colors.white.withOpacity(0.4),
                                 width: 2,
                               ),
                             ),
@@ -141,7 +141,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                                       errorBuilder: (_, __, ___) => Center(
                                         child: Text(
                                           _getInitials(profile.name),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,
                                             fontSize: 22,
@@ -153,7 +153,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                                 : Center(
                                     child: Text(
                                       _getInitials(profile.name),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 22,
@@ -170,13 +170,13 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                                   'Selamat datang kembali,',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                    color: Colors.white.withOpacity(0.8),
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   profile.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -189,22 +189,22 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                           ),
                           // Clock
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
+                              color: Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: Colors.white.withOpacity(0.2),
                               ),
                             ),
                             child: Column(
                               children: [
                                 Text(
                                   timeStr,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -220,7 +220,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                         dateStr,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -228,19 +228,19 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                         'Pantau kehadiran, capaian, dan progress studi Anda.',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                       // Streak badge
                       if (stats.currentStreak > 0) ...[
                         const SizedBox(height: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
+                            color: Colors.white.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -250,7 +250,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
                               const SizedBox(width: 6),
                               Text(
                                 '${stats.currentStreak} hari streak',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
@@ -267,9 +267,7 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
             ],
           ),
         );
-      },
-    );
-  }
+    }
 
   Widget _buildButton(
     String label,
@@ -283,13 +281,13 @@ class _HeroHeaderWidgetState extends State<HeroHeaderWidget>
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: filled ? Colors.white : Colors.white.withValues(alpha: 0.15),
+            color: filled ? Colors.white : Colors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
             border: filled
                 ? null
-                : Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                : Border.all(color: Colors.white.withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

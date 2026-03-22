@@ -51,7 +51,7 @@ class UnifiedCameraCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
             blurRadius: 24,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -60,7 +60,7 @@ class UnifiedCameraCard extends StatelessWidget {
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -111,7 +111,7 @@ class UnifiedCameraCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 12),
+              margin: EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFF0A0A0A),
                 borderRadius: BorderRadius.circular(20),
@@ -119,7 +119,7 @@ class UnifiedCameraCard extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
                     blurRadius: 30,
-                    offset: const Offset(0, 15),
+                    offset: Offset(0, 15),
                   ),
                 ],
               ),
@@ -255,7 +255,7 @@ class UnifiedCameraCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(50),
@@ -293,7 +293,7 @@ class _IdleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: RadialGradient(
           center: Alignment(0.7, -0.3),
           radius: 1.2,
@@ -325,7 +325,7 @@ class _IdleView extends StatelessWidget {
           Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -403,7 +403,7 @@ class _IdleView extends StatelessWidget {
                           foregroundColor: Colors.grey[900],
                           disabledBackgroundColor: Colors.white.withOpacity(0.3),
                           disabledForegroundColor: Colors.white.withOpacity(0.5),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50),
                           ),
@@ -421,7 +421,7 @@ class _IdleView extends StatelessWidget {
                     ],
                     if (!consentAccepted)
                       Padding(
-                        padding: const EdgeInsets.only(top: 10),
+                        padding: EdgeInsets.only(top: 10),
                         child: Text(
                           'Aktifkan persetujuan kamera dan lokasi di bagian atas sebelum memulai.',
                           textAlign: TextAlign.center,
@@ -446,7 +446,7 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(50),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
@@ -503,7 +503,7 @@ class _ScanningView extends StatelessWidget {
           top: 12,
           left: 12,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.35),
               borderRadius: BorderRadius.circular(50),
@@ -511,7 +511,7 @@ class _ScanningView extends StatelessWidget {
             ),
             child: Text(
               isFrontCamera ? 'Kamera depan aktif' : 'Kamera belakang aktif',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -526,7 +526,7 @@ class _ScanningView extends StatelessWidget {
           right: 0,
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.black.withOpacity(0.35),
                 borderRadius: BorderRadius.circular(50),
@@ -658,7 +658,7 @@ class _FlippingViewState extends State<_FlippingView>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.emerald500.withOpacity(0.2),
@@ -679,7 +679,7 @@ class _FlippingViewState extends State<_FlippingView>
             if (widget.detectedSession != null) ...[
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -688,7 +688,7 @@ class _FlippingViewState extends State<_FlippingView>
                   children: [
                     Text(
                       widget.detectedSession!.mataKuliah ?? 'Mata Kuliah',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -732,7 +732,7 @@ class _FlippingViewState extends State<_FlippingView>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.sky500.withOpacity(0.2),
@@ -805,7 +805,7 @@ class _SelfieView extends StatelessWidget {
             right: 0,
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(20),
@@ -828,7 +828,7 @@ class _SelfieView extends StatelessWidget {
                 onTap: onRetryFlow,
                 borderRadius: BorderRadius.circular(50),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -901,10 +901,10 @@ class _DoneView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.08),
             borderRadius: BorderRadius.circular(26),
@@ -956,7 +956,7 @@ class _DoneView extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           previewPath != null ? 'Selfie tersimpan' : 'Token siap diproses',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -1033,7 +1033,7 @@ class _DoneView extends StatelessWidget {
                 const SizedBox(height: 16),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: AppColors.sky500.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
@@ -1054,7 +1054,7 @@ class _DoneView extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         detectedSession!.mataKuliah ?? 'Mata Kuliah',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -1116,7 +1116,7 @@ class _CompletionItem extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.15),
         borderRadius: BorderRadius.circular(16),
@@ -1158,9 +1158,9 @@ class _StatusPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.grey[50],
           borderRadius: BorderRadius.circular(20),
@@ -1264,7 +1264,7 @@ class _StatusRow extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(16),
@@ -1273,7 +1273,7 @@ class _StatusRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: bgColor,
@@ -1341,7 +1341,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey[50],
@@ -1354,7 +1354,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
               onTap: () => setState(() => _expanded = !_expanded),
               borderRadius: BorderRadius.circular(20),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(16),
                 child: Row(
                   children: [
                     Expanded(
@@ -1377,7 +1377,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
             ),
             if (_expanded) ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1393,7 +1393,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
                     TextField(
                       onChanged: widget.onChanged,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 16,
                         letterSpacing: 3,
@@ -1407,7 +1407,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
                           borderSide: BorderSide(color: Colors.grey[300]!),
                         ),
                         contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -1419,7 +1419,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
                       const SizedBox(height: 8),
                       Text(
                         widget.tokenError!,
-                        style: const TextStyle(fontSize: 12, color: Colors.red),
+                        style: TextStyle(fontSize: 12, color: Colors.red),
                       ),
                     ],
                     const SizedBox(height: 12),
@@ -1435,7 +1435,7 @@ class _ManualTokenSectionState extends State<_ManualTokenSection> {
                         ),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50),
                           ),

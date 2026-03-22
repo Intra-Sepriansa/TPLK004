@@ -78,11 +78,11 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
       minChildSize: 0.5,
       builder: (_, controller) => Container(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.92),
+          color: Colors.white.withOpacity(0.92),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 30,
               spreadRadius: 5,
             )
@@ -99,14 +99,14 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                   return Stack(
                     children: [
                       _buildOrb(
-                        color: AppColors.primary.withValues(alpha: 0.08),
+                        color: AppColors.primary.withOpacity(0.08),
                         size: 250,
                         top: -50 + (_orbController.value * 20),
                         right: -100 + (_orbController.value * 30),
                         blur: 60,
                       ),
                       _buildOrb(
-                        color: AppColors.sky500.withValues(alpha: 0.06),
+                        color: AppColors.sky500.withOpacity(0.06),
                         size: 200,
                         bottom: 50 - (_orbController.value * 20),
                         left: -80 + (_orbController.value * 40),
@@ -123,16 +123,16 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: ListView(
                 controller: controller,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 children: [
                   // Drag handle
                   Center(
                     child: Container(
                       width: 48,
                       height: 5,
-                      margin: const EdgeInsets.only(bottom: 24),
+                      margin: EdgeInsets.only(bottom: 24),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: Colors.black.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -154,7 +154,7 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                         onPressed: () => Navigator.pop(context),
                         icon: const Icon(Icons.close_rounded),
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.black.withValues(alpha: 0.04),
+                          backgroundColor: Colors.black.withOpacity(0.04),
                         ),
                       ),
                     ],
@@ -165,7 +165,7 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                   // Course Title
                   Text(
                     record.mataKuliah,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
@@ -176,14 +176,14 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.indigo500.withValues(alpha: 0.1),
+                          color: AppColors.indigo500.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           'Pertemuan ${record.meetingNumber ?? "?"}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: AppColors.indigo600,
@@ -207,9 +207,9 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: Colors.black.withOpacity(0.1),
                           blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          offset: Offset(0, 10),
                         )
                       ],
                     ),
@@ -231,8 +231,8 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                                   child: BackdropFilter(
                                     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                      color: Colors.black.withValues(alpha: 0.3),
+                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      color: Colors.black.withOpacity(0.3),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
@@ -287,12 +287,12 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                   // Catatan (Web Style)
                   if (record.note != null && record.note!.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.amber500.withValues(alpha: 0.05),
+                        color: AppColors.amber500.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: AppColors.amber500.withValues(alpha: 0.2),
+                          color: AppColors.amber500.withOpacity(0.2),
                           width: 2,
                         ),
                       ),
@@ -317,7 +317,7 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                           const SizedBox(height: 8),
                           Text(
                             record.note!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               color: AppColors.amber800,
                               height: 1.5,
@@ -336,8 +336,8 @@ class _RecordDetailContentState extends State<_RecordDetailContent>
                     child: TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: AppColors.textPrimary.withValues(alpha: 0.05),
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: AppColors.textPrimary.withOpacity(0.05),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                       child: const Text(
@@ -400,16 +400,16 @@ class _Badge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
+        border: Border.all(color: color.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.1),
+            color: color.withOpacity(0.1),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           )
         ],
       ),
@@ -437,20 +437,20 @@ class _NoSelfie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withValues(alpha: 0.03),
+      color: Colors.black.withOpacity(0.03),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.image_not_supported_rounded,
-                size: 50, color: AppColors.textSecondary.withValues(alpha: 0.2)),
+                size: 50, color: AppColors.textSecondary.withOpacity(0.2)),
             const SizedBox(height: 12),
             Text(
               'Tidak ada bukti selfie',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary.withValues(alpha: 0.5),
+                color: AppColors.textSecondary.withOpacity(0.5),
               ),
             ),
           ],
@@ -476,11 +476,11 @@ class _DetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.04),
+        color: color.withOpacity(0.04),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.1)),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Row(
         children: [
@@ -491,14 +491,14 @@ class _DetailCard extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [color, color.withValues(alpha: 0.7)],
+                colors: [color, color.withOpacity(0.7)],
               ),
               borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
-                  color: color.withValues(alpha: 0.3),
+                  color: color.withOpacity(0.3),
                   blurRadius: 10,
-                  offset: const Offset(0, 5),
+                  offset: Offset(0, 5),
                 )
               ],
             ),
@@ -521,7 +521,7 @@ class _DetailCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,

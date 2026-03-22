@@ -69,7 +69,7 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
       clipBehavior: Clip.antiAlias,
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -84,9 +84,9 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -111,7 +111,7 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
               SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -126,17 +126,17 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color:
-                                  Colors.white.withValues(alpha: 0.2),
+                                  Colors.white.withOpacity(0.2),
                               border: Border.all(
                                 color:
-                                    Colors.white.withValues(alpha: 0.4),
+                                    Colors.white.withOpacity(0.4),
                                 width: 2,
                               ),
                             ),
                             child: Center(
                               child: Text(
                                 _getInitials(widget.nama),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 22,
@@ -155,13 +155,13 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Colors.white
-                                        .withValues(alpha: 0.8),
+                                        .withOpacity(0.8),
                                   ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   widget.nama,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
@@ -174,22 +174,22 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                           ),
                           // Clock
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
                               color:
-                                  Colors.white.withValues(alpha: 0.15),
+                                  Colors.white.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color:
-                                    Colors.white.withValues(alpha: 0.2),
+                                    Colors.white.withOpacity(0.2),
                               ),
                             ),
                             child: Text(
                               timeStr,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -203,17 +203,17 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                         dateStr,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                       const SizedBox(height: 4),
                       // NIM badge
                       Container(
-                        margin: const EdgeInsets.only(top: 4),
-                        padding: const EdgeInsets.symmetric(
+                        margin: EdgeInsets.only(top: 4),
+                        padding: EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
+                          color: Colors.white.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -225,7 +225,7 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.white
-                                    .withValues(alpha: 0.6),
+                                    .withOpacity(0.6),
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -235,7 +235,7 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
                                 fontSize: 12,
                                 fontFamily: 'monospace',
                                 color: Colors.white
-                                    .withValues(alpha: 0.8),
+                                    .withOpacity(0.8),
                               ),
                             ),
                           ],
@@ -258,8 +258,6 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
             ],
           ),
         );
-      },
-    );
   }
 
   Widget _buildButton(
@@ -275,16 +273,16 @@ class _RiwayatHeaderWidgetState extends State<RiwayatHeaderWidget>
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: filled
                 ? Colors.white
-                : Colors.white.withValues(alpha: 0.15),
+                : Colors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
             border: filled
                 ? null
                 : Border.all(
-                    color: Colors.white.withValues(alpha: 0.3)),
+                    color: Colors.white.withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

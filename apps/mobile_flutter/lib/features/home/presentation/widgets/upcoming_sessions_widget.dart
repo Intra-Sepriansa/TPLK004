@@ -17,7 +17,7 @@ class UpcomingSessionsWidget extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GlassmorphicCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,7 +31,7 @@ class UpcomingSessionsWidget extends StatelessWidget {
             const SizedBox(height: 16),
             if (sessions.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: Text(
                     'Tidak ada sesi mendatang.',
@@ -54,15 +54,15 @@ class UpcomingSessionsWidget extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: isFirst
                           ? (isDark
-                              ? AppColors.amber500.withValues(alpha: 0.1)
-                              : AppColors.amber500.withValues(alpha: 0.05))
+                              ? AppColors.amber500.withOpacity(0.1)
+                              : AppColors.amber500.withOpacity(0.05))
                           : (isDark
-                              ? Colors.white.withValues(alpha: 0.03)
-                              : Colors.grey.withValues(alpha: 0.04)),
+                              ? Colors.white.withOpacity(0.03)
+                              : Colors.grey.withOpacity(0.04)),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: isFirst
-                            ? AppColors.amber500.withValues(alpha: 0.2)
+                            ? AppColors.amber500.withOpacity(0.2)
                             : Colors.transparent,
                       ),
                     ),
