@@ -224,6 +224,27 @@ class KasController extends Controller
         return back()->with('success', 'Pembayaran kas berhasil dicatat.');
     }
 
+    public function markUnpaid(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'period_date' => 'required|date',
+        ]);
+
+        $existing = Kas::where('mahasiswa_id', $request->mahasiswa_id)
+            ->where('type', 'income')
+            ->whereDate('period_date', $request->period_date)
+            ->first();
+
+        if ($existing) {
+            $existing->update(['status' => 'unpaid']);
+            KasSummary::recalculate();
+            return back()->with('success', 'Pembayaran kas berhasil dibatalkan.');
+        }
+
+        return back()->with('error', 'Status pembayaran tidak ditemukan.');
+    }
+
     public function addExpense(Request $request): RedirectResponse
     {
         $request->validate([

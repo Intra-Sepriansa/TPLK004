@@ -341,6 +341,16 @@ export default function AdminKas({
         });
     };
 
+    const handleMarkUnpaidForDate = (mahasiswaId: number, periodDate: string) => {
+        if (!confirm('Batalkan status lunas untuk mahasiswa ini pada pertemuan tersebut?')) return;
+        router.post('/admin/kas/mark-unpaid', {
+            mahasiswa_id: mahasiswaId,
+            period_date: periodDate,
+        }, {
+            preserveScroll: true,
+        });
+    };
+
     const handleBulkMarkPaidForDate = (periodDate: string) => {
         const unpaidIds = mahasiswaList
             .filter((m) => {
@@ -1039,17 +1049,20 @@ export default function AdminKas({
                                                                             >
                                                                                 {status ===
                                                                                 'paid' ? (
-                                                                                    <motion.div
-                                                                                        initial={{
-                                                                                            scale: 0,
+                                                                                    <motion.button
+                                                                                        whileHover={{
+                                                                                            scale: 1.15,
                                                                                         }}
-                                                                                        animate={{
-                                                                                            scale: 1,
+                                                                                        whileTap={{
+                                                                                            scale: 0.85,
                                                                                         }}
-                                                                                        className="mx-auto flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/15"
+                                                                                        onClick={() => handleMarkUnpaidForDate(m.id, date)}
+                                                                                        className="group/cell mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/15 transition-all duration-200 hover:border-red-500/30 hover:bg-red-500/15"
+                                                                                        title="Klik untuk membatalkan lunas"
                                                                                     >
-                                                                                        <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                                                                    </motion.div>
+                                                                                        <Check className="h-4 w-4 text-emerald-600 group-hover/cell:hidden dark:text-emerald-400" />
+                                                                                        <X className="hidden h-4 w-4 text-red-500 group-hover/cell:block" />
+                                                                                    </motion.button>
                                                                                 ) : status ===
                                                                                   'unpaid' ? (
                                                                                     <motion.button

@@ -190,6 +190,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::post('admin/kas', [\App\Http\Controllers\Admin\KasController::class, 'store'])->name('admin.kas.store');
     Route::delete('admin/kas/{ka}', [\App\Http\Controllers\Admin\KasController::class, 'destroy'])->name('admin.kas.destroy');
     Route::post('admin/kas/mark-paid', [\App\Http\Controllers\Admin\KasController::class, 'markPaid'])->name('admin.kas.mark-paid');
+    Route::post('admin/kas/mark-unpaid', [\App\Http\Controllers\Admin\KasController::class, 'markUnpaid'])->name('admin.kas.mark-unpaid');
     Route::post('admin/kas/expense', [\App\Http\Controllers\Admin\KasController::class, 'addExpense'])->name('admin.kas.expense');
     Route::post('admin/kas/bulk-mark-paid', [\App\Http\Controllers\Admin\KasController::class, 'bulkMarkPaid'])->name('admin.kas.bulk-mark-paid');
     Route::post('admin/kas/create-pertemuan', [\App\Http\Controllers\Admin\KasController::class, 'createPertemuan'])->name('admin.kas.create-pertemuan');
