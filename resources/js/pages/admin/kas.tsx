@@ -133,6 +133,8 @@ export default function AdminKas({
     const [showExpenseModal, setShowExpenseModal] = useState(false);
     const [showPertemuanModal, setShowPertemuanModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [cancelData, setCancelData] = useState<{ mahasiswaId: number, periodDate: string, studentName: string } | null>(null);
     const [selectedMahasiswa, setSelectedMahasiswa] = useState<number[]>([]);
     const [search, setSearch] = useState(filters.search);
     const [expandedDates, setExpandedDates] = useState<string[]>([]);
@@ -341,13 +343,22 @@ export default function AdminKas({
         });
     };
 
-    const handleMarkUnpaidForDate = (mahasiswaId: number, periodDate: string) => {
-        if (!confirm('Batalkan status lunas untuk mahasiswa ini pada pertemuan tersebut?')) return;
+    const handleMarkUnpaidForDate = (mahasiswaId: number, periodDate: string, studentName: string) => {
+        setCancelData({ mahasiswaId, periodDate, studentName });
+        setShowCancelModal(true);
+    };
+
+    const confirmCancelKas = () => {
+        if (!cancelData) return;
         router.post('/admin/kas/mark-unpaid', {
-            mahasiswa_id: mahasiswaId,
-            period_date: periodDate,
+            mahasiswa_id: cancelData.mahasiswaId,
+            period_date: cancelData.periodDate,
         }, {
             preserveScroll: true,
+            onSuccess: () => {
+                setShowCancelModal(false);
+                setCancelData(null);
+            }
         });
     };
 
@@ -1056,7 +1067,7 @@ export default function AdminKas({
                                                                                         whileTap={{
                                                                                             scale: 0.85,
                                                                                         }}
-                                                                                        onClick={() => handleMarkUnpaidForDate(m.id, date)}
+                                                                                        onClick={() => handleMarkUnpaidForDate(m.id, date, m.nama)}
                                                                                         className="group/cell mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/15 transition-all duration-200 hover:border-red-500/30 hover:bg-red-500/15"
                                                                                         title="Klik untuk membatalkan lunas"
                                                                                     >
@@ -1990,6 +2001,58 @@ export default function AdminKas({
                                 </div>
                             </motion.div>
                         </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Cancel Kas Modal - Advanced Glassmorphism */}
+                <AnimatePresence>
+                    {showCancelModal && cancelData && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowCancelModal(false)}
+                                className="absolute inset-0 bg-neutral-900/40 backdrop-blur-sm dark:bg-black/60"
+                            />
+
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/20 bg-white/70 shadow-2xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/80"
+                            >
+                                <div className="p-6 text-center">
+                                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400">
+                                        <X className="h-8 w-8" />
+                                    </div>
+                                    <h3 className="mb-2 text-xl font-bold text-neutral-900 dark:text-white">
+                                        Batalkan Pembayaran?
+                                    </h3>
+                                    <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
+                                        Anda yakin ingin membatalkan status lunas untuk{' '}
+                                        <strong className="text-neutral-900 dark:text-white">{cancelData.studentName}</strong>{' '}
+                                        pada pertemuan <strong className="text-neutral-900 dark:text-white">{cancelData.periodDate}</strong>?
+                                    </p>
+                                    <div className="flex gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCancelModal(false)}
+                                            className="flex-1 rounded-xl bg-neutral-100 px-4 py-3 text-sm font-bold text-neutral-700 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                                        >
+                                            Kembali
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={confirmCancelKas}
+                                            className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/30 transition-all hover:bg-red-700 hover:shadow-red-500/50"
+                                        >
+                                            Ya, Batalkan
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
                     )}
                 </AnimatePresence>
             </motion.div>
