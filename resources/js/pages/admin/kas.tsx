@@ -30,6 +30,7 @@ interface MahasiswaKas {
     kelas: string;
     total_paid: number;
     total_unpaid: number;
+    global_unpaid: number;
     status: string;
     records: {
         id: number;
@@ -955,6 +956,9 @@ export default function AdminKas({
                                                     <th className="min-w-[120px] border-l-2 border-neutral-200 px-3 py-3 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:border-neutral-700 dark:text-neutral-400">
                                                         Progress Bulan
                                                     </th>
+                                                    <th className="min-w-[120px] border-l border-neutral-200 px-3 py-3 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:border-neutral-700 dark:text-neutral-400">
+                                                        Total Tunggakan
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800/50">
@@ -1098,6 +1102,19 @@ export default function AdminKas({
                                                                             }
                                                                         </span>
                                                                     </div>
+                                                                </td>
+                                                                <td className="border-l border-neutral-200 px-3 py-2.5 text-center dark:border-neutral-700">
+                                                                    {m.global_unpaid > 0 ? (
+                                                                        <div className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-600 dark:bg-red-500/20 dark:text-red-400">
+                                                                            <X className="h-3 w-3" />
+                                                                            {formatCurrency(m.global_unpaid)}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-bold text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+                                                                            <Check className="h-3 w-3" />
+                                                                            Lunas Total
+                                                                        </div>
+                                                                    )}
                                                                 </td>
                                                             </motion.tr>
                                                         );

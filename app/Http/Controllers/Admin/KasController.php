@@ -56,6 +56,12 @@ class KasController extends Controller
             $totalPaid = $kasRecords->where('status', 'paid')->sum('amount');
             $totalUnpaid = $kasRecords->where('status', 'unpaid')->sum('amount');
 
+            // Calculate global unpaid
+            $globalUnpaid = Kas::where('mahasiswa_id', $mhs->id)
+                ->where('type', 'income')
+                ->where('status', 'unpaid')
+                ->sum('amount');
+
             return [
                 'id' => $mhs->id,
                 'nama' => $mhs->nama,
@@ -63,6 +69,7 @@ class KasController extends Controller
                 'kelas' => $mhs->kelas,
                 'total_paid' => $totalPaid,
                 'total_unpaid' => $totalUnpaid,
+                'global_unpaid' => $globalUnpaid,
                 'status' => $totalUnpaid > 0 ? 'unpaid' : ($totalPaid > 0 ? 'paid' : 'no_record'),
                 'records' => $kasRecords->map(fn($k) => [
                     'id' => $k->id,
