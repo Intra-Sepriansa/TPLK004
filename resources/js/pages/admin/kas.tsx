@@ -170,6 +170,8 @@ export default function AdminKas({
         router.post('/admin/kas/mark-paid', {
             mahasiswa_id: mahasiswaId,
             period_date: filters.pertemuan,
+        }, {
+            preserveScroll: true,
         });
     };
 
@@ -188,6 +190,7 @@ export default function AdminKas({
                 period_date: filters.pertemuan,
             },
             {
+                preserveScroll: true,
                 onSuccess: () => setSelectedMahasiswa([]),
             },
         );
@@ -211,6 +214,7 @@ export default function AdminKas({
                 period_date: pertemuanForm.data.period_date,
             },
             {
+                preserveScroll: true,
                 onSuccess: () => {
                     setShowPertemuanModal(false);
                     pertemuanForm.reset();
@@ -263,6 +267,8 @@ export default function AdminKas({
             router.post('/admin/kas/bulk-mark-paid', {
                 mahasiswa_ids: unpaidIds,
                 period_date: filters.pertemuan,
+            }, {
+                preserveScroll: true,
             });
         }
     };
@@ -330,6 +336,8 @@ export default function AdminKas({
         router.post('/admin/kas/mark-paid', {
             mahasiswa_id: mahasiswaId,
             period_date: periodDate,
+        }, {
+            preserveScroll: true,
         });
     };
 
@@ -349,6 +357,8 @@ export default function AdminKas({
             router.post('/admin/kas/bulk-mark-paid', {
                 mahasiswa_ids: unpaidIds,
                 period_date: periodDate,
+            }, {
+                preserveScroll: true,
             });
         }
     };
