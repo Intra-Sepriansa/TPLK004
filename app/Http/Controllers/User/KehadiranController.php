@@ -533,13 +533,23 @@ class KehadiranController extends Controller
      */
     private function syncCoursesIfNeeded(int $mahasiswaId): void
     {
-        $existingCount = MahasiswaCourse::where('mahasiswa_id', $mahasiswaId)->count();
+        $existing = MahasiswaCourse::where('mahasiswa_id', $mahasiswaId)->get();
+        $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
 
-        if ($existingCount > 0) {
+        if ($existing->isNotEmpty()) {
+            // Re-sync SKS values from mata_kuliah for existing records
+            $mkSksMap = [];
+            foreach ($mataKuliahs as $mk) {
+                $mkSksMap[strtolower(trim($mk->nama))] = $mk->sks ?? 3;
+            }
+            foreach ($existing as $course) {
+                $correctSks = $mkSksMap[strtolower(trim($course->name))] ?? null;
+                if ($correctSks && (int) $course->sks !== (int) $correctSks) {
+                    $course->update(['sks' => $correctSks]);
+                }
+            }
             return;
         }
-
-        $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $times = ['07:40', '09:20', '11:00', '13:50', '16:00'];
         $periodOneLimit = (int) ceil($mataKuliahs->count() / 2);

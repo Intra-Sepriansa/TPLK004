@@ -13,20 +13,28 @@ import {
     CheckCircle2,
     ChevronRight,
     Clock,
+    ExternalLink,
     Flame,
+    Globe,
     GraduationCap,
     Grid3X3,
     Info,
     List,
+    Loader2,
     MapPin,
+    MessageSquare,
     Printer,
     RefreshCw,
+    Send,
+    Shield,
+    ShieldCheck,
     Sparkles,
     TrendingUp,
     User,
     Wifi,
     X,
     XCircle,
+    Zap,
 } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
@@ -112,6 +120,69 @@ const itemVariants = {
     },
 } as const;
 
+/* ═══════════════════════════════════════════════════ */
+/*         ULTRA-ADVANCE MEETING MODAL                 */
+/* ═══════════════════════════════════════════════════ */
+const modalStagger = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.07, delayChildren: 0.15 },
+    },
+} as const;
+const modalItem = {
+    hidden: { opacity: 0, y: 16, scale: 0.96 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { type: 'spring', stiffness: 400, damping: 22 },
+    },
+} as const;
+
+const statusConfig = {
+    hadir: {
+        gradient: 'from-emerald-500 via-teal-500 to-green-600',
+        glow: 'shadow-emerald-500/40',
+        icon: CheckCircle2,
+        label: 'Hadir',
+        badgeBg: 'bg-emerald-500/20 border-emerald-400/30',
+        textColor: 'text-emerald-300',
+    },
+    'tidak-hadir': {
+        gradient: 'from-red-500 via-rose-500 to-pink-600',
+        glow: 'shadow-red-500/40',
+        icon: XCircle,
+        label: 'Tidak Hadir',
+        badgeBg: 'bg-red-500/20 border-red-400/30',
+        textColor: 'text-red-300',
+    },
+    aktif: {
+        gradient: 'from-blue-500 via-cyan-500 to-indigo-600',
+        glow: 'shadow-blue-500/40',
+        icon: Zap,
+        label: 'Sedang Aktif',
+        badgeBg: 'bg-blue-500/20 border-blue-400/30',
+        textColor: 'text-blue-300',
+    },
+    'belum-dimulai': {
+        gradient: 'from-amber-500 via-orange-500 to-yellow-600',
+        glow: 'shadow-amber-500/40',
+        icon: Clock,
+        label: 'Belum Dimulai',
+        badgeBg: 'bg-amber-500/20 border-amber-400/30',
+        textColor: 'text-amber-300',
+    },
+    'belum-dibuat': {
+        gradient: 'from-violet-500 via-purple-500 to-fuchsia-600',
+        glow: 'shadow-violet-500/40',
+        icon: Sparkles,
+        label: 'Belum Dibuat',
+        badgeBg: 'bg-violet-500/20 border-violet-400/30',
+        textColor: 'text-violet-300',
+    },
+} as const;
+
 function MeetingModal({
     meeting,
     courseName,
@@ -123,12 +194,32 @@ function MeetingModal({
     courseId: number;
     onClose: () => void;
 }) {
-    const [isChecked, setIsChecked] = useState(false);
+    const [fordisStep, setFordisStep] = useState(0); // 0=idle, 1=opened link, 2=confirmed, 3=submitting
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    const config = statusConfig[meeting.status] || statusConfig['belum-dibuat'];
+    const StatusIcon = config.icon;
+
+    const canClaimFordis =
+        meeting.mode === 'online' &&
+        (meeting.status === 'aktif' ||
+            meeting.status === 'belum-dimulai' ||
+            meeting.status === 'belum-dibuat');
+
+    const handleOpenMentari = () => {
+        window.open('https://mentari.unpam.ac.id/', '_blank');
+        setFordisStep(1);
+    };
+
+    const handleConfirmFordis = () => {
+        setFordisStep(2);
+    };
 
     const handleClaimOnline = () => {
-        if (!isChecked) return;
+        if (fordisStep < 2) return;
         setIsSubmitting(true);
+        setFordisStep(3);
         router.post(
             '/user/akademik/kehadiran/online-claim',
             {
@@ -138,14 +229,43 @@ function MeetingModal({
             {
                 onSuccess: () => {
                     setIsSubmitting(false);
-                    onClose();
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        setShowSuccess(false);
+                        onClose();
+                    }, 1800);
                 },
                 onError: () => {
                     setIsSubmitting(false);
+                    setFordisStep(2);
                 },
             },
         );
     };
+
+    const infoItems = [
+        meeting.date
+            ? { icon: Calendar, label: 'Tanggal', value: meeting.date }
+            : null,
+        {
+            icon: meeting.mode === 'online' ? Wifi : MapPin,
+            label: 'Mode',
+            value:
+                meeting.mode === 'online'
+                    ? 'Online (Daring)'
+                    : 'Offline (Tatap Muka)',
+        },
+        meeting.completedAt
+            ? { icon: Clock, label: 'Waktu Absen', value: meeting.completedAt }
+            : null,
+        meeting.notes
+            ? { icon: BookOpen, label: 'Catatan', value: meeting.notes }
+            : null,
+    ].filter(Boolean) as {
+        icon: React.ElementType;
+        label: string;
+        value: string;
+    }[];
 
     return (
         <AnimatePresence>
@@ -153,202 +273,633 @@ function MeetingModal({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+                transition={{ duration: 0.25 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 backdrop-blur-md sm:p-4"
                 onClick={onClose}
             >
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    initial={{ scale: 0.88, opacity: 0, y: 40 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                    className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-neutral-900"
+                    exit={{ scale: 0.88, opacity: 0, y: 40 }}
+                    transition={{
+                        type: 'spring',
+                        stiffness: 350,
+                        damping: 28,
+                    }}
+                    className={`relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl ${config.glow}`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <div className="flex items-center justify-between border-b border-neutral-200 p-5 dark:border-neutral-800">
-                        <div>
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-                                Pertemuan {meeting.number}
-                            </h3>
-                            <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
-                                {courseName}
-                            </p>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="rounded-lg p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                        >
-                            <X className="h-5 w-5 text-neutral-500" />
-                        </button>
-                    </div>
-                    <div className="space-y-4 p-5">
-                        <div className="flex justify-center">
-                            <div
-                                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 ${
-                                    meeting.status === 'hadir'
-                                        ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20'
-                                        : meeting.status === 'tidak-hadir'
-                                          ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
-                                          : meeting.status === 'aktif'
-                                          ? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20'
-                                          : meeting.status === 'belum-dibuat'
-                                          ? 'border-neutral-200 border-dashed bg-transparent dark:border-neutral-700/50'
-                                          : 'border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800'
-                                }`}
+                    {/* ═══ Success Overlay ═══ */}
+                    <AnimatePresence>
+                        {showSuccess && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-neutral-950/95 backdrop-blur-xl"
                             >
-                                {meeting.status === 'hadir' && (
-                                    <>
-                                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                        <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-                                            Hadir
-                                        </span>
-                                    </>
-                                )}
-                                {meeting.status === 'tidak-hadir' && (
-                                    <>
-                                        <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                                        <span className="text-sm font-semibold text-red-700 dark:text-red-300">
-                                            Tidak Hadir
-                                        </span>
-                                    </>
-                                )}
-                                {meeting.status === 'aktif' && (
-                                    <>
-                                        <div className="relative flex h-5 w-5 items-center justify-center">
-                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
-                                            <span className="relative inline-flex h-4 w-4 rounded-full bg-blue-600 shadow-lg shadow-blue-500/30 dark:bg-blue-400"></span>
-                                        </div>
-                                        <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
-                                            Sedang Aktif
-                                        </span>
-                                    </>
-                                )}
-                                {meeting.status === 'belum-dimulai' && (
-                                    <>
-                                        <Clock className="h-5 w-5 text-neutral-500" />
-                                        <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                                            Belum Dimulai
-                                        </span>
-                                    </>
-                                )}
-                                {meeting.status === 'belum-dibuat' && (
-                                    <>
-                                        <span className="h-5 w-5 rounded-full border-2 border-dashed border-neutral-400 dark:border-neutral-500" />
-                                        <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">
-                                            Belum Dibuat
-                                        </span>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                        <div className="space-y-3">
-                            {meeting.date && (
-                                <div className="flex items-center gap-3">
-                                    <Calendar className="h-5 w-5 text-neutral-400" />
-                                    <div>
-                                        <p className="text-xs text-neutral-500">
-                                            Tanggal
-                                        </p>
-                                        <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                                            {meeting.date}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="flex items-center gap-3">
-                                {meeting.mode === 'online' ? (
-                                    <Wifi className="h-5 w-5 text-cyan-600" />
-                                ) : (
-                                    <MapPin className="h-5 w-5 text-purple-600" />
-                                )}
-                                <div>
-                                    <p className="text-xs text-neutral-500">
-                                        Mode
-                                    </p>
-                                    <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                                        {meeting.mode === 'online'
-                                            ? 'Online'
-                                            : 'Offline (Tatap Muka)'}
-                                    </p>
-                                </div>
-                            </div>
-                            {meeting.completedAt && (
-                                <div className="flex items-center gap-3">
-                                    <Clock className="h-5 w-5 text-neutral-400" />
-                                    <div>
-                                        <p className="text-xs text-neutral-500">
-                                            Waktu Absen
-                                        </p>
-                                        <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                                            {meeting.completedAt}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                            {meeting.notes && (
-                                <div className="flex items-start gap-3">
-                                    <BookOpen className="mt-0.5 h-5 w-5 text-neutral-400" />
-                                    <div>
-                                        <p className="text-xs text-neutral-500">
-                                            Catatan
-                                        </p>
-                                        <p className="text-sm text-neutral-700 dark:text-neutral-300">
-                                            {meeting.notes}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 400,
+                                        delay: 0.1,
+                                    }}
+                                    className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/40"
+                                >
+                                    <CheckCircle2 className="h-10 w-10 text-white" />
+                                </motion.div>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-lg font-bold text-white"
+                                >
+                                    Kehadiran Berhasil Dicatat!
+                                </motion.p>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.45 }}
+                                    className="mt-1 text-sm text-neutral-400"
+                                >
+                                    Pertemuan {meeting.number} •{' '}
+                                    {courseName}
+                                </motion.p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* ═══ GRADIENT HEADER WITH FLOATING ORBS ═══ */}
+                    <div className="relative overflow-hidden">
+                        {/* Animated gradient background */}
+                        <motion.div
+                            className={`absolute inset-0 bg-gradient-to-br ${config.gradient}`}
+                            animate={{
+                                backgroundPosition: [
+                                    '0% 0%',
+                                    '100% 100%',
+                                    '0% 0%',
+                                ],
+                            }}
+                            transition={{
+                                duration: 12,
+                                repeat: Infinity,
+                                ease: 'linear',
+                            }}
+                            style={{ backgroundSize: '200% 200%' }}
+                        />
+                        {/* Grain overlay */}
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.15),transparent_60%)]" />
+                        <div className="absolute inset-0 opacity-30 mix-blend-soft-light" />
+
+                        {/* Floating orbs */}
+                        <motion.div
+                            className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-white/15 blur-2xl"
+                            animate={{
+                                x: [0, 15, 0],
+                                y: [0, -10, 0],
+                                scale: [1, 1.15, 1],
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                            }}
+                        />
+                        <motion.div
+                            className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-white/10 blur-2xl"
+                            animate={{
+                                x: [0, -10, 0],
+                                y: [0, 8, 0],
+                                scale: [1, 1.2, 1],
+                            }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                            }}
+                        />
+
+                        {/* Floating micro-particles */}
+                        <div className="absolute inset-0 overflow-hidden">
+                            {[...Array(6)].map((_, i) => (
+                                <motion.div
+                                    key={`p-${i}`}
+                                    className="absolute"
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{
+                                        opacity: [0, 0.7, 0],
+                                        scale: [0, 1, 0],
+                                        y: [0, -40],
+                                    }}
+                                    transition={{
+                                        duration: 2.5 + Math.random() * 1.5,
+                                        repeat: Infinity,
+                                        delay: i * 0.4,
+                                    }}
+                                    style={{
+                                        left: `${15 + Math.random() * 70}%`,
+                                        top: `${60 + Math.random() * 30}%`,
+                                    }}
+                                >
+                                    <Sparkles className="h-2.5 w-2.5 text-white/50" />
+                                </motion.div>
+                            ))}
                         </div>
 
-                        {meeting.mode === 'online' &&
-                            (meeting.status === 'aktif' ||
-                                meeting.status === 'belum-dimulai') && (
-                                <div className="mt-6 space-y-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-                                    <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
-                                        <Checkbox
-                                            id="mentari-check"
-                                            checked={isChecked}
-                                            onCheckedChange={(checked) =>
-                                                setIsChecked(checked === true)
-                                            }
-                                            className="mt-1"
-                                        />
-                                        <label
-                                            htmlFor="mentari-check"
-                                            className="cursor-pointer text-sm leading-tight font-medium text-blue-900 dark:text-blue-100"
+                        {/* Header content */}
+                        <div className="relative z-10 px-6 pt-6 pb-5">
+                            <div className="flex items-start justify-between">
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.15 }}
+                                >
+                                    <div className="mb-2 flex items-center gap-2">
+                                        <motion.div
+                                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-white/15 backdrop-blur-sm"
+                                            whileHover={{
+                                                scale: 1.1,
+                                                rotate: 8,
+                                            }}
                                         >
-                                            Saya telah mengikuti dan
-                                            menyelesaikan Forum Diskusi (Fordis)
-                                            pada pertemuan ini di{' '}
+                                            <GraduationCap className="h-4.5 w-4.5 text-white" />
+                                        </motion.div>
+                                        <div>
+                                            <p className="text-[10px] font-medium tracking-wider text-white/60 uppercase">
+                                                Pertemuan
+                                            </p>
+                                            <p className="text-2xl leading-none font-extrabold tracking-tight text-white">
+                                                #{meeting.number}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p className="mt-1 max-w-[240px] text-sm leading-snug font-medium text-white/80">
+                                        {courseName}
+                                    </p>
+                                </motion.div>
+
+                                <motion.button
+                                    onClick={onClose}
+                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-colors hover:bg-white/25"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    <X className="h-4 w-4 text-white" />
+                                </motion.button>
+                            </div>
+
+                            {/* Status badge */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{
+                                    delay: 0.3,
+                                    type: 'spring',
+                                    stiffness: 400,
+                                }}
+                                className={`mt-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 backdrop-blur-md ${config.badgeBg}`}
+                            >
+                                {meeting.status === 'aktif' ? (
+                                    <span className="relative flex h-4 w-4 items-center justify-center">
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-40" />
+                                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white shadow-lg" />
+                                    </span>
+                                ) : (
+                                    <StatusIcon className="h-4 w-4 text-white" />
+                                )}
+                                <span className="text-xs font-bold tracking-wide text-white">
+                                    {config.label}
+                                </span>
+                            </motion.div>
+                        </div>
+                    </div>
+
+                    {/* ═══ CONTENT BODY — Glassmorphism ═══ */}
+                    <div className="bg-neutral-950">
+                        <motion.div
+                            className="space-y-0"
+                            variants={modalStagger}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            {/* Info Cards Grid */}
+                            <motion.div
+                                variants={modalItem}
+                                className="border-b border-white/5 px-6 py-5"
+                            >
+                                <div className="grid grid-cols-2 gap-3">
+                                    {infoItems.map((item, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.03] p-3.5 transition-colors hover:border-white/10 hover:bg-white/[0.06]"
+                                            whileHover={{
+                                                scale: 1.02,
+                                                y: -2,
+                                            }}
+                                        >
+                                            <div className="absolute -top-6 -right-6 h-16 w-16 rounded-full bg-white/[0.02] blur-xl transition-all group-hover:bg-white/[0.05]" />
+                                            <div className="relative">
+                                                <item.icon className="mb-2 h-4 w-4 text-neutral-500" />
+                                                <p className="text-[10px] font-medium tracking-wider text-neutral-500 uppercase">
+                                                    {item.label}
+                                                </p>
+                                                <p className="mt-0.5 text-sm leading-snug font-semibold text-white">
+                                                    {item.value}
+                                                </p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+
+                            {/* ═══ FORDIS VERIFICATION FLOW ═══ */}
+                            {canClaimFordis && (
+                                <motion.div
+                                    variants={modalItem}
+                                    className="px-6 py-5"
+                                >
+                                    {/* Section header */}
+                                    <div className="mb-4 flex items-center gap-2.5">
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20 ring-1 ring-blue-400/20">
+                                            <ShieldCheck className="h-3.5 w-3.5 text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-white">
+                                                Verifikasi Kehadiran
+                                                Online
+                                            </h4>
+                                            <p className="text-[10px] text-neutral-500">
+                                                Selesaikan 3 langkah di
+                                                bawah
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Progress track */}
+                                    <div className="mb-5 flex items-center gap-1">
+                                        {[0, 1, 2].map((step) => (
+                                            <React.Fragment key={step}>
+                                                <motion.div
+                                                    className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold transition-all duration-300 ${
+                                                        fordisStep >
+                                                        step
+                                                            ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-400'
+                                                            : fordisStep ===
+                                                                step
+                                                              ? 'border-blue-400/50 bg-blue-500/20 text-blue-400'
+                                                              : 'border-white/10 bg-white/[0.03] text-neutral-600'
+                                                    }`}
+                                                    animate={
+                                                        fordisStep ===
+                                                        step
+                                                            ? {
+                                                                  scale: [
+                                                                      1,
+                                                                      1.1,
+                                                                      1,
+                                                                  ],
+                                                              }
+                                                            : {}
+                                                    }
+                                                    transition={{
+                                                        duration: 1.5,
+                                                        repeat:
+                                                            fordisStep === step
+                                                                ? Infinity
+                                                                : 0,
+                                                    }}
+                                                >
+                                                    {fordisStep >
+                                                    step ? (
+                                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                                    ) : (
+                                                        step + 1
+                                                    )}
+                                                </motion.div>
+                                                {step < 2 && (
+                                                    <div className="flex-1">
+                                                        <div
+                                                            className={`h-0.5 rounded-full transition-all duration-500 ${
+                                                                fordisStep >
+                                                                step
+                                                                    ? 'bg-emerald-500/40'
+                                                                    : 'bg-white/5'
+                                                            }`}
+                                                        />
+                                                    </div>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+
+                                    {/* Step 1: Open Mentari */}
+                                    <motion.div
+                                        className={`mb-3 overflow-hidden rounded-2xl border transition-all duration-300 ${
+                                            fordisStep === 0
+                                                ? 'border-blue-400/20 bg-blue-500/[0.06]'
+                                                : fordisStep >= 1
+                                                  ? 'border-emerald-400/15 bg-emerald-500/[0.04]'
+                                                  : 'border-white/5 bg-white/[0.02]'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3 p-4">
+                                            <div
+                                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
+                                                    fordisStep >= 1
+                                                        ? 'bg-emerald-500/20'
+                                                        : 'bg-blue-500/15'
+                                                }`}
+                                            >
+                                                {fordisStep >= 1 ? (
+                                                    <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
+                                                ) : (
+                                                    <Globe className="h-4.5 w-4.5 text-blue-400" />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-bold text-white">
+                                                    Buka Forum Diskusi
+                                                    di Mentari
+                                                </p>
+                                                <p className="mt-0.5 text-[10px] leading-tight text-neutral-500">
+                                                    Kerjakan fordis
+                                                    pertemuan{' '}
+                                                    {meeting.number}{' '}
+                                                    terlebih dahulu
+                                                </p>
+                                            </div>
+                                            {fordisStep < 1 && (
+                                                <motion.button
+                                                    onClick={
+                                                        handleOpenMentari
+                                                    }
+                                                    className="flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-500/20 px-3.5 py-2 text-[11px] font-bold text-blue-300 transition-colors hover:bg-blue-500/30"
+                                                    whileHover={{
+                                                        scale: 1.03,
+                                                    }}
+                                                    whileTap={{
+                                                        scale: 0.97,
+                                                    }}
+                                                >
+                                                    <ExternalLink className="h-3.5 w-3.5" />
+                                                    Buka
+                                                </motion.button>
+                                            )}
+                                            {fordisStep >= 1 && (
+                                                <span className="text-[10px] font-semibold text-emerald-400">
+                                                    ✓ Dibuka
+                                                </span>
+                                            )}
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Step 2: Confirm completion */}
+                                    <motion.div
+                                        className={`mb-3 overflow-hidden rounded-2xl border transition-all duration-300 ${
+                                            fordisStep === 1
+                                                ? 'border-blue-400/20 bg-blue-500/[0.06]'
+                                                : fordisStep >= 2
+                                                  ? 'border-emerald-400/15 bg-emerald-500/[0.04]'
+                                                  : 'border-white/5 bg-white/[0.02] opacity-50'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3 p-4">
+                                            <div
+                                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
+                                                    fordisStep >= 2
+                                                        ? 'bg-emerald-500/20'
+                                                        : fordisStep === 1
+                                                          ? 'bg-blue-500/15'
+                                                          : 'bg-white/5'
+                                                }`}
+                                            >
+                                                {fordisStep >= 2 ? (
+                                                    <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
+                                                ) : (
+                                                    <MessageSquare
+                                                        className={`h-4.5 w-4.5 ${
+                                                            fordisStep >=
+                                                            1
+                                                                ? 'text-blue-400'
+                                                                : 'text-neutral-600'
+                                                        }`}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p
+                                                    className={`text-xs font-bold ${
+                                                        fordisStep >= 1
+                                                            ? 'text-white'
+                                                            : 'text-neutral-600'
+                                                    }`}
+                                                >
+                                                    Konfirmasi
+                                                    Penyelesaian Fordis
+                                                </p>
+                                                <p className="mt-0.5 text-[10px] leading-tight text-neutral-500">
+                                                    Pastikan fordis
+                                                    sudah 100% selesai
+                                                </p>
+                                            </div>
+                                            {fordisStep === 1 && (
+                                                <motion.button
+                                                    onClick={
+                                                        handleConfirmFordis
+                                                    }
+                                                    className="flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-500/20 px-3.5 py-2 text-[11px] font-bold text-blue-300 transition-colors hover:bg-blue-500/30"
+                                                    whileHover={{
+                                                        scale: 1.03,
+                                                    }}
+                                                    whileTap={{
+                                                        scale: 0.97,
+                                                    }}
+                                                >
+                                                    <Shield className="h-3.5 w-3.5" />
+                                                    Sudah
+                                                </motion.button>
+                                            )}
+                                            {fordisStep >= 2 && (
+                                                <span className="text-[10px] font-semibold text-emerald-400">
+                                                    ✓ Dikonfirmasi
+                                                </span>
+                                            )}
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Step 3: Submit */}
+                                    <motion.div
+                                        className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+                                            fordisStep === 2
+                                                ? 'border-blue-400/20 bg-blue-500/[0.06]'
+                                                : fordisStep >= 3
+                                                  ? 'border-emerald-400/15 bg-emerald-500/[0.04]'
+                                                  : 'border-white/5 bg-white/[0.02] opacity-50'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3 p-4">
+                                            <div
+                                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
+                                                    fordisStep >= 3
+                                                        ? 'bg-emerald-500/20'
+                                                        : fordisStep === 2
+                                                          ? 'bg-blue-500/15'
+                                                          : 'bg-white/5'
+                                                }`}
+                                            >
+                                                {isSubmitting ? (
+                                                    <Loader2 className="h-4.5 w-4.5 animate-spin text-blue-400" />
+                                                ) : fordisStep >= 3 ? (
+                                                    <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />
+                                                ) : (
+                                                    <Send
+                                                        className={`h-4.5 w-4.5 ${
+                                                            fordisStep >=
+                                                            2
+                                                                ? 'text-blue-400'
+                                                                : 'text-neutral-600'
+                                                        }`}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p
+                                                    className={`text-xs font-bold ${
+                                                        fordisStep >= 2
+                                                            ? 'text-white'
+                                                            : 'text-neutral-600'
+                                                    }`}
+                                                >
+                                                    Kirim & Tandai Hadir
+                                                </p>
+                                                <p className="mt-0.5 text-[10px] leading-tight text-neutral-500">
+                                                    Kehadiran dicatat
+                                                    otomatis
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Submit Button — animated glow */}
+                                    <AnimatePresence>
+                                        {fordisStep >= 2 &&
+                                            !isSubmitting && (
+                                                <motion.div
+                                                    initial={{
+                                                        opacity: 0,
+                                                        y: 12,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        y: 0,
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        y: 12,
+                                                    }}
+                                                    className="mt-5"
+                                                >
+                                                    <motion.button
+                                                        onClick={
+                                                            handleClaimOnline
+                                                        }
+                                                        className="group relative w-full overflow-hidden rounded-2xl py-3.5 text-sm font-bold text-white shadow-xl shadow-blue-500/20"
+                                                        whileHover={{
+                                                            scale: 1.01,
+                                                            y: -1,
+                                                        }}
+                                                        whileTap={{
+                                                            scale: 0.98,
+                                                        }}
+                                                    >
+                                                        {/* Animated gradient background */}
+                                                        <motion.div
+                                                            className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600"
+                                                            animate={{
+                                                                backgroundPosition:
+                                                                    [
+                                                                        '0% 50%',
+                                                                        '100% 50%',
+                                                                        '0% 50%',
+                                                                    ],
+                                                            }}
+                                                            transition={{
+                                                                duration: 3,
+                                                                repeat: Infinity,
+                                                                ease: 'linear',
+                                                            }}
+                                                            style={{
+                                                                backgroundSize:
+                                                                    '200% 100%',
+                                                            }}
+                                                        />
+                                                        {/* Glow ring pulse */}
+                                                        <motion.div
+                                                            className="absolute inset-0 rounded-2xl"
+                                                            animate={{
+                                                                boxShadow:
+                                                                    [
+                                                                        '0 0 15px rgba(59,130,246,0.3), inset 0 0 15px rgba(59,130,246,0.1)',
+                                                                        '0 0 30px rgba(59,130,246,0.5), inset 0 0 30px rgba(59,130,246,0.15)',
+                                                                        '0 0 15px rgba(59,130,246,0.3), inset 0 0 15px rgba(59,130,246,0.1)',
+                                                                    ],
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                            }}
+                                                        />
+                                                        <span className="relative z-10 flex items-center justify-center gap-2">
+                                                            <Zap className="h-4 w-4" />
+                                                            Tandai Hadir
+                                                            Sekarang
+                                                        </span>
+                                                    </motion.button>
+                                                </motion.div>
+                                            )}
+                                    </AnimatePresence>
+
+                                    {/* Info disclaimer */}
+                                    <div className="mt-4 flex items-start gap-2 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+                                        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-600" />
+                                        <p className="text-[10px] leading-relaxed text-neutral-500">
+                                            Dengan menandai hadir, Anda
+                                            menyatakan telah menyelesaikan
+                                            Forum Diskusi (Fordis) pada
+                                            pertemuan ini di{' '}
                                             <a
                                                 href="https://mentari.unpam.ac.id/"
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="font-bold text-blue-600 underline hover:no-underline dark:text-blue-400"
+                                                className="font-semibold text-blue-400 hover:underline"
                                             >
-                                                Mentari Unpam
+                                                mentari.unpam.ac.id
                                             </a>
-                                            .
-                                        </label>
+                                            . Data kehadiran akan dicatat
+                                            secara permanen.
+                                        </p>
                                     </div>
-                                    <Button
-                                        onClick={handleClaimOnline}
-                                        disabled={!isChecked || isSubmitting}
-                                        className="h-11 w-full bg-blue-600 font-bold text-white hover:bg-blue-700"
-                                    >
-                                        {isSubmitting
-                                            ? 'Menyimpan...'
-                                            : 'Tandai Hadir (Fordis)'}
-                                    </Button>
-                                </div>
+                                </motion.div>
                             )}
-                    </div>
-                    <div className="border-t border-neutral-200 p-5 dark:border-neutral-800">
-                        <button
-                            onClick={onClose}
-                            className="w-full rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-                        >
-                            Tutup
-                        </button>
+
+                            {/* ═══ FOOTER ═══ */}
+                            <motion.div
+                                variants={modalItem}
+                                className="border-t border-white/5 px-6 py-4"
+                            >
+                                <motion.button
+                                    onClick={onClose}
+                                    className="w-full rounded-2xl border border-white/5 bg-white/[0.03] py-2.5 text-sm font-medium text-neutral-400 transition-colors hover:border-white/10 hover:bg-white/[0.06] hover:text-neutral-300"
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    Tutup
+                                </motion.button>
+                            </motion.div>
+                        </motion.div>
                     </div>
                 </motion.div>
             </motion.div>
