@@ -13,6 +13,10 @@ class MahasiswaCourse extends Model
     use HasFactory;
 
     private const ONLINE_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    private const MEETING_STRUCTURE = [
+        2 => ['total_meetings' => 14, 'uts_meeting' => 7, 'uas_meeting' => 14],
+        3 => ['total_meetings' => 21, 'uts_meeting' => 14, 'uas_meeting' => 21],
+    ];
 
     protected $fillable = [
         'mahasiswa_id',
@@ -231,5 +235,23 @@ class MahasiswaCourse extends Model
         ];
 
         return $days[$this->effective_schedule_day] ?? $this->effective_schedule_day;
+    }
+
+    public static function meetingStructureForSks(int $sks): array
+    {
+        return self::MEETING_STRUCTURE[$sks] ?? [
+            'total_meetings' => 21,
+            'uts_meeting' => 14,
+            'uas_meeting' => 21,
+        ];
+    }
+
+    public static function buildAcademicStructurePayload(int $sks, int $currentMeeting = 0): array
+    {
+        return [
+            'sks' => $sks,
+            'current_meeting' => $currentMeeting,
+            ...self::meetingStructureForSks($sks),
+        ];
     }
 }

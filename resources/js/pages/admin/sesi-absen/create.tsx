@@ -131,6 +131,16 @@ interface Course {
     scheduled_meetings: number[];
     offline_meetings: number[];
     quick_ready_meetings: number[];
+    schedule_template: {
+        day_name: string;
+        start_time: string;
+        end_time: string;
+        scan_start_time: string;
+        scan_end_time: string;
+        duration_minutes: number;
+        room: string | null;
+        label: string;
+    } | null;
     meeting_templates: {
         meeting_number: number;
         topic: string | null;
@@ -161,6 +171,7 @@ const createInitialFormData = () => ({
     waktu_selesai: '',
     waktu_buka_absen: '',
     waktu_tutup_absen: '',
+    scan_interval_follows_session: true,
     toleransi_keterlambatan: 15,
     recurring: false,
 
@@ -209,6 +220,36 @@ const isStrictnessLevel = (value: string): value is StrictnessLevel =>
 
 const formatMeetingBadges = (meetings: number[]) =>
     meetings.length > 0 ? meetings.map((meeting) => `P${meeting}`).join(', ') : '-';
+
+const dayNameToIndex: Record<string, number> = {
+    Minggu: 0,
+    Senin: 1,
+    Selasa: 2,
+    Rabu: 3,
+    Kamis: 4,
+    Jumat: 5,
+    Sabtu: 6,
+};
+
+const getNextDateForDayName = (dayName: string): string => {
+    const targetDay = dayNameToIndex[dayName];
+
+    if (targetDay === undefined) {
+        return '';
+    }
+
+    const now = new Date();
+    const date = new Date(now);
+    const currentDay = date.getDay();
+    const daysUntilTarget = (targetDay - currentDay + 7) % 7;
+    date.setDate(date.getDate() + daysUntilTarget);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
 
 function WizardStepTracker({
     currentStep,
@@ -508,8 +549,40 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
         };
     };
 
+    const applyCourseScheduleTemplateToDraft = (
+        draft: FormDataState,
+        courseIdOverride?: string,
+    ) => {
+        const courseId = courseIdOverride ?? draft.mata_kuliah_id;
+        const course = courses.find((item) => item.id.toString() === courseId);
+        const scheduleTemplate = course?.schedule_template;
+
+        if (!scheduleTemplate) {
+            return draft;
+        }
+
+        const nextDate = getNextDateForDayName(scheduleTemplate.day_name);
+
+        return {
+            ...draft,
+            tanggal: nextDate,
+            waktu_mulai: scheduleTemplate.start_time,
+            waktu_selesai: scheduleTemplate.end_time,
+            waktu_buka_absen: draft.scan_interval_follows_session
+                ? scheduleTemplate.scan_start_time
+                : draft.waktu_buka_absen || scheduleTemplate.scan_start_time,
+            waktu_tutup_absen: draft.scan_interval_follows_session
+                ? scheduleTemplate.scan_end_time
+                : draft.waktu_tutup_absen || scheduleTemplate.scan_end_time,
+        };
+    };
+
     const applyMeetingTemplate = () => {
         setFormData((prev) => applyMeetingTemplateToDraft(prev));
+    };
+
+    const applyCourseScheduleTemplate = () => {
+        setFormData((prev) => applyCourseScheduleTemplateToDraft(prev));
     };
 
     const updateField = <K extends keyof FormDataState>(
@@ -517,10 +590,27 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
         value: FormDataState[K],
     ) => {
         setFormData((prev) => {
-            const nextDraft = { ...prev, [field]: value } as FormDataState;
+            let nextDraft = { ...prev, [field]: value } as FormDataState;
+
+            if (
+                nextDraft.scan_interval_follows_session &&
+                (field === 'waktu_mulai' || field === 'waktu_selesai')
+            ) {
+                nextDraft = {
+                    ...nextDraft,
+                    waktu_buka_absen:
+                        field === 'waktu_mulai'
+                            ? (value as FormDataState['waktu_mulai'])
+                            : nextDraft.waktu_mulai,
+                    waktu_tutup_absen:
+                        field === 'waktu_selesai'
+                            ? (value as FormDataState['waktu_selesai'])
+                            : nextDraft.waktu_selesai,
+                };
+            }
 
             if (field === 'mata_kuliah_id' || field === 'pertemuan') {
-                return applyMeetingTemplateToDraft(nextDraft, {
+                const withMeetingTemplate = applyMeetingTemplateToDraft(nextDraft, {
                     mata_kuliah_id:
                         field === 'mata_kuliah_id'
                             ? (value as FormDataState['mata_kuliah_id'])
@@ -530,6 +620,25 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                             ? (value as FormDataState['pertemuan'])
                             : nextDraft.pertemuan,
                 });
+
+                return field === 'mata_kuliah_id'
+                    ? applyCourseScheduleTemplateToDraft(
+                          withMeetingTemplate,
+                          value as FormDataState['mata_kuliah_id'],
+                      )
+                    : withMeetingTemplate;
+            }
+
+            if (field === 'scan_interval_follows_session') {
+                const followsSession = value as FormDataState['scan_interval_follows_session'];
+
+                if (followsSession) {
+                    return {
+                        ...nextDraft,
+                        waktu_buka_absen: nextDraft.waktu_mulai,
+                        waktu_tutup_absen: nextDraft.waktu_selesai,
+                    };
+                }
             }
 
             return nextDraft;
@@ -577,6 +686,9 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
             waktu_mulai: timeNow,
             waktu_selesai: timeEnd,
             waktu_buka_absen: timeNow,
+            waktu_tutup_absen: prev.scan_interval_follows_session
+                ? timeEnd
+                : prev.waktu_tutup_absen,
         }));
     };
 
@@ -1010,6 +1122,43 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                         </div>
 
                                         <div className="space-y-8">
+                                            {selectedCourse?.schedule_template && (
+                                                <div className="rounded-3xl border border-fuchsia-200 bg-gradient-to-br from-fuchsia-50 via-white to-pink-50 p-5 shadow-sm dark:border-fuchsia-900/40 dark:from-fuchsia-950/30 dark:via-neutral-900/40 dark:to-pink-950/20">
+                                                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                                        <div>
+                                                            <p className="text-[11px] font-semibold tracking-[0.28em] text-fuchsia-500 uppercase">
+                                                                Template Jadwal Kuliah
+                                                            </p>
+                                                            <h3 className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
+                                                                Waktu sesi offline bisa langsung mengikuti jadwal kuliah
+                                                            </h3>
+                                                            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                                                                Template terdeteksi:
+                                                                {' '}
+                                                                <span className="font-semibold">
+                                                                    {selectedCourse.schedule_template.label}
+                                                                </span>
+                                                                {selectedCourse.schedule_template.room
+                                                                    ? ` • ${selectedCourse.schedule_template.room}`
+                                                                    : ''}
+                                                            </p>
+                                                            <p className="mt-2 text-xs font-medium text-fuchsia-600 dark:text-fuchsia-300">
+                                                                Tanggal sesi akan otomatis dikunci ke hari {selectedCourse.schedule_template.day_name} terdekat.
+                                                            </p>
+                                                        </div>
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            onClick={applyCourseScheduleTemplate}
+                                                            className="border-fuchsia-200 bg-white text-fuchsia-600 hover:bg-fuchsia-50 dark:border-fuchsia-800/50 dark:bg-white/5 dark:text-fuchsia-300 dark:hover:bg-fuchsia-900/20"
+                                                        >
+                                                            <Zap className="mr-2 h-4 w-4" />
+                                                            Gunakan Template Jadwal
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* Waktu Sesi Utama */}
                                             <div className="grid grid-cols-1 gap-6 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl md:grid-cols-3 dark:border-white/5 dark:bg-neutral-900/40">
                                                 <div className="space-y-2">
@@ -1029,8 +1178,14 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                                 e.target.value,
                                                             )
                                                         }
+                                                        disabled={Boolean(selectedCourse?.schedule_template)}
                                                         className="h-12 rounded-xl border-white/30 bg-white/50 dark:border-neutral-800 dark:bg-black/20 dark:[color-scheme:dark]"
                                                     />
+                                                    {selectedCourse?.schedule_template && (
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                            Tanggal mengikuti hari {selectedCourse.schedule_template.day_name} pada template jadwal.
+                                                        </p>
+                                                    )}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label className="flex items-center gap-2 font-semibold text-slate-700 dark:text-slate-200">
@@ -1083,6 +1238,27 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                 <Scan className="h-5 w-5 text-indigo-500" />{' '}
                                                 Interval Scan Absensi
                                             </h3>
+                                            <div className="flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800/40 dark:bg-indigo-900/10">
+                                                <Switch
+                                                    checked={
+                                                        formData.scan_interval_follows_session
+                                                    }
+                                                    onCheckedChange={(checked: boolean) =>
+                                                        updateField(
+                                                            'scan_interval_follows_session',
+                                                            checked,
+                                                        )
+                                                    }
+                                                />
+                                                <div className="space-y-1">
+                                                    <Label className="font-semibold text-slate-800 dark:text-slate-100">
+                                                        Samakan interval scan dengan waktu mulai dan selesai sesi
+                                                    </Label>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        Jika aktif, waktu buka absen mengikuti jam mulai dan waktu tutup absen mengikuti jam selesai.
+                                                    </p>
+                                                </div>
+                                            </div>
                                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                 <div className="space-y-2 rounded-2xl border border-emerald-100 bg-emerald-50 p-5 dark:border-emerald-800/50 dark:bg-emerald-900/10">
                                                     <Label className="flex items-center gap-2 font-semibold text-slate-700 dark:text-emerald-200">
@@ -1103,6 +1279,9 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                                 'waktu_buka_absen',
                                                                 e.target.value,
                                                             )
+                                                        }
+                                                        disabled={
+                                                            formData.scan_interval_follows_session
                                                         }
                                                         className="h-12 rounded-xl bg-white/80 dark:bg-black/40 dark:[color-scheme:dark]"
                                                     />
@@ -1126,6 +1305,9 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                                                                 'waktu_tutup_absen',
                                                                 e.target.value,
                                                             )
+                                                        }
+                                                        disabled={
+                                                            formData.scan_interval_follows_session
                                                         }
                                                         className="h-12 rounded-xl bg-white/80 dark:bg-black/40 dark:[color-scheme:dark]"
                                                     />

@@ -546,17 +546,12 @@ class MataKuliahController extends Controller
 
         foreach ($mataKuliahs as $index => $mk) {
             $sks = (int) ($mk->sks ?? 3);
-            $totalMeetings = $sks === 2 ? 14 : 21;
             $periodGroup = $index < $periodOneLimit ? 1 : 2;
 
             MahasiswaCourse::query()->create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
-                'sks' => $sks,
-                'total_meetings' => $totalMeetings,
-                'current_meeting' => 0,
-                'uts_meeting' => $sks === 2 ? 7 : 14,
-                'uas_meeting' => $totalMeetings,
+                ...\App\Models\MahasiswaCourse::buildAcademicStructurePayload($sks, 0),
                 'schedule_day' => $days[$index % count($days)],
                 'schedule_time' => $times[$index % count($times)],
                 'mode' => $periodGroup === 1 ? 'offline' : 'online',

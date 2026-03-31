@@ -183,15 +183,12 @@ class AcademicNoteController extends Controller
 
         foreach ($mataKuliahs as $index => $mk) {
             $periodGroup = $index < $periodOneLimit ? 1 : 2;
+            $sks = (int) ($mk->sks ?? 3);
 
             MahasiswaCourse::create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
-                'sks' => $mk->sks ?? 3,
-                'total_meetings' => 16, // Default 16 pertemuan
-                'current_meeting' => 1,
-                'uts_meeting' => 8,
-                'uas_meeting' => 16,
+                ...\App\Models\MahasiswaCourse::buildAcademicStructurePayload($sks, 1),
                 'schedule_day' => $days[$index % count($days)],
                 'schedule_time' => $times[$index % count($times)],
                 'mode' => $periodGroup === 1 ? 'offline' : 'online',

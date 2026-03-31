@@ -537,15 +537,32 @@ class KehadiranController extends Controller
         $mataKuliahs = MataKuliah::with('dosen')->orderBy('id')->get()->values();
 
         if ($existing->isNotEmpty()) {
-            // Re-sync SKS values from mata_kuliah for existing records
+            // Re-sync struktur akademik dari SKS agar matkul 2 SKS tidak tetap 21 pertemuan.
             $mkSksMap = [];
             foreach ($mataKuliahs as $mk) {
                 $mkSksMap[strtolower(trim($mk->nama))] = $mk->sks ?? 3;
             }
             foreach ($existing as $course) {
                 $correctSks = $mkSksMap[strtolower(trim($course->name))] ?? null;
-                if ($correctSks && (int) $course->sks !== (int) $correctSks) {
-                    $course->update(['sks' => $correctSks]);
+                if (! $correctSks) {
+                    continue;
+                }
+
+                $structure = \App\Models\MahasiswaCourse::meetingStructureForSks((int) $correctSks);
+
+                if (
+                    (int) $course->sks !== (int) $correctSks
+                    || (int) $course->total_meetings !== (int) $structure['total_meetings']
+                    || (int) $course->uts_meeting !== (int) $structure['uts_meeting']
+                    || (int) $course->uas_meeting !== (int) $structure['uas_meeting']
+                ) {
+                    $course->update([
+                        'sks' => $correctSks,
+                        'total_meetings' => $structure['total_meetings'],
+                        'uts_meeting' => $structure['uts_meeting'],
+                        'uas_meeting' => $structure['uas_meeting'],
+                        'current_meeting' => min((int) $course->current_meeting, (int) $structure['total_meetings']),
+                    ]);
                 }
             }
             return;
@@ -556,15 +573,12 @@ class KehadiranController extends Controller
 
         foreach ($mataKuliahs as $index => $mk) {
             $periodGroup = $index < $periodOneLimit ? 1 : 2;
+            $sks = (int) ($mk->sks ?? 3);
 
             MahasiswaCourse::create([
                 'mahasiswa_id' => $mahasiswaId,
                 'name' => $mk->nama,
-                'sks' => $mk->sks ?? 3,
-                'total_meetings' => 16,
-                'current_meeting' => 1,
-                'uts_meeting' => 8,
-                'uas_meeting' => 16,
+                ...\App\Models\MahasiswaCourse::buildAcademicStructurePayload($sks, 1),
                 'schedule_day' => $days[$index % count($days)],
                 'schedule_time' => $times[$index % count($times)],
                 'mode' => $periodGroup === 1 ? 'offline' : 'online',
@@ -574,5 +588,4 @@ class KehadiranController extends Controller
         }
     }
 }
-
 
