@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "NODE_OPTIONS=--max_old_space_size=4096 vite build",
+        "build:ci": "VITE_ENABLE_IMAGE_OPTIMIZER=false VITE_ENABLE_ASSET_COMPRESSION=false NODE_OPTIONS=--max_old_space_size=4096 vite build",
         "build:ssr": "vite build && vite build --ssr",
         "dev": "vite",
         "format": "prettier --write resources/",

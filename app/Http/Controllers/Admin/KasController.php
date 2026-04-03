@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -77,6 +78,10 @@ class KasController extends Controller
                     'status' => $k->status,
                     'period_date' => $k->period_date->format('Y-m-d'),
                     'description' => $k->description,
+                    'payment_method' => $k->payment_method,
+                    'payment_reference' => $k->payment_reference,
+                    'payment_note' => $k->payment_note,
+                    'paid_at' => $k->paid_at?->toDateTimeString(),
                 ]),
             ];
         });
@@ -115,6 +120,10 @@ class KasController extends Controller
                     'status' => $k->status,
                     'description' => $k->description,
                     'category' => $k->category,
+                    'payment_method' => $k->payment_method,
+                    'payment_reference' => $k->payment_reference,
+                    'payment_note' => $k->payment_note,
+                    'paid_at' => $k->paid_at?->toDateTimeString(),
                     'period_date' => $k->period_date->format('Y-m-d'),
                     'period_display' => $k->period_date->translatedFormat('l, d F Y'),
                     'created_at' => $k->created_at->format('d M Y H:i'),
@@ -193,28 +202,42 @@ class KasController extends Controller
 
     public function markPaid(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'mahasiswa_id' => 'required|exists:mahasiswa,id',
             'period_date' => 'required|date',
+            'payment_method' => ['nullable', Rule::in(['cash', 'transfer', 'qris'])],
+            'payment_reference' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(fn() => in_array($request->input('payment_method'), ['transfer', 'qris'], true)),
+            ],
+            'payment_note' => 'nullable|string|max:1000',
         ]);
 
+        $paymentAttributes = $this->buildPaymentAttributes($validated);
+
         // Check if record exists for this date
-        $existing = Kas::where('mahasiswa_id', $request->mahasiswa_id)
+        $existing = Kas::where('mahasiswa_id', $validated['mahasiswa_id'])
             ->where('type', 'income')
-            ->whereDate('period_date', $request->period_date)
+            ->whereDate('period_date', $validated['period_date'])
             ->first();
 
         if ($existing) {
-            $existing->update(['status' => 'paid']);
+            $existing->update([
+                'status' => 'paid',
+                ...$paymentAttributes,
+            ]);
         } else {
             Kas::create([
-                'mahasiswa_id' => $request->mahasiswa_id,
+                'mahasiswa_id' => $validated['mahasiswa_id'],
                 'type' => 'income',
                 'amount' => self::KAS_AMOUNT,
                 'description' => 'Kas Mingguan',
                 'category' => 'kas_mingguan',
-                'period_date' => $request->period_date,
+                'period_date' => $validated['period_date'],
                 'status' => 'paid',
+                ...$paymentAttributes,
                 'created_by' => auth()->id(),
             ]);
         }
@@ -226,18 +249,24 @@ class KasController extends Controller
 
     public function markUnpaid(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'mahasiswa_id' => 'required|exists:mahasiswa,id',
             'period_date' => 'required|date',
         ]);
 
-        $existing = Kas::where('mahasiswa_id', $request->mahasiswa_id)
+        $existing = Kas::where('mahasiswa_id', $validated['mahasiswa_id'])
             ->where('type', 'income')
-            ->whereDate('period_date', $request->period_date)
+            ->whereDate('period_date', $validated['period_date'])
             ->first();
 
         if ($existing) {
-            $existing->update(['status' => 'unpaid']);
+            $existing->update([
+                'status' => 'unpaid',
+                'payment_method' => null,
+                'payment_reference' => null,
+                'payment_note' => null,
+                'paid_at' => null,
+            ]);
             KasSummary::recalculate();
             return back()->with('success', 'Pembayaran kas berhasil dibatalkan.');
         }
@@ -281,20 +310,33 @@ class KasController extends Controller
 
     public function bulkMarkPaid(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'mahasiswa_ids' => 'required|array',
             'mahasiswa_ids.*' => 'exists:mahasiswa,id',
             'period_date' => 'required|date',
+            'payment_method' => ['nullable', Rule::in(['cash', 'transfer', 'qris'])],
+            'payment_reference' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::requiredIf(fn() => in_array($request->input('payment_method'), ['transfer', 'qris'], true)),
+            ],
+            'payment_note' => 'nullable|string|max:1000',
         ]);
 
-        foreach ($request->mahasiswa_ids as $mahasiswaId) {
+        $paymentAttributes = $this->buildPaymentAttributes($validated);
+
+        foreach ($validated['mahasiswa_ids'] as $mahasiswaId) {
             $existing = Kas::where('mahasiswa_id', $mahasiswaId)
                 ->where('type', 'income')
-                ->whereDate('period_date', $request->period_date)
+                ->whereDate('period_date', $validated['period_date'])
                 ->first();
 
             if ($existing) {
-                $existing->update(['status' => 'paid']);
+                $existing->update([
+                    'status' => 'paid',
+                    ...$paymentAttributes,
+                ]);
             } else {
                 Kas::create([
                     'mahasiswa_id' => $mahasiswaId,
@@ -302,8 +344,9 @@ class KasController extends Controller
                     'amount' => self::KAS_AMOUNT,
                     'description' => 'Kas Mingguan',
                     'category' => 'kas_mingguan',
-                    'period_date' => $request->period_date,
+                    'period_date' => $validated['period_date'],
                     'status' => 'paid',
+                    ...$paymentAttributes,
                     'created_by' => auth()->id(),
                 ]);
             }
@@ -311,7 +354,7 @@ class KasController extends Controller
 
         KasSummary::recalculate();
 
-        return back()->with('success', 'Pembayaran kas berhasil dicatat untuk ' . count($request->mahasiswa_ids) . ' mahasiswa.');
+        return back()->with('success', 'Pembayaran kas berhasil dicatat untuk ' . count($validated['mahasiswa_ids']) . ' mahasiswa.');
     }
 
     public function createPertemuan(Request $request): RedirectResponse
@@ -345,6 +388,37 @@ class KasController extends Controller
         }
 
         return back()->with('success', 'Pertemuan kas berhasil dibuat untuk ' . $mahasiswaList->count() . ' mahasiswa.');
+    }
+
+    public function destroyPertemuan(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'period_date' => 'required|date',
+        ]);
+
+        $deleted = Kas::where('type', 'income')
+            ->whereDate('period_date', $validated['period_date'])
+            ->delete();
+
+        if ($deleted === 0) {
+            return back()->with('error', 'Pertemuan kas tidak ditemukan.');
+        }
+
+        KasSummary::recalculate();
+
+        return back()->with('success', 'Pertemuan kas berhasil dihapus.');
+    }
+
+    private function buildPaymentAttributes(array $validated): array
+    {
+        $method = $validated['payment_method'] ?? 'cash';
+
+        return [
+            'payment_method' => $method,
+            'payment_reference' => $validated['payment_reference'] ?? null,
+            'payment_note' => $validated['payment_note'] ?? null,
+            'paid_at' => now(),
+        ];
     }
 
     public function exportPdf(Request $request): Response

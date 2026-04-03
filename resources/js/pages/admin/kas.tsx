@@ -1,7 +1,16 @@
 import KasIcon from '@/assets/admin/kas/kas.png';
 import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
 import StatusIcon from '@/assets/admin/kas/status.png';
+import {
+    getPendingKasActions,
+    removePendingKasActionsForDate,
+    syncPendingKasActions,
+    type KasPaymentMethod,
+    upsertPendingKasAction,
+} from '@/lib/admin-kas-offline';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
+import { NetworkMonitor, type NetworkQuality } from '@/services/NetworkMonitor';
 import { Head, router, useForm } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -11,17 +20,20 @@ import {
     ChevronRight,
     Download,
     FileText,
+    Loader2,
     Printer,
     Receipt,
     Search,
     Target,
+    Trash2,
     TrendingDown,
     Users,
     Vote,
     X,
     Zap,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface MahasiswaKas {
     id: number;
@@ -38,6 +50,10 @@ interface MahasiswaKas {
         status: string;
         period_date: string;
         description: string;
+        payment_method?: string | null;
+        payment_reference?: string | null;
+        payment_note?: string | null;
+        paid_at?: string | null;
     }[];
 }
 
@@ -59,6 +75,10 @@ interface Transaction {
     status: string;
     description: string;
     category: string;
+    payment_method?: string | null;
+    payment_reference?: string | null;
+    payment_note?: string | null;
+    paid_at?: string | null;
     period_date: string;
     period_display: string;
     created_at: string;
@@ -135,13 +155,34 @@ export default function AdminKas({
     const [showExportModal, setShowExportModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [cancelData, setCancelData] = useState<{ mahasiswaId: number, periodDate: string, studentName: string } | null>(null);
-    const [selectedMahasiswa, setSelectedMahasiswa] = useState<number[]>([]);
+    const [deletePertemuanDialog, setDeletePertemuanDialog] = useState<{
+        open: boolean;
+        periodDate: string | null;
+    }>({
+        open: false,
+        periodDate: null,
+    });
+    const [isDeletingPertemuan, setIsDeletingPertemuan] = useState(false);
     const [search, setSearch] = useState(filters.search);
     const [expandedDates, setExpandedDates] = useState<string[]>([]);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-    const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid'>(
-        'all',
+    const [statusFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
+    const [paymentMethod, setPaymentMethod] =
+        useState<KasPaymentMethod>('cash');
+    const [paymentReference, setPaymentReference] = useState('');
+    const [paymentNote, setPaymentNote] = useState('');
+    const [pendingSyncCount, setPendingSyncCount] = useState(0);
+    const [optimisticStatuses, setOptimisticStatuses] = useState<
+        Record<string, 'paid' | 'unpaid'>
+    >({});
+    const [isOnline, setIsOnline] = useState(
+        typeof navigator === 'undefined' ? true : navigator.onLine,
     );
+    const [isSyncingKas, setIsSyncingKas] = useState(false);
+    const [networkQuality, setNetworkQuality] = useState<NetworkQuality>(
+        NetworkMonitor.getNetworkQuality(),
+    );
+    const syncInProgressRef = useRef(false);
 
     const expenseForm = useForm({
         amount: 0,
@@ -154,47 +195,118 @@ export default function AdminKas({
         period_date: '',
     });
 
+    const getStatusKey = (mahasiswaId: number, periodDate: string) =>
+        `${mahasiswaId}:${periodDate}`;
+
+    const refreshOfflineState = useCallback(() => {
+        const queue = getPendingKasActions();
+        const nextOverrides = queue.reduce<Record<string, 'paid' | 'unpaid'>>(
+            (accumulator, item) => {
+                accumulator[getStatusKey(item.mahasiswaId, item.periodDate)] =
+                    item.status;
+
+                return accumulator;
+            },
+            {},
+        );
+
+        setPendingSyncCount(queue.length);
+        setOptimisticStatuses(nextOverrides);
+    }, []);
+
+    const flushPendingKasQueue = useCallback(async (showSuccessToast = false) => {
+        if (syncInProgressRef.current) {
+            return null;
+        }
+
+        syncInProgressRef.current = true;
+        setIsSyncingKas(true);
+
+        try {
+            const result = await syncPendingKasActions();
+            refreshOfflineState();
+
+            if (result.successCount > 0) {
+                router.reload({
+                    only: ['mahasiswaList', 'summary', 'ledger', 'pertemuanDates'],
+                    preserveScroll: true,
+                    preserveState: true,
+                });
+
+                if (showSuccessToast) {
+                    toast.success(
+                        `${result.successCount} checklist kas berhasil disinkronkan.`,
+                    );
+                }
+            }
+
+            if (result.failedCount > 0) {
+                toast.error(
+                    result.errorMessages[0] ??
+                        `${result.failedCount} checklist gagal disinkronkan.`,
+                );
+            } else if (
+                showSuccessToast &&
+                result.successCount === 0 &&
+                pendingSyncCount > 0
+            ) {
+                toast.message('Belum ada data yang berhasil disinkronkan.');
+            }
+
+            return result;
+        } finally {
+            syncInProgressRef.current = false;
+            setIsSyncingKas(false);
+        }
+    }, [pendingSyncCount, refreshOfflineState]);
+
+    useEffect(() => {
+        refreshOfflineState();
+    }, [refreshOfflineState]);
+
+    useEffect(() => {
+        return NetworkMonitor.subscribe((quality) => {
+            setNetworkQuality(quality);
+            setIsOnline(quality.isOnline);
+        });
+    }, []);
+
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true);
+            void flushPendingKasQueue(true);
+        };
+
+        const handleOffline = () => {
+            setIsOnline(false);
+        };
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, [flushPendingKasQueue]);
+
+    useEffect(() => {
+        if (!isOnline || pendingSyncCount === 0) {
+            return;
+        }
+
+        const interval = window.setInterval(() => {
+            void flushPendingKasQueue();
+        }, 15000);
+
+        return () => window.clearInterval(interval);
+    }, [flushPendingKasQueue, isOnline, pendingSyncCount]);
+
     const handleFilter = (key: string, value: string) => {
         router.get(
             '/admin/kas',
             { ...filters, [key]: value },
             { preserveState: true },
-        );
-    };
-
-    const handleMarkPaid = (mahasiswaId: number) => {
-        if (filters.pertemuan === 'all') {
-            alert(
-                'Silakan pilih pertemuan terlebih dahulu untuk menandai lunas',
-            );
-            return;
-        }
-        router.post('/admin/kas/mark-paid', {
-            mahasiswa_id: mahasiswaId,
-            period_date: filters.pertemuan,
-        }, {
-            preserveScroll: true,
-        });
-    };
-
-    const handleBulkMarkPaid = () => {
-        if (selectedMahasiswa.length === 0) return;
-        if (filters.pertemuan === 'all') {
-            alert(
-                'Silakan pilih pertemuan terlebih dahulu untuk menandai lunas',
-            );
-            return;
-        }
-        router.post(
-            '/admin/kas/bulk-mark-paid',
-            {
-                mahasiswa_ids: selectedMahasiswa,
-                period_date: filters.pertemuan,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => setSelectedMahasiswa([]),
-            },
         );
     };
 
@@ -223,56 +335,6 @@ export default function AdminKas({
                 },
             },
         );
-    };
-
-    const toggleSelect = (id: number) => {
-        setSelectedMahasiswa((prev) =>
-            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-        );
-    };
-
-    const selectAll = () => {
-        const unpaidIds = mahasiswaList
-            .filter((m) => m.status !== 'paid')
-            .map((m) => m.id);
-        setSelectedMahasiswa((prev) =>
-            prev.length === unpaidIds.length ? [] : unpaidIds,
-        );
-    };
-
-    const selectAllUnpaid = () => {
-        const unpaidIds = mahasiswaList
-            .filter((m) => m.status !== 'paid')
-            .map((m) => m.id);
-        setSelectedMahasiswa(unpaidIds);
-    };
-
-    const markAllUnpaidAsLunas = () => {
-        if (filters.pertemuan === 'all') {
-            alert(
-                'Silakan pilih pertemuan terlebih dahulu untuk menandai lunas',
-            );
-            return;
-        }
-        const unpaidIds = mahasiswaList
-            .filter((m) => m.status !== 'paid')
-            .map((m) => m.id);
-        if (unpaidIds.length === 0) {
-            alert('Tidak ada mahasiswa yang belum bayar');
-            return;
-        }
-        if (
-            confirm(
-                `Tandai ${unpaidIds.length} mahasiswa yang belum bayar sebagai lunas?`,
-            )
-        ) {
-            router.post('/admin/kas/bulk-mark-paid', {
-                mahasiswa_ids: unpaidIds,
-                period_date: filters.pertemuan,
-            }, {
-                preserveScroll: true,
-            });
-        }
     };
 
     const filteredMahasiswaList = mahasiswaList.filter((m) => {
@@ -330,17 +392,62 @@ export default function AdminKas({
         student: MahasiswaKas,
         date: string,
     ): string | null => {
+        const optimisticStatus = optimisticStatuses[getStatusKey(student.id, date)];
+        if (optimisticStatus) {
+            return optimisticStatus;
+        }
+
         const record = student.records.find((r) => r.period_date === date);
         return record?.status || null;
     };
 
-    const handleMarkPaidForDate = (mahasiswaId: number, periodDate: string) => {
-        router.post('/admin/kas/mark-paid', {
-            mahasiswa_id: mahasiswaId,
-            period_date: periodDate,
-        }, {
-            preserveScroll: true,
+    const validatePaymentMetadata = () => {
+        if (
+            (paymentMethod === 'transfer' || paymentMethod === 'qris') &&
+            !paymentReference.trim()
+        ) {
+            toast.error(
+                paymentMethod === 'transfer'
+                    ? 'Masukkan nomor rekening atau referensi transfer.'
+                    : 'Masukkan data QRIS atau referensi QRIS.',
+            );
+
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleMarkPaidForDate = async (
+        mahasiswaId: number,
+        periodDate: string,
+    ) => {
+        if (!validatePaymentMetadata()) {
+            return;
+        }
+
+        const student = mahasiswaList.find((item) => item.id === mahasiswaId);
+
+        upsertPendingKasAction({
+            mahasiswaId,
+            periodDate,
+            status: 'paid',
+            paymentMethod,
+            paymentReference: paymentReference.trim() || undefined,
+            paymentNote: paymentNote.trim() || undefined,
+            studentName: student?.nama ?? 'Mahasiswa',
         });
+
+        refreshOfflineState();
+
+        if (!navigator.onLine) {
+            toast.success(
+                `Checklist ${student?.nama ?? 'mahasiswa'} disimpan offline dan akan disinkronkan otomatis.`,
+            );
+            return;
+        }
+
+        await flushPendingKasQueue();
     };
 
     const handleMarkUnpaidForDate = (mahasiswaId: number, periodDate: string, studentName: string) => {
@@ -350,16 +457,25 @@ export default function AdminKas({
 
     const confirmCancelKas = () => {
         if (!cancelData) return;
-        router.post('/admin/kas/mark-unpaid', {
-            mahasiswa_id: cancelData.mahasiswaId,
-            period_date: cancelData.periodDate,
-        }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setShowCancelModal(false);
-                setCancelData(null);
-            }
+        upsertPendingKasAction({
+            mahasiswaId: cancelData.mahasiswaId,
+            periodDate: cancelData.periodDate,
+            status: 'unpaid',
+            paymentMethod: 'cash',
+            studentName: cancelData.studentName,
         });
+        refreshOfflineState();
+        setShowCancelModal(false);
+        setCancelData(null);
+
+        if (!navigator.onLine) {
+            toast.success(
+                `Pembatalan lunas ${cancelData.studentName} disimpan offline.`,
+            );
+            return;
+        }
+
+        void flushPendingKasQueue();
     };
 
     const handleBulkMarkPaidForDate = (periodDate: string) => {
@@ -375,12 +491,34 @@ export default function AdminKas({
                 `Tandai ${unpaidIds.length} mahasiswa lunas untuk tanggal ini?`,
             )
         ) {
-            router.post('/admin/kas/bulk-mark-paid', {
-                mahasiswa_ids: unpaidIds,
-                period_date: periodDate,
-            }, {
-                preserveScroll: true,
+            if (!validatePaymentMetadata()) {
+                return;
+            }
+
+            unpaidIds.forEach((mahasiswaId) => {
+                const student = mahasiswaList.find((item) => item.id === mahasiswaId);
+
+                upsertPendingKasAction({
+                    mahasiswaId,
+                    periodDate,
+                    status: 'paid',
+                    paymentMethod,
+                    paymentReference: paymentReference.trim() || undefined,
+                    paymentNote: paymentNote.trim() || undefined,
+                    studentName: student?.nama ?? 'Mahasiswa',
+                });
             });
+
+            refreshOfflineState();
+
+            if (!navigator.onLine) {
+                toast.success(
+                    `${unpaidIds.length} checklist kas disimpan offline.`,
+                );
+                return;
+            }
+
+            void flushPendingKasQueue();
         }
     };
 
@@ -419,6 +557,113 @@ export default function AdminKas({
                 month: 'short',
             }),
         };
+    };
+
+    const paymentMethodLabel = useMemo(() => {
+        if (paymentMethod === 'transfer') {
+            return 'Transfer';
+        }
+
+        if (paymentMethod === 'qris') {
+            return 'QRIS';
+        }
+
+        return 'Tunai';
+    }, [paymentMethod]);
+
+    const handleDeletePertemuan = (periodDate: string) => {
+        setDeletePertemuanDialog({
+            open: true,
+            periodDate,
+        });
+    };
+
+    const handleManualSync = async () => {
+        if (pendingSyncCount === 0) {
+            toast.message('Tidak ada checklist kas yang perlu disinkronkan.');
+            return;
+        }
+
+        if (!networkQuality.isOnline) {
+            toast.error(
+                'Perangkat sedang offline. Sinkronisasi akan berjalan saat koneksi kembali.',
+            );
+            return;
+        }
+
+        if (
+            networkQuality.signalQuality === 'poor' ||
+            networkQuality.effectiveType === '2g' ||
+            networkQuality.effectiveType === 'slow-2g'
+        ) {
+            toast.warning(
+                `Sinyal tidak stabil (${networkQuality.effectiveType}). Sinkronisasi mungkin lambat atau gagal.`,
+            );
+        } else {
+            toast.loading('Menyiapkan sinkronisasi checklist kas...', {
+                id: 'kas-sync-progress',
+            });
+        }
+
+        const result = await flushPendingKasQueue(true);
+
+        toast.dismiss('kas-sync-progress');
+
+        if (!result) {
+            toast.message('Sinkronisasi masih berjalan.');
+            return;
+        }
+
+        if (result.successCount > 0 && result.failedCount === 0) {
+            toast.success('Sinkronisasi kas selesai tanpa kendala.');
+            return;
+        }
+
+        if (result.successCount > 0 && result.failedCount > 0) {
+            toast.warning(
+                `${result.successCount} berhasil, ${result.failedCount} masih tertunda karena koneksi/sinyal.`,
+            );
+            return;
+        }
+
+        if (result.failedCount > 0) {
+            toast.error(
+                result.errorMessages[0] ??
+                    'Sinkronisasi gagal. Coba lagi saat sinyal lebih stabil.',
+            );
+        }
+    };
+
+    const confirmDeletePertemuan = () => {
+        if (!deletePertemuanDialog.periodDate) {
+            return;
+        }
+
+        setIsDeletingPertemuan(true);
+
+        router.delete('/admin/kas/pertemuan', {
+            data: {
+                period_date: deletePertemuanDialog.periodDate,
+            },
+            preserveScroll: true,
+            onSuccess: () => {
+                removePendingKasActionsForDate(
+                    deletePertemuanDialog.periodDate as string,
+                );
+                refreshOfflineState();
+                setDeletePertemuanDialog({
+                    open: false,
+                    periodDate: null,
+                });
+                setIsDeletingPertemuan(false);
+            },
+            onError: () => {
+                setIsDeletingPertemuan(false);
+            },
+            onFinish: () => {
+                setIsDeletingPertemuan(false);
+            },
+        });
     };
 
     return (
@@ -800,6 +1045,113 @@ export default function AdminKas({
                                         className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-black dark:text-white"
                                     />
                                 </div>
+                                <div className="grid gap-3 border-t border-neutral-200 pt-4 md:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)] dark:border-neutral-800">
+                                    <div>
+                                        <label className="mb-1 block text-xs font-semibold tracking-wide text-neutral-500 uppercase">
+                                            Metode Checklist
+                                        </label>
+                                        <select
+                                            value={paymentMethod}
+                                            onChange={(e) =>
+                                                setPaymentMethod(
+                                                    e.target
+                                                        .value as KasPaymentMethod,
+                                                )
+                                            }
+                                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-black dark:text-white"
+                                        >
+                                            <option value="cash">Tunai</option>
+                                            <option value="transfer">
+                                                Transfer
+                                            </option>
+                                            <option value="qris">QRIS</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-semibold tracking-wide text-neutral-500 uppercase">
+                                            Referensi {paymentMethodLabel}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={paymentReference}
+                                            onChange={(e) =>
+                                                setPaymentReference(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            placeholder={
+                                                paymentMethod === 'transfer'
+                                                    ? 'Nomor rekening / bukti transfer'
+                                                    : paymentMethod === 'qris'
+                                                      ? 'Isi QRIS / tautan / keterangan QRIS'
+                                                      : 'Opsional untuk tunai'
+                                            }
+                                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-black dark:text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-xs font-semibold tracking-wide text-neutral-500 uppercase">
+                                            Catatan Pembayaran
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={paymentNote}
+                                            onChange={(e) =>
+                                                setPaymentNote(e.target.value)
+                                            }
+                                            placeholder="Contoh: transfer mobile banking"
+                                            className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-black dark:text-white"
+                                        />
+                                    </div>
+                                </div>
+                                {(pendingSyncCount > 0 || !isOnline) && (
+                                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-500/20 dark:bg-amber-500/10">
+                                        <div>
+                                            <p className="font-semibold text-amber-800 dark:text-amber-200">
+                                                {!isOnline
+                                                    ? 'Mode offline aktif'
+                                                    : 'Sinkronisasi kas tertunda'}
+                                            </p>
+                                            <p className="text-amber-700/90 dark:text-amber-200/80">
+                                                {pendingSyncCount} checklist belum
+                                                masuk server dan akan dikirim
+                                                otomatis saat koneksi stabil.
+                                            </p>
+                                            <p className="mt-1 text-[11px] text-amber-700/80 dark:text-amber-200/70">
+                                                Status jaringan: {networkQuality.signalQuality}
+                                                {networkQuality.effectiveType !==
+                                                'unknown'
+                                                    ? ` • ${networkQuality.effectiveType}`
+                                                    : ''}
+                                                {networkQuality.rtt > 0
+                                                    ? ` • ping ${networkQuality.rtt}ms`
+                                                    : ''}
+                                            </p>
+                                        </div>
+                                        {isOnline && pendingSyncCount > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    void handleManualSync()
+                                                }
+                                                disabled={
+                                                    isSyncingKas ||
+                                                    pendingSyncCount === 0
+                                                }
+                                                className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/30 dark:bg-black/20 dark:text-amber-200"
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <Loader2
+                                                        className={`h-3.5 w-3.5 ${isSyncingKas ? 'animate-spin' : ''}`}
+                                                    />
+                                                    {isSyncingKas
+                                                        ? 'Sinkronisasi...'
+                                                        : 'Sinkronkan Sekarang'}
+                                                </span>
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                                 {/* Month Summary */}
                                 <div className="flex flex-wrap items-center gap-3 border-t border-neutral-200 pt-3 dark:border-neutral-800">
                                     <div className="flex items-center gap-2 text-sm">
@@ -850,6 +1202,48 @@ export default function AdminKas({
                                         </span>
                                     </div>
                                 </div>
+                                {monthDates.length > 0 && (
+                                    <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                                        <div className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-wide text-neutral-500 uppercase">
+                                            <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                            <span>Hapus Pertemuan</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {monthDates.map((date) => {
+                                                const formattedDate =
+                                                    new Date(
+                                                        `${date}T00:00:00`,
+                                                    ).toLocaleDateString(
+                                                        'id-ID',
+                                                        {
+                                                            day: 'numeric',
+                                                            month: 'short',
+                                                            year: 'numeric',
+                                                        },
+                                                    );
+
+                                                return (
+                                                    <button
+                                                        key={`delete-chip-${date}`}
+                                                        type="button"
+                                                        onClick={() =>
+                                                            handleDeletePertemuan(
+                                                                date,
+                                                            )
+                                                        }
+                                                        className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:border-red-500/35 hover:bg-red-500/15 dark:text-red-400"
+                                                        title={`Hapus pertemuan ${formattedDate}`}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                        <span>
+                                                            {formattedDate}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
                             </motion.div>
 
                             {/* Matrix Grid */}
@@ -952,6 +1346,23 @@ export default function AdminKas({
                                                                 </div>
                                                                 <div className="mt-0.5 text-xs font-bold text-neutral-700 dark:text-neutral-300">
                                                                     {dateStr}
+                                                                </div>
+                                                                <div className="mt-1 flex items-center justify-center gap-1">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(
+                                                                            event,
+                                                                        ) => {
+                                                                            event.stopPropagation();
+                                                                            handleDeletePertemuan(
+                                                                                date,
+                                                                            );
+                                                                        }}
+                                                                        className="rounded-md border border-red-500/20 bg-red-500/10 p-1 text-red-500 transition hover:border-red-500/35 hover:bg-red-500/15"
+                                                                        title="Hapus pertemuan kas ini"
+                                                                    >
+                                                                        <Trash2 className="h-3 w-3" />
+                                                                    </button>
                                                                 </div>
                                                                 <div
                                                                     className={`mt-1 text-[10px] font-semibold ${allPaid ? 'text-emerald-600' : 'text-neutral-400'}`}
@@ -1305,7 +1716,7 @@ export default function AdminKas({
                                                 </td>
                                             </tr>
                                         ) : (
-                                            ledger.map((item, index) => (
+                                            ledger.map((item) => (
                                                 <>
                                                     <motion.tr
                                                         key={item.date}
@@ -1435,13 +1846,30 @@ export default function AdminKas({
                                                                                                 ? 'Masuk'
                                                                                                 : 'Keluar'}
                                                                                         </motion.span>
-                                                                                        <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                                                        <div>
+                                                                                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                                                                                {t.type ===
+                                                                                                    'income' &&
+                                                                                                t.mahasiswa
+                                                                                                    ? t.mahasiswa
+                                                                                                    : t.description}
+                                                                                            </span>
                                                                                             {t.type ===
                                                                                                 'income' &&
-                                                                                            t.mahasiswa
-                                                                                                ? t.mahasiswa
-                                                                                                : t.description}
-                                                                                        </span>
+                                                                                                t.payment_method && (
+                                                                                                <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                                                                    Metode:{' '}
+                                                                                                    <span className="font-semibold uppercase text-neutral-700 dark:text-neutral-200">
+                                                                                                        {
+                                                                                                            t.payment_method
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                    {t.payment_reference
+                                                                                                        ? ` • ${t.payment_reference}`
+                                                                                                        : ''}
+                                                                                                </p>
+                                                                                            )}
+                                                                                        </div>
                                                                                     </div>
                                                                                     <span
                                                                                         className={`text-sm font-bold ${t.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}
@@ -2003,6 +2431,36 @@ export default function AdminKas({
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                <ConfirmDialog
+                    open={deletePertemuanDialog.open}
+                    onOpenChange={(open) =>
+                        setDeletePertemuanDialog({
+                            open,
+                            periodDate: open
+                                ? deletePertemuanDialog.periodDate
+                                : null,
+                        })
+                    }
+                    onConfirm={confirmDeletePertemuan}
+                    title="Hapus Pertemuan Kas"
+                    message={
+                        deletePertemuanDialog.periodDate
+                            ? `Yakin ingin menghapus pertemuan kas ${new Date(
+                                  deletePertemuanDialog.periodDate +
+                                      'T00:00:00',
+                              ).toLocaleDateString('id-ID', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric',
+                              })}? Semua tagihan kas pada tanggal ini akan dihapus.`
+                            : 'Yakin ingin menghapus pertemuan kas ini?'
+                    }
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                    loading={isDeletingPertemuan}
+                />
 
                 {/* Cancel Kas Modal - Advanced Glassmorphism */}
                 <AnimatePresence>

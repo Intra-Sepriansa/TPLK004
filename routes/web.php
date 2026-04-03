@@ -99,13 +99,14 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::get('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'index'])->name('admin.mahasiswa');
     Route::get('admin/mahasiswa/create', [\App\Http\Controllers\Admin\MahasiswaController::class, 'create'])->name('admin.mahasiswa.create');
     Route::get('admin/mahasiswa/check-duplicate', [\App\Http\Controllers\Admin\MahasiswaController::class, 'checkDuplicate'])->name('admin.mahasiswa.check-duplicate');
+    Route::get('admin/mahasiswa/pdf', [\App\Http\Controllers\Admin\MahasiswaController::class, 'exportPdf'])->name('admin.mahasiswa.pdf');
+    Route::get('admin/mahasiswa/csv', [\App\Http\Controllers\Admin\MahasiswaController::class, 'exportCsv'])->name('admin.mahasiswa.csv');
     Route::post('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'store'])->name('admin.mahasiswa.store');
     Route::get('admin/mahasiswa/{mahasiswa}/edit', [\App\Http\Controllers\Admin\MahasiswaController::class, 'edit'])->name('admin.mahasiswa.edit');
     Route::get('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'show'])->name('admin.mahasiswa.show');
     Route::patch('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
     Route::delete('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
     Route::post('admin/mahasiswa/{mahasiswa}/reset-password', [\App\Http\Controllers\Admin\MahasiswaController::class, 'resetPassword'])->name('admin.mahasiswa.reset-password');
-    Route::get('admin/mahasiswa/pdf', [\App\Http\Controllers\Admin\MahasiswaController::class, 'exportPdf'])->name('admin.mahasiswa.pdf');
     
     // Admin Jadwal
     Route::get('admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal');
@@ -188,12 +189,13 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     // Admin Kas
     Route::get('admin/kas', [\App\Http\Controllers\Admin\KasController::class, 'index'])->name('admin.kas');
     Route::post('admin/kas', [\App\Http\Controllers\Admin\KasController::class, 'store'])->name('admin.kas.store');
-    Route::delete('admin/kas/{ka}', [\App\Http\Controllers\Admin\KasController::class, 'destroy'])->name('admin.kas.destroy');
     Route::post('admin/kas/mark-paid', [\App\Http\Controllers\Admin\KasController::class, 'markPaid'])->name('admin.kas.mark-paid');
     Route::post('admin/kas/mark-unpaid', [\App\Http\Controllers\Admin\KasController::class, 'markUnpaid'])->name('admin.kas.mark-unpaid');
     Route::post('admin/kas/expense', [\App\Http\Controllers\Admin\KasController::class, 'addExpense'])->name('admin.kas.expense');
     Route::post('admin/kas/bulk-mark-paid', [\App\Http\Controllers\Admin\KasController::class, 'bulkMarkPaid'])->name('admin.kas.bulk-mark-paid');
     Route::post('admin/kas/create-pertemuan', [\App\Http\Controllers\Admin\KasController::class, 'createPertemuan'])->name('admin.kas.create-pertemuan');
+    Route::delete('admin/kas/pertemuan', [\App\Http\Controllers\Admin\KasController::class, 'destroyPertemuan'])->name('admin.kas.destroy-pertemuan');
+    Route::delete('admin/kas/{ka}', [\App\Http\Controllers\Admin\KasController::class, 'destroy'])->name('admin.kas.destroy');
     Route::get('admin/kas/pdf', [\App\Http\Controllers\Admin\KasController::class, 'exportPdf'])->name('admin.kas.pdf');
     
     // Admin Kas Voting

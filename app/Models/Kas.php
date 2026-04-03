@@ -17,12 +17,17 @@ class Kas extends Model
         'category',
         'period_date',
         'status',
+        'payment_method',
+        'payment_reference',
+        'payment_note',
+        'paid_at',
         'created_by',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'period_date' => 'date',
+        'paid_at' => 'datetime',
         'mahasiswa_id' => 'integer',
     ];
 
