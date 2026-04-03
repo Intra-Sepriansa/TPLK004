@@ -1,6 +1,10 @@
+import TokenDuplikatIcon from '@/assets/admin/audit/token-duplikat.png';
+import HadirIcon from '@/assets/admin/live-monitor/hadir-icon.png';
+import LiveMonitorIcon from '@/assets/admin/live-monitor/live-monitor-icon.png';
+import ScanIcon from '@/assets/admin/live-monitor/scan-icon.png';
+import SesiAktifIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,
@@ -8,44 +12,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import Echo from '@/echo';
 import AppLayout from '@/layouts/app-layout';
-import { cn } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Activity as ActivityIcon,
-    AlertTriangle,
-    BarChart3,
-    Bell,
-    BookOpen,
-    CheckCircle,
     ChevronRight,
-    Clock,
-    Download,
-    Eye,
-    FileSpreadsheet,
-    FileText,
-    GraduationCap,
-    Info,
-    MapPin,
-    Radio,
+    Play,
     RefreshCw,
-    Shield,
-    Smartphone,
     Sparkles,
-    User,
-    Users,
-    Volume2,
-    VolumeX,
-    X,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     Bar,
     BarChart,
     CartesianGrid,
-    Legend,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -53,45 +33,57 @@ import {
 } from 'recharts';
 import { toast } from 'sonner';
 
-import HadirIcon from '@/assets/admin/live-monitor/hadir-icon.png';
-import LiveMonitorIcon from '@/assets/admin/live-monitor/live-monitor-icon.png';
-import ScanIcon from '@/assets/admin/live-monitor/scan-icon.png';
-import SesiAktifIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
-
-type Activity = {
+type ActivityItem = {
     id: number;
     student_name: string;
     nim: string;
     session_name: string;
     course: string;
-    time: string;
+    meeting_number?: number | null;
+    session_id?: number | null;
+    time: string | null;
     status: 'hadir' | 'terlambat' | 'izin' | 'anomali';
-    distance: number;
-    device?: string;
-    anomaly_reason?: string;
-    isNew?: boolean;
-    risk_score?: number;
-    face_match?: number;
-    is_suspicious?: boolean;
+    distance: number | null;
+    device?: string | null;
+    anomaly_reason?: string | null;
 };
 
-type Session = {
+type SessionItem = {
     id: number;
     course: string;
-    class: string;
+    course_id: number;
+    meeting_number: number;
     lecturer: string;
     present: number;
     total: number;
     timeLeft: string;
+    is_active: boolean;
 };
 
-type Anomaly = {
-    id: number;
-    type: string;
-    message: string;
+type FilterOption = {
+    value: string;
+    label: string;
 };
+
+type SelectedSession = {
+    id: number;
+    course_name: string;
+    course_id: number;
+    meeting_number: number;
+    lecturer: string;
+    start_at: string | null;
+    end_at: string | null;
+    is_active: boolean;
+} | null;
 
 interface PageProps {
+    filters: {
+        course_id: string;
+        meeting_number: string;
+        session_id: string;
+        status: string;
+    };
+    selectedSession: SelectedSession;
     initialStats: {
         activeSessions: number;
         totalScans: number;
@@ -103,20 +95,28 @@ interface PageProps {
         presentRate: number;
         lateRate: number;
     };
-    initialRecentActivities: Activity[];
-    initialActiveSessions: Session[];
+    initialRecentActivities: ActivityItem[];
+    initialActiveSessions: SessionItem[];
     initialTodayStats: {
         hadir: number;
         terlambat: number;
         izin: number;
         anomali: number;
     };
-    initialAnomalies: Anomaly[];
-    initialChartData: any[];
-    filterOptions?: {
-        courses: { value: string; label: string }[];
-        statuses: { value: string; label: string }[];
-        riskLevels: { value: string; label: string }[];
+    initialAnomalies: Array<{
+        id: number;
+        type: string;
+        message: string;
+    }>;
+    initialChartData: Array<{
+        hour: string;
+        scans: number;
+    }>;
+    filterOptions: {
+        courses: FilterOption[];
+        meetings: FilterOption[];
+        sessions: FilterOption[];
+        statuses: FilterOption[];
     };
 }
 
@@ -126,7 +126,7 @@ const containerVariants = {
         opacity: 1,
         transition: {
             staggerChildren: 0.04,
-            delayChildren: 0.1,
+            delayChildren: 0.08,
         },
     },
 } as const;
@@ -138,290 +138,182 @@ const itemVariants = {
         y: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 300,
-            damping: 24,
+            stiffness: 280,
+            damping: 22,
         },
     },
 } as const;
 
 const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, y: 24, scale: 0.96 },
     visible: {
         opacity: 1,
+        y: 0,
         scale: 1,
         transition: {
             type: 'spring' as const,
-            stiffness: 300,
+            stiffness: 260,
             damping: 20,
         },
     },
     hover: {
-        scale: 1.03,
-        y: -8,
+        y: -6,
+        scale: 1.01,
         transition: {
             type: 'spring' as const,
-            stiffness: 400,
-            damping: 10,
+            stiffness: 320,
+            damping: 18,
         },
     },
 } as const;
 
 export default function LiveMonitor({
+    filters,
+    selectedSession,
     initialStats,
-    initialRecentActivities = [],
-    initialActiveSessions = [],
+    initialRecentActivities,
+    initialActiveSessions,
     initialTodayStats,
-    initialAnomalies = [],
-    initialChartData = [],
+    initialAnomalies,
+    initialChartData,
     filterOptions,
 }: PageProps) {
-    const [stats, setStats] = useState(
-        initialStats || {
-            activeSessions: 0,
-            totalScans: 0,
-            activeStudents: 0,
-            present: 0,
-            late: 0,
-            anomaly: 0,
-            scanRate: 0,
-            presentRate: 0,
-            lateRate: 0,
-        },
-    );
-    const [todayStats, setTodayStats] = useState(
-        initialTodayStats || {
-            hadir: 0,
-            terlambat: 0,
-            izin: 0,
-            anomali: 0,
-        },
-    );
-    const [activeSessions, setActiveSessions] = useState<Session[]>(
-        initialActiveSessions,
-    );
-    const [recentActivities, setRecentActivities] = useState<Activity[]>(
-        initialRecentActivities,
-    );
-    const [anomalies, setAnomalies] = useState<Anomaly[]>(initialAnomalies);
-    const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
-        null,
-    );
-    const [soundEnabled, setSoundEnabled] = useState(true);
-    const [chartType, setChartType] = useState('hourly');
+    const [stats, setStats] = useState(initialStats);
+    const [activities, setActivities] = useState(initialRecentActivities);
+    const [activeSessions, setActiveSessions] = useState(initialActiveSessions);
+    const [todayStats, setTodayStats] = useState(initialTodayStats);
+    const [anomalies, setAnomalies] = useState(initialAnomalies);
     const [chartData, setChartData] = useState(initialChartData);
-    const activityListUrl = '/admin/live-monitor/aktivitas-terbaru';
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // Advanced Export Modal state
-    const [showExportModal, setShowExportModal] = useState(false);
-    const [exportFormat, setExportFormat] = useState<'excel' | 'pdf'>('excel');
-    const [exportStartDate, setExportStartDate] = useState(new Date().toISOString().split('T')[0]);
-    const [exportEndDate, setExportEndDate] = useState(new Date().toISOString().split('T')[0]);
-    const [exportStatus, setExportStatus] = useState('all');
-    const [exportCourse, setExportCourse] = useState('all');
-    const [exportRisk, setExportRisk] = useState('all');
-    const [isExporting, setIsExporting] = useState(false);
+    const applyFilter = (
+        next: Partial<{
+            course_id: string;
+            meeting_number: string;
+            session_id: string;
+            status: string;
+        }>,
+    ) => {
+        const payload = {
+            ...filters,
+            ...next,
+        };
 
-    const playNotificationSound = () => {
-        if (!soundEnabled) return;
-        try {
-            const ctx = new (window.AudioContext ||
-                (window as any).webkitAudioContext)();
-            // Pleasant two-tone chime: C5 → E5
-            const playTone = (
-                freq: number,
-                startTime: number,
-                duration: number,
-            ) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(freq, startTime);
-                gain.gain.setValueAtTime(0, startTime);
-                gain.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    startTime + duration,
-                );
-                osc.start(startTime);
-                osc.stop(startTime + duration);
-            };
-            playTone(523.25, ctx.currentTime, 0.15); // C5
-            playTone(659.25, ctx.currentTime + 0.12, 0.2); // E5
-            setTimeout(() => ctx.close(), 500);
-        } catch (e) {
-            /* audio not supported */
-        }
+        router.get('/admin/live-monitor', payload, {
+            preserveScroll: true,
+            preserveState: true,
+        });
     };
 
-    const playAlertSound = () => {
-        if (!soundEnabled) return;
-        try {
-            const ctx = new (window.AudioContext ||
-                (window as any).webkitAudioContext)();
-            // Urgent three-tone descending alert: A5 → F5 → D5
-            const playTone = (
-                freq: number,
-                startTime: number,
-                duration: number,
-            ) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, startTime);
-                gain.gain.setValueAtTime(0, startTime);
-                gain.gain.linearRampToValueAtTime(0.4, startTime + 0.01);
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    startTime + duration,
-                );
-                osc.start(startTime);
-                osc.stop(startTime + duration);
-            };
-            playTone(880, ctx.currentTime, 0.15); // A5
-            playTone(698.46, ctx.currentTime + 0.12, 0.15); // F5
-            playTone(587.33, ctx.currentTime + 0.24, 0.25); // D5
-            setTimeout(() => ctx.close(), 600);
-        } catch (e) {
-            /* audio not supported */
-        }
+    const handleCourseChange = (value: string) => {
+        applyFilter({
+            course_id: value,
+            meeting_number: 'all',
+            session_id: 'all',
+        });
     };
 
-    const updateStats = () => {
-        // Mock update logic
+    const handleMeetingChange = (value: string) => {
+        applyFilter({
+            meeting_number: value,
+            session_id: 'all',
+        });
+    };
+
+    const handleSessionChange = (value: string) => {
+        applyFilter({
+            session_id: value,
+        });
+    };
+
+    const handleStatusChange = (value: string) => {
+        applyFilter({
+            status: value,
+        });
     };
 
     const refreshData = async () => {
+        setIsRefreshing(true);
+
         try {
-            const response = await fetch('/admin/live-monitor/refresh');
-            if (response.ok) {
-                const data = await response.json();
-                setStats(data.initialStats);
-                setRecentActivities(data.initialRecentActivities);
-                setActiveSessions(data.initialActiveSessions);
-                setAnomalies(data.initialAnomalies);
-                setTodayStats(data.initialTodayStats);
-                setChartData(data.initialChartData);
-                toast.success('Data berhasil diperbarui', {
-                    position: 'bottom-right',
-                });
+            const params = new URLSearchParams(filters);
+            const response = await fetch(`/admin/live-monitor/refresh?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error('refresh_failed');
             }
-        } catch (error) {
-            toast.error('Gagal memperbarui data');
-        }
-    };
 
-    const handleAdvancedExport = () => {
-        setIsExporting(true);
-        toast.loading('Menyiapkan export...', { id: 'adv-export' });
-        const params = new URLSearchParams({
-            format: exportFormat,
-            start_date: exportStartDate,
-            end_date: exportEndDate,
-            status: exportStatus,
-            course: exportCourse,
-            risk: exportRisk,
-        });
-        window.location.href = `/admin/live-monitor/advanced-export?${params.toString()}`;
-        setTimeout(() => {
-            setIsExporting(false);
-            setShowExportModal(false);
-            toast.success(
-                exportFormat === 'pdf'
-                    ? '📄 PDF report downloaded!'
-                    : '📊 Excel multi-sheet report downloaded!',
-                { id: 'adv-export' },
-            );
-        }, 2000);
-    };
-
-    const handleExportToday = async () => {
-        try {
-            toast.loading('Menyiapkan export...', { id: 'export' });
-            window.location.href = '/admin/live-monitor/export-today';
-            toast.success('File akan didownload', { id: 'export' });
-        } catch (error) {
-            toast.error('Gagal mengexport data', { id: 'export' });
+            const data = (await response.json()) as PageProps;
+            setStats(data.initialStats);
+            setActivities(data.initialRecentActivities);
+            setActiveSessions(data.initialActiveSessions);
+            setTodayStats(data.initialTodayStats);
+            setAnomalies(data.initialAnomalies);
+            setChartData(data.initialChartData);
+            toast.success('Live monitor berhasil diperbarui.');
+        } catch {
+            toast.error('Gagal memuat ulang live monitor.');
+        } finally {
+            setIsRefreshing(false);
         }
     };
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            refreshData();
-        }, 30000); // 30s
-        return () => clearInterval(interval);
-    }, []);
+        setStats(initialStats);
+        setActivities(initialRecentActivities);
+        setActiveSessions(initialActiveSessions);
+        setTodayStats(initialTodayStats);
+        setAnomalies(initialAnomalies);
+        setChartData(initialChartData);
+    }, [
+        initialActiveSessions,
+        initialAnomalies,
+        initialChartData,
+        initialRecentActivities,
+        initialStats,
+        initialTodayStats,
+    ]);
 
-    useEffect(() => {
-        try {
-            if (typeof window === 'undefined' || !Echo) return;
-
-            const channel = Echo.channel('live-monitor');
-
-            channel.listen('.new-activity', (data: Activity) => {
-                setRecentActivities((prev) =>
-                    [{ ...data, isNew: true }, ...prev].slice(0, 10),
-                );
-                updateStats();
-
-                if (soundEnabled) {
-                    playNotificationSound();
-                }
-
-                toast.success(`${data.student_name} telah absen`);
-
-                setTimeout(() => {
-                    setRecentActivities((prev) =>
-                        prev.map((a) =>
-                            a.id === data.id ? { ...a, isNew: false } : a,
-                        ),
-                    );
-                }, 5000);
-            });
-
-            channel.listen('.anomaly-detected', (data: Anomaly) => {
-                setAnomalies((prev) => [data, ...prev]);
-                if (soundEnabled) {
-                    playAlertSound();
-                }
-                toast.error(`Anomali terdeteksi: ${data.type}`);
-            });
-
-            channel.listen('.session-updated', (data: Session) => {
-                setActiveSessions((prev) =>
-                    prev.map((s) => (s.id === data.id ? data : s)),
-                );
-            });
-
-            return () => {
-                Echo.leave('live-monitor');
-            };
-        } catch (e) {
-            console.error('Echo setup failed', e);
-        }
-    }, [soundEnabled]);
-
-    const quickActionBtnClass =
-        'w-full justify-start border border-neutral-300/70 bg-white text-xs font-semibold text-neutral-900 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 disabled:opacity-100 disabled:text-neutral-500 disabled:bg-neutral-100 dark:disabled:bg-neutral-800/80 dark:disabled:text-neutral-400';
+    const statusSummary = useMemo(
+        () => [
+            {
+                label: 'Hadir',
+                value: todayStats.hadir,
+                color: 'text-emerald-600',
+            },
+            {
+                label: 'Terlambat',
+                value: todayStats.terlambat,
+                color: 'text-amber-500',
+            },
+            {
+                label: 'Izin',
+                value: todayStats.izin,
+                color: 'text-sky-500',
+            },
+            {
+                label: 'Anomali',
+                value: todayStats.anomali,
+                color: 'text-red-500',
+            },
+        ],
+        [todayStats],
+    );
 
     return (
         <AppLayout>
-            <Head title="Live Monitor Dashboard" />
+            <Head title="Live Monitor" />
 
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <motion.div
-                    variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="space-y-6"
+                    variants={containerVariants}
+                    className="space-y-7"
                 >
-                    {/* 1. HEADER SECTION */}
                     <motion.div
                         variants={itemVariants}
-                        className="relative overflow-hidden rounded-2xl p-6 text-white shadow-2xl"
+                        className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                     >
                         <motion.div
                             className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
@@ -433,1238 +325,540 @@ export default function LiveMonitor({
                                 ],
                             }}
                             transition={{
-                                duration: 15,
+                                duration: 16,
                                 repeat: Infinity,
                                 ease: 'linear',
                             }}
                             style={{ backgroundSize: '200% 200%' }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
-                        <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-                        <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.14),transparent_30%)]" />
+                        <motion.div
+                            className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                            animate={{ scale: [1, 1.08, 1], x: [0, -10, 0] }}
+                            transition={{ duration: 8, repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                            animate={{ scale: [1, 1.06, 1], y: [0, -8, 0] }}
+                            transition={{ duration: 9, repeat: Infinity }}
+                        />
 
-                        <div className="relative">
-                            <div className="flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-start sm:gap-4">
-                                <div className="text-center sm:text-left">
-                                    <div className="mb-2 flex flex-col items-center gap-4 sm:flex-row sm:gap-3">
-                                        <motion.div
-                                            className="relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20"
-                                            initial={{
-                                                opacity: 0,
-                                                scale: 0.5,
-                                                rotate: -10,
-                                            }}
-                                            animate={{
-                                                opacity: 1,
-                                                scale: 1,
-                                                rotate: 0,
-                                            }}
-                                            transition={{
-                                                type: 'spring',
-                                                stiffness: 300,
-                                                damping: 15,
-                                                delay: 0.2,
-                                            }}
-                                            whileHover={{
-                                                scale: 1.1,
-                                                rotate: 10,
-                                            }}
-                                        >
-                                            <img
-                                                src={LiveMonitorIcon}
-                                                alt="Live Monitor"
-                                                className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
-                                            />
-                                        </motion.div>
-                                        <div className="mt-1 flex-1 sm:mt-0">
-                                            <motion.p
-                                                className="text-xs font-medium tracking-wide text-indigo-100 uppercase sm:text-sm"
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.3 }}
-                                            >
-                                                Real-time Monitoring
-                                            </motion.p>
-                                            <motion.h1
-                                                className="text-2xl leading-tight font-bold text-white drop-shadow-md sm:text-4xl"
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.4 }}
-                                            >
-                                                Live Monitor
-                                            </motion.h1>
-                                        </div>
-                                    </div>
-                                    <motion.p
-                                        className="mt-3 max-w-lg text-xs leading-relaxed text-indigo-100 sm:mt-1 sm:text-sm"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 0.5 }}
-                                    >
-                                        Dashboard monitoring aktivitas absensi
-                                        secara real-time dengan deteksi anomali.
-                                    </motion.p>
-                                </div>
-
-                                {/* Live Status Badge */}
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    whileHover={{ scale: 1.05, y: -3 }}
-                                    className="group relative mt-4 flex items-center gap-3 sm:mt-0"
-                                >
-                                    <button
-                                        onClick={() => {
-                                            const next = !soundEnabled;
-                                            setSoundEnabled(next);
-                                            if (next) {
-                                                // Play test chime when turning sound ON
-                                                try {
-                                                    const ctx =
-                                                        new (window.AudioContext ||
-                                                            (window as any)
-                                                                .webkitAudioContext)();
-                                                    const playTone = (
-                                                        freq: number,
-                                                        startTime: number,
-                                                        duration: number,
-                                                    ) => {
-                                                        const osc =
-                                                            ctx.createOscillator();
-                                                        const gain =
-                                                            ctx.createGain();
-                                                        osc.connect(gain);
-                                                        gain.connect(
-                                                            ctx.destination,
-                                                        );
-                                                        osc.type = 'sine';
-                                                        osc.frequency.setValueAtTime(
-                                                            freq,
-                                                            startTime,
-                                                        );
-                                                        gain.gain.setValueAtTime(
-                                                            0,
-                                                            startTime,
-                                                        );
-                                                        gain.gain.linearRampToValueAtTime(
-                                                            0.3,
-                                                            startTime + 0.02,
-                                                        );
-                                                        gain.gain.exponentialRampToValueAtTime(
-                                                            0.001,
-                                                            startTime +
-                                                                duration,
-                                                        );
-                                                        osc.start(startTime);
-                                                        osc.stop(
-                                                            startTime +
-                                                                duration,
-                                                        );
-                                                    };
-                                                    playTone(
-                                                        523.25,
-                                                        ctx.currentTime,
-                                                        0.15,
-                                                    );
-                                                    playTone(
-                                                        659.25,
-                                                        ctx.currentTime + 0.12,
-                                                        0.2,
-                                                    );
-                                                    setTimeout(
-                                                        () => ctx.close(),
-                                                        500,
-                                                    );
-                                                } catch (e) {
-                                                    /* audio not supported */
-                                                }
-                                                toast.success(
-                                                    'Suara notifikasi aktif 🔊',
-                                                    {
-                                                        position:
-                                                            'bottom-right',
-                                                    },
-                                                );
-                                            } else {
-                                                toast(
-                                                    'Suara notifikasi dimatikan 🔇',
-                                                    {
-                                                        position:
-                                                            'bottom-right',
-                                                    },
-                                                );
-                                            }
+                        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-start">
+                            <div className="max-w-2xl">
+                                <div className="flex items-center gap-4">
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.7, rotate: -10 }}
+                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 280,
+                                            damping: 16,
+                                            delay: 0.15,
                                         }}
-                                        className="rounded-full border border-white/20 bg-white/10 p-1.5 text-white backdrop-blur transition hover:bg-white/20"
-                                        title={
-                                            soundEnabled
-                                                ? 'Nonaktifkan suara'
-                                                : 'Aktifkan suara'
-                                        }
+                                        className="relative flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20"
                                     >
-                                        {soundEnabled ? (
-                                            <Volume2 className="h-4 w-4" />
-                                        ) : (
-                                            <VolumeX className="h-4 w-4" />
-                                        )}
-                                    </button>
-
-                                    <div className="relative">
-                                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 opacity-50 blur-md transition-opacity group-hover:opacity-75" />
-                                        <div className="relative flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-4 py-2 shadow-lg backdrop-blur-xl">
-                                            <motion.div
-                                                animate={{ scale: [1, 1.2, 1] }}
-                                                transition={{
-                                                    duration: 2,
-                                                    repeat: Infinity,
-                                                }}
-                                                className="h-2 w-2 rounded-full bg-green-400"
-                                            />
-                                            <div>
-                                                <p className="mb-0.5 text-[10px] leading-none font-medium text-gray-200">
-                                                    Status
-                                                </p>
-                                                <p className="text-lg leading-none font-black">
-                                                    LIVE
-                                                </p>
-                                            </div>
-                                        </div>
+                                        <img
+                                            src={LiveMonitorIcon}
+                                            alt="Live Monitor"
+                                            className="h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                        />
+                                    </motion.div>
+                                    <div>
+                                        <p className="text-xs font-semibold tracking-wide text-indigo-100 uppercase">
+                                            Monitoring Kehadiran
+                                        </p>
+                                        <h1 className="text-3xl font-bold">
+                                            Live Monitor
+                                        </h1>
                                     </div>
-                                </motion.div>
+                                </div>
+                                <p className="mt-4 text-sm leading-relaxed text-indigo-100">
+                                    Pantau absensi mahasiswa berdasarkan sesi
+                                    absen, mata kuliah, dan pertemuan yang
+                                    dipilih. Halaman ini sekarang fokus pada
+                                    data sesi yang aktif atau sesi yang Anda
+                                    pilih, bukan campuran semua kelas.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Badge className="border border-white/20 bg-white/15 px-3 py-2 text-white">
+                                    <span className="mr-2 inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                                    Live
+                                </Badge>
+                                <Button
+                                    type="button"
+                                    onClick={refreshData}
+                                    disabled={isRefreshing}
+                                    className="border border-white/20 bg-white/15 text-white shadow-lg shadow-black/10 hover:bg-white/25"
+                                >
+                                    <RefreshCw
+                                        className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                                    />
+                                    Muat Ulang
+                                </Button>
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* 2. REAL-TIME STATS (4 Cards — Dashboard Style) */}
                     <motion.div
                         variants={itemVariants}
-                        className="grid grid-cols-2 gap-4 md:grid-cols-4"
+                        className="rounded-3xl border border-white/20 bg-white/65 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
+                    >
+                        <div className="mb-4 flex items-center gap-2 text-xs font-semibold tracking-[0.22em] text-neutral-500 uppercase">
+                            <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+                            <span>Filter Monitoring</span>
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                            <FilterSelect
+                                label="Mata Kuliah"
+                                value={filters.course_id}
+                                options={filterOptions.courses}
+                                allLabel="Semua Mata Kuliah"
+                                onValueChange={handleCourseChange}
+                            />
+                            <FilterSelect
+                                label="Pertemuan"
+                                value={filters.meeting_number}
+                                options={filterOptions.meetings}
+                                allLabel="Semua Pertemuan"
+                                onValueChange={handleMeetingChange}
+                            />
+                            <FilterSelect
+                                label="Sesi Absen"
+                                value={filters.session_id}
+                                options={filterOptions.sessions}
+                                allLabel="Semua Sesi"
+                                onValueChange={handleSessionChange}
+                            />
+                            <FilterSelect
+                                label="Status"
+                                value={filters.status}
+                                options={filterOptions.statuses}
+                                allLabel="Semua Status"
+                                onValueChange={handleStatusChange}
+                            />
+                        </div>
+
+                        {selectedSession && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 shadow-sm dark:border-emerald-800/40 dark:bg-emerald-900/20"
+                            >
+                                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <Play className="h-4 w-4 text-emerald-600" />
+                                            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                                                Sesi Dipantau
+                                            </p>
+                                        </div>
+                                        <h2 className="mt-1 text-lg font-bold text-neutral-900 dark:text-white">
+                                            {selectedSession.course_name} •
+                                            Pertemuan {selectedSession.meeting_number}
+                                        </h2>
+                                        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                                            {selectedSession.lecturer}
+                                        </p>
+                                    </div>
+                                    <div className="text-sm text-neutral-600 dark:text-neutral-300">
+                                        <p>
+                                            Mulai: {selectedSession.start_at ?? '-'}
+                                        </p>
+                                        <p>
+                                            Selesai: {selectedSession.end_at ?? '-'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </motion.div>
+
+                    <motion.div
+                        variants={itemVariants}
+                        className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
                     >
                         <StatCard
                             imageIcon={SesiAktifIcon}
                             label="Sesi Aktif"
                             value={stats.activeSessions}
-                            color="purple"
                         />
                         <StatCard
                             imageIcon={ScanIcon}
-                            label="Scan Hari Ini"
+                            label="Total Scan"
                             value={stats.totalScans}
-                            color="emerald"
                         />
                         <StatCard
                             imageIcon={HadirIcon}
-                            label="Hadir"
-                            value={stats.present}
-                            color="blue"
+                            label="Mahasiswa Aktif"
+                            value={stats.activeStudents}
                         />
                         <StatCard
-                            icon={AlertTriangle}
+                            imageIcon={TokenDuplikatIcon}
                             label="Anomali"
                             value={stats.anomaly}
-                            color="red"
                         />
                     </motion.div>
 
-                    {/* 3. MAIN CONTENT (2-Column Layout) */}
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        {/* LEFT: Aktivitas Terbaru Quick Preview (70%) */}
-                        <div className="space-y-6 lg:col-span-2">
+                    <div className="grid gap-6 xl:grid-cols-3">
+                        <motion.div
+                            variants={itemVariants}
+                            className="space-y-6 xl:col-span-2"
+                        >
                             <motion.div
-                                variants={itemVariants}
-                                className="rounded-2xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50"
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className="rounded-3xl border border-white/20 bg-white/60 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
                             >
                                 <div className="mb-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-2.5">
-                                        <motion.div
-                                            animate={{ scale: [1, 1.2, 1] }}
-                                            transition={{
-                                                duration: 2,
-                                                repeat: Infinity,
-                                            }}
-                                            className="h-2 w-2 rounded-full bg-green-500"
-                                        />
-                                        <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
-                                            Aktivitas Terbaru
-                                        </h2>
-                                        <Badge
-                                            variant="success"
-                                            className="h-4 animate-pulse px-1.5 py-0 text-[10px]"
-                                        >
-                                            <Radio className="mr-1 h-2.5 w-2.5" />
-                                            Live
-                                        </Badge>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                            Aktivitas Kehadiran
+                                        </h3>
+                                        <p className="text-sm text-neutral-500">
+                                            Mahasiswa yang masuk pada filter sesi
+                                            saat ini.
+                                        </p>
                                     </div>
                                     <Button
-                                        onClick={() =>
-                                            router.visit(activityListUrl)
-                                        }
+                                        type="button"
                                         variant="outline"
-                                        size="sm"
-                                        className="group h-8 border-white/20 bg-white/50 px-3 text-xs hover:bg-white/60 dark:bg-neutral-800 dark:hover:bg-neutral-700/50"
+                                        onClick={() =>
+                                            router.visit(
+                                                '/admin/live-monitor/aktivitas-terbaru',
+                                            )
+                                        }
                                     >
                                         Lihat Semua
-                                        <ChevronRight className="ml-1.5 h-3 w-3 transition-transform group-hover:translate-x-1" />
+                                        <ChevronRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
 
-                                {/* QUICK PREVIEW CARDS (Dark Theme per user spec) */}
-                                <div className="space-y-2.5">
-                                    <AnimatePresence>
-                                        {recentActivities
-                                            .slice(0, 5)
-                                            .map((activity, index) => (
-                                                <motion.div
-                                                    key={activity.id}
-                                                    initial={{
-                                                        opacity: 0,
-                                                        x: -50,
-                                                        scale: 0.9,
-                                                    }}
-                                                    animate={{
-                                                        opacity: 1,
-                                                        x: 0,
-                                                        scale: 1,
-                                                    }}
-                                                    exit={{
-                                                        opacity: 0,
-                                                        x: 50,
-                                                        scale: 0.9,
-                                                    }}
-                                                    transition={{
-                                                        type: 'spring',
-                                                        stiffness: 300,
-                                                        damping: 24,
-                                                        delay:
-                                                            index < 5
-                                                                ? index * 0.1
-                                                                : 0,
-                                                    }}
-                                                    whileHover={{ scale: 1.02 }}
-                                                    onClick={() =>
-                                                        setSelectedActivity(
-                                                            activity,
-                                                        )
-                                                    }
-                                                    className={cn(
-                                                        'cursor-pointer rounded-xl p-3 transition-all sm:p-4',
-                                                        'border border-neutral-800 bg-neutral-900 hover:bg-neutral-800',
-                                                        'hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10',
-                                                        activity.isNew &&
-                                                            'animate-pulse border-transparent ring-1 ring-green-400',
-                                                    )}
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-4">
-                                                            <motion.div
-                                                                animate={{
-                                                                    scale: [
-                                                                        1, 1.1,
-                                                                        1,
-                                                                    ],
-                                                                }}
-                                                                transition={{
-                                                                    duration: 0.5,
-                                                                }}
-                                                                className={cn(
-                                                                    'flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-md',
-                                                                    activity.status ===
-                                                                        'hadir' &&
-                                                                        'bg-emerald-500',
-                                                                    activity.status ===
-                                                                        'terlambat' &&
-                                                                        'bg-amber-500',
-                                                                    activity.status ===
-                                                                        'izin' &&
-                                                                        'bg-blue-500',
-                                                                    activity.status ===
-                                                                        'anomali' &&
-                                                                        'animate-pulse bg-rose-500',
-                                                                )}
-                                                            >
-                                                                {activity.status ===
-                                                                    'hadir' && (
-                                                                    <CheckCircle className="h-6 w-6 text-white" />
-                                                                )}
-                                                                {activity.status ===
-                                                                    'terlambat' && (
-                                                                    <Clock className="h-6 w-6 text-white" />
-                                                                )}
-                                                                {activity.status ===
-                                                                    'izin' && (
-                                                                    <Info className="h-6 w-6 text-white" />
-                                                                )}
-                                                                {activity.status ===
-                                                                    'anomali' && (
-                                                                    <AlertTriangle className="h-6 w-6 text-white" />
-                                                                )}
-                                                            </motion.div>
-                                                            <div>
-                                                                <h3 className="mb-1 text-base leading-tight font-bold tracking-wide text-white uppercase sm:text-lg">
-                                                                    {
-                                                                        activity.student_name
-                                                                    }
-                                                                </h3>
-                                                                <p className="text-sm font-medium text-neutral-400">
-                                                                    {
-                                                                        activity.nim
-                                                                    }
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-col items-end gap-1">
-                                                            <p className="text-xl font-black tracking-wide text-white sm:text-2xl">
-                                                                {activity.time}
-                                                            </p>
-                                                            <Badge
-                                                                variant={
-                                                                    activity.status ===
-                                                                    'hadir'
-                                                                        ? 'success'
-                                                                        : activity.status ===
-                                                                            'terlambat'
-                                                                          ? 'warning'
-                                                                          : activity.status ===
-                                                                              'izin'
-                                                                            ? 'default'
-                                                                            : 'destructive'
-                                                                }
-                                                                className="rounded-sm px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase sm:text-xs"
-                                                            >
-                                                                {
-                                                                    activity.status
-                                                                }
-                                                            </Badge>
-                                                        </div>
+                                <div className="space-y-3">
+                                    {activities.length === 0 ? (
+                                        <EmptyState text="Belum ada data kehadiran pada filter yang dipilih." />
+                                    ) : (
+                                        activities.map((activity, index) => (
+                                            <motion.div
+                                                key={activity.id}
+                                                initial={{ opacity: 0, x: -14 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.03 }}
+                                                className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white/70 p-4 dark:border-neutral-800 dark:bg-neutral-950/60 lg:flex-row lg:items-center lg:justify-between"
+                                            >
+                                                <div className="min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <StatusDot status={activity.status} />
+                                                        <p className="truncate font-semibold text-neutral-900 dark:text-white">
+                                                            {activity.student_name}
+                                                        </p>
                                                     </div>
-                                                    {activity.isNew && (
-                                                        <motion.div
-                                                            initial={{
-                                                                opacity: 0,
-                                                                y: -10,
-                                                            }}
-                                                            animate={{
-                                                                opacity: 1,
-                                                                y: 0,
-                                                            }}
-                                                            className="absolute -top-2 -right-2"
-                                                        >
-                                                            <Badge className="animate-bounce bg-green-500 text-white">
-                                                                <Sparkles className="mr-1 h-3 w-3" />{' '}
-                                                                Baru
-                                                            </Badge>
-                                                        </motion.div>
+                                                    <p className="mt-1 text-sm text-neutral-500">
+                                                        {activity.nim} • {activity.course} •
+                                                        {' '}Pertemuan {activity.meeting_number ?? '-'}
+                                                    </p>
+                                                    {activity.anomaly_reason && (
+                                                        <p className="mt-1 text-xs text-red-500">
+                                                            {activity.anomaly_reason}
+                                                        </p>
                                                     )}
-                                                </motion.div>
-                                            ))}
-                                    </AnimatePresence>
-
-                                    {recentActivities.length === 0 && (
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            className="py-12 text-center"
-                                        >
-                                            <ActivityIcon className="mx-auto mb-4 h-16 w-16 text-neutral-300 dark:text-neutral-700" />
-                                            <p className="text-neutral-500">
-                                                Belum ada aktivitas hari ini
-                                            </p>
-                                        </motion.div>
+                                                </div>
+                                                <div className="flex items-center gap-3 self-start lg:self-center">
+                                                    <span className="text-sm text-neutral-500">
+                                                        {activity.time ?? '-'}
+                                                    </span>
+                                                    <Badge
+                                                        className={statusBadgeClass(
+                                                            activity.status,
+                                                        )}
+                                                    >
+                                                        {labelForStatus(activity.status)}
+                                                    </Badge>
+                                                </div>
+                                            </motion.div>
+                                        ))
                                     )}
                                 </div>
                             </motion.div>
 
-                            {/* CHART SECTION */}
                             <motion.div
-                                variants={itemVariants}
-                                initial="hidden"
-                                animate="visible"
-                                className="rounded-2xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50"
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className="rounded-3xl border border-white/20 bg-white/60 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
                             >
-                                <div className="mb-4 flex items-center justify-between">
-                                    <h2 className="flex items-center gap-2 text-lg font-bold text-neutral-900 dark:text-white">
-                                        <BarChart3 className="h-4 w-4 text-indigo-500" />
-                                        Grafik Kehadiran Hari Ini
-                                    </h2>
-                                    <Select
-                                        value={chartType}
-                                        onValueChange={setChartType}
-                                    >
-                                        <SelectTrigger className="h-8 w-[140px] bg-white/50 text-xs dark:bg-neutral-800">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="hourly">
-                                                Per Jam
-                                            </SelectItem>
-                                            <SelectItem value="session">
-                                                Per Sesi
-                                            </SelectItem>
-                                            <SelectItem value="status">
-                                                Per Status
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                <div className="mb-4">
+                                    <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                        Scan Per Jam
+                                    </h3>
+                                    <p className="text-sm text-neutral-500">
+                                        Distribusi waktu scan untuk sesi atau
+                                        filter yang sedang dipilih.
+                                    </p>
                                 </div>
-
-                                <div className="h-56">
-                                    <ResponsiveContainer
-                                        width="100%"
-                                        height="100%"
-                                    >
+                                <div className="h-72">
+                                    <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={chartData}>
                                             <CartesianGrid
                                                 strokeDasharray="3 3"
-                                                opacity={0.2}
                                                 vertical={false}
+                                                stroke="#94a3b8"
+                                                opacity={0.15}
                                             />
                                             <XAxis
-                                                dataKey={
-                                                    chartType === 'hourly'
-                                                        ? 'hour'
-                                                        : 'name'
-                                                }
-                                                axisLine={false}
+                                                dataKey="hour"
                                                 tickLine={false}
+                                                axisLine={false}
+                                                tick={{ fontSize: 12 }}
                                             />
                                             <YAxis
-                                                axisLine={false}
                                                 tickLine={false}
+                                                axisLine={false}
+                                                tick={{ fontSize: 12 }}
                                             />
-                                            <Tooltip
-                                                cursor={{
-                                                    fill: 'rgba(0,0,0,0.05)',
-                                                }}
-                                                contentStyle={{
-                                                    borderRadius: '16px',
-                                                    border: 'none',
-                                                    boxShadow:
-                                                        '0 10px 15px -3px rgba(0,0,0,0.1)',
-                                                }}
+                                            <Tooltip />
+                                            <Bar
+                                                dataKey="scans"
+                                                fill="#7c3aed"
+                                                radius={[8, 8, 0, 0]}
                                             />
-                                            <Legend
-                                                wrapperStyle={{
-                                                    paddingTop: '20px',
-                                                }}
-                                            />
-                                            {chartType === 'hourly' ? (
-                                                <Bar
-                                                    dataKey="scans"
-                                                    fill="#6366f1"
-                                                    radius={[4, 4, 0, 0]}
-                                                    name="Total Scan"
-                                                />
-                                            ) : chartType === 'status' ? (
-                                                <Bar
-                                                    dataKey="total"
-                                                    fill="#3b82f6"
-                                                    radius={[4, 4, 0, 0]}
-                                                    name="Total"
-                                                />
-                                            ) : (
-                                                <>
-                                                    <Bar
-                                                        dataKey="hadir"
-                                                        fill="#10b981"
-                                                        radius={[4, 4, 0, 0]}
-                                                        name="Hadir"
-                                                    />
-                                                    <Bar
-                                                        dataKey="terlambat"
-                                                        fill="#f59e0b"
-                                                        radius={[4, 4, 0, 0]}
-                                                        name="Terlambat"
-                                                    />
-                                                    <Bar
-                                                        dataKey="izin"
-                                                        fill="#3b82f6"
-                                                        radius={[4, 4, 0, 0]}
-                                                        name="Izin"
-                                                    />
-                                                </>
-                                            )}
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
                             </motion.div>
-                        </div>
+                        </motion.div>
 
-                        {/* RIGHT COLUMN: Analytics & Insights */}
-                        <div className="space-y-6">
-                            {/* Today's Summary */}
+                        <motion.div
+                            variants={itemVariants}
+                            className="space-y-6"
+                        >
                             <motion.div
-                                variants={itemVariants}
-                                className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:bg-neutral-900/40"
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className="rounded-3xl border border-white/20 bg-white/60 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
                             >
-                                <h3 className="mb-3 text-base font-bold text-neutral-900 dark:text-white">
-                                    Ringkasan Hari Ini
+                                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Ringkasan Status
                                 </h3>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                                            Total Hadir
-                                        </span>
-                                        <span className="font-bold text-green-600">
-                                            {todayStats.hadir}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                                            Total Terlambat
-                                        </span>
-                                        <span className="font-bold text-yellow-600">
-                                            {todayStats.terlambat}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                                            Total Izin
-                                        </span>
-                                        <span className="font-bold text-blue-600">
-                                            {todayStats.izin}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                                            Total Anomali
-                                        </span>
-                                        <span className="font-bold text-red-600">
-                                            {todayStats.anomali}
-                                        </span>
-                                    </div>
-                                    <div className="mt-3 border-t border-white/20 pt-3 dark:border-white/10">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-neutral-900 dark:text-white">
-                                                Tingkat Kehadiran
+                                <div className="mt-4 space-y-3">
+                                    {statusSummary.map((item) => (
+                                        <div
+                                            key={item.label}
+                                            className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white/70 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950/60"
+                                        >
+                                            <span className="text-sm text-neutral-500">
+                                                {item.label}
                                             </span>
-                                            <span className="text-lg font-bold text-indigo-600">
-                                                {todayStats.hadir +
-                                                    todayStats.terlambat +
-                                                    todayStats.izin >
-                                                0
-                                                    ? (
-                                                          (todayStats.hadir /
-                                                              (todayStats.hadir +
-                                                                  todayStats.terlambat +
-                                                                  todayStats.izin)) *
-                                                          100
-                                                      ).toFixed(1)
-                                                    : 0}
-                                                %
+                                            <span className={`text-lg font-bold ${item.color}`}>
+                                                {item.value}
                                             </span>
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
                             </motion.div>
 
-                            {/* ACTIVE SESSIONS */}
                             <motion.div
-                                variants={itemVariants}
-                                className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:bg-neutral-900/40"
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className="rounded-3xl border border-white/20 bg-white/60 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
                             >
-                                <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-neutral-900 dark:text-white">
-                                    <Radio className="h-4 w-4 animate-pulse text-blue-500" />
-                                    Sesi Aktif
-                                    <Badge
-                                        variant="success"
-                                        className="ml-auto h-4 px-1.5 py-0 text-[10px]"
-                                    >
-                                        {activeSessions.length}
-                                    </Badge>
+                                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Sesi Yang Sedang Aktif
                                 </h3>
-
-                                <div className="scrollbar-thin max-h-[250px] space-y-2 overflow-y-auto pr-2">
+                                <div className="mt-4 space-y-3">
                                     {activeSessions.length === 0 ? (
-                                        <p className="py-4 text-center text-xs text-neutral-500">
-                                            Tidak ada sesi aktif
-                                        </p>
+                                        <EmptyState text="Belum ada sesi aktif saat ini." />
                                     ) : (
                                         activeSessions.map((session) => (
-                                            <motion.div
+                                            <motion.button
                                                 key={session.id}
-                                                variants={itemVariants}
-                                                whileHover={{ scale: 1.02 }}
-                                                className="cursor-pointer rounded-xl border border-white/30 bg-white/50 p-3 transition-all hover:border-blue-500/50 dark:border-white/10 dark:bg-neutral-800/50"
+                                                type="button"
+                                                whileHover={{ y: -3, scale: 1.01 }}
+                                                whileTap={{ scale: 0.99 }}
+                                                onClick={() =>
+                                                    applyFilter({
+                                                        course_id: String(
+                                                            session.course_id,
+                                                        ),
+                                                        meeting_number: String(
+                                                            session.meeting_number,
+                                                        ),
+                                                        session_id: String(
+                                                            session.id,
+                                                        ),
+                                                    })
+                                                }
+                                                className="w-full rounded-2xl border border-neutral-200 bg-white/70 p-4 text-left transition hover:border-indigo-300 hover:bg-indigo-50/70 dark:border-neutral-800 dark:bg-neutral-950/60 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/20"
                                             >
-                                                <div className="mb-2 flex items-center justify-between">
-                                                    <h4 className="max-w-[140px] truncate text-sm font-semibold text-neutral-900 dark:text-white">
-                                                        {session.course}
-                                                    </h4>
-                                                    <Badge
-                                                        variant="success"
-                                                        className="h-4 px-1.5 py-0 text-[10px]"
-                                                    >
-                                                        <span className="mr-1 h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />{' '}
-                                                        Live
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p className="font-semibold text-neutral-900 dark:text-white">
+                                                            {session.course}
+                                                        </p>
+                                                        <p className="mt-1 text-sm text-neutral-500">
+                                                            Pertemuan {session.meeting_number}
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-neutral-400">
+                                                            {session.lecturer}
+                                                        </p>
+                                                    </div>
+                                                    <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300">
+                                                        {session.present}/{session.total}
                                                     </Badge>
                                                 </div>
-                                                <div className="space-y-1 text-[11px] text-neutral-600 dark:text-neutral-400">
-                                                    <p className="flex items-center gap-1">
-                                                        <GraduationCap className="h-3 w-3" />
-                                                        {session.class}
-                                                    </p>
-                                                    <p className="flex items-center gap-1 truncate">
-                                                        <User className="h-3 w-3" />
-                                                        {session.lecturer}
-                                                    </p>
-                                                </div>
-                                                <div className="mt-3 flex items-center justify-between text-xs">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <Users className="h-3.5 w-3.5 text-blue-500" />
-                                                        <span className="font-medium text-neutral-900 dark:text-white">
-                                                            {session.present}/
-                                                            {session.total}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 text-neutral-500">
-                                                        <Clock className="h-3 w-3" />
-                                                        {session.timeLeft}
-                                                    </div>
-                                                </div>
-                                                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{
-                                                            width: `${(session.present / session.total) * 100}%`,
-                                                        }}
-                                                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
-                                                    />
-                                                </div>
-                                            </motion.div>
+                                            </motion.button>
                                         ))
                                     )}
                                 </div>
                             </motion.div>
 
-                            {/* ANOMALY ALERTS */}
                             <motion.div
-                                variants={itemVariants}
-                                className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:bg-neutral-900/40"
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className="rounded-3xl border border-white/20 bg-white/60 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
                             >
-                                <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-neutral-900 dark:text-white">
-                                    <AlertTriangle className="h-4 w-4 text-red-500" />
-                                    Anomali
-                                    <Badge
-                                        variant="destructive"
-                                        className="ml-auto h-4 px-1.5 py-0 text-[10px]"
-                                    >
-                                        {anomalies.length}
-                                    </Badge>
+                                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Notifikasi Anomali
                                 </h3>
-
-                                <div className="scrollbar-thin max-h-[250px] space-y-2 overflow-y-auto pr-2">
+                                <div className="mt-4 space-y-3">
                                     {anomalies.length === 0 ? (
-                                        <div className="py-6 text-center">
-                                            <CheckCircle className="mx-auto mb-2 h-10 w-10 text-green-500" />
-                                            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                                Zero anomalies
-                                            </p>
-                                        </div>
+                                        <EmptyState text="Belum ada anomali pada filter saat ini." />
                                     ) : (
                                         anomalies.map((anomaly) => (
                                             <motion.div
                                                 key={anomaly.id}
-                                                variants={itemVariants}
-                                                className="rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-800/50 dark:bg-red-950/20"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="rounded-2xl border border-red-200 bg-red-50/80 p-4 dark:border-red-900/40 dark:bg-red-950/20"
                                             >
-                                                <div className="flex items-start gap-2">
-                                                    <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500" />
-                                                    <div className="flex-1">
-                                                        <h4 className="text-[13px] leading-tight font-semibold text-red-900 dark:text-red-300">
-                                                            {anomaly.type}
-                                                        </h4>
-                                                        <p className="mt-0.5 text-[11px] leading-snug text-red-700 dark:text-red-400/80">
-                                                            {anomaly.message}
-                                                        </p>
-                                                        <div className="mt-2 flex gap-2">
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                className="h-6 border-red-200 bg-white/50 px-2 text-[10px]"
-                                                            >
-                                                                <Eye className="mr-1 h-3 w-3" />{' '}
-                                                                Cek
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="ghost"
-                                                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                                            >
-                                                                <X className="h-3 w-3" />
-                                                            </Button>
-                                                        </div>
-                                                    </div>
+                                                <div className="flex items-center gap-2">
+                                                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                                                    <p className="font-semibold text-red-700 dark:text-red-300">
+                                                        {anomaly.type}
+                                                    </p>
                                                 </div>
+                                                <p className="mt-2 text-sm text-red-600 dark:text-red-200">
+                                                    {anomaly.message}
+                                                </p>
                                             </motion.div>
                                         ))
                                     )}
                                 </div>
                             </motion.div>
-
-                            {/* QUICK ACTIONS */}
-                            <motion.div
-                                variants={itemVariants}
-                                className="rounded-2xl border border-white/20 bg-white/40 p-5 shadow-lg backdrop-blur-xl dark:bg-neutral-900/40"
-                            >
-                                <h3 className="mb-3 text-base font-bold text-neutral-900 dark:text-white">
-                                    Quick Actions
-                                </h3>
-                                <div className="space-y-2">
-                                    <Button
-                                        size="sm"
-                                        onClick={() => setShowExportModal(true)}
-                                        className="w-full justify-start rounded-xl border-indigo-500/30 bg-gradient-to-r from-indigo-50 to-purple-50 text-xs font-semibold text-indigo-700 shadow-sm hover:from-indigo-100 hover:to-purple-100 dark:from-indigo-950/50 dark:to-purple-950/50 dark:text-indigo-300"
-                                        variant="outline"
-                                        type="button"
-                                    >
-                                        <FileSpreadsheet className="mr-2 h-3 w-3" />{' '}
-                                        Advanced Export
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        onClick={handleExportToday}
-                                        className={quickActionBtnClass}
-                                        variant="outline"
-                                        type="button"
-                                    >
-                                        <Download className="mr-2 h-3 w-3" />{' '}
-                                        Export Hari Ini
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        className={quickActionBtnClass}
-                                        variant="outline"
-                                        type="button"
-                                    >
-                                        <Bell className="mr-2 h-3 w-3" />{' '}
-                                        Broadcast Notifikasi
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        onClick={refreshData}
-                                        className={quickActionBtnClass}
-                                        variant="outline"
-                                        type="button"
-                                    >
-                                        <RefreshCw className="mr-2 h-3 w-3" />{' '}
-                                        Sync Data
-                                    </Button>
-                                </div>
-                            </motion.div>
-                        </div>
+                        </motion.div>
                     </div>
                 </motion.div>
             </div>
-
-            {/* ACTIVITY DETAIL MODAL - ULTRA ADVANCED DARK THEME */}
-            {/* ─── Detail Modal (Aktivitas Terbaru) ─── */}
-            <Dialog
-                open={!!selectedActivity}
-                onOpenChange={(open) => !open && setSelectedActivity(null)}
-            >
-                <DialogContent className="overflow-hidden rounded-3xl border-neutral-800 bg-neutral-900 p-0 text-white sm:max-w-md">
-                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-indigo-900/50 to-transparent" />
-
-                    <button
-                        onClick={() => setSelectedActivity(null)}
-                        className="absolute top-4 right-4 z-10 rounded-full bg-neutral-800/50 p-2 text-neutral-300 transition-colors hover:bg-neutral-700/80"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
-
-                    {selectedActivity && (
-                        <div className="relative z-10 space-y-4 p-6 pt-10">
-                            <div className="text-center">
-                                <motion.div
-                                    initial={{ scale: 0, rotate: -45 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', damping: 15 }}
-                                    className="mx-auto mb-4 h-20 w-20 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 p-[3px] shadow-xl"
-                                >
-                                    <div className="flex h-full w-full items-center justify-center rounded-xl bg-neutral-900">
-                                        <User className="h-8 w-8 text-indigo-300" />
-                                    </div>
-                                </motion.div>
-                                <h2 className="text-2xl font-bold">
-                                    {selectedActivity.student_name}
-                                </h2>
-                                <p className="mt-1 text-xs font-semibold tracking-widest text-gray-400 uppercase">
-                                    {selectedActivity.nim}
-                                </p>
-
-                                <Badge
-                                    variant={
-                                        selectedActivity.status === 'hadir'
-                                            ? 'success'
-                                            : selectedActivity.status ===
-                                                'terlambat'
-                                              ? 'warning'
-                                              : selectedActivity.status ===
-                                                  'izin'
-                                                ? 'default'
-                                                : 'destructive'
-                                    }
-                                    className="mt-3 px-4 py-1 text-sm"
-                                >
-                                    {selectedActivity.status.toUpperCase()}
-                                </Badge>
-                            </div>
-
-                            <div className="mt-6 space-y-3">
-                                <div className="transform rounded-2xl border border-neutral-700/50 bg-neutral-800/80 p-4 transition hover:-translate-y-1">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10">
-                                            <Clock className="h-6 w-6 text-blue-400" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="mb-0.5 text-[10px] font-semibold tracking-widest text-blue-400/80 uppercase">
-                                                Waktu Scan
-                                            </p>
-                                            <p className="text-xl font-bold">
-                                                {selectedActivity.time}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="transform rounded-2xl border border-neutral-700/50 bg-neutral-800/80 p-4 transition hover:-translate-y-1">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-purple-500/20 bg-purple-500/10">
-                                            <BookOpen className="h-6 w-6 text-purple-400" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="mb-0.5 text-[10px] font-semibold tracking-widest text-purple-400/80 uppercase">
-                                                {selectedActivity.session_name}
-                                            </p>
-                                            <p className="text-lg leading-tight font-bold">
-                                                {selectedActivity.course}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="transform rounded-2xl border border-neutral-700/50 bg-neutral-800/80 p-4 transition hover:-translate-y-1">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/10">
-                                            <MapPin className="h-6 w-6 text-emerald-400" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="mb-0.5 text-[10px] font-semibold tracking-widest text-emerald-400/80 uppercase">
-                                                Radius GPS
-                                            </p>
-                                            <p className="inline-flex items-baseline gap-1 text-lg font-bold">
-                                                {selectedActivity.distance}{' '}
-                                                <span className="text-sm font-normal text-gray-400">
-                                                    meter
-                                                </span>
-                                            </p>
-                                            <p className="text-[10px] text-gray-500">
-                                                dari titik kordinat kampus
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="transform rounded-2xl border border-neutral-700/50 bg-neutral-800/80 p-4 transition hover:-translate-y-1">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10">
-                                            <Smartphone className="h-6 w-6 text-amber-400" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="mb-0.5 text-[10px] font-semibold tracking-widest text-amber-400/80 uppercase">
-                                                Perangkat & Info
-                                            </p>
-                                            <p
-                                                className="truncate text-sm font-semibold"
-                                                title={
-                                                    selectedActivity.device ||
-                                                    'Mobile Device'
-                                                }
-                                            >
-                                                {selectedActivity.device ||
-                                                    'Mobile Device via Browser'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <Button
-                                onClick={() =>
-                                    router.visit(
-                                        `${activityListUrl}?activity=${selectedActivity.id}`,
-                                    )
-                                }
-                                className="group mt-4 w-full rounded-2xl border border-white/10 bg-white py-6 font-bold text-neutral-900 hover:bg-neutral-200"
-                            >
-                                Pilihan Lanjutan Detail
-                                <ChevronRight className="ml-1 h-4 w-4 opacity-50 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
-                            </Button>
-                        </div>
-                    )}
-                </DialogContent>
-            </Dialog>
-
-            {/* ═══ ADVANCED EXPORT MODAL ═══ */}
-            <Dialog open={showExportModal} onOpenChange={setShowExportModal}>
-                <DialogContent className="overflow-hidden rounded-3xl border-neutral-800 bg-neutral-900 p-0 text-white sm:max-w-lg">
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-indigo-900/40 to-transparent" />
-
-                    <div className="relative z-10 p-6">
-                        <div className="mb-6 flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-                                <FileSpreadsheet className="h-6 w-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold">Advanced Export</h2>
-                                <p className="text-xs text-neutral-400">Export laporan profesional multi-sheet</p>
-                            </div>
-                        </div>
-
-                        {/* Format Selection */}
-                        <div className="mb-5 flex gap-2">
-                            <button
-                                onClick={() => setExportFormat('excel')}
-                                className={`flex-1 rounded-xl border-2 p-3 text-center transition-all ${
-                                    exportFormat === 'excel'
-                                        ? 'border-emerald-500 bg-emerald-500/10'
-                                        : 'border-neutral-700 bg-neutral-800/50 hover:border-neutral-600'
-                                }`}
-                            >
-                                <FileSpreadsheet className={`mx-auto mb-1 h-6 w-6 ${exportFormat === 'excel' ? 'text-emerald-400' : 'text-neutral-500'}`} />
-                                <p className={`text-sm font-semibold ${exportFormat === 'excel' ? 'text-emerald-300' : 'text-neutral-400'}`}>Excel</p>
-                                <p className="text-[10px] text-neutral-500">4 Sheets • Analytics</p>
-                            </button>
-                            <button
-                                onClick={() => setExportFormat('pdf')}
-                                className={`flex-1 rounded-xl border-2 p-3 text-center transition-all ${
-                                    exportFormat === 'pdf'
-                                        ? 'border-red-500 bg-red-500/10'
-                                        : 'border-neutral-700 bg-neutral-800/50 hover:border-neutral-600'
-                                }`}
-                            >
-                                <FileText className={`mx-auto mb-1 h-6 w-6 ${exportFormat === 'pdf' ? 'text-red-400' : 'text-neutral-500'}`} />
-                                <p className={`text-sm font-semibold ${exportFormat === 'pdf' ? 'text-red-300' : 'text-neutral-400'}`}>PDF</p>
-                                <p className="text-[10px] text-neutral-500">Header UNPAM • Formal</p>
-                            </button>
-                        </div>
-
-                        {/* Filter Controls */}
-                        <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tanggal Mulai</label>
-                                    <input
-                                        type="date"
-                                        value={exportStartDate}
-                                        onChange={(e) => setExportStartDate(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tanggal Akhir</label>
-                                    <input
-                                        type="date"
-                                        value={exportEndDate}
-                                        onChange={(e) => setExportEndDate(e.target.value)}
-                                        className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Status Kehadiran</label>
-                                <select
-                                    value={exportStatus}
-                                    onChange={(e) => setExportStatus(e.target.value)}
-                                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
-                                >
-                                    {(filterOptions?.statuses || [
-                                        { value: 'all', label: 'Semua Status' },
-                                        { value: 'present', label: '✅ Hadir' },
-                                        { value: 'late', label: '⏰ Terlambat' },
-                                        { value: 'excused', label: '📋 Izin' },
-                                        { value: 'anomali', label: '⚠️ Anomali/Ditolak' },
-                                    ]).map((s) => (
-                                        <option key={s.value} value={s.value}>{s.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-                                    <Shield className="mr-1 inline h-3 w-3" />Level Risiko
-                                </label>
-                                <select
-                                    value={exportRisk}
-                                    onChange={(e) => setExportRisk(e.target.value)}
-                                    className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"
-                                >
-                                    {(filterOptions?.riskLevels || [
-                                        { value: 'all', label: 'Semua Level' },
-                                        { value: 'low', label: '🟢 Rendah (0-29)' },
-                                        { value: 'medium', label: '🟡 Sedang (30-69)' },
-                                        { value: 'high', label: '🔴 Tinggi (70-100)' },
-                                    ]).map((r) => (
-                                        <option key={r.value} value={r.value}>{r.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Export Info */}
-                        <div className="mt-4 rounded-xl border border-neutral-700/50 bg-neutral-800/50 p-3">
-                            <p className="text-[11px] text-neutral-400">
-                                {exportFormat === 'excel' ? (
-                                    <><FileSpreadsheet className="mr-1 inline h-3 w-3 text-emerald-400" />Export 4 sheet: Dashboard, Data Mentah, Analytics, Risk Analysis dengan conditional formatting profesional.</>
-                                ) : (
-                                    <><FileText className="mr-1 inline h-3 w-3 text-red-400" />Export PDF formal dengan header UNPAM, ringkasan eksekutif, tabel data, analisis risiko, dan tanda tangan.</>
-                                )}
-                            </p>
-                        </div>
-
-                        {/* Export Button */}
-                        <Button
-                            onClick={handleAdvancedExport}
-                            disabled={isExporting}
-                            className={`mt-5 w-full rounded-2xl py-6 text-base font-bold shadow-xl transition-all ${
-                                exportFormat === 'excel'
-                                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700'
-                                    : 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700'
-                            }`}
-                        >
-                            {isExporting ? (
-                                <><RefreshCw className="mr-2 h-5 w-5 animate-spin" />Generating...</>
-                            ) : (
-                                <><Download className="mr-2 h-5 w-5" />
-                                    {exportFormat === 'excel' ? 'Download Excel (4 Sheets)' : 'Download PDF Report'}
-                                </>
-                            )}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
         </AppLayout>
     );
 }
 
-/* ─── StatCard Component — Glassmorphism + Gradient Icons (Dashboard Style) ─── */
+function FilterSelect({
+    label,
+    value,
+    options,
+    allLabel,
+    onValueChange,
+}: {
+    label: string;
+    value: string;
+    options: FilterOption[];
+    allLabel: string;
+    onValueChange: (value: string) => void;
+}) {
+    return (
+        <div className="rounded-2xl border border-neutral-200/70 bg-neutral-50/90 p-3 dark:border-neutral-800 dark:bg-neutral-950/40">
+            <p className="mb-2 text-xs font-semibold tracking-wide text-neutral-500 uppercase">
+                {label}
+            </p>
+            <Select value={value} onValueChange={onValueChange}>
+                <SelectTrigger className="w-full border-white/40 bg-white/90 dark:border-neutral-700 dark:bg-neutral-900">
+                    <SelectValue placeholder={allLabel} />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{allLabel}</SelectItem>
+                    {options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    );
+}
+
 function StatCard({
-    icon: Icon,
     imageIcon,
     label,
     value,
-    color,
 }: {
-    icon?: any;
     imageIcon?: string;
     label: string;
     value: number;
-    color: string;
 }) {
-    const [isHovered, setIsHovered] = useState(false);
-
-    const colorConfigs: Record<string, any> = {
-        emerald: {
-            bg: 'bg-emerald-500',
-            hoverShadow: 'group-hover:shadow-emerald-500/10',
-            gradientBg:
-                'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
-            iconBg: 'from-emerald-400 to-teal-600 shadow-emerald-500/30',
-        },
-        orange: {
-            bg: 'bg-amber-500',
-            hoverShadow: 'group-hover:shadow-amber-500/10',
-            gradientBg:
-                'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
-            iconBg: 'from-orange-400 to-orange-600 shadow-orange-500/30',
-        },
-        blue: {
-            bg: 'bg-sky-500',
-            hoverShadow: 'group-hover:shadow-sky-500/10',
-            gradientBg:
-                'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
-            iconBg: 'from-sky-400 to-indigo-600 shadow-sky-500/30',
-        },
-        green: {
-            bg: 'bg-green-500',
-            hoverShadow: 'group-hover:shadow-green-500/10',
-            gradientBg:
-                'from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10',
-            iconBg: 'from-green-400 to-emerald-600 shadow-green-500/30',
-        },
-        purple: {
-            bg: 'bg-purple-500',
-            hoverShadow: 'group-hover:shadow-purple-500/10',
-            gradientBg:
-                'from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10',
-            iconBg: 'from-purple-400 to-violet-600 shadow-purple-500/30',
-        },
-        red: {
-            bg: 'bg-red-500',
-            hoverShadow: 'group-hover:shadow-red-500/10',
-            gradientBg:
-                'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10',
-            iconBg: 'from-red-400 to-rose-600 shadow-red-500/30',
-        },
-    };
-    const c = colorConfigs[color] ?? colorConfigs.blue;
-
     return (
         <motion.div
             variants={cardVariants}
             whileHover="hover"
-            className={`group relative h-full overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-3 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-6 dark:bg-neutral-900/40 ${c.hoverShadow} cursor-pointer dark:border-white/5`}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            whileTap={{ scale: 0.95 }}
-            style={{ perspective: 1000 }}
+            className="overflow-hidden rounded-3xl border border-white/20 bg-white/60 p-5 shadow-xl backdrop-blur-2xl dark:border-neutral-800 dark:bg-neutral-900/60"
         >
-            <div
-                className={`absolute inset-0 bg-gradient-to-br ${c.gradientBg}`}
-            />
-            <motion.div
-                initial={false}
-                animate={{
-                    scale: isHovered ? 1.5 : 1,
-                    opacity: isHovered ? 0.4 : 0.2,
-                }}
-                transition={{ duration: 0.5 }}
-                className={`absolute -top-10 -right-10 h-32 w-32 rounded-full ${c.bg} blur-3xl transition-all duration-500`}
-            />
-            <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
+            <div className="flex items-center gap-4">
                 {imageIcon ? (
-                    <motion.div
-                        className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-14 sm:w-14"
-                        whileHover={{ scale: 1.1, rotate: 10 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                        <img
-                            src={imageIcon}
-                            className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]"
-                            alt={label}
-                        />
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br sm:h-14 sm:w-14 sm:rounded-2xl ${c.iconBg} text-white shadow-lg`}
-                        whileHover={{ scale: 1.1, rotate: 10 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                        {Icon && <Icon className="h-4 w-4 sm:h-6 sm:w-6" />}
-                    </motion.div>
-                )}
+                    <img
+                        src={imageIcon}
+                        alt={label}
+                        className="h-14 w-14 shrink-0 object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.18)]"
+                    />
+                ) : null}
                 <div>
-                    <p className="text-[10px] leading-tight font-medium text-neutral-500 sm:text-sm dark:text-neutral-400">
-                        {label}
+                    <p className="text-sm text-neutral-500">{label}</p>
+                    <p className="text-3xl font-bold text-neutral-900 dark:text-white">
+                        {value}
                     </p>
-                    <div className="mt-0.5 sm:mt-1">
-                        <span className="text-lg font-bold text-neutral-900 sm:text-2xl dark:text-white">
-                            {value?.toLocaleString?.() ?? value}
-                        </span>
-                    </div>
                 </div>
             </div>
         </motion.div>
     );
+}
+
+function EmptyState({ text }: { text: string }) {
+    return (
+        <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50/80 p-6 text-center text-sm text-neutral-500 dark:border-neutral-800 dark:bg-neutral-950/40 dark:text-neutral-400">
+            {text}
+        </div>
+    );
+}
+
+function StatusDot({ status }: { status: ActivityItem['status'] }) {
+    const classes =
+        status === 'hadir'
+            ? 'bg-emerald-500'
+            : status === 'terlambat'
+              ? 'bg-amber-500'
+              : status === 'izin'
+                ? 'bg-sky-500'
+                : 'bg-red-500';
+
+    return <span className={`inline-flex h-2.5 w-2.5 rounded-full ${classes}`} />;
+}
+
+function labelForStatus(status: ActivityItem['status']) {
+    return status === 'hadir'
+        ? 'Hadir'
+        : status === 'terlambat'
+          ? 'Terlambat'
+          : status === 'izin'
+            ? 'Izin'
+            : 'Anomali';
+}
+
+function statusBadgeClass(status: ActivityItem['status']) {
+    return status === 'hadir'
+        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
+        : status === 'terlambat'
+          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300'
+          : status === 'izin'
+            ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/20 dark:text-sky-300'
+            : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300';
 }

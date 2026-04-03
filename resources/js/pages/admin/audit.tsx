@@ -11,12 +11,15 @@ import {
     Download,
     Eye,
     Filter,
+    Globe,
+    Laptop,
     MapPin,
     RefreshCw,
     Shield,
     TrendingUp,
     UserX,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import auditIcon from '@/assets/admin/audit/audit-icon.png';
@@ -92,7 +95,7 @@ interface EventType {
 interface PageProps {
     auditLogs: {
         data: AuditLog[];
-        links: any[];
+        links: unknown[];
         current_page: number;
         last_page: number;
     };
@@ -101,6 +104,28 @@ interface PageProps {
     dailyTrend: DailyTrend;
     suspiciousActivities: SuspiciousActivity[];
     topFlaggedStudents: FlaggedStudent[];
+    websiteLoginHistory: Array<{
+        id: string;
+        source: string;
+        action: string;
+        label: string;
+        status: 'success' | 'failed';
+        user_name: string;
+        user_identifier: string;
+        user_type: string;
+        ip_address?: string | null;
+        user_agent?: string | null;
+        device: string;
+        description?: string | null;
+        created_at: string;
+    }>;
+    loginInsights: {
+        total_logins: number;
+        successful_logins: number;
+        failed_logins: number;
+        unique_users: number;
+        unique_ips: number;
+    };
     filters: {
         date_from: string;
         date_to: string;
@@ -122,7 +147,7 @@ const COLORS = [
 
 const eventTypeConfig: Record<
     string,
-    { label: string; color: string; icon: any }
+    { label: string; color: string; icon: LucideIcon }
 > = {
     token_expired: {
         label: 'Token Expired',
@@ -173,6 +198,8 @@ export default function AdminAudit({
     dailyTrend,
     suspiciousActivities,
     topFlaggedStudents,
+    websiteLoginHistory,
+    loginInsights,
     filters,
     eventTypes,
 }: PageProps) {
@@ -633,6 +660,184 @@ export default function AdminAudit({
                     </motion.div>
                 </div>
 
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {[
+                        {
+                            label: 'Total Login',
+                            value: loginInsights.total_logins,
+                            icon: Globe,
+                            color:
+                                'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
+                        },
+                        {
+                            label: 'User Unik',
+                            value: loginInsights.unique_users,
+                            icon: CheckCircle,
+                            color:
+                                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300',
+                        },
+                        {
+                            label: 'IP Unik',
+                            value: loginInsights.unique_ips,
+                            icon: Laptop,
+                            color:
+                                'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300',
+                        },
+                    ].map((item, index) => {
+                        const Icon = item.icon;
+
+                        return (
+                            <motion.div
+                                key={item.label}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.16 + index * 0.03 }}
+                                className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div
+                                        className={`rounded-2xl p-3 ${item.color}`}
+                                    >
+                                        <Icon className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            {item.label}
+                                        </p>
+                                        <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                                            {item.value}
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.22 }}
+                    className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                >
+                    <div className="border-b border-gray-100 p-6 dark:border-gray-800">
+                        <div className="flex items-center gap-3">
+                            <div className="rounded-lg bg-indigo-100 p-2 dark:bg-indigo-900/30">
+                                <Globe className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800 dark:text-white">
+                                    Riwayat Login Website
+                                </h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Menampilkan login sukses dan gagal dari data
+                                    baru maupun data lama yang sudah pernah
+                                    terekam.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="bg-gray-50/50 dark:bg-white/5">
+                                    <th className="px-6 py-4 text-left text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                        Waktu
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                        User
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                        Role
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                        Status
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                        IP / Device
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold tracking-wider text-gray-500 uppercase">
+                                        Sumber
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                {websiteLoginHistory.length === 0 ? (
+                                    <tr>
+                                        <td
+                                            colSpan={6}
+                                            className="px-6 py-12 text-center"
+                                        >
+                                            <Globe className="mx-auto mb-3 h-12 w-12 text-gray-300" />
+                                            <p className="font-medium text-gray-500">
+                                                Belum ada riwayat login website
+                                                pada rentang tanggal ini
+                                            </p>
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    websiteLoginHistory.map((entry, index) => (
+                                        <motion.tr
+                                            key={entry.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.01 * index }}
+                                            className="transition-colors hover:bg-blue-50/40 dark:hover:bg-blue-900/10"
+                                        >
+                                            <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-600 dark:text-gray-300">
+                                                {entry.created_at}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div>
+                                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                        {entry.user_name}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {entry.user_identifier}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                                {entry.user_type}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                                        entry.status ===
+                                                        'success'
+                                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
+                                                            : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+                                                    }`}
+                                                >
+                                                    {entry.label}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm text-slate-600 dark:text-slate-300">
+                                                    <p>{entry.ip_address || '-'}</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {entry.device}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-sm text-slate-600 dark:text-slate-300">
+                                                    <p>{entry.source}</p>
+                                                    {entry.description && (
+                                                        <p className="mt-1 max-w-xs truncate text-xs text-slate-500 dark:text-slate-400">
+                                                            {entry.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </motion.div>
+
                 {/* Suspicious Activities & Flagged Students */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Suspicious Activities */}
@@ -915,7 +1120,7 @@ function StatCard({
     sub,
     color,
 }: {
-    icon?: any;
+    icon?: LucideIcon;
     imageIcon?: string;
     label: string;
     value: number | string;
@@ -925,7 +1130,15 @@ function StatCard({
     const [isHovered, setIsHovered] = useState(false);
 
     // Map colors to matching dashboard configurations
-    const colorConfigs: Record<string, any> = {
+    const colorConfigs: Record<
+        string,
+        {
+            bg: string;
+            hoverShadow: string;
+            gradientBg: string;
+            iconBg: string;
+        }
+    > = {
         emerald: {
             bg: 'bg-emerald-500',
             hoverShadow: 'group-hover:shadow-emerald-500/10',

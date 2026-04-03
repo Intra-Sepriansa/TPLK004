@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\AttendanceToken;
+use App\Models\SelfieVerification;
 use App\Models\Setting;
+use App\Jobs\ProcessSelfieVerification;
 use App\Services\AttendanceSessionAutomationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -410,6 +412,13 @@ class MobileMahasiswaAttendanceController extends Controller
             'distance_m' => $distance,
             'accuracy' => $bestSample['accuracy_m'],
         ]);
+
+        SelfieVerification::create([
+            'attendance_log_id' => $log->id,
+            'status' => 'pending',
+        ]);
+
+        ProcessSelfieVerification::dispatch($log->id);
 
         return \response()->json([
             'success' => true,

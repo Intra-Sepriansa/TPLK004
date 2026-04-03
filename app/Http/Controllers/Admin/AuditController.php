@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\AuditLog;
@@ -51,6 +52,9 @@ class AuditController extends Controller
         
         // Top Flagged Students
         $topFlaggedStudents = $this->getTopFlaggedStudents($dateFrom, $dateTo);
+
+        $websiteLoginHistory = $this->getWebsiteLoginHistory($dateFrom, $dateTo);
+        $loginInsights = $this->getLoginInsights($websiteLoginHistory);
         
         return Inertia::render('admin/audit', [
             'auditLogs' => $auditLogs,
@@ -59,6 +63,8 @@ class AuditController extends Controller
             'dailyTrend' => $dailyTrend,
             'suspiciousActivities' => $suspiciousActivities,
             'topFlaggedStudents' => $topFlaggedStudents,
+            'websiteLoginHistory' => $websiteLoginHistory,
+            'loginInsights' => $loginInsights,
             'filters' => [
                 'date_from' => $dateFrom,
                 'date_to' => $dateTo,
@@ -370,5 +376,123 @@ class AuditController extends Controller
             ['value' => 'attendance_success', 'label' => 'Absensi Berhasil'],
             ['value' => 'selfie_uploaded', 'label' => 'Selfie Diupload'],
         ];
+    }
+
+    private function getWebsiteLoginHistory(string $dateFrom, string $dateTo)
+    {
+        $activityLogs = AdminActivityLog::with('user')
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->whereIn('action', ['login', 'login_success', 'login_failed'])
+            ->latest()
+            ->take(150)
+            ->get()
+            ->map(function (AdminActivityLog $log) {
+                $user = $log->user;
+                $displayName = $user?->name ?? $user?->nama ?? 'System / Unknown';
+                $identifier = $user?->email ?? $user?->nim ?? '-';
+
+                return [
+                    'id' => 'activity-' . $log->id,
+                    'source' => 'admin_activity_logs',
+                    'action' => $log->action === 'login' ? 'login_success' : $log->action,
+                    'label' => $log->action === 'login_failed' ? 'Login Gagal' : 'Login Berhasil',
+                    'status' => $log->action === 'login_failed' ? 'failed' : 'success',
+                    'user_name' => $displayName,
+                    'user_identifier' => $identifier,
+                    'user_type' => $this->normalizeUserType($log->user_type),
+                    'ip_address' => $log->ip_address,
+                    'user_agent' => $log->user_agent,
+                    'device' => $this->simplifyUserAgent($log->user_agent),
+                    'description' => $log->description,
+                    'created_at' => $log->created_at?->format('d/m/Y H:i:s'),
+                    'created_at_iso' => $log->created_at?->toIso8601String(),
+                ];
+            });
+
+        $legacyAuditLogs = AuditLog::query()
+            ->whereBetween('created_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->whereIn('event_type', ['login_success', 'login_failed'])
+            ->latest()
+            ->take(150)
+            ->get()
+            ->map(function (AuditLog $log) {
+                $networkInfo = is_array($log->network_info) ? $log->network_info : [];
+                $deviceInfo = is_array($log->device_info) ? $log->device_info : [];
+
+                return [
+                    'id' => 'audit-' . $log->id,
+                    'source' => 'audit_logs',
+                    'action' => $log->event_type,
+                    'label' => $log->event_type === 'login_failed' ? 'Login Gagal' : 'Login Berhasil',
+                    'status' => $log->event_type === 'login_failed' ? 'failed' : 'success',
+                    'user_name' => $deviceInfo['user_name'] ?? $log->mahasiswa?->nama ?? 'Legacy / Unknown',
+                    'user_identifier' => $deviceInfo['user_identifier'] ?? $log->mahasiswa?->nim ?? '-',
+                    'user_type' => $deviceInfo['user_type'] ?? ($log->mahasiswa_id ? 'Mahasiswa' : 'Unknown'),
+                    'ip_address' => $networkInfo['ip_address'] ?? null,
+                    'user_agent' => $deviceInfo['user_agent'] ?? null,
+                    'device' => $deviceInfo['device_name'] ?? $this->simplifyUserAgent($deviceInfo['user_agent'] ?? null),
+                    'description' => $log->message,
+                    'created_at' => $log->created_at?->format('d/m/Y H:i:s'),
+                    'created_at_iso' => $log->created_at?->toIso8601String(),
+                ];
+            });
+
+        return $activityLogs
+            ->concat($legacyAuditLogs)
+            ->sortByDesc('created_at_iso')
+            ->take(100)
+            ->values();
+    }
+
+    private function getLoginInsights($websiteLoginHistory): array
+    {
+        return [
+            'total_logins' => $websiteLoginHistory->count(),
+            'successful_logins' => $websiteLoginHistory->where('status', 'success')->count(),
+            'failed_logins' => $websiteLoginHistory->where('status', 'failed')->count(),
+            'unique_users' => $websiteLoginHistory->pluck('user_name')->filter()->unique()->count(),
+            'unique_ips' => $websiteLoginHistory->pluck('ip_address')->filter()->unique()->count(),
+        ];
+    }
+
+    private function normalizeUserType(?string $userType): string
+    {
+        return match ($userType) {
+            'App\\Models\\User' => 'Admin',
+            'App\\Models\\Mahasiswa' => 'Mahasiswa',
+            'App\\Models\\Dosen' => 'Dosen',
+            default => 'Unknown',
+        };
+    }
+
+    private function simplifyUserAgent(?string $userAgent): string
+    {
+        if (!$userAgent) {
+            return 'Unknown Device';
+        }
+
+        $agent = strtolower($userAgent);
+
+        if (str_contains($agent, 'iphone')) {
+            return 'iPhone';
+        }
+
+        if (str_contains($agent, 'android')) {
+            return 'Android';
+        }
+
+        if (str_contains($agent, 'windows')) {
+            return 'Windows PC';
+        }
+
+        if (str_contains($agent, 'mac os') || str_contains($agent, 'macintosh')) {
+            return 'Mac';
+        }
+
+        if (str_contains($agent, 'linux')) {
+            return 'Linux';
+        }
+
+        return 'Browser Device';
     }
 }
