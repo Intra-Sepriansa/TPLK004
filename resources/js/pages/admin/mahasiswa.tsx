@@ -350,7 +350,7 @@ export default function AdminMahasiswa({
     };
 
     const handleExportPdf = () => {
-        window.open(`/admin/mahasiswa/pdf?fakultas=${fakultas}`, '_blank');
+        window.open(`/admin/mahasiswa/pdf?fakultas=${fakultas}&kelas=${kelas}`, '_blank');
     };
 
     const submitAdd = (e: FormEvent) => {
@@ -646,7 +646,7 @@ export default function AdminMahasiswa({
                                             Tambah
                                         </motion.button>
                                         <motion.a
-                                            href="/mahasiswa/export.csv"
+                                            href={`/admin/mahasiswa/csv?fakultas=${fakultas}&kelas=${kelas}`}
                                             className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-semibold whitespace-nowrap text-white transition-all hover:bg-white/20 sm:text-sm"
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}

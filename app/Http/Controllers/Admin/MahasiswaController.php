@@ -372,6 +372,45 @@ class MahasiswaController extends Controller
         
         return $pdf->download('Data_Mahasiswa_' . now()->format('Y-m-d') . '.pdf');
     }
+
+    public function exportCsv(Request $request)
+    {
+        $query = Mahasiswa::query();
+
+        if ($request->fakultas && $request->fakultas !== 'all') {
+            $query->where('fakultas', $request->fakultas);
+        }
+
+        if ($request->kelas && $request->kelas !== 'all') {
+            $query->where('kelas', $request->kelas);
+        }
+
+        $mahasiswa = $query->orderBy('nama')->get();
+
+        return response()->streamDownload(function () use ($mahasiswa) {
+            $handle = fopen('php://output', 'w');
+            // BOM for Excel UTF-8 compatibility
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fputcsv($handle, ['No', 'Nama', 'NIM', 'Fakultas', 'Prodi', 'Kelas', 'Semester', 'Jenis Kelamin']);
+
+            foreach ($mahasiswa as $index => $m) {
+                fputcsv($handle, [
+                    $index + 1,
+                    $m->nama,
+                    $m->nim,
+                    $m->fakultas ?? '-',
+                    $m->prodi ?? '-',
+                    $m->kelas ?? '-',
+                    $m->semester ?? '-',
+                    $m->jenis_kelamin === 'L' ? 'Laki-laki' : ($m->jenis_kelamin === 'P' ? 'Perempuan' : '-'),
+                ]);
+            }
+
+            fclose($handle);
+        }, 'Data_Mahasiswa_' . now()->format('Y-m-d') . '.csv', [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
     
     private function getStats()
     {
