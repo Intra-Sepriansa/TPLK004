@@ -4,7 +4,7 @@
 <img src="./public/image.png" alt="UNPAM Logo" height="160" />
 
 # 🎓 TPLK004
-### Sistem Absensi Cerdas Berbasis AI
+### Sistem Absensi Cerdas
 
 <p>
   <strong>Universitas Pamulang</strong> • Fakultas Ilmu Komputer • Teknik Informatika<br/>
