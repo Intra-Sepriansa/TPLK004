@@ -11,8 +11,18 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { Head, router, useForm } from '@inertiajs/react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, CheckCircle2, Save, Type } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+    ArrowLeft,
+    BookOpen,
+    CheckCircle2,
+    Minus,
+    Plus,
+    Save,
+    Trash2,
+    Type,
+} from 'lucide-react';
+import { useCallback } from 'react';
 
 interface CourseOption {
     id: number;
@@ -31,8 +41,8 @@ interface DigestPayload {
         title: string | null;
     }[];
     mata_kuliah_ids?: number[];
-    meetings?: Record<string, number>;
-    titles?: Record<string, string>;
+    meetings?: Record<string, number[]>;
+    titles?: Record<string, string[]>;
     week_number: number;
     semester: string;
     has_structured_task: boolean;
@@ -56,8 +66,8 @@ interface Props {
 
 interface FormShape {
     mata_kuliah_ids: string[];
-    meetings: Record<string, number>;
-    titles: Record<string, string>;
+    meetings: Record<string, number[]>;
+    titles: Record<string, string[]>;
     has_structured_task: boolean;
     is_published: boolean;
 }
@@ -81,6 +91,181 @@ const itemVariants = {
     },
 } as const;
 
+const meetingEntryVariants = {
+    initial: { opacity: 0, height: 0, y: -10, scale: 0.95 },
+    animate: {
+        opacity: 1,
+        height: 'auto' as const,
+        y: 0,
+        scale: 1,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
+    },
+    exit: {
+        opacity: 0,
+        height: 0,
+        y: -10,
+        scale: 0.95,
+        transition: { duration: 0.2 },
+    },
+};
+
+/* ─── Stepper Component ─── */
+function MeetingStepper({
+    value,
+    onChange,
+    min = 1,
+    max = 32,
+}: {
+    value: number;
+    onChange: (val: number) => void;
+    min?: number;
+    max?: number;
+}) {
+    const clamp = (v: number) => Math.max(min, Math.min(max, v));
+
+    return (
+        <div className="flex items-center gap-0.5">
+            <motion.button
+                type="button"
+                whileTap={{ scale: 0.85 }}
+                whileHover={{ scale: 1.1 }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onChange(clamp(value - 1));
+                }}
+                disabled={value <= min}
+                className={cn(
+                    'flex h-9 w-9 items-center justify-center rounded-xl transition-all sm:h-10 sm:w-10',
+                    value <= min
+                        ? 'cursor-not-allowed bg-slate-100 text-slate-300 dark:bg-neutral-800 dark:text-neutral-600'
+                        : 'bg-rose-50 text-rose-600 shadow-sm hover:bg-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:hover:bg-rose-900/40',
+                )}
+            >
+                <Minus className="h-4 w-4" />
+            </motion.button>
+
+            <motion.span
+                key={value}
+                initial={{ scale: 1.3, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="flex h-9 w-12 items-center justify-center rounded-xl bg-indigo-50 text-sm font-extrabold tabular-nums text-indigo-700 sm:h-10 sm:w-14 sm:text-base dark:bg-indigo-900/30 dark:text-indigo-300"
+            >
+                {value}
+            </motion.span>
+
+            <motion.button
+                type="button"
+                whileTap={{ scale: 0.85 }}
+                whileHover={{ scale: 1.1 }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onChange(clamp(value + 1));
+                }}
+                disabled={value >= max}
+                className={cn(
+                    'flex h-9 w-9 items-center justify-center rounded-xl transition-all sm:h-10 sm:w-10',
+                    value >= max
+                        ? 'cursor-not-allowed bg-slate-100 text-slate-300 dark:bg-neutral-800 dark:text-neutral-600'
+                        : 'bg-emerald-50 text-emerald-600 shadow-sm hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/40',
+                )}
+            >
+                <Plus className="h-4 w-4" />
+            </motion.button>
+        </div>
+    );
+}
+
+/* ─── Single Meeting Entry Row ─── */
+function MeetingEntry({
+    courseId,
+    index,
+    meetingNumber,
+    title,
+    canRemove,
+    onMeetingChange,
+    onTitleChange,
+    onRemove,
+}: {
+    courseId: string;
+    index: number;
+    meetingNumber: number;
+    title: string;
+    canRemove: boolean;
+    onMeetingChange: (val: number) => void;
+    onTitleChange: (val: string) => void;
+    onRemove: () => void;
+}) {
+    return (
+        <motion.div
+            variants={meetingEntryVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            layout
+            className="overflow-hidden"
+        >
+            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/60 via-white to-purple-50/40 p-3.5 dark:border-indigo-500/15 dark:from-indigo-950/20 dark:via-neutral-900/60 dark:to-purple-950/10">
+                {/* Header row */}
+                <div className="mb-2.5 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-100/80 px-2.5 py-1 text-[11px] font-bold tracking-wide text-indigo-600 uppercase dark:bg-indigo-900/40 dark:text-indigo-300">
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-[9px] font-extrabold text-white">
+                            {index + 1}
+                        </span>
+                        Pertemuan
+                    </span>
+
+                    {canRemove && (
+                        <motion.button
+                            type="button"
+                            whileTap={{ scale: 0.85 }}
+                            whileHover={{ scale: 1.1 }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRemove();
+                            }}
+                            className="flex h-8 w-8 items-center justify-center rounded-xl text-rose-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/20"
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                        </motion.button>
+                    )}
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                    {/* Stepper */}
+                    <div className="shrink-0">
+                        <label className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                            Pertemuan Ke-
+                        </label>
+                        <MeetingStepper
+                            value={meetingNumber}
+                            onChange={onMeetingChange}
+                        />
+                    </div>
+
+                    {/* Title input */}
+                    <div className="min-w-0 flex-1">
+                        <label className="mb-1.5 block text-[11px] font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+                            Judul{' '}
+                            <span className="normal-case text-slate-400 dark:text-slate-500">
+                                (Opsional)
+                            </span>
+                        </label>
+                        <Input
+                            type="text"
+                            placeholder={`Contoh: Materi ${meetingNumber}`}
+                            value={title}
+                            onChange={(e) => onTitleChange(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-10 rounded-xl border-indigo-100/80 bg-white/80 px-3 text-sm transition-all focus:border-indigo-300 focus:ring-indigo-200 dark:border-indigo-500/10 dark:bg-neutral-900/60 dark:focus:border-indigo-500/40"
+                        />
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
 export default function WeeklyDigestForm({
     mode,
     digest,
@@ -89,10 +274,24 @@ export default function WeeklyDigestForm({
 }: Props) {
     const isEdit = mode === 'edit';
 
+    // Normalize digest data for the form (arrays)
+    const initialMeetings: Record<string, number[]> = {};
+    const initialTitles: Record<string, string[]> = {};
+    if (digest?.meetings) {
+        for (const [k, v] of Object.entries(digest.meetings)) {
+            initialMeetings[k] = Array.isArray(v) ? v : [v as unknown as number];
+        }
+    }
+    if (digest?.titles) {
+        for (const [k, v] of Object.entries(digest.titles)) {
+            initialTitles[k] = Array.isArray(v) ? v : [v as unknown as string];
+        }
+    }
+
     const form = useForm<FormShape>({
         mata_kuliah_ids: digest?.mata_kuliah_ids?.map(String) || [],
-        meetings: digest?.meetings || {},
-        titles: digest?.titles || {},
+        meetings: initialMeetings,
+        titles: initialTitles,
         has_structured_task: digest?.has_structured_task ?? false,
         is_published: digest?.is_published ?? false,
     });
@@ -101,15 +300,133 @@ export default function WeeklyDigestForm({
         form.data.mata_kuliah_ids.includes(String(course.id)),
     );
 
+    // Count total meeting entries across all selected courses
+    const totalMeetingEntries = selectedCourses.reduce((sum, c) => {
+        const cid = String(c.id);
+        return sum + (form.data.meetings[cid]?.length || 1);
+    }, 0);
+
     let previewTitleSnippet = 'Materi Informasi Pekanan';
     if (selectedCourses.length === 1) {
         const cid = String(selectedCourses[0].id);
+        const titles = form.data.titles[cid] || [];
+        const meetings = form.data.meetings[cid] || [1];
         previewTitleSnippet =
-            form.data.titles[cid]?.trim() ||
-            `Materi Pertemuan ${form.data.meetings[cid] || 1}`;
+            titles[0]?.trim() ||
+            `Materi Pertemuan ${meetings[0] || 1}`;
     } else if (selectedCourses.length > 1) {
         previewTitleSnippet = 'Multi Judul dan Pertemuan';
     }
+
+    // Handlers
+    const handleCheckCourse = useCallback(
+        (courseId: number, checked: boolean) => {
+            const cid = String(courseId);
+
+            if (isEdit) {
+                form.setData((data) => ({
+                    ...data,
+                    mata_kuliah_ids: checked ? [cid] : [],
+                    meetings: checked ? { [cid]: [1] } : {},
+                    titles: checked ? { [cid]: [''] } : {},
+                }));
+                return;
+            }
+
+            if (checked) {
+                form.setData((data) => ({
+                    ...data,
+                    mata_kuliah_ids: [...data.mata_kuliah_ids, cid],
+                    meetings: { ...data.meetings, [cid]: [1] },
+                    titles: { ...data.titles, [cid]: [''] },
+                }));
+            } else {
+                const newMeetings = { ...form.data.meetings };
+                const newTitles = { ...form.data.titles };
+                delete newMeetings[cid];
+                delete newTitles[cid];
+                form.setData((data) => ({
+                    ...data,
+                    mata_kuliah_ids: data.mata_kuliah_ids.filter(
+                        (id) => id !== cid,
+                    ),
+                    meetings: newMeetings,
+                    titles: newTitles,
+                }));
+            }
+        },
+        [form, isEdit],
+    );
+
+    const handleAddMeeting = useCallback(
+        (courseId: string) => {
+            const currentMeetings = form.data.meetings[courseId] || [1];
+            const currentTitles = form.data.titles[courseId] || [''];
+            const lastMeeting =
+                currentMeetings[currentMeetings.length - 1] || 1;
+
+            form.setData((data) => ({
+                ...data,
+                meetings: {
+                    ...data.meetings,
+                    [courseId]: [...currentMeetings, lastMeeting + 1],
+                },
+                titles: {
+                    ...data.titles,
+                    [courseId]: [...currentTitles, ''],
+                },
+            }));
+        },
+        [form],
+    );
+
+    const handleRemoveMeeting = useCallback(
+        (courseId: string, index: number) => {
+            const currentMeetings = [...(form.data.meetings[courseId] || [1])];
+            const currentTitles = [...(form.data.titles[courseId] || [''])];
+            currentMeetings.splice(index, 1);
+            currentTitles.splice(index, 1);
+
+            form.setData((data) => ({
+                ...data,
+                meetings: {
+                    ...data.meetings,
+                    [courseId]:
+                        currentMeetings.length > 0 ? currentMeetings : [1],
+                },
+                titles: {
+                    ...data.titles,
+                    [courseId]:
+                        currentTitles.length > 0 ? currentTitles : [''],
+                },
+            }));
+        },
+        [form],
+    );
+
+    const handleMeetingChange = useCallback(
+        (courseId: string, index: number, value: number) => {
+            const currentMeetings = [...(form.data.meetings[courseId] || [1])];
+            currentMeetings[index] = value;
+            form.setData('meetings', {
+                ...form.data.meetings,
+                [courseId]: currentMeetings,
+            });
+        },
+        [form],
+    );
+
+    const handleTitleChange = useCallback(
+        (courseId: string, index: number, value: string) => {
+            const currentTitles = [...(form.data.titles[courseId] || [''])];
+            currentTitles[index] = value;
+            form.setData('titles', {
+                ...form.data.titles,
+                [courseId]: currentTitles,
+            });
+        },
+        [form],
+    );
 
     const submitForm = (publish: boolean) => {
         form.transform((data) => ({ ...data, is_published: publish }));
@@ -138,6 +455,7 @@ export default function WeeklyDigestForm({
                 variants={containerVariants}
                 className="space-y-6 p-6"
             >
+                {/* ─── Header Banner ─── */}
                 <motion.div
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8"
@@ -220,6 +538,7 @@ export default function WeeklyDigestForm({
                     </div>
                 </motion.div>
 
+                {/* ─── Form ─── */}
                 <motion.form
                     variants={itemVariants}
                     onSubmit={(event) => {
@@ -230,6 +549,7 @@ export default function WeeklyDigestForm({
                 >
                     <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                         <div className="space-y-6">
+                            {/* ─── Input Utama Card ─── */}
                             <div className="rounded-3xl border border-white/20 bg-white/70 p-6 shadow-lg dark:border-white/10 dark:bg-neutral-900/60">
                                 <div className="mb-5 flex items-center gap-3">
                                     <div className="relative flex h-12 w-12 items-center justify-center">
@@ -260,119 +580,50 @@ export default function WeeklyDigestForm({
                                                 : '(Bisa Lebih Dari Satu)'}
                                         </label>
 
-                                        <div className="custom-scrollbar h-[28rem] overflow-y-auto rounded-3xl border border-white/20 bg-white/80 p-3 shadow-inner dark:border-white/10 dark:bg-neutral-800/80">
-                                            <div className="flex flex-col gap-2">
+                                        <div className="custom-scrollbar max-h-[40rem] overflow-y-auto rounded-3xl border border-white/20 bg-white/80 p-3 shadow-inner dark:border-white/10 dark:bg-neutral-800/80">
+                                            <div className="flex flex-col gap-2.5">
                                                 {courses.map((course) => {
+                                                    const cid = String(
+                                                        course.id,
+                                                    );
                                                     const isChecked =
                                                         form.data.mata_kuliah_ids.includes(
-                                                            String(course.id),
+                                                            cid,
                                                         );
+                                                    const courseMeetings =
+                                                        form.data.meetings[
+                                                            cid
+                                                        ] || [1];
+                                                    const courseTitles =
+                                                        form.data.titles[
+                                                            cid
+                                                        ] || [''];
 
                                                     return (
-                                                        <label
+                                                        <div
                                                             key={course.id}
                                                             className={cn(
-                                                                'flex cursor-pointer flex-col gap-3 rounded-2xl border p-3.5 transition-all duration-200',
+                                                                'rounded-2xl border transition-all duration-300',
                                                                 isChecked
-                                                                    ? 'border-indigo-500/50 bg-indigo-50/80 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-900/20'
+                                                                    ? 'border-indigo-500/40 bg-gradient-to-br from-indigo-50/90 via-white to-purple-50/50 shadow-md shadow-indigo-500/5 dark:border-indigo-500/25 dark:from-indigo-950/30 dark:via-neutral-900/80 dark:to-purple-950/15'
                                                                     : 'border-transparent bg-white hover:bg-slate-50 dark:bg-neutral-900/50 dark:hover:bg-neutral-800/80',
                                                             )}
                                                         >
-                                                            <div className="flex items-start gap-3">
+                                                            {/* Course header — clickable */}
+                                                            <label className="flex cursor-pointer items-start gap-3 p-3.5">
                                                                 <Checkbox
                                                                     checked={
                                                                         isChecked
                                                                     }
                                                                     onCheckedChange={(
                                                                         checked,
-                                                                    ) => {
-                                                                        if (
-                                                                            isEdit
-                                                                        ) {
-                                                                            form.setData(
-                                                                                (
-                                                                                    data,
-                                                                                ) => ({
-                                                                                    ...data,
-                                                                                    mata_kuliah_ids:
-                                                                                        checked
-                                                                                            ? [
-                                                                                                  String(
-                                                                                                      course.id,
-                                                                                                  ),
-                                                                                              ]
-                                                                                            : [],
-                                                                                    meetings:
-                                                                                        checked
-                                                                                            ? {
-                                                                                                  [String(
-                                                                                                      course.id,
-                                                                                                  )]:
-                                                                                                      1,
-                                                                                              }
-                                                                                            : {},
-                                                                                }),
-                                                                            );
-                                                                            return;
-                                                                        }
-                                                                        if (
-                                                                            checked
-                                                                        ) {
-                                                                            form.setData(
-                                                                                (
-                                                                                    data,
-                                                                                ) => ({
-                                                                                    ...data,
-                                                                                    mata_kuliah_ids:
-                                                                                        [
-                                                                                            ...data.mata_kuliah_ids,
-                                                                                            String(
-                                                                                                course.id,
-                                                                                            ),
-                                                                                        ],
-                                                                                    meetings:
-                                                                                        {
-                                                                                            ...data.meetings,
-                                                                                            [String(
-                                                                                                course.id,
-                                                                                            )]:
-                                                                                                1,
-                                                                                        },
-                                                                                }),
-                                                                            );
-                                                                        } else {
-                                                                            const newMeetings =
-                                                                                {
-                                                                                    ...form
-                                                                                        .data
-                                                                                        .meetings,
-                                                                                };
-                                                                            delete newMeetings[
-                                                                                String(
-                                                                                    course.id,
-                                                                                )
-                                                                            ];
-                                                                            form.setData(
-                                                                                (
-                                                                                    data,
-                                                                                ) => ({
-                                                                                    ...data,
-                                                                                    mata_kuliah_ids:
-                                                                                        data.mata_kuliah_ids.filter(
-                                                                                            (
-                                                                                                id,
-                                                                                            ) =>
-                                                                                                id !==
-                                                                                                String(
-                                                                                                    course.id,
-                                                                                                ),
-                                                                                        ),
-                                                                                    meetings:
-                                                                                        newMeetings,
-                                                                                }),
-                                                                            );
-                                                                        }
-                                                                    }}
+                                                                    ) =>
+                                                                        handleCheckCourse(
+                                                                            course.id,
+                                                                            checked ===
+                                                                                true,
+                                                                        )
+                                                                    }
                                                                     className="mt-0.5"
                                                                 />
                                                                 <div className="min-w-0 flex-1">
@@ -383,7 +634,7 @@ export default function WeeklyDigestForm({
                                                                     </p>
                                                                     {course.kelas && (
                                                                         <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                            <span className="flex h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                                                                            <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-400 dark:bg-indigo-500" />
                                                                             Kelas{' '}
                                                                             {
                                                                                 course.kelas
@@ -391,105 +642,131 @@ export default function WeeklyDigestForm({
                                                                         </p>
                                                                     )}
                                                                 </div>
-                                                            </div>
 
-                                                            {isChecked && (
-                                                                <div className="ml-7 flex items-center gap-3">
-                                                                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                                                                        Pertemuan
-                                                                        ke-
-                                                                    </label>
-                                                                    <Input
-                                                                        type="number"
-                                                                        min={1}
-                                                                        max={32}
-                                                                        value={
-                                                                            form
-                                                                                .data
-                                                                                .meetings[
-                                                                                String(
-                                                                                    course.id,
-                                                                                )
-                                                                            ] ||
-                                                                            1
-                                                                        }
-                                                                        onChange={(
-                                                                            e,
-                                                                        ) => {
-                                                                            const val =
-                                                                                Number(
-                                                                                    e
-                                                                                        .target
-                                                                                        .value ||
-                                                                                        1,
-                                                                                );
-                                                                            form.setData(
-                                                                                'meetings',
-                                                                                {
-                                                                                    ...form
-                                                                                        .data
-                                                                                        .meetings,
-                                                                                    [String(
-                                                                                        course.id,
-                                                                                    )]:
-                                                                                        val,
-                                                                                },
-                                                                            );
-                                                                        }}
-                                                                        className="h-8 w-20 rounded-xl border-white/40 bg-white/50 px-2 py-1 text-sm dark:border-white/10 dark:bg-black/20"
-                                                                        onClick={(
-                                                                            e,
-                                                                        ) =>
-                                                                            e.stopPropagation()
-                                                                        }
-                                                                    />
-                                                                    <div className="flex w-full max-w-[140px] flex-col gap-1.5 sm:max-w-[200px]">
-                                                                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-                                                                            Judul
-                                                                            (Opsional)
-                                                                        </label>
-                                                                        <Input
-                                                                            type="text"
-                                                                            placeholder={`Contoh: Materi ${form.data.meetings[String(course.id)] || 1}`}
-                                                                            value={
-                                                                                form
-                                                                                    .data
-                                                                                    .titles[
-                                                                                    String(
-                                                                                        course.id,
-                                                                                    )
-                                                                                ] ||
-                                                                                ''
-                                                                            }
-                                                                            onChange={(
-                                                                                e,
-                                                                            ) => {
-                                                                                form.setData(
-                                                                                    'titles',
-                                                                                    {
-                                                                                        ...form
-                                                                                            .data
-                                                                                            .titles,
-                                                                                        [String(
-                                                                                            course.id,
-                                                                                        )]:
-                                                                                            e
-                                                                                                .target
-                                                                                                .value,
-                                                                                    },
-                                                                                );
-                                                                            }}
-                                                                            className="h-8 rounded-xl border-white/40 bg-white/50 px-2 py-1 text-sm dark:border-white/10 dark:bg-black/20"
-                                                                            onClick={(
-                                                                                e,
-                                                                            ) =>
-                                                                                e.stopPropagation()
-                                                                            }
-                                                                        />
+                                                                {isChecked && (
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <Badge className="bg-indigo-100 text-[10px] font-bold text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                                                            {courseMeetings.length}{' '}
+                                                                            Pertemuan
+                                                                        </Badge>
                                                                     </div>
-                                                                </div>
-                                                            )}
-                                                        </label>
+                                                                )}
+                                                            </label>
+
+                                                            {/* Expanded meeting entries */}
+                                                            <AnimatePresence
+                                                                mode="sync"
+                                                            >
+                                                                {isChecked && (
+                                                                    <motion.div
+                                                                        initial={{
+                                                                            opacity: 0,
+                                                                            height: 0,
+                                                                        }}
+                                                                        animate={{
+                                                                            opacity: 1,
+                                                                            height: 'auto',
+                                                                        }}
+                                                                        exit={{
+                                                                            opacity: 0,
+                                                                            height: 0,
+                                                                        }}
+                                                                        transition={{
+                                                                            type: 'spring',
+                                                                            stiffness: 300,
+                                                                            damping: 28,
+                                                                        }}
+                                                                        className="overflow-hidden"
+                                                                    >
+                                                                        <div className="space-y-2 px-3.5 pb-3.5">
+                                                                            {/* Divider */}
+                                                                            <div className="h-px bg-gradient-to-r from-transparent via-indigo-200 to-transparent dark:via-indigo-800/40" />
+
+                                                                            {/* Meeting entries */}
+                                                                            <AnimatePresence mode="sync">
+                                                                                {courseMeetings.map(
+                                                                                    (
+                                                                                        meetNum,
+                                                                                        idx,
+                                                                                    ) => (
+                                                                                        <MeetingEntry
+                                                                                            key={`${cid}-meeting-${idx}`}
+                                                                                            courseId={
+                                                                                                cid
+                                                                                            }
+                                                                                            index={
+                                                                                                idx
+                                                                                            }
+                                                                                            meetingNumber={
+                                                                                                meetNum
+                                                                                            }
+                                                                                            title={
+                                                                                                courseTitles[
+                                                                                                    idx
+                                                                                                ] ||
+                                                                                                ''
+                                                                                            }
+                                                                                            canRemove={
+                                                                                                courseMeetings.length >
+                                                                                                1
+                                                                                            }
+                                                                                            onMeetingChange={(
+                                                                                                val,
+                                                                                            ) =>
+                                                                                                handleMeetingChange(
+                                                                                                    cid,
+                                                                                                    idx,
+                                                                                                    val,
+                                                                                                )
+                                                                                            }
+                                                                                            onTitleChange={(
+                                                                                                val,
+                                                                                            ) =>
+                                                                                                handleTitleChange(
+                                                                                                    cid,
+                                                                                                    idx,
+                                                                                                    val,
+                                                                                                )
+                                                                                            }
+                                                                                            onRemove={() =>
+                                                                                                handleRemoveMeeting(
+                                                                                                    cid,
+                                                                                                    idx,
+                                                                                                )
+                                                                                            }
+                                                                                        />
+                                                                                    ),
+                                                                                )}
+                                                                            </AnimatePresence>
+
+                                                                            {/* Add meeting button */}
+                                                                            <motion.button
+                                                                                type="button"
+                                                                                whileHover={{
+                                                                                    scale: 1.02,
+                                                                                }}
+                                                                                whileTap={{
+                                                                                    scale: 0.98,
+                                                                                }}
+                                                                                onClick={(
+                                                                                    e,
+                                                                                ) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleAddMeeting(
+                                                                                        cid,
+                                                                                    );
+                                                                                }}
+                                                                                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-indigo-200 px-4 py-2.5 text-xs font-bold text-indigo-500 transition-all hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 dark:border-indigo-700/30 dark:text-indigo-400 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-900/20"
+                                                                            >
+                                                                                <Plus className="h-3.5 w-3.5" />
+                                                                                Tambah
+                                                                                Pertemuan
+                                                                            </motion.button>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
                                                     );
                                                 })}
                                             </div>
@@ -501,6 +778,7 @@ export default function WeeklyDigestForm({
                                         )}
                                     </div>
 
+                                    {/* ─── Checkboxes ─── */}
                                     <div className="space-y-4">
                                         <div className="rounded-2xl border border-white/20 bg-white/80 p-4 dark:border-white/10 dark:bg-neutral-950/30">
                                             <div className="flex items-center gap-3">
@@ -563,7 +841,7 @@ export default function WeeklyDigestForm({
                                 </div>
                             </div>
 
-                            {/* Ringkasan Pilihan Card */}
+                            {/* ─── Ringkasan Pilihan Card ─── */}
                             <div className="rounded-3xl border border-white/20 bg-white/70 p-6 shadow-lg dark:border-white/10 dark:bg-neutral-900/60">
                                 <div className="mb-5 flex items-center gap-3">
                                     <div className="relative flex h-12 w-12 items-center justify-center">
@@ -601,32 +879,61 @@ export default function WeeklyDigestForm({
                                             </span>
                                         </div>
                                         {selectedCourses.length > 0 && (
-                                            <div className="mt-2 space-y-1">
-                                                {selectedCourses.map((c) => (
-                                                    <p
-                                                        key={c.id}
-                                                        className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400"
-                                                    >
-                                                        <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-500" />
-                                                        <span className="truncate">
-                                                            {c.nama}
-                                                        </span>
-                                                        <span className="text-slate-400">
-                                                            — Pertemuan{' '}
-                                                            {form.data.meetings[
-                                                                String(c.id)
-                                                            ] || 1}
-                                                        </span>
-                                                    </p>
-                                                ))}
+                                            <div className="mt-3 space-y-2">
+                                                {selectedCourses.map((c) => {
+                                                    const cid = String(c.id);
+                                                    const meetings =
+                                                        form.data.meetings[
+                                                            cid
+                                                        ] || [1];
+                                                    return (
+                                                        <div
+                                                            key={c.id}
+                                                            className="rounded-xl bg-slate-50/80 p-2.5 dark:bg-neutral-800/40"
+                                                        >
+                                                            <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                                                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                                                                <span className="truncate">
+                                                                    {c.nama}
+                                                                </span>
+                                                            </p>
+                                                            <div className="mt-1.5 flex flex-wrap gap-1 pl-5">
+                                                                {meetings.map(
+                                                                    (
+                                                                        m,
+                                                                        idx,
+                                                                    ) => (
+                                                                        <Badge
+                                                                            key={
+                                                                                idx
+                                                                            }
+                                                                            className="bg-indigo-100/80 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                                                        >
+                                                                            Pertemuan{' '}
+                                                                            {m}
+                                                                        </Badge>
+                                                                    ),
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-3 gap-3">
                                         <div className="rounded-2xl border border-white/20 bg-white/80 p-3 text-center dark:border-white/10 dark:bg-neutral-950/30">
                                             <p className="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                                Tugas Terstruktur
+                                                Total Entry
+                                            </p>
+                                            <span className="text-lg font-extrabold text-indigo-600 dark:text-indigo-400">
+                                                {totalMeetingEntries}
+                                            </span>
+                                        </div>
+                                        <div className="rounded-2xl border border-white/20 bg-white/80 p-3 text-center dark:border-white/10 dark:bg-neutral-950/30">
+                                            <p className="mb-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                                Tugas
                                             </p>
                                             <Badge
                                                 className={cn(
@@ -661,7 +968,7 @@ export default function WeeklyDigestForm({
                                 </div>
                             </div>
 
-                            {/* Tips & Panduan Card */}
+                            {/* ─── Tips & Panduan Card ─── */}
                             <div className="rounded-3xl border border-emerald-100 bg-emerald-50/80 p-6 shadow-lg dark:border-emerald-900/30 dark:bg-emerald-950/20">
                                 <div className="mb-4 flex items-center gap-3">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
@@ -683,20 +990,24 @@ export default function WeeklyDigestForm({
                                             color: 'bg-emerald-500',
                                         },
                                         {
-                                            text: 'Isi nomor pertemuan sesuai urutan materi di Mentari.',
+                                            text: 'Isi nomor pertemuan menggunakan tombol − dan + yang tersedia.',
                                             color: 'bg-teal-500',
                                         },
                                         {
-                                            text: 'Judul opsional bisa diisi untuk keterangan tambahan.',
+                                            text: 'Klik "+ Tambah Pertemuan" untuk menambah pertemuan kedua di satu mata kuliah.',
                                             color: 'bg-cyan-500',
                                         },
                                         {
-                                            text: 'Centang "Tugas Terstruktur" jika materi ada tugas di Mentari.',
+                                            text: 'Judul opsional bisa diisi untuk keterangan tambahan.',
                                             color: 'bg-blue-500',
                                         },
                                         {
-                                            text: 'Draft bisa diedit kapan saja sebelum di-publish.',
+                                            text: 'Centang "Tugas Terstruktur" jika materi ada tugas di Mentari.',
                                             color: 'bg-indigo-500',
+                                        },
+                                        {
+                                            text: 'Draft bisa diedit kapan saja sebelum di-publish.',
+                                            color: 'bg-violet-500',
                                         },
                                     ].map((tip, i) => (
                                         <div
@@ -718,6 +1029,7 @@ export default function WeeklyDigestForm({
                             </div>
                         </div>
 
+                        {/* ─── Right Column ─── */}
                         <div className="space-y-6">
                             <div className="rounded-3xl border border-white/20 bg-white/70 p-5 shadow-lg dark:border-white/10 dark:bg-neutral-900/60">
                                 <div className="mb-4 flex items-center gap-3">
@@ -832,7 +1144,7 @@ export default function WeeklyDigestForm({
 
                                     <div className="flex flex-wrap gap-2">
                                         <Badge className="border-white/10 bg-white/10 text-white">
-                                            Multi Pertemuan
+                                            {totalMeetingEntries} Pertemuan
                                         </Badge>
                                         <Badge className="border-white/10 bg-white/10 text-white">
                                             {constants.class_label}
@@ -865,6 +1177,7 @@ export default function WeeklyDigestForm({
                         </div>
                     </div>
 
+                    {/* ─── Submit Buttons ─── */}
                     <div className="flex flex-col gap-3 px-6 pt-2 pb-6 sm:flex-row sm:justify-end">
                         <Button
                             type="button"

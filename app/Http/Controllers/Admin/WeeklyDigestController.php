@@ -119,19 +119,7 @@ class WeeklyDigestController extends Controller
 
         $digest = WeeklyLearningDigest::create($baseData);
 
-        $syncData = [];
-        foreach ($validated['mata_kuliah_ids'] as $courseId) {
-            $meetingNumber = $validated['meetings'][$courseId] ?? 1;
-            $title = $this->nullableText($validated['titles'][$courseId] ?? null, 255) 
-                ?: 'Materi Pertemuan ' . $meetingNumber;
-                
-            $syncData[$courseId] = [
-                'meeting_number' => $meetingNumber,
-                'title' => $title,
-            ];
-        }
-
-        $digest->mataKuliahs()->sync($syncData);
+        $this->syncMeetings($digest, $validated);
 
         return redirect()
             ->route('admin.weekly-digest.index')
@@ -176,19 +164,7 @@ class WeeklyDigestController extends Controller
 
         $digest->update($data);
 
-        $syncData = [];
-        foreach ($validated['mata_kuliah_ids'] as $courseId) {
-            $meetingNumber = $validated['meetings'][$courseId] ?? 1;
-            $title = $this->nullableText($validated['titles'][$courseId] ?? null, 255) 
-                ?: 'Materi Pertemuan ' . $meetingNumber;
-                
-            $syncData[$courseId] = [
-                'meeting_number' => $meetingNumber,
-                'title' => $title,
-            ];
-        }
-
-        $digest->mataKuliahs()->sync($syncData);
+        $this->syncMeetings($digest, $validated);
 
         return redirect()
             ->route('admin.weekly-digest.show', $digest->id)
@@ -290,9 +266,11 @@ class WeeklyDigestController extends Controller
             'mata_kuliah_ids' => 'required|array|min:1',
             'mata_kuliah_ids.*' => 'exists:mata_kuliah,id',
             'meetings' => 'required|array',
-            'meetings.*' => 'integer|min:1|max:32',
+            'meetings.*' => 'required|array|min:1',
+            'meetings.*.*' => 'integer|min:1|max:32',
             'titles' => 'nullable|array',
-            'titles.*' => 'nullable|string|max:255',
+            'titles.*' => 'nullable|array',
+            'titles.*.*' => 'nullable|string|max:255',
             'class_label' => 'required|string|max:50',
             'week_number' => 'required|integer|min:1|max:53',
             'semester' => 'required|string|max:20',
@@ -306,20 +284,22 @@ class WeeklyDigestController extends Controller
             'is_published' => 'boolean',
         ])->after(function ($validator) use ($payload, $digest) {
             foreach ($payload['mata_kuliah_ids'] as $courseId) {
-                $meetingNum = $payload['meetings'][$courseId] ?? 1;
+                $meetingNums = (array) ($payload['meetings'][$courseId] ?? [1]);
 
-                $exists = WeeklyLearningDigest::query()
-                    ->whereHas('mataKuliahs', function ($q) use ($courseId, $meetingNum) {
-                        $q->where('mata_kuliah_id', $courseId)
-                          ->where('digest_mata_kuliah.meeting_number', $meetingNum);
-                    })
-                    ->where('week_number', $payload['week_number'])
-                    ->where('semester', $payload['semester'])
-                    ->when($digest, fn ($query) => $query->where('id', '!=', $digest->id))
-                    ->exists();
+                foreach ($meetingNums as $meetingNum) {
+                    $exists = WeeklyLearningDigest::query()
+                        ->whereHas('mataKuliahs', function ($q) use ($courseId, $meetingNum) {
+                            $q->where('mata_kuliah_id', $courseId)
+                              ->where('digest_mata_kuliah.meeting_number', $meetingNum);
+                        })
+                        ->where('week_number', $payload['week_number'])
+                        ->where('semester', $payload['semester'])
+                        ->when($digest, fn ($query) => $query->where('id', '!=', $digest->id))
+                        ->exists();
 
-                if ($exists) {
-                    $validator->errors()->add("meetings.{$courseId}", 'Matkul ini sudah memiliki jadwal di pertemuan ' . $meetingNum . ' pada minggu yang sama.');
+                    if ($exists) {
+                        $validator->errors()->add("meetings.{$courseId}", 'Matkul ini sudah memiliki jadwal di pertemuan ' . $meetingNum . ' pada minggu yang sama.');
+                    }
                 }
             }
         })->validate();
@@ -334,17 +314,36 @@ class WeeklyDigestController extends Controller
             $courseIds = [$payload['mata_kuliah_id']];
         }
 
-        $meetings = $payload['meetings'] ?? [];
+        // Normalize meetings to Record<courseId, number[]>
+        $rawMeetings = $payload['meetings'] ?? [];
+        $meetings = [];
+        foreach ($rawMeetings as $cid => $val) {
+            if (is_array($val)) {
+                $meetings[$cid] = array_map('intval', $val);
+            } else {
+                $meetings[$cid] = [(int) $val];
+            }
+        }
+        // Fallback for legacy single meeting_number
         if (empty($meetings) && isset($payload['meeting_number']) && !empty($courseIds)) {
             foreach ((array) $courseIds as $cid) {
-                $meetings[$cid] = (int) $payload['meeting_number'];
+                $meetings[$cid] = [(int) $payload['meeting_number']];
             }
         }
 
-        $titles = $payload['titles'] ?? [];
+        // Normalize titles to Record<courseId, string[]>
+        $rawTitles = $payload['titles'] ?? [];
+        $titles = [];
+        foreach ($rawTitles as $cid => $val) {
+            if (is_array($val)) {
+                $titles[$cid] = $val;
+            } else {
+                $titles[$cid] = [$val];
+            }
+        }
         if (empty($titles) && isset($payload['title']) && !empty($courseIds)) {
             foreach ((array) $courseIds as $cid) {
-                $titles[$cid] = $payload['title'];
+                $titles[$cid] = [$payload['title']];
             }
         }
 
@@ -382,12 +381,25 @@ class WeeklyDigestController extends Controller
             'title' => $course->pivot->title,
         ]);
 
+        // Group meetings/titles by course id as arrays
+        $meetingsMap = [];
+        $titlesMap = [];
+        foreach ($courses as $course) {
+            $cid = $course['id'];
+            if (!isset($meetingsMap[$cid])) {
+                $meetingsMap[$cid] = [];
+                $titlesMap[$cid] = [];
+            }
+            $meetingsMap[$cid][] = $course['meeting_number'];
+            $titlesMap[$cid][] = $course['title'];
+        }
+
         return [
             'id' => $digest->id,
             'courses' => $courses,
-            'mata_kuliah_ids' => $courses->pluck('id')->toArray(),
-            'meetings' => $courses->pluck('meeting_number', 'id')->toArray(),
-            'titles' => $courses->pluck('title', 'id')->toArray(),
+            'mata_kuliah_ids' => $courses->pluck('id')->unique()->values()->toArray(),
+            'meetings' => $meetingsMap,
+            'titles' => $titlesMap,
             'class_label' => self::DEFAULT_CLASS_LABEL,
             'week_number' => $digest->week_number,
             'semester' => $digest->semester,
@@ -514,5 +526,40 @@ class WeeklyDigestController extends Controller
         $url = trim((string) ($value ?? ''));
 
         return $url !== '' ? filter_var($url, FILTER_SANITIZE_URL) : null;
+    }
+
+    /**
+     * Sync multiple meeting entries per course into the pivot table.
+     * meetings format: Record<courseId, number[]>
+     * titles format:   Record<courseId, string[]>
+     */
+    private function syncMeetings(WeeklyLearningDigest $digest, array $validated): void
+    {
+        // Delete old pivot entries
+        $digest->mataKuliahs()->detach();
+
+        $attachData = [];
+        foreach ($validated['mata_kuliah_ids'] as $courseId) {
+            $meetingNums = (array) ($validated['meetings'][$courseId] ?? [1]);
+            $courseTitles = (array) ($validated['titles'][$courseId] ?? []);
+
+            foreach ($meetingNums as $index => $meetingNumber) {
+                $title = $this->nullableText($courseTitles[$index] ?? null, 255)
+                    ?: 'Materi Pertemuan ' . $meetingNumber;
+
+                $attachData[] = [
+                    'digest_id' => $digest->id,
+                    'mata_kuliah_id' => $courseId,
+                    'meeting_number' => $meetingNumber,
+                    'title' => $title,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+
+        if (!empty($attachData)) {
+            \DB::table('digest_mata_kuliah')->insert($attachData);
+        }
     }
 }
