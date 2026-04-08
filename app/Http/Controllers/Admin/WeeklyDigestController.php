@@ -214,9 +214,9 @@ class WeeklyDigestController extends Controller
                     'type' => 'announcement',
                     'priority' => 'normal',
                     'action_url' => '/user/weekly-digest/' . $digest->id,
-                    'created_by' => auth()->guard('web')->user()?->name ?? 'System Admin',
+                    'created_by' => auth()->guard('web')->id() ?? 1,
                     'created_by_type' => 'admin',
-                    'created_by_id' => auth()->guard('web')->id(),
+                    'created_by_id' => auth()->guard('web')->id() ?? 1,
                 ]);
             }
         }
