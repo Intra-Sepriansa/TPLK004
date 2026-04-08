@@ -125,7 +125,7 @@ class LiveMonitorController extends Controller
         $hourlyScans = (clone $chartSource)
             ->selectRaw('HOUR(scanned_at) as hour, COUNT(*) as scans')
             ->groupBy('hour')
-            ->orderBy('hour')
+            ->reorder('hour')
             ->get()
             ->pluck('scans', 'hour')
             ->toArray();
