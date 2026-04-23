@@ -18,8 +18,7 @@ class RekapKehadiranController extends Controller
 {
     public function index(Request $request)
     {
-        $dateFrom = $request->get('date_from', now()->startOfMonth()->toDateString());
-        $dateTo = $request->get('date_to', now()->toDateString());
+        [$dateFrom, $dateTo] = $this->resolveAttendanceDateRange($request);
         $courseId = $request->get('course_id', 'all');
         $status = $request->get('status', 'all');
         
@@ -84,8 +83,7 @@ class RekapKehadiranController extends Controller
 
     public function show(Request $request, Mahasiswa $mahasiswa)
     {
-        $dateFrom = $request->get('date_from', now()->startOfMonth()->toDateString());
-        $dateTo = $request->get('date_to', now()->toDateString());
+        [$dateFrom, $dateTo] = $this->resolveAttendanceDateRange($request);
         $courseId = (string) $request->get('course_id', 'all');
         $status = (string) $request->get('status', 'all');
 
@@ -222,8 +220,7 @@ class RekapKehadiranController extends Controller
     
     public function exportPdf(Request $request)
     {
-        $dateFrom = $request->get('date_from', now()->startOfMonth()->toDateString());
-        $dateTo = $request->get('date_to', now()->toDateString());
+        [$dateFrom, $dateTo] = $this->resolveAttendanceDateRange($request);
         $courseId = $request->get('course_id', 'all');
         $mahasiswaId = $request->get('mahasiswa_id');
 
@@ -420,6 +417,32 @@ class RekapKehadiranController extends Controller
         $filename = 'Rekap_Kehadiran_' . str_replace(' ', '_', $course->nama) . '_' . $dateFrom . '_' . $dateTo . '.pdf';
         
         return $pdf->download($filename);
+    }
+
+    private function resolveAttendanceDateRange(Request $request): array
+    {
+        if ($request->filled('date_from') || $request->filled('date_to')) {
+            return [
+                $request->get('date_from', now()->startOfMonth()->toDateString()),
+                $request->get('date_to', now()->toDateString()),
+            ];
+        }
+
+        $sessionBounds = AttendanceSession::query()
+            ->selectRaw('MIN(start_at) as min_start, MAX(start_at) as max_start')
+            ->first();
+
+        $minStart = $sessionBounds?->min_start
+            ? Carbon::parse($sessionBounds->min_start)->toDateString()
+            : null;
+        $maxStart = $sessionBounds?->max_start
+            ? Carbon::parse($sessionBounds->max_start)->toDateString()
+            : null;
+
+        return [
+            $minStart ?? now()->startOfMonth()->toDateString(),
+            $maxStart ?? now()->toDateString(),
+        ];
     }
 
     private function getAttendanceStats($dateFrom, $dateTo, $courseId, $mahasiswaId = null)
@@ -857,9 +880,10 @@ class RekapKehadiranController extends Controller
     {
         return MataKuliah::with('dosen')
             ->withCount([
-                'sessions as total_sessions' => function ($q) use ($dateFrom, $dateTo) {
+                'sessions as actual_sessions' => function ($q) use ($dateFrom, $dateTo) {
                     $q->whereBetween('start_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
                 },
+                'meetingPlans as planned_sessions',
             ])
             ->get()
             ->map(function ($course) use ($dateFrom, $dateTo, $mahasiswaId) {
@@ -873,16 +897,21 @@ class RekapKehadiranController extends Controller
                 $total = $logs->count();
                 $present = (clone $logs)->where('status', 'present')->count();
                 $late = (clone $logs)->where('status', 'late')->count();
+                $sessionCount = max(
+                    (int) ($course->actual_sessions ?? 0),
+                    (int) ($course->planned_sessions ?? 0)
+                );
                 
                 return [
                     'id' => $course->id,
                     'nama' => $course->nama,
+                    'sks' => (int) ($course->sks ?? 0),
                     'dosen' => $course->dosen?->nama ?? '-',
-                    'total_sessions' => $course->total_sessions,
+                    'total_sessions' => $sessionCount,
                     'total_attendance' => $total,
                     'present' => $present,
                     'late' => $late,
-                    'rate' => $total > 0 ? round((($present + $late) / $total) * 100, 1) : 0,
+                    'rate' => $sessionCount > 0 ? round((($present + $late) / $sessionCount) * 100, 1) : 0,
                 ];
             })
             ->filter(fn($c) => $c['total_sessions'] > 0)

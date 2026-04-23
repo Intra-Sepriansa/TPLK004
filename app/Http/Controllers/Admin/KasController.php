@@ -7,10 +7,12 @@ use App\Models\Kas;
 use App\Models\KasSummary;
 use App\Models\Mahasiswa;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -23,6 +25,9 @@ class KasController extends Controller
         $search = $request->get('search', '');
         $pertemuan = $request->get('pertemuan', 'all'); // Filter by pertemuan date
         $month = $request->get('month', now()->format('Y-m'));
+        $startMonth = $request->get('start_month', $month);
+        $endMonth = $request->get('end_month', $startMonth);
+        [$periodStart, $periodEnd, $startMonth, $endMonth] = $this->resolveMonthPeriod($startMonth, $endMonth);
 
         // Get all pertemuan dates (Kamis)
         $pertemuanDates = Kas::where('type', 'income')
@@ -30,7 +35,7 @@ class KasController extends Controller
             ->distinct()
             ->orderBy('period_date', 'desc')
             ->pluck('period_date')
-            ->map(fn($d) => $d->format('Y-m-d'));
+            ->map(fn ($d) => $d->format('Y-m-d'));
 
         // Get all mahasiswa with their kas status
         $query = Mahasiswa::query()->orderBy('nama');
@@ -38,19 +43,17 @@ class KasController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('nim', 'like', "%{$search}%");
+                    ->orWhere('nim', 'like', "%{$search}%");
             });
         }
 
-        $mahasiswaList = $query->get()->map(function ($mhs) use ($pertemuan, $month) {
+        $mahasiswaList = $query->get()->map(function ($mhs) use ($pertemuan, $periodStart, $periodEnd) {
             $kasQuery = Kas::where('mahasiswa_id', $mhs->id)->where('type', 'income');
 
             if ($pertemuan !== 'all') {
                 $kasQuery->whereDate('period_date', $pertemuan);
             } else {
-                $monthStart = \Carbon\Carbon::parse($month)->startOfMonth();
-                $monthEnd = \Carbon\Carbon::parse($month)->endOfMonth();
-                $kasQuery->whereBetween('period_date', [$monthStart, $monthEnd]);
+                $kasQuery->whereBetween('period_date', [$periodStart, $periodEnd]);
             }
 
             $kasRecords = $kasQuery->orderBy('period_date', 'desc')->get();
@@ -72,7 +75,7 @@ class KasController extends Controller
                 'total_unpaid' => $totalUnpaid,
                 'global_unpaid' => $globalUnpaid,
                 'status' => $totalUnpaid > 0 ? 'unpaid' : ($totalPaid > 0 ? 'paid' : 'no_record'),
-                'records' => $kasRecords->map(fn($k) => [
+                'records' => $kasRecords->map(fn ($k) => [
                     'id' => $k->id,
                     'amount' => $k->amount,
                     'status' => $k->status,
@@ -88,15 +91,13 @@ class KasController extends Controller
 
         // Summary
         $summary = KasSummary::getSummary();
-        
+
         // Get transactions for the selected period
         $transactionQuery = Kas::query();
         if ($pertemuan !== 'all') {
             $transactionQuery->whereDate('period_date', $pertemuan);
         } else {
-            $monthStart = \Carbon\Carbon::parse($month)->startOfMonth();
-            $monthEnd = \Carbon\Carbon::parse($month)->endOfMonth();
-            $transactionQuery->whereBetween('period_date', [$monthStart, $monthEnd]);
+            $transactionQuery->whereBetween('period_date', [$periodStart, $periodEnd]);
         }
 
         // Calculate period stats
@@ -107,7 +108,15 @@ class KasController extends Controller
         $unpaidCount = $mahasiswaList->where('status', 'unpaid')->count();
 
         // All transactions (for ledger view)
-        $allTransactions = Kas::with(['mahasiswa', 'creator'])
+        $allTransactionsQuery = Kas::with(['mahasiswa', 'creator']);
+
+        if ($pertemuan !== 'all') {
+            $allTransactionsQuery->whereDate('period_date', $pertemuan);
+        } else {
+            $allTransactionsQuery->whereBetween('period_date', [$periodStart, $periodEnd]);
+        }
+
+        $allTransactions = $allTransactionsQuery
             ->orderBy('period_date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -134,7 +143,7 @@ class KasController extends Controller
         $ledger = $allTransactions->groupBy('period_date')->map(function ($transactions, $date) {
             $income = $transactions->where('type', 'income')->where('status', 'paid')->sum('amount');
             $expense = $transactions->where('type', 'expense')->sum('amount');
-            
+
             return [
                 'date' => $date,
                 'display_date' => \Carbon\Carbon::parse($date)->translatedFormat('l, d F Y'),
@@ -149,6 +158,7 @@ class KasController extends Controller
         $ledgerWithBalance = $ledger->reverse()->map(function ($item) use (&$runningBalance) {
             $runningBalance += $item['income'] - $item['expense'];
             $item['balance'] = $runningBalance;
+
             return $item;
         })->reverse()->values();
 
@@ -168,7 +178,9 @@ class KasController extends Controller
             'filters' => [
                 'search' => $search,
                 'pertemuan' => $pertemuan,
-                'month' => $month,
+                'month' => $startMonth,
+                'start_month' => $startMonth,
+                'end_month' => $endMonth,
             ],
             'kasAmount' => self::KAS_AMOUNT,
         ]);
@@ -210,7 +222,7 @@ class KasController extends Controller
                 'nullable',
                 'string',
                 'max:255',
-                Rule::requiredIf(fn() => in_array($request->input('payment_method'), ['transfer', 'qris'], true)),
+                Rule::requiredIf(fn () => in_array($request->input('payment_method'), ['transfer', 'qris'], true)),
             ],
             'payment_note' => 'nullable|string|max:1000',
         ]);
@@ -268,6 +280,7 @@ class KasController extends Controller
                 'paid_at' => null,
             ]);
             KasSummary::recalculate();
+
             return back()->with('success', 'Pembayaran kas berhasil dibatalkan.');
         }
 
@@ -319,7 +332,7 @@ class KasController extends Controller
                 'nullable',
                 'string',
                 'max:255',
-                Rule::requiredIf(fn() => in_array($request->input('payment_method'), ['transfer', 'qris'], true)),
+                Rule::requiredIf(fn () => in_array($request->input('payment_method'), ['transfer', 'qris'], true)),
             ],
             'payment_note' => 'nullable|string|max:1000',
         ]);
@@ -354,40 +367,113 @@ class KasController extends Controller
 
         KasSummary::recalculate();
 
-        return back()->with('success', 'Pembayaran kas berhasil dicatat untuk ' . count($validated['mahasiswa_ids']) . ' mahasiswa.');
+        return back()->with('success', 'Pembayaran kas berhasil dicatat untuk '.count($validated['mahasiswa_ids']).' mahasiswa.');
     }
 
     public function createPertemuan(Request $request): RedirectResponse
     {
-        $request->validate([
-            'period_date' => 'required|date',
+        $validated = $request->validate([
+            'period_date' => [
+                'nullable',
+                'date',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! $value) {
+                        return;
+                    }
+
+                    try {
+                        $date = Carbon::parse($value);
+                    } catch (\Throwable) {
+                        return;
+                    }
+
+                    if (! $date->isThursday()) {
+                        $fail('Pertemuan kas hanya bisa dibuat pada hari Kamis.');
+                    }
+                },
+            ],
+            'month' => ['nullable', 'date_format:Y-m'],
+            'start_month' => ['nullable', 'date_format:Y-m'],
+            'end_month' => ['nullable', 'date_format:Y-m'],
         ]);
 
-        // Create kas record for all mahasiswa for this pertemuan
-        $mahasiswaList = Mahasiswa::all();
-        
-        foreach ($mahasiswaList as $mhs) {
-            // Check if already exists
-            $exists = Kas::where('mahasiswa_id', $mhs->id)
-                ->where('type', 'income')
-                ->whereDate('period_date', $request->period_date)
-                ->exists();
+        if (! empty($validated['period_date'])) {
+            $periodDates = [Carbon::parse($validated['period_date'])->startOfDay()];
+            $periodLabel = 'hari Kamis';
+        } else {
+            $startMonth = $validated['start_month'] ?? $validated['month'] ?? null;
+            $endMonth = $validated['end_month'] ?? $startMonth;
 
-            if (!$exists) {
-                Kas::create([
+            if (! $startMonth) {
+                throw ValidationException::withMessages([
+                    'start_month' => 'Bulan awal pertemuan wajib dipilih.',
+                ]);
+            }
+
+            $start = Carbon::createFromFormat('Y-m-d', "{$startMonth}-01")->startOfMonth();
+            $end = Carbon::createFromFormat('Y-m-d', "{$endMonth}-01")->startOfMonth();
+
+            if ($start->gt($end)) {
+                throw ValidationException::withMessages([
+                    'end_month' => 'Bulan akhir tidak boleh sebelum bulan awal.',
+                ]);
+            }
+
+            if ($start->diffInMonths($end) > 11) {
+                throw ValidationException::withMessages([
+                    'end_month' => 'Rentang pertemuan kas maksimal 12 bulan.',
+                ]);
+            }
+
+            $periodDates = $this->getThursdayDatesForMonthRange($startMonth, $endMonth);
+            $periodLabel = $startMonth === $endMonth ? '1 bulan' : 'rentang bulan';
+        }
+
+        $mahasiswaList = Mahasiswa::query()->select('id')->get();
+        $createdRecords = 0;
+        $now = now();
+
+        foreach ($periodDates as $periodDate) {
+            $periodDateString = $periodDate->toDateString();
+            $existingMahasiswaIds = Kas::whereNotNull('mahasiswa_id')
+                ->where('type', 'income')
+                ->whereDate('period_date', $periodDateString)
+                ->pluck('mahasiswa_id')
+                ->mapWithKeys(fn ($id) => [(int) $id => true]);
+
+            $records = [];
+
+            foreach ($mahasiswaList as $mhs) {
+                if ($existingMahasiswaIds->has((int) $mhs->id)) {
+                    continue;
+                }
+
+                $records[] = [
                     'mahasiswa_id' => $mhs->id,
                     'type' => 'income',
                     'amount' => self::KAS_AMOUNT,
                     'description' => 'Kas Mingguan',
                     'category' => 'kas_mingguan',
-                    'period_date' => $request->period_date,
+                    'period_date' => $periodDateString,
                     'status' => 'unpaid',
                     'created_by' => auth()->id(),
-                ]);
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+
+            if ($records !== []) {
+                Kas::insert($records);
+                $createdRecords += count($records);
             }
         }
 
-        return back()->with('success', 'Pertemuan kas berhasil dibuat untuk ' . $mahasiswaList->count() . ' mahasiswa.');
+        $dateCount = count($periodDates);
+        $message = $dateCount === 1
+            ? "Pertemuan kas {$periodLabel} berhasil dibuat ({$createdRecords} tagihan baru)."
+            : "Pertemuan kas {$periodLabel} berhasil dibuat untuk {$dateCount} hari Kamis ({$createdRecords} tagihan baru).";
+
+        return back()->with('success', $message);
     }
 
     public function destroyPertemuan(Request $request): RedirectResponse
@@ -421,15 +507,107 @@ class KasController extends Controller
         ];
     }
 
+    /**
+     * @return array{0: Carbon, 1: Carbon, 2: string, 3: string}
+     */
+    private function resolveMonthPeriod(?string $startMonth, ?string $endMonth): array
+    {
+        $normalizedStartMonth = $this->normalizeMonth($startMonth) ?? now()->format('Y-m');
+        $normalizedEndMonth = $this->normalizeMonth($endMonth) ?? $normalizedStartMonth;
+
+        $start = Carbon::createFromFormat('Y-m-d', "{$normalizedStartMonth}-01")->startOfMonth();
+        $end = Carbon::createFromFormat('Y-m-d', "{$normalizedEndMonth}-01")->startOfMonth();
+
+        if ($start->gt($end)) {
+            $end = $start->copy();
+            $normalizedEndMonth = $normalizedStartMonth;
+        }
+
+        if ($start->diffInMonths($end) > 11) {
+            $end = $start->copy()->addMonthsNoOverflow(11);
+            $normalizedEndMonth = $end->format('Y-m');
+        }
+
+        return [
+            $start->copy()->startOfMonth(),
+            $end->copy()->endOfMonth(),
+            $normalizedStartMonth,
+            $normalizedEndMonth,
+        ];
+    }
+
+    private function normalizeMonth(?string $month): ?string
+    {
+        if (! is_string($month) || ! preg_match('/^\d{4}-\d{2}$/', $month)) {
+            return null;
+        }
+
+        try {
+            return Carbon::createFromFormat('Y-m-d', "{$month}-01")->format('Y-m');
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @return array<int, Carbon>
+     */
+    private function getThursdayDatesForMonth(string $month): array
+    {
+        $cursor = Carbon::createFromFormat('Y-m-d', "{$month}-01")->startOfDay();
+        $endOfMonth = $cursor->copy()->endOfMonth();
+        $dates = [];
+
+        while (! $cursor->isThursday()) {
+            $cursor->addDay();
+        }
+
+        while ($cursor->lte($endOfMonth)) {
+            $dates[] = $cursor->copy();
+            $cursor->addWeek();
+        }
+
+        return $dates;
+    }
+
+    /**
+     * @return array<int, Carbon>
+     */
+    private function getThursdayDatesForMonthRange(string $startMonth, string $endMonth): array
+    {
+        $cursor = Carbon::createFromFormat('Y-m-d', "{$startMonth}-01")->startOfMonth();
+        $end = Carbon::createFromFormat('Y-m-d', "{$endMonth}-01")->endOfMonth();
+        $dates = [];
+
+        while ($cursor->lte($end)) {
+            $dates = [
+                ...$dates,
+                ...$this->getThursdayDatesForMonth($cursor->format('Y-m')),
+            ];
+
+            $cursor->addMonthNoOverflow()->startOfMonth();
+        }
+
+        return $dates;
+    }
+
     public function exportPdf(Request $request): Response
     {
         $type = $request->get('type', 'pertemuan'); // pertemuan, keseluruhan, or matrix
         $date = $request->get('date'); // For pertemuan
         $month = $request->get('month'); // For monthly
+        $hasPeriodFilter = $request->filled('month') || $request->filled('start_month') || $request->filled('end_month');
+        $startMonth = $request->get('start_month', $month);
+        $endMonth = $request->get('end_month', $startMonth);
+        [$periodStart, $periodEnd, $startMonth, $endMonth] = $this->resolveMonthPeriod($startMonth, $endMonth);
+        $periodSubtitle = $startMonth === $endMonth
+            ? $periodStart->translatedFormat('F Y')
+            : $periodStart->translatedFormat('F Y').' - '.$periodEnd->translatedFormat('F Y');
+        $periodFilename = $startMonth === $endMonth ? $startMonth : "{$startMonth}-sd-{$endMonth}";
 
         // Matrix-style report (Excel-like)
         if ($type === 'matrix') {
-            return $this->exportMatrixPdf($month);
+            return $this->exportMatrixPdf($hasPeriodFilter ? $startMonth : null, $hasPeriodFilter ? $endMonth : null);
         }
 
         if ($type === 'pertemuan' && $date) {
@@ -456,12 +634,10 @@ class KasController extends Controller
         } else {
             // Export keseluruhan or monthly
             $query = Kas::with('mahasiswa')->orderBy('period_date')->orderBy('created_at');
-            
-            if ($month) {
-                $monthStart = \Carbon\Carbon::parse($month)->startOfMonth();
-                $monthEnd = \Carbon\Carbon::parse($month)->endOfMonth();
-                $query->whereBetween('period_date', [$monthStart, $monthEnd]);
-                $subtitle = \Carbon\Carbon::parse($month)->translatedFormat('F Y');
+
+            if ($hasPeriodFilter) {
+                $query->whereBetween('period_date', [$periodStart, $periodEnd]);
+                $subtitle = $periodSubtitle;
             } else {
                 $subtitle = 'Semua Periode';
             }
@@ -469,7 +645,7 @@ class KasController extends Controller
             $transactions = $query->get();
 
             // Group by date and calculate running balance
-            $grouped = $transactions->groupBy(fn($t) => $t->period_date->format('Y-m-d'));
+            $grouped = $transactions->groupBy(fn ($t) => $t->period_date->format('Y-m-d'));
             $ledger = [];
             $runningBalance = 0;
 
@@ -492,7 +668,7 @@ class KasController extends Controller
             $totalExpense = $transactions->where('type', 'expense')->sum('amount');
 
             $data = [
-                'title' => 'Laporan Kas ' . ($month ? 'Bulanan' : 'Keseluruhan'),
+                'title' => 'Laporan Kas '.($hasPeriodFilter ? 'Periode' : 'Keseluruhan'),
                 'subtitle' => $subtitle,
                 'ledger' => $ledger,
                 'total_income' => $totalIncome,
@@ -503,35 +679,39 @@ class KasController extends Controller
         }
 
         $pdf = Pdf::loadView('pdf.kas-report', $data);
-        $filename = 'laporan-kas-' . ($date ?? $month ?? 'keseluruhan') . '.pdf';
+        $filename = 'laporan-kas-'.($date ?? ($hasPeriodFilter ? $periodFilename : 'keseluruhan')).'.pdf';
 
         return $pdf->download($filename);
     }
 
-    private function exportMatrixPdf(?string $month = null): Response
+    private function exportMatrixPdf(?string $startMonth = null, ?string $endMonth = null): Response
     {
+        $periodStart = null;
+        $periodEnd = null;
+
         // Get all pertemuan dates
         $pertemuanQuery = Kas::where('type', 'income')
             ->select('period_date')
             ->distinct()
             ->orderBy('period_date', 'asc');
 
-        if ($month) {
-            $monthStart = \Carbon\Carbon::parse($month)->startOfMonth();
-            $monthEnd = \Carbon\Carbon::parse($month)->endOfMonth();
-            $pertemuanQuery->whereBetween('period_date', [$monthStart, $monthEnd]);
-            $subtitle = \Carbon\Carbon::parse($month)->translatedFormat('F Y');
+        if ($startMonth) {
+            [$periodStart, $periodEnd, $startMonth, $endMonth] = $this->resolveMonthPeriod($startMonth, $endMonth);
+            $pertemuanQuery->whereBetween('period_date', [$periodStart, $periodEnd]);
+            $subtitle = $startMonth === $endMonth
+                ? $periodStart->translatedFormat('F Y')
+                : $periodStart->translatedFormat('F Y').' - '.$periodEnd->translatedFormat('F Y');
         } else {
             $subtitle = 'Semua Periode';
         }
 
         $pertemuanDates = $pertemuanQuery->pluck('period_date')
-            ->map(fn($d) => $d->format('Y-m-d'))
+            ->map(fn ($d) => $d->format('Y-m-d'))
             ->toArray();
 
         // Get all mahasiswa with their payment status per date
         $mahasiswaList = Mahasiswa::orderBy('nama')->get();
-        
+
         $mahasiswaMatrix = [];
         $totalPaid = 0;
         $totalUnpaid = 0;
@@ -578,8 +758,8 @@ class KasController extends Controller
 
         // Get expenses
         $expenseQuery = Kas::where('type', 'expense')->orderBy('period_date', 'desc');
-        if ($month) {
-            $expenseQuery->whereBetween('period_date', [$monthStart, $monthEnd]);
+        if ($periodStart && $periodEnd) {
+            $expenseQuery->whereBetween('period_date', [$periodStart, $periodEnd]);
         }
         $expenses = $expenseQuery->get();
         $totalExpense = $expenses->sum('amount');
@@ -606,7 +786,7 @@ class KasController extends Controller
 
         $pdf = Pdf::loadView('pdf.kas-matrix', $data);
         $pdf->setPaper('A4', 'landscape');
-        $filename = 'laporan-kas-matrix-' . ($month ?? 'keseluruhan') . '.pdf';
+        $filename = 'laporan-kas-matrix-'.($startMonth ? ($startMonth === $endMonth ? $startMonth : "{$startMonth}-sd-{$endMonth}") : 'keseluruhan').'.pdf';
 
         return $pdf->download($filename);
     }

@@ -1,15 +1,20 @@
 import KasIcon from '@/assets/admin/kas/kas.png';
 import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
 import StatusIcon from '@/assets/admin/kas/status.png';
-import {
-    getPendingKasActions,
-    removePendingKasActionsForDate,
-    syncPendingKasActions,
-    type KasPaymentMethod,
-    upsertPendingKasAction,
-} from '@/lib/admin-kas-offline';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import AppLayout from '@/layouts/app-layout';
+import {
+    getPendingKasActions,
+    getPendingKasPertemuan,
+    getPendingKasQueueStatus,
+    queuePendingKasExpense,
+    queuePendingKasPertemuan,
+    removePendingKasActionsForDate,
+    syncPendingKasActions,
+    upsertPendingKasAction,
+    type KasPaymentMethod,
+    type PendingKasQueueStatus,
+} from '@/lib/admin-kas-offline';
 import { NetworkMonitor, type NetworkQuality } from '@/services/NetworkMonitor';
 import { Head, router, useForm } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -98,9 +103,138 @@ interface PageProps {
     summary: Summary;
     ledger: LedgerItem[];
     pertemuanDates: string[];
-    filters: { search: string; pertemuan: string; month: string };
+    filters: {
+        search: string;
+        pertemuan: string;
+        month: string;
+        start_month: string;
+        end_month: string;
+    };
     kasAmount: number;
 }
+
+type PertemuanMode = 'range' | 'single';
+
+const formatDateInputValue = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
+const getCurrentMonthValue = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+
+    return `${year}-${month}`;
+};
+
+const getNextThursdayValue = () => {
+    const date = new Date();
+    const daysUntilThursday = (4 - date.getDay() + 7) % 7;
+    date.setDate(date.getDate() + daysUntilThursday);
+
+    return formatDateInputValue(date);
+};
+
+const isThursdayDate = (date: string) => {
+    if (!date) {
+        return false;
+    }
+
+    return new Date(`${date}T00:00:00`).getDay() === 4;
+};
+
+const isMonthValue = (month: string) => /^\d{4}-\d{2}$/.test(month);
+
+const getMonthRangeCount = (startMonth: string, endMonth: string) => {
+    if (!isMonthValue(startMonth) || !isMonthValue(endMonth)) {
+        return 0;
+    }
+
+    const [startYear, startMonthNumber] = startMonth.split('-').map(Number);
+    const [endYear, endMonthNumber] = endMonth.split('-').map(Number);
+
+    return (endYear - startYear) * 12 + endMonthNumber - startMonthNumber + 1;
+};
+
+const getThursdayDatesInMonth = (month: string) => {
+    if (!isMonthValue(month)) {
+        return [];
+    }
+
+    const [year, monthNumber] = month.split('-').map(Number);
+    const cursor = new Date(year, monthNumber - 1, 1);
+    const dates: string[] = [];
+
+    while (cursor.getMonth() === monthNumber - 1) {
+        if (cursor.getDay() === 4) {
+            dates.push(formatDateInputValue(cursor));
+        }
+
+        cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return dates;
+};
+
+const getThursdayDatesInMonthRange = (
+    startMonth: string,
+    endMonth: string,
+) => {
+    const monthCount = getMonthRangeCount(startMonth, endMonth);
+
+    if (monthCount < 1 || monthCount > 12) {
+        return [];
+    }
+
+    const [startYear, startMonthNumber] = startMonth.split('-').map(Number);
+    const [endYear, endMonthNumber] = endMonth.split('-').map(Number);
+    const cursor = new Date(startYear, startMonthNumber - 1, 1);
+    const end = new Date(endYear, endMonthNumber - 1, 1);
+    const dates: string[] = [];
+
+    while (cursor <= end) {
+        const year = cursor.getFullYear();
+        const month = String(cursor.getMonth() + 1).padStart(2, '0');
+
+        dates.push(...getThursdayDatesInMonth(`${year}-${month}`));
+        cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    return dates;
+};
+
+const isDateInMonthRange = (
+    date: string,
+    startMonth: string,
+    endMonth: string,
+) => {
+    const dateMonth = date.slice(0, 7);
+
+    return (
+        getMonthRangeCount(startMonth, dateMonth) >= 1 &&
+        getMonthRangeCount(dateMonth, endMonth) >= 1
+    );
+};
+
+const formatMonthLabel = (month: string) => {
+    if (!isMonthValue(month)) {
+        return month;
+    }
+
+    return new Date(`${month}-01T00:00:00`).toLocaleDateString('id-ID', {
+        month: 'long',
+        year: 'numeric',
+    });
+};
+
+const formatPeriodLabel = (startMonth: string, endMonth: string) =>
+    startMonth === endMonth
+        ? formatMonthLabel(startMonth)
+        : `${formatMonthLabel(startMonth)} - ${formatMonthLabel(endMonth)}`;
 
 // Animation variants matching Dashboard
 const containerVariants = {
@@ -154,7 +288,11 @@ export default function AdminKas({
     const [showPertemuanModal, setShowPertemuanModal] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const [cancelData, setCancelData] = useState<{ mahasiswaId: number, periodDate: string, studentName: string } | null>(null);
+    const [cancelData, setCancelData] = useState<{
+        mahasiswaId: number;
+        periodDate: string;
+        studentName: string;
+    } | null>(null);
     const [deletePertemuanDialog, setDeletePertemuanDialog] = useState<{
         open: boolean;
         periodDate: string | null;
@@ -167,11 +305,23 @@ export default function AdminKas({
     const [expandedDates, setExpandedDates] = useState<string[]>([]);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [statusFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
+    const [pertemuanMode, setPertemuanMode] =
+        useState<PertemuanMode>('range');
     const [paymentMethod, setPaymentMethod] =
         useState<KasPaymentMethod>('cash');
     const [paymentReference, setPaymentReference] = useState('');
     const [paymentNote, setPaymentNote] = useState('');
     const [pendingSyncCount, setPendingSyncCount] = useState(0);
+    const [pendingQueueStatus, setPendingQueueStatus] =
+        useState<PendingKasQueueStatus>({
+            payments: 0,
+            expenses: 0,
+            pertemuan: 0,
+            total: 0,
+        });
+    const [pendingPertemuanDates, setPendingPertemuanDates] = useState<
+        string[]
+    >([]);
     const [optimisticStatuses, setOptimisticStatuses] = useState<
         Record<string, 'paid' | 'unpaid'>
     >({});
@@ -190,9 +340,20 @@ export default function AdminKas({
         category: 'pengeluaran',
         period_date: new Date().toISOString().split('T')[0],
     });
+    const selectedStartMonth =
+        filters.start_month || filters.month || getCurrentMonthValue();
+    const selectedEndMonth =
+        filters.end_month || filters.start_month || filters.month || selectedStartMonth;
+    const selectedPeriodLabel = formatPeriodLabel(
+        selectedStartMonth,
+        selectedEndMonth,
+    );
+    const defaultPertemuanMonth = selectedStartMonth;
 
     const pertemuanForm = useForm({
-        period_date: '',
+        period_date: getNextThursdayValue(),
+        start_month: defaultPertemuanMonth,
+        end_month: defaultPertemuanMonth,
     });
 
     const getStatusKey = (mahasiswaId: number, periodDate: string) =>
@@ -200,6 +361,7 @@ export default function AdminKas({
 
     const refreshOfflineState = useCallback(() => {
         const queue = getPendingKasActions();
+        const status = getPendingKasQueueStatus();
         const nextOverrides = queue.reduce<Record<string, 'paid' | 'unpaid'>>(
             (accumulator, item) => {
                 accumulator[getStatusKey(item.mahasiswaId, item.periodDate)] =
@@ -210,55 +372,65 @@ export default function AdminKas({
             {},
         );
 
-        setPendingSyncCount(queue.length);
+        setPendingSyncCount(status.total);
+        setPendingQueueStatus(status);
+        setPendingPertemuanDates(
+            getPendingKasPertemuan().map((item) => item.periodDate),
+        );
         setOptimisticStatuses(nextOverrides);
     }, []);
 
-    const flushPendingKasQueue = useCallback(async (showSuccessToast = false) => {
-        if (syncInProgressRef.current) {
-            return null;
-        }
+    const flushPendingKasQueue = useCallback(
+        async (showSuccessToast = false) => {
+            if (syncInProgressRef.current) {
+                return null;
+            }
 
-        syncInProgressRef.current = true;
-        setIsSyncingKas(true);
+            syncInProgressRef.current = true;
+            setIsSyncingKas(true);
 
-        try {
-            const result = await syncPendingKasActions();
-            refreshOfflineState();
+            try {
+                const result = await syncPendingKasActions();
+                refreshOfflineState();
 
-            if (result.successCount > 0) {
-                router.reload({
-                    only: ['mahasiswaList', 'summary', 'ledger', 'pertemuanDates'],
-                    preserveScroll: true,
-                    preserveState: true,
-                });
+                if (result.successCount > 0) {
+                    router.reload({
+                        only: [
+                            'mahasiswaList',
+                            'summary',
+                            'ledger',
+                            'pertemuanDates',
+                        ],
+                    });
 
-                if (showSuccessToast) {
-                    toast.success(
-                        `${result.successCount} checklist kas berhasil disinkronkan.`,
-                    );
+                    if (showSuccessToast) {
+                        toast.success(
+                            `${result.successCount} input kas berhasil disinkronkan.`,
+                        );
+                    }
                 }
-            }
 
-            if (result.failedCount > 0) {
-                toast.error(
-                    result.errorMessages[0] ??
-                        `${result.failedCount} checklist gagal disinkronkan.`,
-                );
-            } else if (
-                showSuccessToast &&
-                result.successCount === 0 &&
-                pendingSyncCount > 0
-            ) {
-                toast.message('Belum ada data yang berhasil disinkronkan.');
-            }
+                if (result.failedCount > 0) {
+                    toast.error(
+                        result.errorMessages[0] ??
+                            `${result.failedCount} input kas gagal disinkronkan.`,
+                    );
+                } else if (
+                    showSuccessToast &&
+                    result.successCount === 0 &&
+                    pendingSyncCount > 0
+                ) {
+                    toast.message('Belum ada data yang berhasil disinkronkan.');
+                }
 
-            return result;
-        } finally {
-            syncInProgressRef.current = false;
-            setIsSyncingKas(false);
-        }
-    }, [pendingSyncCount, refreshOfflineState]);
+                return result;
+            } finally {
+                syncInProgressRef.current = false;
+                setIsSyncingKas(false);
+            }
+        },
+        [pendingSyncCount, refreshOfflineState],
+    );
 
     useEffect(() => {
         refreshOfflineState();
@@ -310,31 +482,142 @@ export default function AdminKas({
         );
     };
 
+    const handlePeriodFilter = (
+        key: 'start_month' | 'end_month',
+        value: string,
+    ) => {
+        const nextStartMonth =
+            key === 'start_month' ? value : selectedStartMonth;
+        let nextEndMonth = key === 'end_month' ? value : selectedEndMonth;
+
+        if (getMonthRangeCount(nextStartMonth, nextEndMonth) < 1) {
+            nextEndMonth = nextStartMonth;
+        }
+
+        router.get(
+            '/admin/kas',
+            {
+                ...filters,
+                pertemuan: 'all',
+                month: nextStartMonth,
+                start_month: nextStartMonth,
+                end_month: nextEndMonth,
+            },
+            { preserveState: true },
+        );
+    };
+
+    const openPertemuanModal = () => {
+        setPertemuanMode('range');
+        pertemuanForm.setData({
+            ...pertemuanForm.data,
+            period_date: pertemuanForm.data.period_date || getNextThursdayValue(),
+            start_month: selectedStartMonth,
+            end_month: selectedEndMonth,
+        });
+
+        setShowPertemuanModal(true);
+    };
+
     const handleAddExpense = (e: React.FormEvent) => {
         e.preventDefault();
-        expenseForm.post('/admin/kas/expense', {
-            onSuccess: () => {
-                setShowExpenseModal(false);
-                expenseForm.reset();
-            },
+
+        if (expenseForm.data.amount < 1) {
+            toast.error('Jumlah pengeluaran harus lebih dari 0.');
+            return;
+        }
+
+        if (!expenseForm.data.description.trim()) {
+            toast.error('Keterangan pengeluaran wajib diisi.');
+            return;
+        }
+
+        queuePendingKasExpense({
+            amount: expenseForm.data.amount,
+            description: expenseForm.data.description.trim(),
+            category: expenseForm.data.category,
+            periodDate: expenseForm.data.period_date,
         });
+        refreshOfflineState();
+        setShowExpenseModal(false);
+        expenseForm.reset();
+
+        if (!navigator.onLine) {
+            toast.success(
+                'Pengeluaran disimpan offline dan akan disinkronkan saat koneksi kembali.',
+            );
+            return;
+        }
+
+        void flushPendingKasQueue(true);
     };
 
     const handleCreatePertemuan = (e: React.FormEvent) => {
         e.preventDefault();
-        router.post(
-            '/admin/kas/create-pertemuan',
-            {
-                period_date: pertemuanForm.data.period_date,
-            },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setShowPertemuanModal(false);
-                    pertemuanForm.reset();
-                },
-            },
+
+        const targetDates =
+            pertemuanMode === 'range'
+                ? getThursdayDatesInMonthRange(
+                      pertemuanForm.data.start_month,
+                      pertemuanForm.data.end_month,
+                  )
+                : pertemuanForm.data.period_date
+                  ? [pertemuanForm.data.period_date]
+                  : [];
+        const selectedMonthCount = getMonthRangeCount(
+            pertemuanForm.data.start_month,
+            pertemuanForm.data.end_month,
         );
+
+        if (
+            pertemuanMode === 'range' &&
+            (!pertemuanForm.data.start_month || !pertemuanForm.data.end_month)
+        ) {
+            toast.error('Bulan awal dan bulan akhir wajib dipilih.');
+            return;
+        }
+
+        if (pertemuanMode === 'range' && selectedMonthCount < 1) {
+            toast.error('Bulan akhir tidak boleh sebelum bulan awal.');
+            return;
+        }
+
+        if (pertemuanMode === 'range' && selectedMonthCount > 12) {
+            toast.error('Rentang pertemuan kas maksimal 12 bulan.');
+            return;
+        }
+
+        if (pertemuanMode === 'single' && !pertemuanForm.data.period_date) {
+            toast.error('Tanggal pertemuan wajib diisi.');
+            return;
+        }
+
+        if (
+            pertemuanMode === 'single' &&
+            !isThursdayDate(pertemuanForm.data.period_date)
+        ) {
+            toast.error('Pertemuan kas hanya bisa dibuat pada hari Kamis.');
+            return;
+        }
+
+        if (targetDates.length === 0) {
+            toast.error('Tidak ada hari Kamis pada periode yang dipilih.');
+            return;
+        }
+
+        targetDates.forEach((date) => queuePendingKasPertemuan(date));
+        refreshOfflineState();
+        setShowPertemuanModal(false);
+        pertemuanForm.reset();
+
+        if (!navigator.onLine) {
+            toast.success(
+                `${targetDates.length} pertemuan kas disimpan offline dan akan dibuat saat koneksi kembali.`,
+            );
+            return;
+        }
+
+        void flushPendingKasQueue(true);
     };
 
     const filteredMahasiswaList = mahasiswaList.filter((m) => {
@@ -363,12 +646,17 @@ export default function AdminKas({
         type: 'pertemuan' | 'bulanan' | 'keseluruhan' | 'matrix',
     ) => {
         let url = '/admin/kas/pdf?type=';
+        const selectedPeriodParams = new URLSearchParams({
+            start_month: selectedStartMonth,
+            end_month: selectedEndMonth,
+        }).toString();
+
         if (type === 'pertemuan' && filters.pertemuan !== 'all') {
             url += `pertemuan&date=${filters.pertemuan}`;
         } else if (type === 'bulanan') {
-            url += `keseluruhan&month=${filters.month}`;
+            url += `keseluruhan&${selectedPeriodParams}`;
         } else if (type === 'matrix') {
-            url += `matrix&month=${filters.month}`;
+            url += `matrix&${selectedPeriodParams}`;
         } else {
             url += 'keseluruhan';
         }
@@ -384,20 +672,33 @@ export default function AdminKas({
             : 0;
 
     // Matrix view helpers
-    const monthDates = pertemuanDates
-        .filter((date) => date.startsWith(filters.month))
+    const monthDates = Array.from(
+        new Set([...pertemuanDates, ...pendingPertemuanDates]),
+    )
+        .filter((date) =>
+            isDateInMonthRange(date, selectedStartMonth, selectedEndMonth),
+        )
         .sort();
+    const pendingPertemuanDateSet = useMemo(
+        () => new Set(pendingPertemuanDates),
+        [pendingPertemuanDates],
+    );
 
     const getPaymentStatus = (
         student: MahasiswaKas,
         date: string,
     ): string | null => {
-        const optimisticStatus = optimisticStatuses[getStatusKey(student.id, date)];
+        const optimisticStatus =
+            optimisticStatuses[getStatusKey(student.id, date)];
         if (optimisticStatus) {
             return optimisticStatus;
         }
 
         const record = student.records.find((r) => r.period_date === date);
+        if (!record && pendingPertemuanDateSet.has(date)) {
+            return 'unpaid';
+        }
+
         return record?.status || null;
     };
 
@@ -450,7 +751,11 @@ export default function AdminKas({
         await flushPendingKasQueue();
     };
 
-    const handleMarkUnpaidForDate = (mahasiswaId: number, periodDate: string, studentName: string) => {
+    const handleMarkUnpaidForDate = (
+        mahasiswaId: number,
+        periodDate: string,
+        studentName: string,
+    ) => {
         setCancelData({ mahasiswaId, periodDate, studentName });
         setShowCancelModal(true);
     };
@@ -496,7 +801,9 @@ export default function AdminKas({
             }
 
             unpaidIds.forEach((mahasiswaId) => {
-                const student = mahasiswaList.find((item) => item.id === mahasiswaId);
+                const student = mahasiswaList.find(
+                    (item) => item.id === mahasiswaId,
+                );
 
                 upsertPendingKasAction({
                     mahasiswaId,
@@ -559,6 +866,25 @@ export default function AdminKas({
         };
     };
 
+    const previewPertemuanDates =
+        pertemuanMode === 'range'
+            ? getThursdayDatesInMonthRange(
+                  pertemuanForm.data.start_month,
+                  pertemuanForm.data.end_month,
+              )
+            : pertemuanForm.data.period_date
+              ? [pertemuanForm.data.period_date]
+              : [];
+    const previewMonthCount = getMonthRangeCount(
+        pertemuanForm.data.start_month,
+        pertemuanForm.data.end_month,
+    );
+
+    const createPertemuanDisabled =
+        pertemuanMode === 'range'
+            ? previewPertemuanDates.length === 0 || previewMonthCount > 12
+            : !isThursdayDate(pertemuanForm.data.period_date);
+
     const paymentMethodLabel = useMemo(() => {
         if (paymentMethod === 'transfer') {
             return 'Transfer';
@@ -571,6 +897,24 @@ export default function AdminKas({
         return 'Tunai';
     }, [paymentMethod]);
 
+    const pendingQueueBreakdown = useMemo(
+        () =>
+            [
+                pendingQueueStatus.pertemuan > 0
+                    ? `${pendingQueueStatus.pertemuan} pertemuan`
+                    : null,
+                pendingQueueStatus.payments > 0
+                    ? `${pendingQueueStatus.payments} checklist`
+                    : null,
+                pendingQueueStatus.expenses > 0
+                    ? `${pendingQueueStatus.expenses} pengeluaran`
+                    : null,
+            ]
+                .filter(Boolean)
+                .join(', '),
+        [pendingQueueStatus],
+    );
+
     const handleDeletePertemuan = (periodDate: string) => {
         setDeletePertemuanDialog({
             open: true,
@@ -580,7 +924,7 @@ export default function AdminKas({
 
     const handleManualSync = async () => {
         if (pendingSyncCount === 0) {
-            toast.message('Tidak ada checklist kas yang perlu disinkronkan.');
+            toast.message('Tidak ada input kas yang perlu disinkronkan.');
             return;
         }
 
@@ -600,7 +944,7 @@ export default function AdminKas({
                 `Sinyal tidak stabil (${networkQuality.effectiveType}). Sinkronisasi mungkin lambat atau gagal.`,
             );
         } else {
-            toast.loading('Menyiapkan sinkronisasi checklist kas...', {
+            toast.loading('Menyiapkan sinkronisasi input kas...', {
                 id: 'kas-sync-progress',
             });
         }
@@ -639,17 +983,31 @@ export default function AdminKas({
             return;
         }
 
+        const periodDate = deletePertemuanDialog.periodDate;
+
+        if (
+            pendingPertemuanDateSet.has(periodDate) &&
+            !pertemuanDates.includes(periodDate)
+        ) {
+            removePendingKasActionsForDate(periodDate);
+            refreshOfflineState();
+            setDeletePertemuanDialog({
+                open: false,
+                periodDate: null,
+            });
+            toast.success('Pertemuan offline berhasil dibatalkan.');
+            return;
+        }
+
         setIsDeletingPertemuan(true);
 
         router.delete('/admin/kas/pertemuan', {
             data: {
-                period_date: deletePertemuanDialog.periodDate,
+                period_date: periodDate,
             },
             preserveScroll: true,
             onSuccess: () => {
-                removePendingKasActionsForDate(
-                    deletePertemuanDialog.periodDate as string,
-                );
+                removePendingKasActionsForDate(periodDate);
                 refreshOfflineState();
                 setDeletePertemuanDialog({
                     open: false,
@@ -795,7 +1153,7 @@ export default function AdminKas({
                                         'rgba(255, 255, 255, 0.25)',
                                 }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={() => setShowPertemuanModal(true)}
+                                onClick={openPertemuanModal}
                                 className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-5 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:flex-none"
                             >
                                 <Calendar className="h-4 w-4 shrink-0" />
@@ -1035,14 +1393,31 @@ export default function AdminKas({
                                     </div>
                                     <input
                                         type="month"
-                                        value={filters.month}
+                                        value={selectedStartMonth}
                                         onChange={(e) =>
-                                            handleFilter(
-                                                'month',
+                                            handlePeriodFilter(
+                                                'start_month',
                                                 e.target.value,
                                             )
                                         }
                                         className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-black dark:text-white"
+                                        title="Bulan awal"
+                                    />
+                                    <span className="text-sm font-semibold text-neutral-400">
+                                        sampai
+                                    </span>
+                                    <input
+                                        type="month"
+                                        min={selectedStartMonth}
+                                        value={selectedEndMonth}
+                                        onChange={(e) =>
+                                            handlePeriodFilter(
+                                                'end_month',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-black dark:text-white"
+                                        title="Bulan akhir"
                                     />
                                 </div>
                                 <div className="grid gap-3 border-t border-neutral-200 pt-4 md:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)] dark:border-neutral-800">
@@ -1113,12 +1488,19 @@ export default function AdminKas({
                                                     : 'Sinkronisasi kas tertunda'}
                                             </p>
                                             <p className="text-amber-700/90 dark:text-amber-200/80">
-                                                {pendingSyncCount} checklist belum
+                                                {pendingSyncCount} input belum
                                                 masuk server dan akan dikirim
                                                 otomatis saat koneksi stabil.
                                             </p>
+                                            {pendingQueueBreakdown && (
+                                                <p className="mt-1 text-[11px] font-medium text-amber-700/90 dark:text-amber-200/80">
+                                                    Antrean:{' '}
+                                                    {pendingQueueBreakdown}
+                                                </p>
+                                            )}
                                             <p className="mt-1 text-[11px] text-amber-700/80 dark:text-amber-200/70">
-                                                Status jaringan: {networkQuality.signalQuality}
+                                                Status jaringan:{' '}
+                                                {networkQuality.signalQuality}
                                                 {networkQuality.effectiveType !==
                                                 'unknown'
                                                     ? ` • ${networkQuality.effectiveType}`
@@ -1157,12 +1539,7 @@ export default function AdminKas({
                                     <div className="flex items-center gap-2 text-sm">
                                         <Calendar className="h-4 w-4 text-emerald-500" />
                                         <span className="font-semibold text-neutral-900 dark:text-white">
-                                            {new Date(
-                                                filters.month + '-01',
-                                            ).toLocaleDateString('id-ID', {
-                                                month: 'long',
-                                                year: 'numeric',
-                                            })}
+                                            {selectedPeriodLabel}
                                         </span>
                                     </div>
                                     <div className="h-4 w-px bg-neutral-300 dark:bg-neutral-700" />
@@ -1210,17 +1587,13 @@ export default function AdminKas({
                                         </div>
                                         <div className="flex flex-wrap gap-2">
                                             {monthDates.map((date) => {
-                                                const formattedDate =
-                                                    new Date(
-                                                        `${date}T00:00:00`,
-                                                    ).toLocaleDateString(
-                                                        'id-ID',
-                                                        {
-                                                            day: 'numeric',
-                                                            month: 'short',
-                                                            year: 'numeric',
-                                                        },
-                                                    );
+                                                const formattedDate = new Date(
+                                                    `${date}T00:00:00`,
+                                                ).toLocaleDateString('id-ID', {
+                                                    day: 'numeric',
+                                                    month: 'short',
+                                                    year: 'numeric',
+                                                });
 
                                                 return (
                                                     <button
@@ -1265,9 +1638,7 @@ export default function AdminKas({
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() =>
-                                            setShowPertemuanModal(true)
-                                        }
+                                        onClick={openPertemuanModal}
                                         className="rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-700"
                                     >
                                         + Buat Pertemuan Baru
@@ -1396,7 +1767,7 @@ export default function AdminKas({
                                                         );
                                                     })}
                                                     <th className="min-w-[120px] border-l-2 border-neutral-200 px-3 py-3 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:border-neutral-700 dark:text-neutral-400">
-                                                        Progress Bulan
+                                                        Progress Periode
                                                     </th>
                                                     <th className="min-w-[120px] border-l border-neutral-200 px-3 py-3 text-center text-[10px] font-semibold text-neutral-500 uppercase dark:border-neutral-700 dark:text-neutral-400">
                                                         Total Tunggakan
@@ -1478,7 +1849,13 @@ export default function AdminKas({
                                                                                         whileTap={{
                                                                                             scale: 0.85,
                                                                                         }}
-                                                                                        onClick={() => handleMarkUnpaidForDate(m.id, date, m.nama)}
+                                                                                        onClick={() =>
+                                                                                            handleMarkUnpaidForDate(
+                                                                                                m.id,
+                                                                                                date,
+                                                                                                m.nama,
+                                                                                            )
+                                                                                        }
                                                                                         className="group/cell mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/15 transition-all duration-200 hover:border-red-500/30 hover:bg-red-500/15"
                                                                                         title="Klik untuk membatalkan lunas"
                                                                                     >
@@ -1549,15 +1926,19 @@ export default function AdminKas({
                                                                     </div>
                                                                 </td>
                                                                 <td className="border-l border-neutral-200 px-3 py-2.5 text-center dark:border-neutral-700">
-                                                                    {m.global_unpaid > 0 ? (
+                                                                    {m.global_unpaid >
+                                                                    0 ? (
                                                                         <div className="inline-flex items-center gap-1 rounded-md bg-red-500/10 px-2 py-1 text-xs font-bold text-red-600 dark:bg-red-500/20 dark:text-red-400">
                                                                             <X className="h-3 w-3" />
-                                                                            {formatCurrency(m.global_unpaid)}
+                                                                            {formatCurrency(
+                                                                                m.global_unpaid,
+                                                                            )}
                                                                         </div>
                                                                     ) : (
                                                                         <div className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-xs font-bold text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
                                                                             <Check className="h-3 w-3" />
-                                                                            Lunas Total
+                                                                            Lunas
+                                                                            Total
                                                                         </div>
                                                                     )}
                                                                 </td>
@@ -1857,18 +2238,18 @@ export default function AdminKas({
                                                                                             {t.type ===
                                                                                                 'income' &&
                                                                                                 t.payment_method && (
-                                                                                                <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
-                                                                                                    Metode:{' '}
-                                                                                                    <span className="font-semibold uppercase text-neutral-700 dark:text-neutral-200">
-                                                                                                        {
-                                                                                                            t.payment_method
-                                                                                                        }
-                                                                                                    </span>
-                                                                                                    {t.payment_reference
-                                                                                                        ? ` • ${t.payment_reference}`
-                                                                                                        : ''}
-                                                                                                </p>
-                                                                                            )}
+                                                                                                    <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                                                                        Metode:{' '}
+                                                                                                        <span className="font-semibold text-neutral-700 uppercase dark:text-neutral-200">
+                                                                                                            {
+                                                                                                                t.payment_method
+                                                                                                            }
+                                                                                                        </span>
+                                                                                                        {t.payment_reference
+                                                                                                            ? ` • ${t.payment_reference}`
+                                                                                                            : ''}
+                                                                                                    </p>
+                                                                                                )}
                                                                                         </div>
                                                                                     </div>
                                                                                     <span
@@ -1994,28 +2375,164 @@ export default function AdminKas({
                                         onSubmit={handleCreatePertemuan}
                                         className="space-y-5"
                                     >
-                                        <div className="space-y-2">
-                                            <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                                                Tanggal Pertemuan
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="date"
-                                                    value={
-                                                        pertemuanForm.data
-                                                            .period_date
-                                                    }
-                                                    onChange={(e) =>
-                                                        pertemuanForm.setData(
-                                                            'period_date',
-                                                            e.target.value,
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-2 gap-2 rounded-xl border border-neutral-200 bg-neutral-100 p-1 dark:border-neutral-700 dark:bg-neutral-800/70">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setPertemuanMode(
+                                                            'range',
                                                         )
                                                     }
-                                                    className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm shadow-sm transition-all focus:border-emerald-500 focus:ring-emerald-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-white"
-                                                    required
-                                                />
-                                                <Calendar className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                    className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                                                        pertemuanMode ===
+                                                        'range'
+                                                            ? 'bg-white text-emerald-700 shadow-sm dark:bg-neutral-950 dark:text-emerald-300'
+                                                            : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+                                                    }`}
+                                                >
+                                                    Rentang Bulan
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setPertemuanMode(
+                                                            'single',
+                                                        )
+                                                    }
+                                                    className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                                                        pertemuanMode ===
+                                                        'single'
+                                                            ? 'bg-white text-emerald-700 shadow-sm dark:bg-neutral-950 dark:text-emerald-300'
+                                                            : 'text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200'
+                                                    }`}
+                                                >
+                                                    Tanggal
+                                                </button>
                                             </div>
+
+                                            {pertemuanMode === 'range' ? (
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                                                        Rentang Bulan Pertemuan
+                                                    </label>
+                                                    <div className="grid gap-3 sm:grid-cols-2">
+                                                        <div className="relative">
+                                                            <input
+                                                                type="month"
+                                                                value={
+                                                                    pertemuanForm
+                                                                        .data
+                                                                        .start_month
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    const startMonth =
+                                                                        e.target
+                                                                            .value;
+                                                                    const endMonth =
+                                                                        getMonthRangeCount(
+                                                                            startMonth,
+                                                                            pertemuanForm
+                                                                                .data
+                                                                                .end_month,
+                                                                        ) < 1
+                                                                            ? startMonth
+                                                                            : pertemuanForm
+                                                                                  .data
+                                                                                  .end_month;
+
+                                                                    pertemuanForm.setData(
+                                                                        {
+                                                                            ...pertemuanForm.data,
+                                                                            start_month:
+                                                                                startMonth,
+                                                                            end_month:
+                                                                                endMonth,
+                                                                        },
+                                                                    );
+                                                                }}
+                                                                className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm shadow-sm transition-all focus:border-emerald-500 focus:ring-emerald-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-white"
+                                                                required
+                                                            />
+                                                            <Calendar className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                        </div>
+                                                        <div className="relative">
+                                                            <input
+                                                                type="month"
+                                                                min={
+                                                                    pertemuanForm
+                                                                        .data
+                                                                        .start_month
+                                                                }
+                                                                value={
+                                                                    pertemuanForm
+                                                                        .data
+                                                                        .end_month
+                                                                }
+                                                                onChange={(e) =>
+                                                                    pertemuanForm.setData(
+                                                                        'end_month',
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                                }
+                                                                className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm shadow-sm transition-all focus:border-emerald-500 focus:ring-emerald-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-white"
+                                                                required
+                                                            />
+                                                            <Calendar className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                        </div>
+                                                    </div>
+                                                    {previewMonthCount > 12 && (
+                                                        <p className="text-xs font-medium text-red-600 dark:text-red-400">
+                                                            Rentang maksimal 12
+                                                            bulan supaya data
+                                                            tetap ringan.
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                                                        Tanggal Pertemuan
+                                                        (Kamis)
+                                                    </label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="date"
+                                                            value={
+                                                                pertemuanForm
+                                                                    .data
+                                                                    .period_date
+                                                            }
+                                                            onChange={(e) =>
+                                                                pertemuanForm.setData(
+                                                                    'period_date',
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm shadow-sm transition-all focus:border-emerald-500 focus:ring-emerald-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-white"
+                                                            required
+                                                        />
+                                                        <Calendar className="pointer-events-none absolute top-1/2 right-4 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                                                    </div>
+                                                    {pertemuanForm.data
+                                                        .period_date &&
+                                                        !isThursdayDate(
+                                                            pertemuanForm.data
+                                                                .period_date,
+                                                        ) && (
+                                                            <p className="text-xs font-medium text-red-600 dark:text-red-400">
+                                                                Pilih hari Kamis
+                                                                karena
+                                                                perkuliahan
+                                                                offline.
+                                                            </p>
+                                                        )}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <motion.div
@@ -2026,8 +2543,10 @@ export default function AdminKas({
                                             <div className="flex gap-3">
                                                 <Zap className="h-5 w-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
                                                 <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                                                    Setiap mahasiswa akan
-                                                    ditagih{' '}
+                                                    {pertemuanMode === 'range'
+                                                        ? `${previewPertemuanDates.length} pertemuan Kamis dari ${previewMonthCount} bulan akan dibuat. `
+                                                        : 'Pertemuan hanya dibuat pada hari Kamis. '}
+                                                    Setiap mahasiswa ditagih{' '}
                                                     <span className="font-bold">
                                                         {formatCurrency(
                                                             kasAmount,
@@ -2055,11 +2574,14 @@ export default function AdminKas({
                                                 whileTap={{ scale: 0.98 }}
                                                 type="submit"
                                                 disabled={
-                                                    pertemuanForm.processing
+                                                    pertemuanForm.processing ||
+                                                    createPertemuanDisabled
                                                 }
                                                 className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-500/30 transition-all hover:shadow-emerald-500/50 disabled:opacity-50 disabled:shadow-none"
                                             >
-                                                Buat Pertemuan
+                                                {pertemuanMode === 'range'
+                                                    ? `Buat ${previewPertemuanDates.length} Pertemuan`
+                                                    : 'Buat Pertemuan'}
                                             </motion.button>
                                         </div>
                                     </form>
@@ -2360,16 +2882,11 @@ export default function AdminKas({
                                         </div>
                                         <div className="flex-1 text-left">
                                             <p className="font-bold text-neutral-900 transition-colors group-hover:text-purple-700 dark:text-white dark:group-hover:text-purple-300">
-                                                Laporan Bulanan
+                                                Laporan Periode
                                             </p>
                                             <p className="text-xs font-medium text-neutral-500 group-hover:text-purple-600/70 dark:text-neutral-400">
-                                                Rekapitulasi bulan{' '}
-                                                {new Date(
-                                                    filters.month,
-                                                ).toLocaleDateString('id-ID', {
-                                                    month: 'long',
-                                                    year: 'numeric',
-                                                })}
+                                                Rekapitulasi{' '}
+                                                {selectedPeriodLabel}
                                             </p>
                                         </div>
                                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 transition-colors group-hover:bg-purple-100 dark:bg-neutral-700 dark:group-hover:bg-purple-900/30">
@@ -2488,14 +3005,23 @@ export default function AdminKas({
                                         Batalkan Pembayaran?
                                     </h3>
                                     <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">
-                                        Anda yakin ingin membatalkan status lunas untuk{' '}
-                                        <strong className="text-neutral-900 dark:text-white">{cancelData.studentName}</strong>{' '}
-                                        pada pertemuan <strong className="text-neutral-900 dark:text-white">{cancelData.periodDate}</strong>?
+                                        Anda yakin ingin membatalkan status
+                                        lunas untuk{' '}
+                                        <strong className="text-neutral-900 dark:text-white">
+                                            {cancelData.studentName}
+                                        </strong>{' '}
+                                        pada pertemuan{' '}
+                                        <strong className="text-neutral-900 dark:text-white">
+                                            {cancelData.periodDate}
+                                        </strong>
+                                        ?
                                     </p>
                                     <div className="flex gap-3">
                                         <button
                                             type="button"
-                                            onClick={() => setShowCancelModal(false)}
+                                            onClick={() =>
+                                                setShowCancelModal(false)
+                                            }
                                             className="flex-1 rounded-xl bg-neutral-100 px-4 py-3 text-sm font-bold text-neutral-700 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
                                         >
                                             Kembali

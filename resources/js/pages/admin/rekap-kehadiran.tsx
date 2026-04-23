@@ -79,6 +79,7 @@ interface DailyTrend {
 interface CourseSummary {
     id: number;
     nama: string;
+    sks: number;
     dosen: string;
     total_sessions: number;
     total_attendance: number;
@@ -909,7 +910,8 @@ export default function AdminRekapKehadiran({
                                                     {course.nama}
                                                 </p>
                                                 <p className="text-xs text-neutral-500">
-                                                    {course.dosen}
+                                                    {course.dosen} • {course.sks}{' '}
+                                                    SKS
                                                 </p>
                                             </td>
                                             <td className="px-6 py-4 text-center text-sm font-medium text-neutral-600 dark:text-neutral-400">
