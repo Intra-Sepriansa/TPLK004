@@ -40,6 +40,9 @@ self.addEventListener('fetch', (event) => {
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
 
+    // Skip non-http/https requests (like chrome-extension://)
+    if (!event.request.url.startsWith('http')) return;
+
     // Skip API requests and form submissions
     const url = new URL(event.request.url);
     if (url.pathname.startsWith('/api') ||
@@ -81,6 +84,8 @@ self.addEventListener('fetch', (event) => {
                             cache.put(event.request, response);
                         });
                     }
+                }).catch((err) => {
+                    console.debug('[SW] Background update failed:', err);
                 });
                 return cached;
             }
